@@ -7,4 +7,13 @@ layout:
 - go.kubebuilder.io/v4
 projectName: choreo
 repo: github.com/wso2-enterprise/choreo-cp-declarative-api
+resources:
+- api:
+    crdVersion: v1
+  controller: true
+  domain: choreo.dev
+  group: core
+  kind: Organization
+  path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
+  version: v1
 version: "3"

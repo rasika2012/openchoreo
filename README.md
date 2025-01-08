@@ -1,16 +1,21 @@
-# choreo
-// TODO(user): Add simple overview of use/purpose
+# Choreo
+Choreo is an internal developer platform that simplifies the build, deploy, and management of applications.
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+The Choreo repository is a collection of Kubernetes CRDs that enables application development functionalities. These CRDs enable cloud-native deployments, seamless API management, and integration workflows by defining declarative configurations for Kubernetes.
 
 ## Getting Started
 
 ### Prerequisites
-- go version v1.22.0+
-- docker version 17.03+.
-- kubectl version v1.11.3+.
-- Access to a Kubernetes v1.11.3+ cluster.
+- Go version v1.23.0+
+- Docker version 17.03+.
+- Kubernetes cluster with version v1.30.0+.
+
+To verify the prerequisites, run the following command:
+
+```sh
+./check-tools.sh
+```
 
 ### To Deploy on the cluster
 **Build and push your image to the location specified by `IMG`:**

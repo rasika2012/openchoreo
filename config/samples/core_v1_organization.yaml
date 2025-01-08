@@ -1,0 +1,8 @@
+apiVersion: core.choreo.dev/v1
+kind: Organization
+metadata:
+  labels:
+    app.kubernetes.io/name: choreo
+    app.kubernetes.io/managed-by: kustomize
+  name: default-organization
+spec:
