@@ -19,12 +19,15 @@ package controller
 import (
 	"context"
 
+	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 )
 
 // OrganizationReconciler reconciles a Organization object
@@ -47,17 +50,91 @@ type OrganizationReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/reconcile
 func (r *OrganizationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	logger := log.FromContext(ctx)
 
-	// TODO(user): your logic here
+	// Fetch the Organization instance
+	organization := &choreov1.Organization{}
+	if err := r.Get(ctx, req.NamespacedName, organization); err != nil {
+		if apierrors.IsNotFound(err) {
+			// The Organization resource may have been deleted since it triggered the reconcile
+			logger.Info("Organization resource not found. Ignoring since it must be deleted.")
+			return ctrl.Result{}, nil
+		}
+		// Error reading the object
+		logger.Error(err, "Failed to get Organization")
+		return ctrl.Result{}, err
+	}
 
+	// Check if the Namespace already exists, if not create a new one
+	namespace := &corev1.Namespace{}
+	err := r.Get(ctx, client.ObjectKey{Name: organization.Name}, namespace)
+	if apierrors.IsNotFound(err) {
+		newNamespace := makeOrganizationNamespace(organization)
+		// Set Organization instance as the owner and controller
+		if err := ctrl.SetControllerReference(organization, newNamespace, r.Scheme); err != nil {
+			logger.Error(err, "Failed to set owner for Namespace")
+			return ctrl.Result{}, err
+		}
+		logger.Info("Creating a new Namespace", "Namespace.Name", newNamespace.Name)
+		if err := r.Create(ctx, newNamespace); err != nil {
+			logger.Error(err, "Failed to create new Namespace", "Namespace.Name", newNamespace.Name)
+			return ctrl.Result{}, err
+		}
+		logger.Info("Created a new Namespace", "Namespace.Name", newNamespace.Name)
+		return ctrl.Result{}, nil
+	} else if err != nil {
+		logger.Error(err, "Failed to get Namespace")
+		return ctrl.Result{}, err
+	}
+
+	// Update the Namespace labels
+	updated := false
+	if namespace.Labels == nil {
+		namespace.Labels = map[string]string{}
+	}
+
+	for key, value := range makeOrganizationNamespaceLabels(organization) {
+		if namespace.Labels[key] != value {
+			namespace.Labels[key] = value
+			updated = true
+		}
+	}
+
+	if updated {
+		logger.Info("Updating Namespace", "Namespace.Name", namespace.Name)
+		if err := r.Update(ctx, namespace); err != nil {
+			logger.Error(err, "Failed to update Namespace", "Namespace.Name", namespace.Name)
+			return ctrl.Result{}, err
+		}
+		logger.Info("Updated Namespace", "Namespace.Name", namespace.Name)
+	}
+
+	// TODO: Set conditions and update status
 	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *OrganizationReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&corev1.Organization{}).
+		For(&choreov1.Organization{}).
 		Named("organization").
 		Complete(r)
+}
+
+func makeOrganizationNamespace(organization *choreov1.Organization) *corev1.Namespace {
+	namespace := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   organization.Name,
+			Labels: makeOrganizationNamespaceLabels(organization),
+		},
+	}
+	return namespace
+}
+
+func makeOrganizationNamespaceLabels(organization *choreov1.Organization) map[string]string {
+	return map[string]string{
+		LabelKeyManagedBy:        LabelValueManagedBy,
+		LabelKeyOrganizationName: organization.Name,
+		LabelKeyName:             organization.Name,
+	}
 }

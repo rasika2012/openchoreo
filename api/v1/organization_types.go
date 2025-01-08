@@ -27,9 +27,6 @@ import (
 type OrganizationSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of Organization. Edit organization_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
 }
 
 // OrganizationStatus defines the observed state of Organization.

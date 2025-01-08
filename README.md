@@ -7,7 +7,7 @@ The Choreo repository is a collection of Kubernetes CRDs that enables applicatio
 ## Getting Started
 
 ### Prerequisites
-- Go version v1.22.0+
+- Go version v1.23.0+
 - Docker version 17.03+.
 - Kubernetes cluster with version v1.30.0+.
 
