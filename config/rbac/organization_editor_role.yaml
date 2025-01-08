@@ -1,8 +1,11 @@
----
+# permissions for end users to edit organizations.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: manager-role
+  labels:
+    app.kubernetes.io/name: choreo
+    app.kubernetes.io/managed-by: kustomize
+  name: organization-editor-role
 rules:
 - apiGroups:
   - core.choreo.dev
@@ -19,14 +22,6 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
-  - organizations/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - core.choreo.dev
-  resources:
   - organizations/status
   verbs:
   - get
-  - patch
-  - update
