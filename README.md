@@ -11,6 +11,12 @@ The Choreo repository is a collection of Kubernetes CRDs that enables applicatio
 - Docker version 17.03+.
 - Kubernetes cluster with version v1.30.0+.
 
+To verify the prerequisites, run the following command:
+
+```sh
+./check-tools.sh
+```
+
 ### To Deploy on the cluster
 **Build and push your image to the location specified by `IMG`:**
 
