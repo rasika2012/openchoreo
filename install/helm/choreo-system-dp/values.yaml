@@ -1,0 +1,31 @@
+# Default values for choreo-opensource-dp.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+ingress-nginx:
+   enabled: true
+   namespace: choreo-webapps
+   fullnameOverride: ingress-nginx
+gateway-helm:
+   config:
+      envoyGateway:
+         rateLimit:
+            backend:
+               type: Redis
+               redis:
+                  url: redis.choreo-system-dp.svc.cluster.local:6379
+
+vault:
+   server:
+      dev:
+         enabled: true
+         devRootToken: "root"
+         logLevel: "info"
+argo-workflows:
+   crds:
+      keep: false
+   workflow:
+      serviceAccount:
+         create: true
+   workflowNamespaces:
+      - argo-build
