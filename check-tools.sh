@@ -36,3 +36,4 @@ checkVersion "Docker Client" "17.0.0" "28.0.0" "docker version --format '{{.Clie
 checkVersion "Docker Server" "17.0.0" "28.0.0" "docker version --format '{{.Server.Version}}'" 1 "[0-9]+\.[0-9]+\.[0-9]+"
 checkVersion "Kubectl Client" "v1.30.0" "v1.33.0" "kubectl version" 1 "v[0-9]\.[0-9]+\.[0-9]+"
 checkVersion "Kubectl Server (context=$(kubectl config current-context))" "v1.30.0" "v1.33.0" "kubectl version" 3 "v[0-9]\.[0-9]+\.[0-9]+"
+checkVersion "Kubebuilder" "4.3.0" "4.4.0" "kubebuilder version" 1 "[0-9]+\.[0-9]+\.[0-9]+"
