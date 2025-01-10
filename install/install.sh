@@ -18,6 +18,6 @@ install_helm_chart() {
 install_helm_chart "helm/cilium-cni" "cilium-cni" "choreo-system-dp"
 
 # Install choreo-opensource-dp
-install_helm_chart "helm/choreo-system-dp" "choreo-system-dp" "choreo-system-dp"
+install_helm_chart "helm/choreo-system-dp" "choreo-dp" "choreo-system-dp"
 
 echo "Both Helm charts have been installed successfully! Please note that completing the full installation process may take some time."

@@ -14,7 +14,7 @@ uninstall_helm_release() {
   }
 }
 
-uninstall_helm_release "choreo-system-dp" "choreo-system-dp"
+uninstall_helm_release "choreo-dp" "choreo-system-dp"
 
 uninstall_helm_release "cilium-cni" "choreo-system-dp"
 
