@@ -71,7 +71,6 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		logger.Error(err, "Failed to get Project")
 		return ctrl.Result{}, err
 	}
-	r.updateCondition(ctx, project, TypeAccepted, metav1.ConditionTrue, "ProjectAccepted", "Project is accepted")
 
 	project.Status.ObservedGeneration = project.Generation
 	r.updateCondition(ctx, project, TypeAvailable, metav1.ConditionTrue, "ProjectAvailable", "Project is available")
