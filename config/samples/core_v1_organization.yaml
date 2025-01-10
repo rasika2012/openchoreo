@@ -1,8 +1,10 @@
 apiVersion: core.choreo.dev/v1
 kind: Organization
 metadata:
+  annotations:
+    core.choreo.dev/display-name: Default Organization
+    core.choreo.dev/description: This is the default organization for this setup
   labels:
-    app.kubernetes.io/name: choreo
-    app.kubernetes.io/managed-by: kustomize
+    core.choreo.dev/name: default-organization
   name: default-organization
 spec:

@@ -3,6 +3,7 @@
 # It should be run by config/default
 resources:
 - bases/core.choreo.dev_organizations.yaml
+- bases/core.choreo.dev_projects.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patches:
