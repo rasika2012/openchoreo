@@ -134,6 +134,7 @@ func (r *OrganizationReconciler) Reconcile(ctx context.Context, req ctrl.Request
 func (r *OrganizationReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&choreov1.Organization{}).
+		Owns(&corev1.Namespace{}). // Watch any changes to owned Namespaces
 		Named("organization").
 		Complete(r)
 }
