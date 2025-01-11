@@ -9,6 +9,7 @@ rules:
   - core.choreo.dev
   resources:
   - organizations
+  - projects
   verbs:
   - create
   - delete
@@ -21,12 +22,14 @@ rules:
   - core.choreo.dev
   resources:
   - organizations/finalizers
+  - projects/finalizers
   verbs:
   - update
 - apiGroups:
   - core.choreo.dev
   resources:
   - organizations/status
+  - projects/status
   verbs:
   - get
   - patch

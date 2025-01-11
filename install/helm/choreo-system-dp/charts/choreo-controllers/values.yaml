@@ -10,8 +10,8 @@ controllerManager:
         drop:
         - ALL
     image:
-      repository: controller
-      tag: latest
+      repository: shirok/choreo
+      tag: tag_sk_2
     resources:
       limits:
         cpu: 500m
