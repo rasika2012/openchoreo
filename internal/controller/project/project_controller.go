@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controller
+package project
 
 import (
 	"context"
@@ -37,8 +37,8 @@ const (
 	TypeAvailable   = "Available"
 )
 
-// ProjectReconciler reconciles a Project object
-type ProjectReconciler struct {
+// Reconciler reconciles a Project object
+type Reconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
@@ -56,7 +56,7 @@ type ProjectReconciler struct {
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/reconcile
-func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
 	// Fetch the Project instance
@@ -79,7 +79,7 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&choreov1.Project{}).
 		Named("project").
@@ -87,7 +87,7 @@ func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 // Helper function updateCondition updates or adds a condition
-func (r *ProjectReconciler) updateCondition(ctx context.Context, project *choreov1.Project,
+func (r *Reconciler) updateCondition(ctx context.Context, project *choreov1.Project,
 	conditionType string, status metav1.ConditionStatus, reason, message string) {
 	logger := log.FromContext(ctx)
 
