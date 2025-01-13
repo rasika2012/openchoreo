@@ -19,6 +19,7 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - dataplanes
   - environments
   - organizations
   - projects
@@ -33,6 +34,7 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - dataplanes/finalizers
   - environments/finalizers
   - organizations/finalizers
   - projects/finalizers
@@ -41,6 +43,7 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - dataplanes/status
   - environments/status
   - organizations/status
   - projects/status
