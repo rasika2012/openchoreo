@@ -2,4 +2,5 @@
 resources:
 - core_v1_organization.yaml
 - core_v1_project.yaml
+- core_v1_environment.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples

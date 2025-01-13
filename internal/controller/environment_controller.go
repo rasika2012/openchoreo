@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package project
+package controller
 
 import (
 	"context"
@@ -28,66 +28,61 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 )
 
-// // States for conditions
-// const (
-// 	TypeAccepted    = "Accepted"
-// 	TypeProgressing = "Progressing"
-// 	TypeAvailable   = "Available"
-// )
-
-// Reconciler reconciles a Project object
-type Reconciler struct {
+// EnvironmentReconciler reconciles a Environment object
+type EnvironmentReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=projects,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=projects/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=projects/finalizers,verbs=update
+// +kubebuilder:rbac:groups=core.choreo.dev,resources=environments,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core.choreo.dev,resources=environments/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=core.choreo.dev,resources=environments/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the Project object against the actual cluster state, and then
+// the Environment object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/reconcile
-func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *EnvironmentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	_ = log.FromContext(ctx)
 	logger := log.FromContext(ctx)
 
-	// Fetch the Project instance
-	project := &choreov1.Project{}
-	if err := r.Get(ctx, req.NamespacedName, project); err != nil {
+	// Fetch the Environment instance
+	environment := &choreov1.Environment{}
+	if err := r.Get(ctx, req.NamespacedName, environment); err != nil {
 		if apierrors.IsNotFound(err) {
-			// The Project resource may have been deleted since it triggered the reconcile
-			logger.Info("Project resource not found. Ignoring since it must be deleted.")
+			// The Environment resource may have been deleted since it triggered the reconcile
+			logger.Info("Environment resource not found. Ignoring since it must be deleted.")
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object
-		logger.Error(err, "Failed to get Project")
+		logger.Error(err, "Failed to get Environment")
 		return ctrl.Result{}, err
 	}
 
-	project.Status.ObservedGeneration = project.Generation
-	r.updateCondition(ctx, project, TypeAvailable, metav1.ConditionTrue, "ProjectAvailable", "Project is available")
+	environment.Status.ObservedGeneration = environment.Generation
+	r.updateCondition(ctx, environment, TypeAvailable, metav1.ConditionTrue, "EnvironmentAvailable", "Environment is available")
 
 	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *EnvironmentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&choreov1.Project{}).
-		Named("project").
+		For(&corev1.Environment{}).
+		Named("environment").
 		Complete(r)
 }
 
 // Helper function updateCondition updates or adds a condition
-func (r *Reconciler) updateCondition(ctx context.Context, project *choreov1.Project,
+func (r *EnvironmentReconciler) updateCondition(ctx context.Context, environment *choreov1.Environment,
 	conditionType string, status metav1.ConditionStatus, reason, message string) {
 	logger := log.FromContext(ctx)
 
@@ -99,14 +94,14 @@ func (r *Reconciler) updateCondition(ctx context.Context, project *choreov1.Proj
 		LastTransitionTime: metav1.Now(),
 	}
 
-	changed := meta.SetStatusCondition(&project.Status.Conditions, condition)
+	changed := meta.SetStatusCondition(&environment.Status.Conditions, condition)
 	if changed {
 
-		logger.Info("Updating Resource status", "Project.Name", project.Name)
-		if err := r.Status().Update(ctx, project); err != nil {
-			logger.Error(err, "Failed to update Project status", "Project.Name", project.Name)
+		logger.Info("Updating Resource status", "Environment.Name", environment.Name)
+		if err := r.Status().Update(ctx, environment); err != nil {
+			logger.Error(err, "Failed to update Environment status", "Environment.Name", environment.Name)
 			return
 		}
-		logger.Info("Updated Resource status", "Project.Name", project.Name)
+		logger.Info("Updated Resource status", "Environment.Name", environment.Name)
 	}
 }

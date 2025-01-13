@@ -19,6 +19,7 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - environments
   - organizations
   - projects
   verbs:
@@ -32,6 +33,7 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - environments/finalizers
   - organizations/finalizers
   - projects/finalizers
   verbs:
@@ -39,6 +41,7 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - environments/status
   - organizations/status
   - projects/status
   verbs:
