@@ -73,7 +73,18 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	project.Status.ObservedGeneration = project.Generation
-	r.updateCondition(ctx, project, TypeCreated, metav1.ConditionTrue, "ProjectCreated", "Project is created")
+	if err := UpdateCondition(
+		ctx,
+		r.Status(),
+		project,
+		&project.Status.Conditions,
+		TypeCreated,
+		metav1.ConditionTrue,
+		"ProjectCreated",
+		"Project is created",
+	); err != nil {
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
 }

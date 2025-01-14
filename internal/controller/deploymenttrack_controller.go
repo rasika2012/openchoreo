@@ -20,7 +20,6 @@ import (
 	"context"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -66,7 +65,18 @@ func (r *DeploymentTrackReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	}
 
 	deploymentTrack.Status.ObservedGeneration = deploymentTrack.Generation
-	r.updateCondition(ctx, deploymentTrack, TypeAvailable, metav1.ConditionTrue, "DeploymentTrackAvailable", "DeploymentTrack is available")
+	if err := UpdateCondition(
+		ctx,
+		r.Status(),
+		deploymentTrack,
+		&deploymentTrack.Status.Conditions,
+		TypeAvailable,
+		metav1.ConditionTrue,
+		"DeploymentTrackAvailable",
+		"DeploymentTrack is available",
+	); err != nil {
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
 
@@ -78,29 +88,4 @@ func (r *DeploymentTrackReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&choreov1.DeploymentTrack{}).
 		Named("deploymenttrack").
 		Complete(r)
-}
-
-// Helper function updateCondition updates or adds a condition
-func (r *DeploymentTrackReconciler) updateCondition(ctx context.Context, deploymentTrack *choreov1.DeploymentTrack,
-	conditionType string, status metav1.ConditionStatus, reason, message string) {
-	logger := log.FromContext(ctx)
-
-	condition := metav1.Condition{
-		Type:               conditionType,
-		Status:             status,
-		Reason:             reason,
-		Message:            message,
-		LastTransitionTime: metav1.Now(),
-	}
-
-	changed := meta.SetStatusCondition(&deploymentTrack.Status.Conditions, condition)
-	if changed {
-
-		logger.Info("Updating Resource status", "DeploymentTrack.Name", deploymentTrack.Name)
-		if err := r.Status().Update(ctx, deploymentTrack); err != nil {
-			logger.Error(err, "Failed to update DeploymentTrack status", "DeploymentTrack.Name", deploymentTrack.Name)
-			return
-		}
-		logger.Info("Updated Resource status", "DeploymentTrack.Name", deploymentTrack.Name)
-	}
 }

@@ -20,7 +20,6 @@ import (
 	"context"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -66,7 +65,18 @@ func (r *DeploymentPipelineReconciler) Reconcile(ctx context.Context, req ctrl.R
 	}
 
 	deploymentPipeline.Status.ObservedGeneration = deploymentPipeline.Generation
-	r.updateCondition(ctx, deploymentPipeline, TypeAvailable, metav1.ConditionTrue, "ProjectAvailable", "Project is available")
+	if err := UpdateCondition(
+		ctx,
+		r.Status(),
+		deploymentPipeline,
+		&deploymentPipeline.Status.Conditions,
+		TypeAvailable,
+		metav1.ConditionTrue,
+		"DeploymentPipelineAvailable",
+		"DeploymentPipeline is available",
+	); err != nil {
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
 
@@ -78,29 +88,4 @@ func (r *DeploymentPipelineReconciler) SetupWithManager(mgr ctrl.Manager) error 
 		For(&choreov1.DeploymentPipeline{}).
 		Named("deploymentpipeline").
 		Complete(r)
-}
-
-// Helper function updateCondition updates or adds a condition
-func (r *DeploymentPipelineReconciler) updateCondition(ctx context.Context, deploymentPipeline *choreov1.DeploymentPipeline,
-	conditionType string, status metav1.ConditionStatus, reason, message string) {
-	logger := log.FromContext(ctx)
-
-	condition := metav1.Condition{
-		Type:               conditionType,
-		Status:             status,
-		Reason:             reason,
-		Message:            message,
-		LastTransitionTime: metav1.Now(),
-	}
-
-	changed := meta.SetStatusCondition(&deploymentPipeline.Status.Conditions, condition)
-	if changed {
-
-		logger.Info("Updating Resource status", "DeploymentPipeline.Name", deploymentPipeline.Name)
-		if err := r.Status().Update(ctx, deploymentPipeline); err != nil {
-			logger.Error(err, "Failed to update DeploymentPipeline status", "DeploymentPipeline.Name", deploymentPipeline.Name)
-			return
-		}
-		logger.Info("Updated Resource status", "DeploymentPipeline.Name", deploymentPipeline.Name)
-	}
 }

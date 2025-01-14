@@ -20,7 +20,6 @@ import (
 	"context"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -67,7 +66,18 @@ func (r *EnvironmentReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	}
 
 	environment.Status.ObservedGeneration = environment.Generation
-	r.updateCondition(ctx, environment, TypeAvailable, metav1.ConditionTrue, "EnvironmentAvailable", "Environment is available")
+	if err := UpdateCondition(
+		ctx,
+		r.Status(),
+		environment,
+		&environment.Status.Conditions,
+		TypeAvailable,
+		metav1.ConditionTrue,
+		"EnvironmentAvailable",
+		"Environment is available",
+	); err != nil {
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
 }
@@ -78,29 +88,4 @@ func (r *EnvironmentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&choreov1.Environment{}).
 		Named("environment").
 		Complete(r)
-}
-
-// Helper function updateCondition updates or adds a condition
-func (r *EnvironmentReconciler) updateCondition(ctx context.Context, environment *choreov1.Environment,
-	conditionType string, status metav1.ConditionStatus, reason, message string) {
-	logger := log.FromContext(ctx)
-
-	condition := metav1.Condition{
-		Type:               conditionType,
-		Status:             status,
-		Reason:             reason,
-		Message:            message,
-		LastTransitionTime: metav1.Now(),
-	}
-
-	changed := meta.SetStatusCondition(&environment.Status.Conditions, condition)
-	if changed {
-
-		logger.Info("Updating Resource status", "Environment.Name", environment.Name)
-		if err := r.Status().Update(ctx, environment); err != nil {
-			logger.Error(err, "Failed to update Environment status", "Environment.Name", environment.Name)
-			return
-		}
-		logger.Info("Updated Resource status", "Environment.Name", environment.Name)
-	}
 }

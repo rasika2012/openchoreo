@@ -20,7 +20,6 @@ import (
 	"context"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -66,7 +65,18 @@ func (r *ComponentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	component.Status.ObservedGeneration = component.Generation
-	r.updateCondition(ctx, component, TypeCreated, metav1.ConditionTrue, "ComponentCreated", "Component is created")
+	if err := UpdateCondition(
+		ctx,
+		r.Status(),
+		component,
+		&component.Status.Conditions,
+		TypeCreated,
+		metav1.ConditionTrue,
+		"ComponentCreated",
+		"Component is created",
+	); err != nil {
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
 }
@@ -77,29 +87,4 @@ func (r *ComponentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&choreov1.Component{}).
 		Named("component").
 		Complete(r)
-}
-
-// Helper function updateCondition updates or adds a condition
-func (r *ComponentReconciler) updateCondition(ctx context.Context, component *choreov1.Component,
-	conditionType string, status metav1.ConditionStatus, reason, message string) {
-	logger := log.FromContext(ctx)
-
-	condition := metav1.Condition{
-		Type:               conditionType,
-		Status:             status,
-		Reason:             reason,
-		Message:            message,
-		LastTransitionTime: metav1.Now(),
-	}
-
-	changed := meta.SetStatusCondition(&component.Status.Conditions, condition)
-	if changed {
-
-		logger.Info("Updating Resource status", "Component.Name", component.Name)
-		if err := r.Status().Update(ctx, component); err != nil {
-			logger.Error(err, "Failed to update Component status", "Component.Name", component.Name)
-			return
-		}
-		logger.Info("Updated Resource status", "Component.Name", component.Name)
-	}
 }

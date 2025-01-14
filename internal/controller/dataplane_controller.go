@@ -20,7 +20,6 @@ import (
 	"context"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -66,7 +65,18 @@ func (r *DataPlaneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	dataPlane.Status.ObservedGeneration = dataPlane.Generation
-	r.updateCondition(ctx, dataPlane, TypeAvailable, metav1.ConditionTrue, "DataPlaneAvailable", "DataPlane is available")
+	if err := UpdateCondition(
+		ctx,
+		r.Status(),
+		dataPlane,
+		&dataPlane.Status.Conditions,
+		TypeAvailable,
+		metav1.ConditionTrue,
+		"DataPlaneAvailable",
+		"DataPlane is available",
+	); err != nil {
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
 }
@@ -77,29 +87,4 @@ func (r *DataPlaneReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&choreov1.DataPlane{}).
 		Named("dataplane").
 		Complete(r)
-}
-
-// Helper function updateCondition updates or adds a condition
-func (r *DataPlaneReconciler) updateCondition(ctx context.Context, dataPlane *choreov1.DataPlane,
-	conditionType string, status metav1.ConditionStatus, reason, message string) {
-	logger := log.FromContext(ctx)
-
-	condition := metav1.Condition{
-		Type:               conditionType,
-		Status:             status,
-		Reason:             reason,
-		Message:            message,
-		LastTransitionTime: metav1.Now(),
-	}
-
-	changed := meta.SetStatusCondition(&dataPlane.Status.Conditions, condition)
-	if changed {
-
-		logger.Info("Updating Resource status", "DataPlane.Name", dataPlane.Name)
-		if err := r.Status().Update(ctx, dataPlane); err != nil {
-			logger.Error(err, "Failed to update DataPlane status", "DataPlane.Name", dataPlane.Name)
-			return
-		}
-		logger.Info("Updated Resource status", "DataPlane.Name", dataPlane.Name)
-	}
 }
