@@ -78,8 +78,6 @@ spec:
                   - targetEnvironmentRefs
                   type: object
                 type: array
-            required:
-            - promotionPaths
             type: object
           status:
             description: DeploymentPipelineStatus defines the observed state of DeploymentPipeline.

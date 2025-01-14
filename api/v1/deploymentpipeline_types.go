@@ -49,7 +49,7 @@ type DeploymentPipelineSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// PromotionPaths defines the available paths for promotion between environments
-	PromotionPaths []PromotionPath `json:"promotionPaths"`
+	PromotionPaths []PromotionPath `json:"promotionPaths,omitempty"`
 }
 
 // DeploymentPipelineStatus defines the observed state of DeploymentPipeline.
