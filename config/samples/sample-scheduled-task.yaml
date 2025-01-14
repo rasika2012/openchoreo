@@ -1,8 +1,21 @@
-## Sample DataPlane kind (Cluster-scoped)
+## Sample organization (Cluster-scoped)
+apiVersion: core.choreo.dev/v1
+kind: Organization
+metadata:
+  annotations:
+    core.choreo.dev/display-name: Default Organization
+    core.choreo.dev/description: This is the default organization for this setup
+  labels:
+    core.choreo.dev/name: wso2-internal-apps
+  name: wso2-internal-apps
+spec:
+---
+## Sample DataPlane kind (Namespace-scoped)
 apiVersion: core.choreo.dev/v1
 kind: DataPlane
 metadata:
   name: wso2-dp-local
+  namespace: wso2-internal-apps
   annotations:
     core.choreo.dev/display-name: Local Data Plane
     core.choreo.dev/description: Data plane in KinD cluster
@@ -20,13 +33,13 @@ spec:
   gateway:
     publicVirtualHost: choreoapis.local
     organizationVirtualHost: internal.choreoapis.local
-
 ---
-## Sample DeploymentPipeline kind (Cluster-scoped)
+## Sample DeploymentPipeline kind (Namespace-scoped)
 apiVersion: core.choreo.dev/v1
 kind: DeploymentPipeline
 metadata:
   name: wso2-default-deployment-pipeline
+  namespace: wso2-internal-apps
   annotations:
     core.choreo.dev/display-name: Default Deployment Pipeline
     core.choreo.dev/description: Allows promoting from dev to production
@@ -46,11 +59,12 @@ spec:
         - name: production
           requiresApproval: true
 ---
-## Sample Environment kind (Cluster-scoped)
+## Sample Environment kind (Namespace-scoped)
 apiVersion: core.choreo.dev/v1
 kind: Environment
 metadata:
   name: wso2-development
+  namespace: wso2-internal-apps
   annotations:
     core.choreo.dev/display-name: Development Environment
     core.choreo.dev/description: The environment where you can play around
@@ -62,11 +76,12 @@ spec:
   isProduction: false
   dnsPrefix: local-dev
 ---
-## Sample Project kind (Cluster-scoped)
+## Sample Project kind (Namespace-scoped)
 apiVersion: core.choreo.dev/v1
 kind: Project
 metadata:
   name: wso2-internal-apps
+  namespace: wso2-internal-apps
   annotations:
     core.choreo.dev/display-name: Internal Applications
     core.choreo.dev/description: This project contains components that are used by WSO2 internal applications
@@ -76,7 +91,7 @@ metadata:
 spec:
   deploymentPipelineRef: wso2-default-deployment-pipeline
 ---
-## Sample Component kind (Namespaced)
+## Sample Component kind (Namespace-scoped)
 apiVersion: core.choreo.dev/v1
 kind: Component
 metadata:
@@ -97,7 +112,7 @@ spec:
     authentication:
       secretRef: choreo-bot-git-pat
 ---
-## Sample DeploymentTrack kind (Namespaced)
+## Sample DeploymentTrack kind (Namespace-scoped)
 apiVersion: core.choreo.dev/v1
 kind: DeploymentTrack
 metadata:
@@ -120,7 +135,7 @@ spec:
         context: /github-issue-reporter
         dockerfilePath: /github-issue-reporter/Dockerfile
 ---
-## Sample Build kind (Namespaced)
+## Sample Build kind (Namespace-scoped)
 apiVersion: core.choreo.dev/v1
 kind: Build
 metadata:
@@ -145,7 +160,7 @@ spec:
 status:
   containerImage: mirage20/sample-task-report-generator:v1
 ---
-## Sample DeployableArtifact kind (Namespaced)
+## Sample DeployableArtifact kind (Namespace-scoped)
 apiVersion: core.choreo.dev/v1
 kind: DeployableArtifact
 metadata:
@@ -175,7 +190,7 @@ spec:
           cron: "*/1 * * * *"
           timezone: Asia/Colombo
 ---
-## Sample Deployment kind (Namespaced)
+## Sample Deployment kind (Namespace-scoped)
 apiVersion: core.choreo.dev/v1
 kind: Deployment
 metadata:
