@@ -20,6 +20,7 @@ rules:
   - core.choreo.dev
   resources:
   - dataplanes
+  - deploymentpipelines
   - environments
   - organizations
   - projects
@@ -35,6 +36,7 @@ rules:
   - core.choreo.dev
   resources:
   - dataplanes/finalizers
+  - deploymentpipelines/finalizers
   - environments/finalizers
   - organizations/finalizers
   - projects/finalizers
@@ -44,6 +46,7 @@ rules:
   - core.choreo.dev
   resources:
   - dataplanes/status
+  - deploymentpipelines/status
   - environments/status
   - organizations/status
   - projects/status

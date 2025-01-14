@@ -43,4 +43,13 @@ resources:
   kind: DataPlane
   path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
   version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: choreo.dev
+  group: core
+  kind: DeploymentPipeline
+  path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
+  version: v1
 version: "3"
