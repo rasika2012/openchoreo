@@ -5,4 +5,5 @@ resources:
 - core_v1_environment.yaml
 - core_v1_dataplane.yaml
 - core_v1_deploymentpipeline.yaml
+- core_v1_component.yaml
 # +kubebuilder:scaffold:manifestskustomizesamples

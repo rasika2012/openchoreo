@@ -30,57 +30,57 @@ import (
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 )
 
-// DataPlaneReconciler reconciles a DataPlane object
-type DataPlaneReconciler struct {
+// ComponentReconciler reconciles a Component object
+type ComponentReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=dataplanes,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=dataplanes/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=dataplanes/finalizers,verbs=update
+// +kubebuilder:rbac:groups=core.choreo.dev,resources=components,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core.choreo.dev,resources=components/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=core.choreo.dev,resources=components/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the DataPlane object against the actual cluster state, and then
+// the Component object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/reconcile
-func (r *DataPlaneReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *ComponentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	// Fetch the DataPlane instance
-	dataPlane := &choreov1.DataPlane{}
-	if err := r.Get(ctx, req.NamespacedName, dataPlane); err != nil {
+	// Fetch the Component instance
+	component := &choreov1.Component{}
+	if err := r.Get(ctx, req.NamespacedName, component); err != nil {
 		if apierrors.IsNotFound(err) {
-			// The DataPlane resource may have been deleted since it triggered the reconcile
-			logger.Info("DataPlane resource not found. Ignoring since it must be deleted.")
+			// The Component resource may have been deleted since it triggered the reconcile
+			logger.Info("Component resource not found. Ignoring since it must be deleted.")
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object
-		logger.Error(err, "Failed to get DataPlane")
+		logger.Error(err, "Failed to get Component")
 		return ctrl.Result{}, err
 	}
 
-	dataPlane.Status.ObservedGeneration = dataPlane.Generation
-	r.updateCondition(ctx, dataPlane, TypeAvailable, metav1.ConditionTrue, "DataPlaneAvailable", "DataPlane is available")
+	component.Status.ObservedGeneration = component.Generation
+	r.updateCondition(ctx, component, TypeCreated, metav1.ConditionTrue, "ComponentCreated", "Component is created")
 
 	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *DataPlaneReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *ComponentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&choreov1.DataPlane{}).
-		Named("dataplane").
+		For(&choreov1.Component{}).
+		Named("component").
 		Complete(r)
 }
 
 // Helper function updateCondition updates or adds a condition
-func (r *DataPlaneReconciler) updateCondition(ctx context.Context, dataPlane *choreov1.DataPlane,
+func (r *ComponentReconciler) updateCondition(ctx context.Context, component *choreov1.Component,
 	conditionType string, status metav1.ConditionStatus, reason, message string) {
 	logger := log.FromContext(ctx)
 
@@ -92,14 +92,14 @@ func (r *DataPlaneReconciler) updateCondition(ctx context.Context, dataPlane *ch
 		LastTransitionTime: metav1.Now(),
 	}
 
-	changed := meta.SetStatusCondition(&dataPlane.Status.Conditions, condition)
+	changed := meta.SetStatusCondition(&component.Status.Conditions, condition)
 	if changed {
 
-		logger.Info("Updating Resource status", "DataPlane.Name", dataPlane.Name)
-		if err := r.Status().Update(ctx, dataPlane); err != nil {
-			logger.Error(err, "Failed to update DataPlane status", "DataPlane.Name", dataPlane.Name)
+		logger.Info("Updating Resource status", "Component.Name", component.Name)
+		if err := r.Status().Update(ctx, component); err != nil {
+			logger.Error(err, "Failed to update Component status", "Component.Name", component.Name)
 			return
 		}
-		logger.Info("Updated Resource status", "DataPlane.Name", dataPlane.Name)
+		logger.Info("Updated Resource status", "Component.Name", component.Name)
 	}
 }

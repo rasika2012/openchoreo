@@ -19,6 +19,7 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - components
   - dataplanes
   - deploymentpipelines
   - environments
@@ -35,6 +36,7 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - components/finalizers
   - dataplanes/finalizers
   - deploymentpipelines/finalizers
   - environments/finalizers
@@ -45,6 +47,7 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - components/status
   - dataplanes/status
   - deploymentpipelines/status
   - environments/status

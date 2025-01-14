@@ -28,7 +28,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 )
 
 // DeploymentPipelineReconciler reconciles a DeploymentPipeline object
@@ -76,7 +75,7 @@ func (r *DeploymentPipelineReconciler) Reconcile(ctx context.Context, req ctrl.R
 // SetupWithManager sets up the controller with the Manager.
 func (r *DeploymentPipelineReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&corev1.DeploymentPipeline{}).
+		For(&choreov1.DeploymentPipeline{}).
 		Named("deploymentpipeline").
 		Complete(r)
 }

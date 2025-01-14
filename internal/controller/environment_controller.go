@@ -28,7 +28,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 )
 
 // EnvironmentReconciler reconciles a Environment object
@@ -76,7 +75,7 @@ func (r *EnvironmentReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 // SetupWithManager sets up the controller with the Manager.
 func (r *EnvironmentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&corev1.Environment{}).
+		For(&choreov1.Environment{}).
 		Named("environment").
 		Complete(r)
 }
