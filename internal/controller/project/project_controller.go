@@ -73,7 +73,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	project.Status.ObservedGeneration = project.Generation
-	r.updateCondition(ctx, project, TypeAvailable, metav1.ConditionTrue, "ProjectAvailable", "Project is available")
+	r.updateCondition(ctx, project, TypeCreated, metav1.ConditionTrue, "ProjectCreated", "Project is created")
 
 	return ctrl.Result{}, nil
 }

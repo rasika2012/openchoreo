@@ -5,4 +5,5 @@ const (
 	TypeAccepted    = "Accepted"
 	TypeProgressing = "Progressing"
 	TypeAvailable   = "Available"
+	TypeCreated     = "Created"
 )
