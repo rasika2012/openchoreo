@@ -8,6 +8,7 @@ resources:
 - bases/core.choreo.dev_dataplanes.yaml
 - bases/core.choreo.dev_deploymentpipelines.yaml
 - bases/core.choreo.dev_components.yaml
+- bases/core.choreo.dev_deploymenttracks.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patches:

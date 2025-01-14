@@ -22,6 +22,7 @@ rules:
   - components
   - dataplanes
   - deploymentpipelines
+  - deploymenttracks
   - environments
   - organizations
   - projects
@@ -39,6 +40,7 @@ rules:
   - components/finalizers
   - dataplanes/finalizers
   - deploymentpipelines/finalizers
+  - deploymenttracks/finalizers
   - environments/finalizers
   - organizations/finalizers
   - projects/finalizers
@@ -50,6 +52,7 @@ rules:
   - components/status
   - dataplanes/status
   - deploymentpipelines/status
+  - deploymenttracks/status
   - environments/status
   - organizations/status
   - projects/status
