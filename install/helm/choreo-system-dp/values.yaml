@@ -2,10 +2,15 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+metricsServer:
+  enabled: false
+  kubeletInsecureTlsEnabled: true
+
 ingress-nginx:
-   enabled: true
+   enabled: false
    namespace: choreo-webapps
    fullnameOverride: ingress-nginx
+
 gateway-helm:
    config:
       envoyGateway:
