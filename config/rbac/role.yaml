@@ -21,7 +21,9 @@ rules:
   resources:
   - components
   - dataplanes
+  - deployableartifacts
   - deploymentpipelines
+  - deployments
   - deploymenttracks
   - environments
   - organizations
@@ -39,7 +41,9 @@ rules:
   resources:
   - components/finalizers
   - dataplanes/finalizers
+  - deployableartifacts/finalizers
   - deploymentpipelines/finalizers
+  - deployments/finalizers
   - deploymenttracks/finalizers
   - environments/finalizers
   - organizations/finalizers
@@ -51,7 +55,9 @@ rules:
   resources:
   - components/status
   - dataplanes/status
+  - deployableartifacts/status
   - deploymentpipelines/status
+  - deployments/status
   - deploymenttracks/status
   - environments/status
   - organizations/status

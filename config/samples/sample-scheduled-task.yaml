@@ -1,4 +1,4 @@
-## Sample organization (Cluster-scoped)
+## Sample Organization kind (Cluster-scoped)
 apiVersion: core.choreo.dev/v1
 kind: Organization
 metadata:
@@ -6,21 +6,23 @@ metadata:
     core.choreo.dev/display-name: Default Organization
     core.choreo.dev/description: This is the default organization for this setup
   labels:
-    core.choreo.dev/name: wso2-internal-apps
-  name: wso2-internal-apps
+    core.choreo.dev/name: default-organization
+  name: default-organization
 spec:
+
 ---
-## Sample DataPlane kind (Namespace-scoped)
+
+## Sample DataPlane kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: DataPlane
 metadata:
-  name: wso2-dp-local
-  namespace: wso2-internal-apps
+  name: dp-local
+  namespace: default-organization
   annotations:
     core.choreo.dev/display-name: Local Data Plane
     core.choreo.dev/description: Data plane in KinD cluster
   labels:
-    core.choreo.dev/organization: wso2
+    core.choreo.dev/organization: default-organization
     core.choreo.dev/name: dp-local
 spec:
   kubernetesCluster:
@@ -34,17 +36,17 @@ spec:
     publicVirtualHost: choreoapis.local
     organizationVirtualHost: internal.choreoapis.local
 ---
-## Sample DeploymentPipeline kind (Namespace-scoped)
+## Sample DeploymentPipeline kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: DeploymentPipeline
 metadata:
-  name: wso2-default-deployment-pipeline
-  namespace: wso2-internal-apps
+  name: default-deployment-pipeline
+  namespace: default-organization
   annotations:
     core.choreo.dev/display-name: Default Deployment Pipeline
     core.choreo.dev/description: Allows promoting from dev to production
   labels:
-    core.choreo.dev/organization: wso2
+    core.choreo.dev/organization: default-organization
     core.choreo.dev/name: default-deployment-pipeline
 spec:
   promotionPaths:
@@ -59,49 +61,49 @@ spec:
         - name: production
           requiresApproval: true
 ---
-## Sample Environment kind (Namespace-scoped)
+## Sample Environment kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: Environment
 metadata:
-  name: wso2-development
-  namespace: wso2-internal-apps
+  name: development
+  namespace: default-organization
   annotations:
     core.choreo.dev/display-name: Development Environment
     core.choreo.dev/description: The environment where you can play around
   labels:
-    core.choreo.dev/organization: wso2
+    core.choreo.dev/organization: default-organization
     core.choreo.dev/name: development
 spec:
-  dataPlaneRef: wso2-dp-local #TODO: Name or label selector?
+  dataPlaneRef: dp-local #TODO: Name or label selector?
   isProduction: false
   dnsPrefix: local-dev
 ---
-## Sample Project kind (Namespace-scoped)
+## Sample Project kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: Project
 metadata:
-  name: wso2-internal-apps
-  namespace: wso2-internal-apps
+  name: internal-apps
+  namespace: default-organization
   annotations:
     core.choreo.dev/display-name: Internal Applications
     core.choreo.dev/description: This project contains components that are used by WSO2 internal applications
   labels:
-    core.choreo.dev/organization: wso2
+    core.choreo.dev/organization: default-organization
     core.choreo.dev/name: internal-apps
 spec:
-  deploymentPipelineRef: wso2-default-deployment-pipeline
+  deploymentPipelineRef: default-deployment-pipeline
 ---
-## Sample Component kind (Namespace-scoped)
+## Sample Component kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: Component
 metadata:
   name: github-issue-reporter
-  namespace: wso2-internal-apps
+  namespace: default-organization
   annotations:
     core.choreo.dev/display-name: GitHub Issue Reporter
     core.choreo.dev/description: This component will generate a report of the issues in the GitHub repository
   labels:
-    core.choreo.dev/organization: wso2
+    core.choreo.dev/organization: default-organization
     core.choreo.dev/project: internal-apps
     core.choreo.dev/name: github-issue-reporter
 spec:
@@ -112,17 +114,17 @@ spec:
     authentication:
       secretRef: choreo-bot-git-pat
 ---
-## Sample DeploymentTrack kind (Namespace-scoped)
+## Sample DeploymentTrack kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: DeploymentTrack
 metadata:
   name: github-issue-reporter-daily
-  namespace: wso2-internal-apps
+  namespace: default-organization
   annotations:
     core.choreo.dev/display-name: Daily Deployment Track
     core.choreo.dev/description: This deployment track will produce a daily report
   labels:
-    core.choreo.dev/organization: wso2
+    core.choreo.dev/organization: default-organization
     core.choreo.dev/project: internal-apps
     core.choreo.dev/component: github-issue-reporter
     core.choreo.dev/name: daily
@@ -135,17 +137,17 @@ spec:
         context: /github-issue-reporter
         dockerfilePath: /github-issue-reporter/Dockerfile
 ---
-## Sample Build kind (Namespace-scoped)
+## Sample Build kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: Build
 metadata:
   name: github-issue-reporter-daily-build-2024-12-10-1
-  namespace: wso2-internal-apps
+  namespace: default-organization
   annotations:
     core.choreo.dev/display-name: Build 2024-12-10 1
     core.choreo.dev/description: Build 1 triggered on 2024-12-10
   labels:
-    core.choreo.dev/organization: wso2
+    core.choreo.dev/organization: default-organization
     core.choreo.dev/project: internal-apps
     core.choreo.dev/component: github-issue-reporter
     core.choreo.dev/deployment-track: daily
@@ -160,17 +162,17 @@ spec:
 status:
   containerImage: mirage20/sample-task-report-generator:v1
 ---
-## Sample DeployableArtifact kind (Namespace-scoped)
+## Sample DeployableArtifact kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: DeployableArtifact
 metadata:
   name: github-issue-reporter-daily-deployable-artifact-2024-12-10-1
-  namespace: wso2-internal-apps
+  namespace: default-organization
   annotations:
     core.choreo.dev/display-name: Daily Deployable Artifact
     core.choreo.dev/description: Generated artifact from Build 2024-12-10 1
   labels:
-    core.choreo.dev/organization: wso2
+    core.choreo.dev/organization: default-organization
     core.choreo.dev/project: internal-apps
     core.choreo.dev/component: github-issue-reporter
     core.choreo.dev/deployment-track: daily
@@ -190,22 +192,22 @@ spec:
           cron: "*/1 * * * *"
           timezone: Asia/Colombo
 ---
-## Sample Deployment kind (Namespace-scoped)
+## Sample Deployment kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: Deployment
 metadata:
   name: github-issue-reporter-daily-deployment-2024-12-10-1-development
-  namespace: wso2-internal-apps
+  namespace: default-organization
   annotations:
     core.choreo.dev/display-name: Daily Deployment
     core.choreo.dev/description: This deployment will produce a daily report
   labels:
-    core.choreo.dev/organization: wso2
+    core.choreo.dev/organization: default-organization
     core.choreo.dev/project: internal-apps
     core.choreo.dev/environment: development
     core.choreo.dev/component: github-issue-reporter
     core.choreo.dev/deployment-track: daily
     core.choreo.dev/name: development
 spec:
-  deploymentArtifactRef: build-2024-12-10-1
+  deploymentArtifactRef: github-issue-reporter-daily-deployable-artifact-2024-12-10-1
 

@@ -49,10 +49,23 @@ type ComponentSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Type of the component
-	Type string `json:"type,omitempty"`
+	Type ComponentType `json:"type,omitempty"`
 	// Source configuration for the component
 	Source ComponentSource `json:"source,omitempty"`
 }
+
+type ComponentType string
+
+const (
+	ComponentTypeService        ComponentType = "Service"
+	ComponentTypeManualTask     ComponentType = "ManualTask"
+	ComponentTypeScheduledTask  ComponentType = "ScheduledTask"
+	ComponentTypeWebApplication ComponentType = "WebApplication"
+	ComponentTypeWebhook        ComponentType = "Webhook"
+	ComponentTypeAPIProxy       ComponentType = "APIProxy"
+	ComponentTypeTestRunner     ComponentType = "TestRunner"
+	ComponentTypeEventHandler   ComponentType = "EventHandler"
+)
 
 // ComponentStatus defines the observed state of Component.
 type ComponentStatus struct {
