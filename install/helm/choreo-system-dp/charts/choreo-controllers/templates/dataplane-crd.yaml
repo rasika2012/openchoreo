@@ -1,7 +1,7 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: organizations.core.choreo.dev
+  name: dataplanes.core.choreo.dev
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.4
   labels:
@@ -9,16 +9,16 @@ metadata:
 spec:
   group: core.choreo.dev
   names:
-    kind: Organization
-    listKind: OrganizationList
-    plural: organizations
-    singular: organization
-  scope: Cluster
+    kind: DataPlane
+    listKind: DataPlaneList
+    plural: dataplanes
+    singular: dataplane
+  scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: Organization is the Schema for the organizations API.
+        description: DataPlane is the Schema for the dataplanes API.
         properties:
           apiVersion:
             description: |-
@@ -38,14 +38,61 @@ spec:
           metadata:
             type: object
           spec:
-            description: OrganizationSpec defines the desired state of Organization.
+            description: DataPlaneSpec defines the desired state of DataPlane.
+            properties:
+              gateway:
+                description: Gateway specifies the gateway configuration
+                properties:
+                  organizationVirtualHost:
+                    description: Organization-specific virtual host for the gateway
+                    type: string
+                  publicVirtualHost:
+                    description: Public virtual host for the gateway
+                    type: string
+                required:
+                - organizationVirtualHost
+                - publicVirtualHost
+                type: object
+              kubernetesCluster:
+                description: KubernetesCluster specifies the target cluster configuration
+                properties:
+                  connectionConfigRef:
+                    description: Reference to the connection configuration for the cluster
+                    type: string
+                  featureFlags:
+                    description: FeatureFlags specifies enabled/disabled features
+                    properties:
+                      cilium:
+                        description: Enable/disable Cilium networking
+                        type: boolean
+                      gatewayType:
+                        description: GatewayType specifies the type of gateway to be
+                          used (e.g., envoy)
+                        type: string
+                      scaleToZero:
+                        description: Enable/disable scale to zero functionality
+                        type: boolean
+                    required:
+                    - cilium
+                    - gatewayType
+                    - scaleToZero
+                    type: object
+                  name:
+                    description: Name of the Kubernetes cluster
+                    type: string
+                required:
+                - connectionConfigRef
+                - featureFlags
+                - name
+                type: object
+            required:
+            - gateway
+            - kubernetesCluster
             type: object
           status:
-            description: OrganizationStatus defines the observed state of Organization.
+            description: DataPlaneStatus defines the observed state of DataPlane.
             properties:
               conditions:
-                description: Conditions represent the latest available observations
-                  of an object's current state.
                 items:
                   description: Condition contains details for one aspect of the current
                     state of this API Resource.
@@ -102,6 +149,9 @@ spec:
                   type: object
                 type: array
               observedGeneration:
+                description: |-
+                  INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+                  Important: Run "make" to regenerate code after modifying this file
                 format: int64
                 type: integer
             type: object

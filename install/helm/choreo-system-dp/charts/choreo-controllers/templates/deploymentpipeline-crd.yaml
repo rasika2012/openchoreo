@@ -1,7 +1,7 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: organizations.core.choreo.dev
+  name: deploymentpipelines.core.choreo.dev
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.4
   labels:
@@ -9,16 +9,16 @@ metadata:
 spec:
   group: core.choreo.dev
   names:
-    kind: Organization
-    listKind: OrganizationList
-    plural: organizations
-    singular: organization
-  scope: Cluster
+    kind: DeploymentPipeline
+    listKind: DeploymentPipelineList
+    plural: deploymentpipelines
+    singular: deploymentpipeline
+  scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: Organization is the Schema for the organizations API.
+        description: DeploymentPipeline is the Schema for the deploymentpipelines API.
         properties:
           apiVersion:
             description: |-
@@ -38,14 +38,52 @@ spec:
           metadata:
             type: object
           spec:
-            description: OrganizationSpec defines the desired state of Organization.
+            description: DeploymentPipelineSpec defines the desired state of DeploymentPipeline.
+            properties:
+              promotionPaths:
+                description: PromotionPaths defines the available paths for promotion
+                  between environments
+                items:
+                  description: PromotionPath defines a path for promoting between environments
+                  properties:
+                    sourceEnvironmentRef:
+                      description: SourceEnvironmentRef is the reference to the source
+                        environment
+                      type: string
+                    targetEnvironmentRefs:
+                      description: TargetEnvironmentRefs is the list of target environments
+                        and their approval requirements
+                      items:
+                        description: TargetEnvironmentRef defines a reference to a target
+                          environment with approval settings
+                        properties:
+                          isManualApprovalRequired:
+                            description: IsManualApprovalRequired indicates if manual
+                              approval is needed for promotion
+                            type: boolean
+                          name:
+                            description: Name of the target environment
+                            type: string
+                          requiresApproval:
+                            description: RequiresApproval indicates if promotion to
+                              this environment requires approval
+                            type: boolean
+                        required:
+                        - name
+                        type: object
+                      type: array
+                  required:
+                  - sourceEnvironmentRef
+                  - targetEnvironmentRefs
+                  type: object
+                type: array
             type: object
           status:
-            description: OrganizationStatus defines the observed state of Organization.
+            description: DeploymentPipelineStatus defines the observed state of DeploymentPipeline.
             properties:
               conditions:
                 description: Conditions represent the latest available observations
-                  of an object's current state.
+                  of an object's state
                 items:
                   description: Condition contains details for one aspect of the current
                     state of this API Resource.
@@ -102,6 +140,8 @@ spec:
                   type: object
                 type: array
               observedGeneration:
+                description: ObservedGeneration represents the .metadata.generation
+                  that the condition was set based upon
                 format: int64
                 type: integer
             type: object

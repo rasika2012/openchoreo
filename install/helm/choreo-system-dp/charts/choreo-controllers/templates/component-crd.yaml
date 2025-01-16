@@ -1,7 +1,7 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: organizations.core.choreo.dev
+  name: components.core.choreo.dev
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.4
   labels:
@@ -9,16 +9,16 @@ metadata:
 spec:
   group: core.choreo.dev
   names:
-    kind: Organization
-    listKind: OrganizationList
-    plural: organizations
-    singular: organization
-  scope: Cluster
+    kind: Component
+    listKind: ComponentList
+    plural: components
+    singular: component
+  scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: Organization is the Schema for the organizations API.
+        description: Component is the Schema for the components API.
         properties:
           apiVersion:
             description: |-
@@ -38,14 +38,42 @@ spec:
           metadata:
             type: object
           spec:
-            description: OrganizationSpec defines the desired state of Organization.
+            description: ComponentSpec defines the desired state of Component.
+            properties:
+              source:
+                description: Source configuration for the component
+                properties:
+                  authentication:
+                    description: Authentication configuration for the Git repository
+                    properties:
+                      secretRef:
+                        description: SecretRef is a reference to the secret containing
+                          Git credentials
+                        type: string
+                    required:
+                    - secretRef
+                    type: object
+                  gitRepository:
+                    description: GitRepository configuration
+                    properties:
+                      url:
+                        description: URL of the Git repository
+                        type: string
+                    required:
+                    - url
+                    type: object
+                required:
+                - authentication
+                - gitRepository
+                type: object
+              type:
+                description: Type of the component
+                type: string
             type: object
           status:
-            description: OrganizationStatus defines the observed state of Organization.
+            description: ComponentStatus defines the observed state of Component.
             properties:
               conditions:
-                description: Conditions represent the latest available observations
-                  of an object's current state.
                 items:
                   description: Condition contains details for one aspect of the current
                     state of this API Resource.
