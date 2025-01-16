@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controller
+package dataplane
 
 import (
 	"context"
@@ -27,65 +27,65 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 )
 
-// DeploymentPipelineReconciler reconciles a DeploymentPipeline object
-type DeploymentPipelineReconciler struct {
+// Reconciler reconciles a DataPlane object
+type Reconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=deploymentpipelines,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=deploymentpipelines/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=deploymentpipelines/finalizers,verbs=update
+// +kubebuilder:rbac:groups=core.choreo.dev,resources=dataplanes,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core.choreo.dev,resources=dataplanes/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=core.choreo.dev,resources=dataplanes/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the DeploymentPipeline object against the actual cluster state, and then
+// the DataPlane object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/reconcile
-func (r *DeploymentPipelineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	// Fetch the DeploymentPipeline instance
-	deploymentPipeline := &choreov1.DeploymentPipeline{}
-	if err := r.Get(ctx, req.NamespacedName, deploymentPipeline); err != nil {
+	// Fetch the DataPlane instance
+	dataPlane := &choreov1.DataPlane{}
+	if err := r.Get(ctx, req.NamespacedName, dataPlane); err != nil {
 		if apierrors.IsNotFound(err) {
-			// The DeploymentPipeline resource may have been deleted since it triggered the reconcile
-			logger.Info("DeploymentPipeline resource not found. Ignoring since it must be deleted.")
+			// The DataPlane resource may have been deleted since it triggered the reconcile
+			logger.Info("DataPlane resource not found. Ignoring since it must be deleted.")
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object
-		logger.Error(err, "Failed to get DeploymentPipeline")
+		logger.Error(err, "Failed to get DataPlane")
 		return ctrl.Result{}, err
 	}
 
-	deploymentPipeline.Status.ObservedGeneration = deploymentPipeline.Generation
-	if err := UpdateCondition(
+	dataPlane.Status.ObservedGeneration = dataPlane.Generation
+	if err := controller.UpdateCondition(
 		ctx,
 		r.Status(),
-		deploymentPipeline,
-		&deploymentPipeline.Status.Conditions,
-		TypeAvailable,
+		dataPlane,
+		&dataPlane.Status.Conditions,
+		controller.TypeAvailable,
 		metav1.ConditionTrue,
-		"DeploymentPipelineAvailable",
-		"DeploymentPipeline is available",
+		"DataPlaneAvailable",
+		"DataPlane is available",
 	); err != nil {
 		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, nil
-
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *DeploymentPipelineReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&choreov1.DeploymentPipeline{}).
-		Named("deploymentpipeline").
+		For(&choreov1.DataPlane{}).
+		Named("dataplane").
 		Complete(r)
 }

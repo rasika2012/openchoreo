@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controller
+package environment
 
 import (
 	"context"
@@ -30,7 +30,7 @@ import (
 	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 )
 
-var _ = Describe("DeploymentPipeline Controller", func() {
+var _ = Describe("Environment Controller", func() {
 	Context("When reconciling a resource", func() {
 		const resourceName = "test-resource"
 
@@ -40,13 +40,13 @@ var _ = Describe("DeploymentPipeline Controller", func() {
 			Name:      resourceName,
 			Namespace: "default", // TODO(user):Modify as needed
 		}
-		deploymentpipeline := &corev1.DeploymentPipeline{}
+		environment := &corev1.Environment{}
 
 		BeforeEach(func() {
-			By("creating the custom resource for the Kind DeploymentPipeline")
-			err := k8sClient.Get(ctx, typeNamespacedName, deploymentpipeline)
+			By("creating the custom resource for the Kind Environment")
+			err := k8sClient.Get(ctx, typeNamespacedName, environment)
 			if err != nil && errors.IsNotFound(err) {
-				resource := &corev1.DeploymentPipeline{
+				resource := &corev1.Environment{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      resourceName,
 						Namespace: "default",
@@ -59,16 +59,16 @@ var _ = Describe("DeploymentPipeline Controller", func() {
 
 		AfterEach(func() {
 			// TODO(user): Cleanup logic after each test, like removing the resource instance.
-			resource := &corev1.DeploymentPipeline{}
+			resource := &corev1.Environment{}
 			err := k8sClient.Get(ctx, typeNamespacedName, resource)
 			Expect(err).NotTo(HaveOccurred())
 
-			By("Cleanup the specific resource instance DeploymentPipeline")
+			By("Cleanup the specific resource instance Environment")
 			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
 		})
 		It("should successfully reconcile the resource", func() {
 			By("Reconciling the created resource")
-			controllerReconciler := &DeploymentPipelineReconciler{
+			controllerReconciler := &Reconciler{
 				Client: k8sClient,
 				Scheme: k8sClient.Scheme(),
 			}

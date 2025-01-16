@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controller
+package deploymenttrack
 
 import (
 	"context"
@@ -27,10 +27,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 )
 
-// DeploymentTrackReconciler reconciles a DeploymentTrack object
-type DeploymentTrackReconciler struct {
+// Reconciler reconciles a DeploymentTrack object
+type Reconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
@@ -48,7 +49,7 @@ type DeploymentTrackReconciler struct {
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/reconcile
-func (r *DeploymentTrackReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
 	// Fetch the DeploymentTrack instance
@@ -65,12 +66,12 @@ func (r *DeploymentTrackReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	}
 
 	deploymentTrack.Status.ObservedGeneration = deploymentTrack.Generation
-	if err := UpdateCondition(
+	if err := controller.UpdateCondition(
 		ctx,
 		r.Status(),
 		deploymentTrack,
 		&deploymentTrack.Status.Conditions,
-		TypeAvailable,
+		controller.TypeAvailable,
 		metav1.ConditionTrue,
 		"DeploymentTrackAvailable",
 		"DeploymentTrack is available",
@@ -83,7 +84,7 @@ func (r *DeploymentTrackReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *DeploymentTrackReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&choreov1.DeploymentTrack{}).
 		Named("deploymenttrack").

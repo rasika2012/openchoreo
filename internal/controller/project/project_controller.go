@@ -28,6 +28,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 )
 
 // // States for conditions
@@ -73,12 +74,12 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	project.Status.ObservedGeneration = project.Generation
-	if err := UpdateCondition(
+	if err := controller.UpdateCondition(
 		ctx,
 		r.Status(),
 		project,
 		&project.Status.Conditions,
-		TypeCreated,
+		controller.TypeCreated,
 		metav1.ConditionTrue,
 		"ProjectCreated",
 		"Project is created",

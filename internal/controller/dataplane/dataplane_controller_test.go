@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controller
+package dataplane
 
 import (
 	"context"
@@ -30,7 +30,7 @@ import (
 	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 )
 
-var _ = Describe("Environment Controller", func() {
+var _ = Describe("DataPlane Controller", func() {
 	Context("When reconciling a resource", func() {
 		const resourceName = "test-resource"
 
@@ -40,13 +40,13 @@ var _ = Describe("Environment Controller", func() {
 			Name:      resourceName,
 			Namespace: "default", // TODO(user):Modify as needed
 		}
-		environment := &corev1.Environment{}
+		dataplane := &corev1.DataPlane{}
 
 		BeforeEach(func() {
-			By("creating the custom resource for the Kind Environment")
-			err := k8sClient.Get(ctx, typeNamespacedName, environment)
+			By("creating the custom resource for the Kind DataPlane")
+			err := k8sClient.Get(ctx, typeNamespacedName, dataplane)
 			if err != nil && errors.IsNotFound(err) {
-				resource := &corev1.Environment{
+				resource := &corev1.DataPlane{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      resourceName,
 						Namespace: "default",
@@ -59,16 +59,16 @@ var _ = Describe("Environment Controller", func() {
 
 		AfterEach(func() {
 			// TODO(user): Cleanup logic after each test, like removing the resource instance.
-			resource := &corev1.Environment{}
+			resource := &corev1.DataPlane{}
 			err := k8sClient.Get(ctx, typeNamespacedName, resource)
 			Expect(err).NotTo(HaveOccurred())
 
-			By("Cleanup the specific resource instance Environment")
+			By("Cleanup the specific resource instance DataPlane")
 			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
 		})
 		It("should successfully reconcile the resource", func() {
 			By("Reconciling the created resource")
-			controllerReconciler := &EnvironmentReconciler{
+			controllerReconciler := &Reconciler{
 				Client: k8sClient,
 				Scheme: k8sClient.Scheme(),
 			}

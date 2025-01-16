@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controller
+package component
 
 import (
 	"context"
@@ -27,10 +27,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 )
 
 // ComponentReconciler reconciles a Component object
-type ComponentReconciler struct {
+type Reconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
@@ -48,7 +49,7 @@ type ComponentReconciler struct {
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/reconcile
-func (r *ComponentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
 	// Fetch the Component instance
@@ -65,12 +66,12 @@ func (r *ComponentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	component.Status.ObservedGeneration = component.Generation
-	if err := UpdateCondition(
+	if err := controller.UpdateCondition(
 		ctx,
 		r.Status(),
 		component,
 		&component.Status.Conditions,
-		TypeCreated,
+		controller.TypeCreated,
 		metav1.ConditionTrue,
 		"ComponentCreated",
 		"Component is created",
@@ -82,7 +83,7 @@ func (r *ComponentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *ComponentReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&choreov1.Component{}).
 		Named("component").

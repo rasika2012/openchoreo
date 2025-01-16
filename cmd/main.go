@@ -36,6 +36,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/component"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/dataplane"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deploymentpipeline"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deploymenttrack"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/environment"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/organization"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/project"
 	// +kubebuilder:scaffold:imports
@@ -157,35 +162,35 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Project")
 		os.Exit(1)
 	}
-	if err = (&controller.EnvironmentReconciler{
+	if err = (&environment.Reconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Environment")
 		os.Exit(1)
 	}
-	if err = (&controller.DataPlaneReconciler{
+	if err = (&dataplane.Reconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "DataPlane")
 		os.Exit(1)
 	}
-	if err = (&controller.DeploymentPipelineReconciler{
+	if err = (&deploymentpipeline.Reconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "DeploymentPipeline")
 		os.Exit(1)
 	}
-	if err = (&controller.ComponentReconciler{
+	if err = (&component.Reconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Component")
 		os.Exit(1)
 	}
-	if err = (&controller.DeploymentTrackReconciler{
+	if err = (&deploymenttrack.Reconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {

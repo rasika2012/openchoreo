@@ -112,12 +112,12 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	organization.Status.ObservedGeneration = organization.Generation
-	if err := UpdateCondition(
+	if err := controller.UpdateCondition(
 		ctx,
 		r.Status(),
 		organization,
 		&organization.Status.Conditions,
-		TypeReady,
+		controller.TypeReady,
 		metav1.ConditionTrue,
 		"NamespaceCreated",
 		"Successfully created the Namespace",

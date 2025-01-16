@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controller
+package environment
 
 import (
 	"context"
@@ -27,10 +27,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 )
 
-// EnvironmentReconciler reconciles a Environment object
-type EnvironmentReconciler struct {
+// Reconciler reconciles a Environment object
+type Reconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
@@ -48,7 +49,7 @@ type EnvironmentReconciler struct {
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/reconcile
-func (r *EnvironmentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 	logger := log.FromContext(ctx)
 
@@ -66,12 +67,12 @@ func (r *EnvironmentReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	}
 
 	environment.Status.ObservedGeneration = environment.Generation
-	if err := UpdateCondition(
+	if err := controller.UpdateCondition(
 		ctx,
 		r.Status(),
 		environment,
 		&environment.Status.Conditions,
-		TypeAvailable,
+		controller.TypeAvailable,
 		metav1.ConditionTrue,
 		"EnvironmentAvailable",
 		"Environment is available",
@@ -83,7 +84,7 @@ func (r *EnvironmentReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *EnvironmentReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&choreov1.Environment{}).
 		Named("environment").
