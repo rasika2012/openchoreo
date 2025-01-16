@@ -21,7 +21,6 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -112,21 +111,18 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		logger.Info("Updated Namespace", "Namespace.Name", namespace.Name)
 	}
 
-	newCondition := metav1.Condition{
-		Type:               "Ready",
-		Status:             metav1.ConditionTrue,
-		LastTransitionTime: metav1.Now(),
-		Reason:             "NamespaceCreated",
-		Message:            "Successfully created the Namespace",
-	}
-	changed := meta.SetStatusCondition(&organization.Status.Conditions, newCondition)
-	if changed {
-		logger.Info("Updating Organization status", "Organization.Name", organization.Name)
-		if err := r.Status().Update(ctx, organization); err != nil {
-			logger.Error(err, "Failed to update Organization status", "Organization.Name", organization.Name)
-			return ctrl.Result{}, err
-		}
-		logger.Info("Updated Organization status", "Organization.Name", organization.Name)
+	organization.Status.ObservedGeneration = organization.Generation
+	if err := controller.UpdateCondition(
+		ctx,
+		r.Status(),
+		organization,
+		&organization.Status.Conditions,
+		controller.TypeReady,
+		metav1.ConditionTrue,
+		"NamespaceCreated",
+		"Successfully created the Namespace",
+	); err != nil {
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, nil

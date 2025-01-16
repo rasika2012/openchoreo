@@ -25,4 +25,49 @@ resources:
   kind: Project
   path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
   version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: choreo.dev
+  group: core
+  kind: Environment
+  path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: choreo.dev
+  group: core
+  kind: DataPlane
+  path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: choreo.dev
+  group: core
+  kind: DeploymentPipeline
+  path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: choreo.dev
+  group: core
+  kind: Component
+  path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: choreo.dev
+  group: core
+  kind: DeploymentTrack
+  path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
+  version: v1
 version: "3"

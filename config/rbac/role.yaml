@@ -19,6 +19,11 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - components
+  - dataplanes
+  - deploymentpipelines
+  - deploymenttracks
+  - environments
   - organizations
   - projects
   verbs:
@@ -32,6 +37,11 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - components/finalizers
+  - dataplanes/finalizers
+  - deploymentpipelines/finalizers
+  - deploymenttracks/finalizers
+  - environments/finalizers
   - organizations/finalizers
   - projects/finalizers
   verbs:
@@ -39,6 +49,11 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - components/status
+  - dataplanes/status
+  - deploymentpipelines/status
+  - deploymenttracks/status
+  - environments/status
   - organizations/status
   - projects/status
   verbs:

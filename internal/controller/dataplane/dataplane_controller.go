@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package project
+package dataplane
 
 import (
 	"context"
@@ -30,27 +30,20 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 )
 
-// // States for conditions
-// const (
-// 	TypeAccepted    = "Accepted"
-// 	TypeProgressing = "Progressing"
-// 	TypeAvailable   = "Available"
-// )
-
-// Reconciler reconciles a Project object
+// Reconciler reconciles a DataPlane object
 type Reconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=projects,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=projects/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=projects/finalizers,verbs=update
+// +kubebuilder:rbac:groups=core.choreo.dev,resources=dataplanes,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core.choreo.dev,resources=dataplanes/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=core.choreo.dev,resources=dataplanes/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the Project object against the actual cluster state, and then
+// the DataPlane object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
@@ -59,29 +52,29 @@ type Reconciler struct {
 func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	// Fetch the Project instance
-	project := &choreov1.Project{}
-	if err := r.Get(ctx, req.NamespacedName, project); err != nil {
+	// Fetch the DataPlane instance
+	dataPlane := &choreov1.DataPlane{}
+	if err := r.Get(ctx, req.NamespacedName, dataPlane); err != nil {
 		if apierrors.IsNotFound(err) {
-			// The Project resource may have been deleted since it triggered the reconcile
-			logger.Info("Project resource not found. Ignoring since it must be deleted.")
+			// The DataPlane resource may have been deleted since it triggered the reconcile
+			logger.Info("DataPlane resource not found. Ignoring since it must be deleted.")
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object
-		logger.Error(err, "Failed to get Project")
+		logger.Error(err, "Failed to get DataPlane")
 		return ctrl.Result{}, err
 	}
 
-	project.Status.ObservedGeneration = project.Generation
+	dataPlane.Status.ObservedGeneration = dataPlane.Generation
 	if err := controller.UpdateCondition(
 		ctx,
 		r.Status(),
-		project,
-		&project.Status.Conditions,
-		controller.TypeCreated,
+		dataPlane,
+		&dataPlane.Status.Conditions,
+		controller.TypeAvailable,
 		metav1.ConditionTrue,
-		"ProjectCreated",
-		"Project is created",
+		"DataPlaneAvailable",
+		"DataPlane is available",
 	); err != nil {
 		return ctrl.Result{}, err
 	}
@@ -92,7 +85,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&choreov1.Project{}).
-		Named("project").
+		For(&choreov1.DataPlane{}).
+		Named("dataplane").
 		Complete(r)
 }

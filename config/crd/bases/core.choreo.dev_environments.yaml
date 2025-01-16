@@ -4,20 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.4
-  name: organizations.core.choreo.dev
+  name: environments.core.choreo.dev
 spec:
   group: core.choreo.dev
   names:
-    kind: Organization
-    listKind: OrganizationList
-    plural: organizations
-    singular: organization
-  scope: Cluster
+    kind: Environment
+    listKind: EnvironmentList
+    plural: environments
+    singular: environment
+  scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: Organization is the Schema for the organizations API.
+        description: Environment is the Schema for the environments API.
         properties:
           apiVersion:
             description: |-
@@ -37,14 +37,21 @@ spec:
           metadata:
             type: object
           spec:
-            description: OrganizationSpec defines the desired state of Organization.
+            description: EnvironmentSpec defines the desired state of Environment.
+            properties:
+              dataPlaneRef:
+                description: Foo is an example field of Environment. Edit environment_types.go
+                  to remove/update
+                type: string
+              dnsPrefix:
+                type: string
+              isProduction:
+                type: boolean
             type: object
           status:
-            description: OrganizationStatus defines the observed state of Organization.
+            description: EnvironmentStatus defines the observed state of Environment.
             properties:
               conditions:
-                description: Conditions represent the latest available observations
-                  of an object's current state.
                 items:
                   description: Condition contains details for one aspect of the current
                     state of this API Resource.
@@ -101,6 +108,9 @@ spec:
                   type: object
                 type: array
               observedGeneration:
+                description: |-
+                  INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+                  Important: Run "make" to regenerate code after modifying this file
                 format: int64
                 type: integer
             type: object

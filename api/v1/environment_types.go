@@ -23,44 +23,46 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// OrganizationSpec defines the desired state of Organization.
-type OrganizationSpec struct {
+// EnvironmentSpec defines the desired state of Environment.
+type EnvironmentSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// Foo is an example field of Environment. Edit environment_types.go to remove/update
+	DataPlaneRef string `json:"dataPlaneRef,omitempty"`
+	IsProduction bool   `json:"isProduction,omitempty"`
+	DnsPrefix    string `json:"dnsPrefix,omitempty"`
 }
 
-// OrganizationStatus defines the observed state of Organization.
-type OrganizationStatus struct {
+// EnvironmentStatus defines the observed state of Environment.
+type EnvironmentStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-
-	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
-	// Conditions represent the latest available observations of an object's current state.
-	Conditions []metav1.Condition `json:"conditions,omitempty"`
+	ObservedGeneration int64              `json:"observedGeneration,omitempty"`
+	Conditions         []metav1.Condition `json:"conditions,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-// +kubebuilder:resource:scope=Cluster
 
-// Organization is the Schema for the organizations API.
-type Organization struct {
+// Environment is the Schema for the environments API.
+type Environment struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   OrganizationSpec   `json:"spec,omitempty"`
-	Status OrganizationStatus `json:"status,omitempty"`
+	Spec   EnvironmentSpec   `json:"spec,omitempty"`
+	Status EnvironmentStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 
-// OrganizationList contains a list of Organization.
-type OrganizationList struct {
+// EnvironmentList contains a list of Environment.
+type EnvironmentList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Organization `json:"items"`
+	Items           []Environment `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&Organization{}, &OrganizationList{})
+	SchemeBuilder.Register(&Environment{}, &EnvironmentList{})
 }
