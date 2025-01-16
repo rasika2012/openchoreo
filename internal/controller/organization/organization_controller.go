@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controller
+package organization
 
 import (
 	"context"
@@ -29,10 +29,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 )
 
-// OrganizationReconciler reconciles a Organization object
-type OrganizationReconciler struct {
+// Reconciler reconciles a Organization object
+type Reconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
@@ -40,6 +41,7 @@ type OrganizationReconciler struct {
 // +kubebuilder:rbac:groups=core.choreo.dev,resources=organizations,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=core.choreo.dev,resources=organizations/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=core.choreo.dev,resources=organizations/finalizers,verbs=update
+// +kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -50,7 +52,7 @@ type OrganizationReconciler struct {
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/reconcile
-func (r *OrganizationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
 	// Fetch the Organization instance
@@ -131,7 +133,7 @@ func (r *OrganizationReconciler) Reconcile(ctx context.Context, req ctrl.Request
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *OrganizationReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&choreov1.Organization{}).
 		Owns(&corev1.Namespace{}). // Watch any changes to owned Namespaces
@@ -151,8 +153,8 @@ func makeOrganizationNamespace(organization *choreov1.Organization) *corev1.Name
 
 func makeOrganizationNamespaceLabels(organization *choreov1.Organization) map[string]string {
 	return map[string]string{
-		LabelKeyManagedBy:        LabelValueManagedBy,
-		LabelKeyOrganizationName: organization.Name,
-		LabelKeyName:             organization.Name,
+		controller.LabelKeyManagedBy:        controller.LabelValueManagedBy,
+		controller.LabelKeyOrganizationName: organization.Name,
+		controller.LabelKeyName:             organization.Name,
 	}
 }
