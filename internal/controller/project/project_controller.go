@@ -20,7 +20,6 @@ import (
 	"context"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -96,29 +95,4 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&choreov1.Project{}).
 		Named("project").
 		Complete(r)
-}
-
-// Helper function updateCondition updates or adds a condition
-func (r *Reconciler) updateCondition(ctx context.Context, project *choreov1.Project,
-	conditionType string, status metav1.ConditionStatus, reason, message string) {
-	logger := log.FromContext(ctx)
-
-	condition := metav1.Condition{
-		Type:               conditionType,
-		Status:             status,
-		Reason:             reason,
-		Message:            message,
-		LastTransitionTime: metav1.Now(),
-	}
-
-	changed := meta.SetStatusCondition(&project.Status.Conditions, condition)
-	if changed {
-
-		logger.Info("Updating Resource status", "Project.Name", project.Name)
-		if err := r.Status().Update(ctx, project); err != nil {
-			logger.Error(err, "Failed to update Project status", "Project.Name", project.Name)
-			return
-		}
-		logger.Info("Updated Resource status", "Project.Name", project.Name)
-	}
 }
