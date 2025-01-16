@@ -28,14 +28,63 @@ type BuildSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of Build. Edit build_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Branch             string             `json:"branch,omitempty"`
+	Path               string             `json:"path,omitempty"`
+	AutoBuild          bool               `json:"autoBuild,omitempty"`
+	BuildConfiguration BuildConfiguration `json:"buildConfiguration"`
+	BuildEnvironment   BuildEnvironment   `json:"buildEnvironment,omitempty"`
 }
+
+type BuildConfiguration struct {
+	Docker    Docker    `json:"docker,omitempty"`
+	Buildpack Buildpack `json:"buildpack,omitempty"`
+}
+
+type Docker struct {
+	Context        string `json:"context,omitempty"`
+	DockerfilePath string `json:"dockerfilePath,omitempty"`
+}
+
+type Buildpack struct {
+	Name    BuildpackName `json:"name"`
+	Version string        `json:"version,omitempty"`
+}
+
+type BuildEnvironment struct {
+	Env     []BuildEnvironmentVariable `json:"env"`
+	EnvFrom []BuildEnvironmentFrom     `json:"envFrom"`
+}
+
+type BuildEnvironmentVariable struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type BuildEnvironmentFrom struct {
+	SecretRef string `json:"secretRef"`
+}
+
+type BuildpackName string
+
+const (
+	BuildpackBallerina  BuildpackName = "Ballerina"
+	BuildpackGo         BuildpackName = "Go"
+	BuildpackJava       BuildpackName = "Java"
+	BuildpackNodeJS     BuildpackName = "NodeJS"
+	BuildpackPython     BuildpackName = "Python"
+	BuildpackRuby       BuildpackName = "Ruby"
+	BuildpackPHP        BuildpackName = "PHP"
+	BuildpackDotNET     BuildpackName = ".NET"
+	BuildpackSpringBoot BuildpackName = "SpringBoot"
+)
 
 // BuildStatus defines the observed state of Build.
 type BuildStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// Conditions represent the latest available observations of an object's current state.
+	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -46,7 +95,7 @@ type Build struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   BuildSpec   `json:"spec,omitempty"`
+	Spec   BuildSpec   `json:"spec"`
 	Status BuildStatus `json:"status,omitempty"`
 }
 

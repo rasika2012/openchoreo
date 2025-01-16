@@ -135,6 +135,7 @@ func (r *OrganizationReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&choreov1.Organization{}).
 		Named("organization").
+		Owns(&corev1.Namespace{}).
 		Complete(r)
 }
 

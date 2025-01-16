@@ -7,6 +7,7 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - builds
   - organizations
   verbs:
   - create
@@ -19,12 +20,14 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - builds/finalizers
   - organizations/finalizers
   verbs:
   - update
 - apiGroups:
   - core.choreo.dev
   resources:
+  - builds/status
   - organizations/status
   verbs:
   - get

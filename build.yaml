@@ -1,0 +1,24 @@
+apiVersion: core.choreo.dev/v1
+kind: Build
+metadata:
+  name: test-build
+  namespace: test-org
+  annotations:
+    core.choreo.dev/display-name: Test Build
+    core.choreo.dev/description: Test Build Description
+  labels:
+    core.choreo.dev/deployment-track: test-deployment-track
+    core.choreo.dev/component: test-component
+    core.choreo.dev/project: test-project
+    core.choreo.dev/organization: test-org
+spec:
+  branch: main
+  path: /
+  autoBuild: true
+  buildConfiguration:
+#    docker:
+#      context: /
+#      dockerfilePath: Dockerfile
+    buildpack:
+      name: Go
+      version: 2.5.3
