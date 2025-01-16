@@ -36,7 +36,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/organization"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/project"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -142,18 +143,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controller.OrganizationReconciler{
+	if err = (&organization.Reconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Organization")
 		os.Exit(1)
 	}
-	if err = (&controller.BuildReconciler{
+	if err = (&project.Reconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Build")
+		setupLog.Error(err, "unable to create controller", "controller", "Project")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

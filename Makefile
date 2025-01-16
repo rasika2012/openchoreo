@@ -210,3 +210,14 @@ mv $(1) $(1)-$(3) ;\
 } ;\
 ln -sf $(1)-$(3) $(1)
 endef
+
+HELMIFY ?= $(LOCALBIN)/helmify
+HELM_CHART_OUTPUT ?= ./install/helm/choreo-system-dp/charts/choreo-controllers
+
+.PHONY: helmify
+helmify: $(HELMIFY)
+$(HELMIFY): $(LOCALBIN)
+	test -s $(LOCALBIN)/helmify || GOBIN=$(LOCALBIN) go install github.com/arttor/helmify/cmd/helmify@v0.4.17
+
+helm: manifests kustomize helmify
+	$(KUSTOMIZE) build config/default | $(HELMIFY) $(HELM_CHART_OUTPUT)

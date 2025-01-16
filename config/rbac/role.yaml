@@ -5,10 +5,23 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - core.choreo.dev
   resources:
   - builds
   - organizations
+  - projects
   verbs:
   - create
   - delete
@@ -22,6 +35,7 @@ rules:
   resources:
   - builds/finalizers
   - organizations/finalizers
+  - projects/finalizers
   verbs:
   - update
 - apiGroups:
@@ -29,6 +43,7 @@ rules:
   resources:
   - builds/status
   - organizations/status
+  - projects/status
   verbs:
   - get
   - patch
