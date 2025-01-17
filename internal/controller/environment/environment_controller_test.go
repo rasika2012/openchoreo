@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
@@ -68,8 +69,9 @@ var _ = Describe("Environment Controller", func() {
 		It("should successfully reconcile the resource", func() {
 			By("Reconciling the created resource")
 			controllerReconciler := &Reconciler{
-				Client: k8sClient,
-				Scheme: k8sClient.Scheme(),
+				Client:   k8sClient,
+				Scheme:   k8sClient.Scheme(),
+				recorder: record.NewFakeRecorder(100),
 			}
 
 			_, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
