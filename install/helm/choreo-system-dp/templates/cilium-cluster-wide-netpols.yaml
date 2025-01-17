@@ -5,7 +5,7 @@ metadata:
 spec:
  endpointSelector:
    matchLabels:
-     user_app: 'true'
+     belong-to: user-workloads
  egress:
    - toEndpoints:
        - matchLabels:
@@ -27,7 +27,7 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      user_app: 'true'
+      belong-to: user-workloads
   egress:
     - toCIDRSet:
         - cidr: 0.0.0.0/0
@@ -39,17 +39,17 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      user_app: 'true'
+      belong-to: user-workloads
   egress:
     - toEndpoints:
        - matchLabels:
-          "gateway.envoyproxy.io/owning-gateway-name": gateway-internal
-          "k8s:io.kubernetes.pod.namespace": choreo-dp
+          gateway.envoyproxy.io/owning-gateway-name: gateway-internal
+          gateway.envoyproxy.io/owning-gateway-namespace: choreo-system-dp
   ingress:
     - fromEndpoints:
        - matchLabels:
-          "gateway.envoyproxy.io/owning-gateway-name": gateway-internal
-          "k8s:io.kubernetes.pod.namespace": choreo-dp
+          gateway.envoyproxy.io/owning-gateway-name: gateway-external
+          gateway.envoyproxy.io/owning-gateway-namespace: choreo-system-dp
 ---
 apiVersion: cilium.io/v2
 kind: CiliumClusterwideNetworkPolicy
@@ -58,10 +58,10 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      user_app: 'true'
+      belong-to: user-workloads
   ingress:
-    - fromEndpoints:
-       - matchLabels:
-          "gateway.envoyproxy.io/owning-gateway-name": gateway-external
-          "k8s:io.kubernetes.pod.namespace": choreo-dp
+  - fromEndpoints:
+    - matchLabels:
+        gateway.envoyproxy.io/owning-gateway-name: gateway-external
+        gateway.envoyproxy.io/owning-gateway-namespace: choreo-system-dp
 

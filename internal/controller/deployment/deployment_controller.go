@@ -126,6 +126,11 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		ContainerImage:     containerImage,
 	}
 
+	if component.Spec.Type == "WebApplication" {
+		// TODO: REMOVE THIS
+		deploymentCtx.ContainerImage = "docker.io/jhivandb/react-nginx:latest"
+	}
+
 	// Find and reconcile all the external resources
 	externalResourceHandlers := r.makeExternalResourceHandlers()
 	if err := r.reconcileExternalResources(ctx, externalResourceHandlers, deploymentCtx); err != nil {
@@ -455,6 +460,9 @@ func (r *Reconciler) makeExternalResourceHandlers() []integrations.ResourceHandl
 	handlers = append(handlers, k8sintegrations.NewNamespaceHandler(r.Client))
 	handlers = append(handlers, k8sintegrations.NewCiliumNetworkPolicyHandler(r.Client))
 	handlers = append(handlers, k8sintegrations.NewCronJobHandler(r.Client))
+	handlers = append(handlers, k8sintegrations.NewDeploymentHandler(r.Client))
+	handlers = append(handlers, k8sintegrations.NewServiceHandler(r.Client))
+	handlers = append(handlers, k8sintegrations.NewHTTPRouteHandler(r.Client))
 
 	return handlers
 }

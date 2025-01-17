@@ -49,6 +49,7 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/project"
 	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/argoproj.io/workflow/v1alpha1"
 	ciliumv2 "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/cilium.io/v2"
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -62,6 +63,7 @@ func init() {
 
 	utilruntime.Must(ciliumv2.AddToScheme(scheme))
 	utilruntime.Must(corev1.AddToScheme(scheme))
+	utilruntime.Must(gatewayv1.Install(scheme))
 	// +kubebuilder:scaffold:scheme
 }
 
