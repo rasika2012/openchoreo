@@ -138,6 +138,7 @@ func makeCronJobSpec(deployCtx integrations.DeploymentContext) batchv1.CronJobSp
 						Containers: []corev1.Container{
 							{
 								Name:  "main",
+								Env:   makeEnvironmentVariables(deployCtx),
 								Image: deployCtx.ContainerImage,
 							},
 						},
@@ -170,4 +171,25 @@ func makeCronJobSpec(deployCtx integrations.DeploymentContext) batchv1.CronJobSp
 		}
 	}
 	return cronJobSpec
+}
+
+// TODO: move this to a common place
+func makeEnvironmentVariables(deployCtx integrations.DeploymentContext) []corev1.EnvVar {
+	if deployCtx.DeployableArtifact.Spec.Configuration == nil ||
+		deployCtx.DeployableArtifact.Spec.Configuration.Application == nil {
+		return nil
+	}
+
+	envVars := deployCtx.DeployableArtifact.Spec.Configuration.Application.Env
+	k8sEnvVars := make([]corev1.EnvVar, 0, len(envVars))
+	for _, v := range envVars {
+		if v.Key == "" {
+			continue
+		}
+		k8sEnvVars = append(k8sEnvVars, corev1.EnvVar{
+			Name:  v.Key,
+			Value: v.Value,
+		})
+	}
+	return k8sEnvVars
 }
