@@ -41,7 +41,7 @@ type OrganizationStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-// +kubebuilder:resource:scope=Cluster
+// +kubebuilder:resource:scope=Cluster,shortName=org;orgs
 
 // Organization is the Schema for the organizations API.
 type Organization struct {

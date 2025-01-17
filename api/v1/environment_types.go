@@ -44,7 +44,7 @@ type EnvironmentStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-
+// +kubebuilder:resource:scope=Namespaced,shortName=env;envs
 // Environment is the Schema for the environments API.
 type Environment struct {
 	metav1.TypeMeta   `json:",inline"`

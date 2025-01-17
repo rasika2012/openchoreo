@@ -11,6 +11,9 @@ spec:
     kind: Project
     listKind: ProjectList
     plural: projects
+    shortNames:
+    - proj
+    - projs
     singular: project
   scope: Namespaced
   versions:

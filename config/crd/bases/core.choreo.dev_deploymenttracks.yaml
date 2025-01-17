@@ -11,6 +11,9 @@ spec:
     kind: DeploymentTrack
     listKind: DeploymentTrackList
     plural: deploymenttracks
+    shortNames:
+    - deptrack
+    - deptracks
     singular: deploymenttrack
   scope: Namespaced
   versions:

@@ -11,6 +11,9 @@ spec:
     kind: DeploymentPipeline
     listKind: DeploymentPipelineList
     plural: deploymentpipelines
+    shortNames:
+    - deppipe
+    - deppipes
     singular: deploymentpipeline
   scope: Namespaced
   versions:

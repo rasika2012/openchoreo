@@ -72,7 +72,7 @@ type DataPlaneStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-
+// +kubebuilder:resource:scope=Namespaced,shortName=dp;dps
 // DataPlane is the Schema for the dataplanes API.
 type DataPlane struct {
 	metav1.TypeMeta   `json:",inline"`

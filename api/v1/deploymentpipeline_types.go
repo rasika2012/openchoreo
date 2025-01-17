@@ -65,7 +65,7 @@ type DeploymentPipelineStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-
+// +kubebuilder:resource:scope=Namespaced,shortName=deppipe;deppipes
 // DeploymentPipeline is the Schema for the deploymentpipelines API.
 type DeploymentPipeline struct {
 	metav1.TypeMeta   `json:",inline"`
