@@ -22,9 +22,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -75,7 +75,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	// Check if the namespace exists, and create it if not
-	if err := r.ensureNamespaceResources(ctx, build.ObjectMeta.Labels["core.choreo.dev/organization"]+"-build", logger); err != nil {
+	if err := r.ensureNamespaceResources(ctx, "argo-build", logger); err != nil {
 		return ctrl.Result{Requeue: true}, err
 	}
 
@@ -121,60 +121,60 @@ func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName
 		return err
 	}
 
-	// Step 2: Create ServiceAccount
-	sa := &corev1.ServiceAccount{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "argo-workflow-sa",
-			Namespace: namespaceName,
-		},
-	}
-	if err := r.Client.Create(ctx, sa); err != nil && !apierrors.IsAlreadyExists(err) {
-		logger.Error(err, "Failed to create ServiceAccount", "Namespace", namespaceName)
-		return err
-	}
-
-	// Step 3: Create Role
-	role := &rbacv1.Role{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "argo-workflow-role",
-			Namespace: namespaceName,
-		},
-		Rules: []rbacv1.PolicyRule{
-			{
-				APIGroups: []string{"argoproj.io"},
-				Resources: []string{"workflowtaskresults"},
-				Verbs:     []string{"create", "get", "list", "watch", "update", "patch"},
-			},
-		},
-	}
-	if err := r.Client.Create(ctx, role); err != nil && !apierrors.IsAlreadyExists(err) {
-		logger.Error(err, "Failed to create Role", "Namespace", namespaceName)
-		return err
-	}
-
-	// Step 4: Create RoleBinding
-	roleBinding := &rbacv1.RoleBinding{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "argo-workflow-binding",
-			Namespace: namespaceName,
-		},
-		Subjects: []rbacv1.Subject{
-			{
-				Kind:      "ServiceAccount",
-				Name:      "argo-workflow-sa",
-				Namespace: namespaceName,
-			},
-		},
-		RoleRef: rbacv1.RoleRef{
-			Kind:     "Role",
-			Name:     "argo-workflow-role",
-			APIGroup: "rbac.authorization.k8s.io",
-		},
-	}
-	if err := r.Client.Create(ctx, roleBinding); err != nil && !apierrors.IsAlreadyExists(err) {
-		logger.Error(err, "Failed to create RoleBinding", "Namespace", namespaceName)
-		return err
-	}
+	//// Step 2: Create ServiceAccount
+	//sa := &corev1.ServiceAccount{
+	//	ObjectMeta: metav1.ObjectMeta{
+	//		Name:      "argo-workflow-sa",
+	//		Namespace: namespaceName,
+	//	},
+	//}
+	//if err := r.Client.Create(ctx, sa); err != nil && !apierrors.IsAlreadyExists(err) {
+	//	logger.Error(err, "Failed to create ServiceAccount", "Namespace", namespaceName)
+	//	return err
+	//}
+	//
+	//// Step 3: Create Role
+	//role := &rbacv1.Role{
+	//	ObjectMeta: metav1.ObjectMeta{
+	//		Name:      "argo-workflow-role",
+	//		Namespace: namespaceName,
+	//	},
+	//	Rules: []rbacv1.PolicyRule{
+	//		{
+	//			APIGroups: []string{"argoproj.io"},
+	//			Resources: []string{"workflowtaskresults"},
+	//			Verbs:     []string{"create", "get", "list", "watch", "update", "patch"},
+	//		},
+	//	},
+	//}
+	//if err := r.Client.Create(ctx, role); err != nil && !apierrors.IsAlreadyExists(err) {
+	//	logger.Error(err, "Failed to create Role", "Namespace", namespaceName)
+	//	return err
+	//}
+	//
+	//// Step 4: Create RoleBinding
+	//roleBinding := &rbacv1.RoleBinding{
+	//	ObjectMeta: metav1.ObjectMeta{
+	//		Name:      "argo-workflow-binding",
+	//		Namespace: namespaceName,
+	//	},
+	//	Subjects: []rbacv1.Subject{
+	//		{
+	//			Kind:      "ServiceAccount",
+	//			Name:      "argo-workflow-sa",
+	//			Namespace: namespaceName,
+	//		},
+	//	},
+	//	RoleRef: rbacv1.RoleRef{
+	//		Kind:     "Role",
+	//		Name:     "argo-workflow-role",
+	//		APIGroup: "rbac.authorization.k8s.io",
+	//	},
+	//}
+	//if err := r.Client.Create(ctx, roleBinding); err != nil && !apierrors.IsAlreadyExists(err) {
+	//	logger.Error(err, "Failed to create RoleBinding", "Namespace", namespaceName)
+	//	return err
+	//}
 	logger.Info("Namespace resources created successfully", "Namespace", namespaceName)
 	return nil
 }
@@ -639,7 +639,7 @@ func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreo
 		},
 		Spec: choreov1.DeployableArtifactSpec{
 			TargetArtifact: choreov1.TargetArtifact{
-				FromBuildRef: choreov1.FromBuildRef{
+				FromBuildRef: &choreov1.FromBuildRef{
 					Name: build.ObjectMeta.Name,
 				},
 			},

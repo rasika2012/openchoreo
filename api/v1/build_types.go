@@ -39,9 +39,19 @@ type BuildSpec struct {
 	BuildEnvironment   BuildEnvironment   `json:"buildEnvironment,omitempty"`
 }
 
+type DockerConfiguration struct {
+	// Context specifies the build context path
+	Context string `json:"context"`
+	// DockerfilePath specifies the path to the Dockerfile
+	DockerfilePath string `json:"dockerfilePath"`
+}
+
+// BuildConfiguration specifies the build configuration details
 type BuildConfiguration struct {
-	Docker    Docker    `json:"docker,omitempty"`
-	Buildpack Buildpack `json:"buildpack,omitempty"`
+	// Docker specifies the Docker-specific build configuration
+	Docker *DockerConfiguration `json:"docker,omitempty"`
+	// Buildpack specifies the buildpack to use
+	Buildpack BuildpackConfiguration `json:"buildpack"`
 }
 
 type Docker struct {
@@ -49,7 +59,7 @@ type Docker struct {
 	DockerfilePath string `json:"dockerfilePath,omitempty"`
 }
 
-type Buildpack struct {
+type BuildpackConfiguration struct {
 	Name    BuildpackName `json:"name"`
 	Version string        `json:"version,omitempty"`
 }

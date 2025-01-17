@@ -44,8 +44,11 @@ spec:
               branch:
                 type: string
               buildConfiguration:
+                description: BuildConfiguration specifies the build configuration
+                  details
                 properties:
                   buildpack:
+                    description: Buildpack specifies the buildpack to use
                     properties:
                       name:
                         type: string
@@ -55,12 +58,20 @@ spec:
                     - name
                     type: object
                   docker:
+                    description: Docker specifies the Docker-specific build configuration
                     properties:
                       context:
+                        description: Context specifies the build context path
                         type: string
                       dockerfilePath:
+                        description: DockerfilePath specifies the path to the Dockerfile
                         type: string
+                    required:
+                    - context
+                    - dockerfilePath
                     type: object
+                required:
+                - buildpack
                 type: object
               buildEnvironment:
                 properties:

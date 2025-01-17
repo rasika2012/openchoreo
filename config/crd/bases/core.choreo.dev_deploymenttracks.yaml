@@ -51,6 +51,16 @@ spec:
                   buildConfiguration:
                     description: BuildConfiguration specifies the build settings
                     properties:
+                      buildpack:
+                        description: Buildpack specifies the buildpack to use
+                        properties:
+                          name:
+                            type: string
+                          version:
+                            type: string
+                        required:
+                        - name
+                        type: object
                       docker:
                         description: Docker specifies the Docker-specific build configuration
                         properties:
@@ -66,7 +76,7 @@ spec:
                         - dockerfilePath
                         type: object
                     required:
-                    - docker
+                    - buildpack
                     type: object
                   path:
                     description: Path specifies the repository path to use
