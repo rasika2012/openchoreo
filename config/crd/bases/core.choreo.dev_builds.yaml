@@ -155,6 +155,13 @@ spec:
                   - type
                   type: object
                 type: array
+              imageStatus:
+                properties:
+                  image:
+                    type: string
+                required:
+                - image
+                type: object
             type: object
         required:
         - spec

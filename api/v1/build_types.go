@@ -23,6 +23,10 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+type Image struct {
+	Image string `json:"image"`
+}
+
 // BuildSpec defines the desired state of Build.
 type BuildSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
@@ -84,7 +88,8 @@ type BuildStatus struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Conditions represent the latest available observations of an object's current state.
-	Conditions []metav1.Condition `json:"conditions,omitempty"`
+	Conditions  []metav1.Condition `json:"conditions,omitempty"`
+	ImageStatus Image              `json:"imageStatus,omitempty"`
 }
 
 // +kubebuilder:object:root=true

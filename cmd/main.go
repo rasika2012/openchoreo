@@ -19,6 +19,7 @@ package main
 import (
 	"crypto/tls"
 	"flag"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployableArtifact"
 	"log"
 	"os"
 
@@ -170,6 +171,13 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Build")
+		os.Exit(1)
+	}
+	if err = (&deployableArtifact.DeployableArtifactReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "DeployableArtifact")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

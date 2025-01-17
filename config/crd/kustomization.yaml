@@ -5,6 +5,7 @@ resources:
   - bases/core.choreo.dev_organizations.yaml
   - bases/core.choreo.dev_builds.yaml
   - bases/core.choreo.dev_projects.yaml
+  - bases/core.choreo.dev_deployableartifacts.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 # patches:
