@@ -23,15 +23,15 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"k8s.io/utils/ptr"
+
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/utils/pointer"
 
-	//argoTest "github.com/argoproj/argo-workflows/pkg/apis/workflow/v1alpha1"
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/build/argo/workflow/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -121,20 +121,20 @@ func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName
 		return err
 	}
 
-	//// Step 2: Create ServiceAccount
-	//sa := &corev1.ServiceAccount{
+	// // Step 2: Create ServiceAccount
+	// sa := &corev1.ServiceAccount{
 	//	ObjectMeta: metav1.ObjectMeta{
 	//		Name:      "argo-workflow-sa",
 	//		Namespace: namespaceName,
 	//	},
-	//}
-	//if err := r.Client.Create(ctx, sa); err != nil && !apierrors.IsAlreadyExists(err) {
+	// }
+	// if err := r.Client.Create(ctx, sa); err != nil && !apierrors.IsAlreadyExists(err) {
 	//	logger.Error(err, "Failed to create ServiceAccount", "Namespace", namespaceName)
 	//	return err
-	//}
+	// }
 	//
-	//// Step 3: Create Role
-	//role := &rbacv1.Role{
+	// // Step 3: Create Role
+	// role := &rbacv1.Role{
 	//	ObjectMeta: metav1.ObjectMeta{
 	//		Name:      "argo-workflow-role",
 	//		Namespace: namespaceName,
@@ -146,14 +146,14 @@ func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName
 	//			Verbs:     []string{"create", "get", "list", "watch", "update", "patch"},
 	//		},
 	//	},
-	//}
-	//if err := r.Client.Create(ctx, role); err != nil && !apierrors.IsAlreadyExists(err) {
+	// }
+	// if err := r.Client.Create(ctx, role); err != nil && !apierrors.IsAlreadyExists(err) {
 	//	logger.Error(err, "Failed to create Role", "Namespace", namespaceName)
 	//	return err
-	//}
+	// }
 	//
-	//// Step 4: Create RoleBinding
-	//roleBinding := &rbacv1.RoleBinding{
+	// // Step 4: Create RoleBinding
+	// roleBinding := &rbacv1.RoleBinding{
 	//	ObjectMeta: metav1.ObjectMeta{
 	//		Name:      "argo-workflow-binding",
 	//		Namespace: namespaceName,
@@ -170,11 +170,11 @@ func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName
 	//		Name:     "argo-workflow-role",
 	//		APIGroup: "rbac.authorization.k8s.io",
 	//	},
-	//}
-	//if err := r.Client.Create(ctx, roleBinding); err != nil && !apierrors.IsAlreadyExists(err) {
+	// }
+	// if err := r.Client.Create(ctx, roleBinding); err != nil && !apierrors.IsAlreadyExists(err) {
 	//	logger.Error(err, "Failed to create RoleBinding", "Namespace", namespaceName)
 	//	return err
-	//}
+	// }
 	logger.Info("Namespace resources created successfully", "Namespace", namespaceName)
 	return nil
 }
@@ -221,6 +221,7 @@ func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, 
 	return &existingWorkflow, nil
 }
 
+// TODO: Break down this function
 func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build, Nodes argo.Nodes, logger logr.Logger) (ctrl.Result, error) {
 	steps := []struct {
 		stepName      string
@@ -714,7 +715,7 @@ echo "Repository cloned successfully."`, branch, branch, repo),
 					Container: &corev1.Container{
 						Image: "chalindukodikara/podman:v1.0",
 						SecurityContext: &corev1.SecurityContext{
-							Privileged: pointer.BoolPtr(true),
+							Privileged: ptr.To(true),
 						},
 						Command: []string{"sh", "-c"},
 						Args:    generateBuildArgs(build),
@@ -729,7 +730,7 @@ echo "Repository cloned successfully."`, branch, branch, repo),
 					Container: &corev1.Container{
 						Image: "chalindukodikara/podman:v1.0",
 						SecurityContext: &corev1.SecurityContext{
-							Privileged: pointer.BoolPtr(true),
+							Privileged: ptr.To(true),
 						},
 						Command: []string{"sh", "-c"},
 						Args: []string{

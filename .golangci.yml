@@ -42,6 +42,9 @@ linters:
     - unused
 
 linters-settings:
+  gocyclo:
+    # Minimal code complexity to report.
+    min-complexity: 60
   revive:
     rules:
       - name: comment-spacings

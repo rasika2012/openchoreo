@@ -2,6 +2,7 @@ package v1alpha1
 
 import (
 	"encoding/json"
+
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -81,7 +82,7 @@ type WorkflowList struct {
 	Items           Workflows `json:"items" protobuf:"bytes,2,opt,name=items"`
 }
 
-// TTLStrategy is the strategy for the time to live depending on if the workflow succeded or failed
+// TTLStrategy is the strategy for the time to live depending on if the workflow succeeded or failed
 type TTLStrategy struct {
 	SecondsAfterCompletion *int32 `json:"secondsAfterCompletion,omitempty" protobuf:"bytes,1,opt,name=secondsAfterCompletion"`
 	SecondsAfterSuccess    *int32 `json:"secondsAfterSuccess,omitempty" protobuf:"bytes,2,opt,name=secondsAfterSuccess"`
@@ -529,20 +530,20 @@ type Outputs struct {
 }
 
 // TemplateHolder is an interface for holders of templates.
-//type TemplateHolder interface {
+// type TemplateHolder interface {
 //	GetTemplateName() string
 //	GetTemplateRef() *TemplateRef
-//}
+// }
 //
-//var _ TemplateHolder = &WorkflowStep{}
+// var _ TemplateHolder = &WorkflowStep{}
 //
-//func (step *WorkflowStep) GetTemplateName() string {
+// func (step *WorkflowStep) GetTemplateName() string {
 //	return step.Template
-//}
+// }
 //
-//func (step *WorkflowStep) GetTemplateRef() *TemplateRef {
+// func (step *WorkflowStep) GetTemplateRef() *TemplateRef {
 //	return step.TemplateRef
-//}
+// }
 
 // WorkflowStep is a reference to a template to execute in a series of step
 type WorkflowStep struct {
