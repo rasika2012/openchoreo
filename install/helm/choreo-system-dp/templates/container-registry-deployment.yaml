@@ -16,6 +16,8 @@ spec:
       containers:
       - name: registry
         image: registry:2
+        resources:
+          {{- toYaml .Values.registry.resources | nindent 12 }}
         ports:
         - containerPort: 5000
         env:

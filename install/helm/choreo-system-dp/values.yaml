@@ -17,11 +17,42 @@ gateway-helm:
 
 vault:
    server:
+      resources:
+         requests:
+            memory: 64Mi
+            cpu: 50m
+         limits:
+            memory: 128Mi
+            cpu: 100m
       dev:
          enabled: true
          devRootToken: "root"
          logLevel: "info"
+   injector:
+      resources:
+         requests:
+            memory: 64Mi
+            cpu: 50m
+         limits:
+            memory: 128Mi
+            cpu: 100m
 argo-workflows:
+   controller:
+      resources:
+         limits:
+            memory: 64Mi
+            cpu: 50m
+         requests:
+            memory: 32Mi
+            cpu: 25m
+   server:
+      resources:
+         limits:
+            memory: 64Mi
+            cpu: 50m
+         requests:
+            memory: 32Mi
+            cpu: 25m
    crds:
       keep: false
    workflow:
@@ -29,3 +60,24 @@ argo-workflows:
          create: true
    workflowNamespaces:
       - argo-build
+
+registry:
+   # -- Resource limits and requests for the registry
+   resources:
+      limits:
+         memory: 256Mi
+         cpu: 100m
+      requests:
+         memory: 128Mi
+         cpu: 50m
+
+gateway-helm:
+   deployment:
+      envoyGateway:
+         resources:
+            limits:
+               cpu: 200m
+               memory: 256Mi
+            requests:
+               cpu: 100m
+               memory: 128Mi
