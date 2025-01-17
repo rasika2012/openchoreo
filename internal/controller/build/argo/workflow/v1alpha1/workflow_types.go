@@ -2,12 +2,8 @@ package v1alpha1
 
 import (
 	"encoding/json"
-	"fmt"
-	"hash/fnv"
-
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 // TemplateType is the type of a template
@@ -63,28 +59,6 @@ const (
 	PodGCOnWorkflowSuccess    PodGCStrategy = "OnWorkflowSuccess"
 )
 
-// TemplateGetter is an interface to get templates.
-type TemplateGetter interface {
-	GetNamespace() string
-	GetName() string
-	GroupVersionKind() schema.GroupVersionKind
-	GetTemplateByName(name string) *Template
-	GetTemplateScope() string
-}
-
-// TemplateHolder is an interface for holders of templates.
-type TemplateHolder interface {
-	GetTemplateName() string
-	GetTemplateRef() *TemplateRef
-	IsResolvable() bool
-}
-
-// TemplateStorage is an interface of template storage getter and setter.
-type TemplateStorage interface {
-	GetStoredTemplate(templateScope string, holder TemplateHolder) *Template
-	SetStoredTemplate(templateScope string, holder TemplateHolder, tmpl *Template) (bool, error)
-}
-
 // Workflow is the definition of a workflow resource
 // +genclient
 // +genclient:noStatus
@@ -99,25 +73,6 @@ type Workflow struct {
 // Workflows is a sort interface which sorts running jobs earlier before considering FinishedAt
 type Workflows []Workflow
 
-func (w Workflows) Len() int      { return len(w) }
-func (w Workflows) Swap(i, j int) { w[i], w[j] = w[j], w[i] }
-func (w Workflows) Less(i, j int) bool {
-	iStart := w[i].ObjectMeta.CreationTimestamp
-	iFinish := w[i].Status.FinishedAt
-	jStart := w[j].ObjectMeta.CreationTimestamp
-	jFinish := w[j].Status.FinishedAt
-	if iFinish.IsZero() && jFinish.IsZero() {
-		return !iStart.Before(&jStart)
-	}
-	if iFinish.IsZero() && !jFinish.IsZero() {
-		return true
-	}
-	if !iFinish.IsZero() && jFinish.IsZero() {
-		return false
-	}
-	return jFinish.Before(&iFinish)
-}
-
 // WorkflowList is list of Workflow resources
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 type WorkflowList struct {
@@ -125,9 +80,6 @@ type WorkflowList struct {
 	metav1.ListMeta `json:"metadata" protobuf:"bytes,1,opt,name=metadata"`
 	Items           Workflows `json:"items" protobuf:"bytes,2,opt,name=items"`
 }
-
-var _ TemplateGetter = &Workflow{}
-var _ TemplateStorage = &Workflow{}
 
 // TTLStrategy is the strategy for the time to live depending on if the workflow succeded or failed
 type TTLStrategy struct {
@@ -277,7 +229,7 @@ type WorkflowSpec struct {
 }
 
 type ParallelSteps struct {
-	Steps []WorkflowStep `protobuf:"bytes,1,rep,name=steps"`
+	Steps []WorkflowStep `json:"steps,omitempty" protobuf:"bytes,1,rep,name=steps"`
 }
 
 func (p *ParallelSteps) UnmarshalJSON(value []byte) error {
@@ -290,10 +242,6 @@ func (p *ParallelSteps) UnmarshalJSON(value []byte) error {
 
 func (p *ParallelSteps) MarshalJSON() ([]byte, error) {
 	return json.Marshal(p.Steps)
-}
-
-func (wfs *WorkflowSpec) HasPodSpecPatch() bool {
-	return wfs.PodSpecPatch != ""
 }
 
 // Template is a reusable and composable unit of execution in a workflow
@@ -425,45 +373,7 @@ type Template struct {
 	PodSpecPatch string `json:"podSpecPatch,omitempty" protobuf:"bytes,31,opt,name=podSpecPatch"`
 }
 
-var _ TemplateHolder = &Template{}
-
-func (tmpl *Template) GetTemplateName() string {
-	if tmpl.Template != "" {
-		return tmpl.Template
-	} else {
-		return tmpl.Name
-	}
-}
-
-func (tmpl *Template) GetTemplateRef() *TemplateRef {
-	return tmpl.TemplateRef
-}
-
-func (tmpl *Template) IsResolvable() bool {
-	return tmpl.Template != "" || tmpl.TemplateRef != nil
-}
-
-// GetBaseTemplate returns a base template content.
-func (tmpl *Template) GetBaseTemplate() *Template {
-	baseTemplate := tmpl.DeepCopy()
-	baseTemplate.Inputs = Inputs{}
-	return baseTemplate
-}
-
-func (tmpl *Template) HasPodSpecPatch() bool {
-	return tmpl.PodSpecPatch != ""
-}
-
 type Artifacts []Artifact
-
-func (a Artifacts) GetArtifactByName(name string) *Artifact {
-	for _, art := range a {
-		if art.Name == name {
-			return &art
-		}
-	}
-	return nil
-}
 
 // Inputs are the mechanism for passing parameters, artifacts, volumes from one template to another
 type Inputs struct {
@@ -614,7 +524,25 @@ type Outputs struct {
 
 	// Result holds the result (stdout) of a script template
 	Result *string `json:"result,omitempty" protobuf:"bytes,3,opt,name=result"`
+
+	ExitCode string `json:"exitCode,omitempty" protobuf:"bytes,4,opt,name=exitCode"`
 }
+
+// TemplateHolder is an interface for holders of templates.
+//type TemplateHolder interface {
+//	GetTemplateName() string
+//	GetTemplateRef() *TemplateRef
+//}
+//
+//var _ TemplateHolder = &WorkflowStep{}
+//
+//func (step *WorkflowStep) GetTemplateName() string {
+//	return step.Template
+//}
+//
+//func (step *WorkflowStep) GetTemplateRef() *TemplateRef {
+//	return step.TemplateRef
+//}
 
 // WorkflowStep is a reference to a template to execute in a series of step
 type WorkflowStep struct {
@@ -653,20 +581,6 @@ type WorkflowStep struct {
 	OnExit string `json:"onExit,omitempty" protobuf:"bytes,11,opt,name=onExit"`
 }
 
-var _ TemplateHolder = &WorkflowStep{}
-
-func (step *WorkflowStep) GetTemplateName() string {
-	return step.Template
-}
-
-func (step *WorkflowStep) GetTemplateRef() *TemplateRef {
-	return step.TemplateRef
-}
-
-func (step *WorkflowStep) IsResolvable() bool {
-	return true
-}
-
 // Sequence expands a workflow step into numeric range
 type Sequence struct {
 	// Count is number of elements in the sequence (default: 0). Not to be used with end
@@ -694,15 +608,6 @@ func (i *Item) DeepCopyInto(out *Item) {
 	}
 }
 
-// OpenAPISchemaType is used by the kube-openapi generator when constructing
-// the OpenAPI spec of this type.
-// See: https://github.com/kubernetes/kube-openapi/tree/master/pkg/generators
-func (i Item) OpenAPISchemaType() []string { return []string{"string"} }
-
-// OpenAPISchemaFormat is used by the kube-openapi generator when constructing
-// the OpenAPI spec of this type.
-func (i Item) OpenAPISchemaFormat() string { return "item" }
-
 // TemplateRef is a reference of template resource.
 type TemplateRef struct {
 	// Name is the resource name of the template.
@@ -712,11 +617,6 @@ type TemplateRef struct {
 	// RuntimeResolution skips validation at creation time.
 	// By enabling this option, you can create the referred workflow template before the actual runtime.
 	RuntimeResolution bool `json:"runtimeResolution,omitempty" protobuf:"varint,3,opt,name=runtimeResolution"`
-}
-
-type ArgumentsProvider interface {
-	GetParameterByName(name string) *Parameter
-	GetArtifactByName(name string) *Artifact
 }
 
 // Arguments to a template
@@ -732,18 +632,7 @@ type Arguments struct {
 	Artifacts Artifacts `json:"artifacts,omitempty" patchStrategy:"merge" patchMergeKey:"name" protobuf:"bytes,2,rep,name=artifacts"`
 }
 
-var _ ArgumentsProvider = &Arguments{}
-
 type Nodes map[string]NodeStatus
-
-func (n Nodes) FindByDisplayName(name string) *NodeStatus {
-	for _, i := range n {
-		if i.DisplayName == name {
-			return &i
-		}
-	}
-	return nil
-}
 
 // UserContainer is a container specified by a user.
 type UserContainer struct {
@@ -789,18 +678,6 @@ type WorkflowStatus struct {
 
 	// Outputs captures output values and artifact locations produced by the workflow via global outputs
 	Outputs *Outputs `json:"outputs,omitempty" protobuf:"bytes,8,opt,name=outputs"`
-}
-
-func (ws *WorkflowStatus) IsOffloadNodeStatus() bool {
-	return ws.OffloadNodeStatusVersion != ""
-}
-
-func (ws *WorkflowStatus) GetOffloadNodeStatusVersion() string {
-	return ws.OffloadNodeStatusVersion
-}
-
-func (wf *Workflow) GetOffloadNodeStatusVersion() string {
-	return wf.Status.GetOffloadNodeStatusVersion()
 }
 
 type RetryPolicy string
@@ -909,70 +786,6 @@ type NodeStatus struct {
 	OutboundNodes []string `json:"outboundNodes,omitempty" protobuf:"bytes,17,rep,name=outboundNodes"`
 }
 
-//func (n NodeStatus) String() string {
-//	return fmt.Sprintf("%s (%s)", n.Name, n.ID)
-//}
-
-func isCompletedPhase(phase NodePhase) bool {
-	return phase == NodeSucceeded ||
-		phase == NodeFailed ||
-		phase == NodeError ||
-		phase == NodeSkipped
-}
-
-// Completed returns whether or not the workflow has completed execution
-func (ws *WorkflowStatus) Completed() bool {
-	return isCompletedPhase(ws.Phase)
-}
-
-// Successful return whether or not the workflow has succeeded
-func (ws *WorkflowStatus) Successful() bool {
-	return ws.Phase == NodeSucceeded
-}
-
-// Failed return whether or not the workflow has failed
-func (ws *WorkflowStatus) Failed() bool {
-	return ws.Phase == NodeFailed
-}
-
-// Remove returns whether or not the node has completed execution
-func (n NodeStatus) Completed() bool {
-	return isCompletedPhase(n.Phase) || n.IsDaemoned() && n.Phase != NodePending
-}
-
-// IsDaemoned returns whether or not the node is deamoned
-func (n NodeStatus) IsDaemoned() bool {
-	if n.Daemoned == nil || !*n.Daemoned {
-		return false
-	}
-	return true
-}
-
-// Successful returns whether or not this node completed successfully
-func (n NodeStatus) Successful() bool {
-	return n.Phase == NodeSucceeded || n.Phase == NodeSkipped || n.IsDaemoned() && n.Phase != NodePending
-}
-
-// CanRetry returns whether the node should be retried or not.
-func (n NodeStatus) CanRetry() bool {
-	// TODO(shri): Check if there are some 'unretryable' errors.
-	return n.Completed() && !n.Successful()
-}
-
-var _ TemplateHolder = &NodeStatus{}
-
-func (n *NodeStatus) GetTemplateName() string {
-	return n.TemplateName
-}
-
-func (n *NodeStatus) GetTemplateRef() *TemplateRef {
-	return n.TemplateRef
-}
-
-func (n *NodeStatus) IsResolvable() bool {
-	return true
-}
-
 // S3Bucket contains the access information required for interfacing with an S3 bucket
 type S3Bucket struct {
 	// Endpoint is the hostname of the bucket endpoint
@@ -1005,10 +818,6 @@ type S3Artifact struct {
 	Key string `json:"key" protobuf:"bytes,2,opt,name=key"`
 }
 
-func (s *S3Artifact) HasLocation() bool {
-	return s != nil && s.Bucket != ""
-}
-
 // GitArtifact is the location of an git artifact
 type GitArtifact struct {
 	// Repo is the git repository
@@ -1037,10 +846,6 @@ type GitArtifact struct {
 	InsecureIgnoreHostKey bool `json:"insecureIgnoreHostKey,omitempty" protobuf:"varint,8,opt,name=insecureIgnoreHostKey"`
 }
 
-func (g *GitArtifact) HasLocation() bool {
-	return g != nil && g.Repo != ""
-}
-
 // ArtifactoryAuth describes the secret selectors required for authenticating to artifactory
 type ArtifactoryAuth struct {
 	// UsernameSecret is the secret selector to the repository username
@@ -1057,14 +862,6 @@ type ArtifactoryArtifact struct {
 	ArtifactoryAuth `json:",inline" protobuf:"bytes,2,opt,name=artifactoryAuth"`
 }
 
-//func (a *ArtifactoryArtifact) String() string {
-//	return a.URL
-//}
-
-func (a *ArtifactoryArtifact) HasLocation() bool {
-	return a != nil && a.URL != ""
-}
-
 // HDFSArtifact is the location of an HDFS artifact
 type HDFSArtifact struct {
 	HDFSConfig `json:",inline" protobuf:"bytes,1,opt,name=hDFSConfig"`
@@ -1074,10 +871,6 @@ type HDFSArtifact struct {
 
 	// Force copies a file forcibly even if it exists (default: false)
 	Force bool `json:"force,omitempty" protobuf:"varint,3,opt,name=force"`
-}
-
-func (h *HDFSArtifact) HasLocation() bool {
-	return h != nil && len(h.Addresses) > 0
 }
 
 // HDFSConfig is configurations for HDFS
@@ -1125,18 +918,10 @@ type RawArtifact struct {
 	Data string `json:"data" protobuf:"bytes,1,opt,name=data"`
 }
 
-func (r *RawArtifact) HasLocation() bool {
-	return r != nil
-}
-
 // HTTPArtifact allows an file served on HTTP to be placed as an input artifact in a container
 type HTTPArtifact struct {
 	// URL of the artifact
 	URL string `json:"url" protobuf:"bytes,1,opt,name=url"`
-}
-
-func (h *HTTPArtifact) HasLocation() bool {
-	return h != nil && h.URL != ""
 }
 
 // ExecutorConfig holds configurations of an executor container.
@@ -1176,47 +961,6 @@ type ResourceTemplate struct {
 	// FailureCondition is a label selector expression which describes the conditions
 	// of the k8s resource in which the step was considered failed
 	FailureCondition string `json:"failureCondition,omitempty" protobuf:"bytes,6,opt,name=failureCondition"`
-}
-
-// GetType returns the type of this template
-func (tmpl *Template) GetType() TemplateType {
-	if tmpl.Container != nil {
-		return TemplateTypeContainer
-	}
-	if tmpl.Steps != nil {
-		return TemplateTypeSteps
-	}
-	if tmpl.DAG != nil {
-		return TemplateTypeDAG
-	}
-	if tmpl.Script != nil {
-		return TemplateTypeScript
-	}
-	if tmpl.Resource != nil {
-		return TemplateTypeResource
-	}
-	if tmpl.Suspend != nil {
-		return TemplateTypeSuspend
-	}
-	return TemplateTypeUnknown
-}
-
-// IsPodType returns whether or not the template is a pod type
-func (tmpl *Template) IsPodType() bool {
-	switch tmpl.GetType() {
-	case TemplateTypeContainer, TemplateTypeScript, TemplateTypeResource:
-		return true
-	}
-	return false
-}
-
-// IsLeaf returns whether or not the template is a leaf
-func (tmpl *Template) IsLeaf() bool {
-	switch tmpl.GetType() {
-	case TemplateTypeContainer, TemplateTypeScript, TemplateTypeResource:
-		return true
-	}
-	return false
 }
 
 // DAGTemplate is a template subtype for directed acyclic graph templates
@@ -1278,161 +1022,10 @@ type DAGTask struct {
 	OnExit string `json:"onExit,omitempty" protobuf:"bytes,11,opt,name=onExit"`
 }
 
-var _ TemplateHolder = &DAGTask{}
-
-func (t *DAGTask) GetTemplateName() string {
-	return t.Template
-}
-
-func (t *DAGTask) GetTemplateRef() *TemplateRef {
-	return t.TemplateRef
-}
-
-func (t *DAGTask) IsResolvable() bool {
-	return true
-}
-
 // SuspendTemplate is a template subtype to suspend a workflow at a predetermined point in time
 type SuspendTemplate struct {
 	// Duration is the seconds to wait before automatically resuming a template
 	Duration string `json:"duration,omitempty" protobuf:"bytes,1,opt,name=duration"`
-}
-
-// GetArtifactByName returns an input artifact by its name
-func (in *Inputs) GetArtifactByName(name string) *Artifact {
-	return in.Artifacts.GetArtifactByName(name)
-}
-
-// GetParameterByName returns an input parameter by its name
-func (in *Inputs) GetParameterByName(name string) *Parameter {
-	for _, param := range in.Parameters {
-		if param.Name == name {
-			return &param
-		}
-	}
-	return nil
-}
-
-// HasInputs returns whether or not there are any inputs
-func (in *Inputs) HasInputs() bool {
-	if len(in.Artifacts) > 0 {
-		return true
-	}
-	if len(in.Parameters) > 0 {
-		return true
-	}
-	return false
-}
-
-// HasOutputs returns whether or not there are any outputs
-func (out *Outputs) HasOutputs() bool {
-	if out.Result != nil {
-		return true
-	}
-	if len(out.Artifacts) > 0 {
-		return true
-	}
-	if len(out.Parameters) > 0 {
-		return true
-	}
-	return false
-}
-
-func (out *Outputs) GetArtifactByName(name string) *Artifact {
-	return out.Artifacts.GetArtifactByName(name)
-}
-
-// GetArtifactByName retrieves an artifact by its name
-func (args *Arguments) GetArtifactByName(name string) *Artifact {
-	return args.Artifacts.GetArtifactByName(name)
-}
-
-// GetParameterByName retrieves a parameter by its name
-func (args *Arguments) GetParameterByName(name string) *Parameter {
-	for _, param := range args.Parameters {
-		if param.Name == name {
-			return &param
-		}
-	}
-	return nil
-}
-
-// HasLocation whether or not an artifact has a location defined
-func (a *Artifact) HasLocation() bool {
-	return a.S3.HasLocation() ||
-		a.Git.HasLocation() ||
-		a.HTTP.HasLocation() ||
-		a.Artifactory.HasLocation() ||
-		a.Raw.HasLocation() ||
-		a.HDFS.HasLocation()
-}
-
-// GetTemplateByName retrieves a defined template by its name
-func (wf *Workflow) GetTemplateByName(name string) *Template {
-	for _, t := range wf.Spec.Templates {
-		if t.Name == name {
-			return &t
-		}
-	}
-	return nil
-}
-
-// GetTemplateScope returns the template scope of workflow.
-func (wf *Workflow) GetTemplateScope() string {
-	return ""
-}
-
-// NodeID creates a deterministic node ID based on a node name
-func (wf *Workflow) NodeID(name string) string {
-	if name == wf.ObjectMeta.Name {
-		return wf.ObjectMeta.Name
-	}
-	h := fnv.New32a()
-	_, _ = h.Write([]byte(name))
-	return fmt.Sprintf("%s-%v", wf.ObjectMeta.Name, h.Sum32())
-}
-
-// GetStoredTemplate retrieves a template from stored templates of the workflow.
-func (wf *Workflow) GetStoredTemplate(templateScope string, holder TemplateHolder) *Template {
-	tmplID := wf.getStoredTemplateName(templateScope, holder)
-	if tmplID == "" {
-		return nil
-	}
-	tmpl, ok := wf.Status.StoredTemplates[tmplID]
-	if !ok {
-		return nil
-	}
-	return &tmpl
-}
-
-// SetStoredTemplate stores a new template in stored templates of the workflow.
-func (wf *Workflow) SetStoredTemplate(templateScope string, holder TemplateHolder, tmpl *Template) (bool, error) {
-	tmplID := wf.getStoredTemplateName(templateScope, holder)
-	if tmplID == "" {
-		return false, nil
-	}
-	_, ok := wf.Status.StoredTemplates[tmplID]
-	if !ok {
-		if wf.Status.StoredTemplates == nil {
-			wf.Status.StoredTemplates = map[string]Template{}
-		}
-		wf.Status.StoredTemplates[tmplID] = *tmpl
-		return true, nil
-	}
-	return false, nil
-}
-
-// getStoredTemplateName returns the stored template name of a given template holder on the template scope.
-func (wf *Workflow) getStoredTemplateName(templateScope string, holder TemplateHolder) string {
-	tmplRef := holder.GetTemplateRef()
-	if tmplRef != nil {
-		return fmt.Sprintf("%s/%s", tmplRef.Name, tmplRef.Template)
-	} else if templateScope != "" {
-		return fmt.Sprintf("%s/%s", templateScope, holder.GetTemplateName())
-	} else {
-		// Do not store workflow-local templates.
-		return ""
-	}
 }
 
 // ContinueOn defines if a workflow should continue even if a task or step fails/errors.
@@ -1442,27 +1035,4 @@ type ContinueOn struct {
 	Error bool `json:"error,omitempty" protobuf:"varint,1,opt,name=error"`
 	// +optional
 	Failed bool `json:"failed,omitempty" protobuf:"varint,2,opt,name=failed"`
-}
-
-func continues(c *ContinueOn, phase NodePhase) bool {
-	if c == nil {
-		return false
-	}
-	if c.Error && phase == NodeError {
-		return true
-	}
-	if c.Failed && phase == NodeFailed {
-		return true
-	}
-	return false
-}
-
-// ContinuesOn returns whether the DAG should be proceeded if the task fails or errors.
-func (t *DAGTask) ContinuesOn(phase NodePhase) bool {
-	return continues(t.ContinueOn, phase)
-}
-
-// ContinuesOn returns whether the StepGroup should be proceeded if the task fails or errors.
-func (s *WorkflowStep) ContinuesOn(phase NodePhase) bool {
-	return continues(s.ContinueOn, phase)
 }

@@ -1,7 +1,7 @@
 package v1alpha1
 
 import (
-	"github.com/argoproj/argo/pkg/apis/workflow"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/build/argo/workflow"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -34,10 +34,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&Workflow{},
 		&WorkflowList{},
-		&WorkflowTemplate{},
-		&WorkflowTemplateList{},
-		&CronWorkflow{},
-		&CronWorkflowList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
