@@ -18,9 +18,13 @@ package build
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -70,6 +74,11 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	}
 
+	// Check if the namespace exists, and create it if not
+	if err := r.ensureNamespaceResources(ctx, build.ObjectMeta.Labels["core.choreo.dev/organization"]+"-build", logger); err != nil {
+		return ctrl.Result{Requeue: true}, err
+	}
+
 	// Build is in the completed status
 	if meta.FindStatusCondition(build.Status.Conditions, "Completed") != nil {
 		return ctrl.Result{}, nil
@@ -80,7 +89,94 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{Requeue: true}, err
 	}
 
-	return r.handleBuildSteps(ctx, build, existingWorkflow.Status.Nodes, logger)
+	result, err := r.handleBuildSteps(ctx, build, existingWorkflow.Status.Nodes, logger)
+
+	if meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, "Completed", metav1.ConditionTrue) {
+		err := r.createDeployableArtifact(ctx, build, logger)
+		if err != nil {
+			return ctrl.Result{Requeue: true}, err
+		}
+	}
+	return result, err
+}
+
+// SetupWithManager sets up the controller with the Manager.
+func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&choreov1.Build{}).
+		Named("build").
+		Complete(r)
+}
+
+// ensureNamespaceResources ensures that the namespace, service account, role, and role binding are created.
+func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName string, logger logr.Logger) error {
+	// Step 1: Create Namespace if it doesn't exist
+	namespace := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: namespaceName,
+		},
+	}
+	if err := r.Client.Create(ctx, namespace); err != nil && !apierrors.IsAlreadyExists(err) {
+		logger.Error(err, "Failed to create namespace", "Namespace", namespaceName)
+		return err
+	}
+
+	// Step 2: Create ServiceAccount
+	sa := &corev1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "argo-workflow-sa",
+			Namespace: namespaceName,
+		},
+	}
+	if err := r.Client.Create(ctx, sa); err != nil && !apierrors.IsAlreadyExists(err) {
+		logger.Error(err, "Failed to create ServiceAccount", "Namespace", namespaceName)
+		return err
+	}
+
+	// Step 3: Create Role
+	role := &rbacv1.Role{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "argo-workflow-role",
+			Namespace: namespaceName,
+		},
+		Rules: []rbacv1.PolicyRule{
+			{
+				APIGroups: []string{"argoproj.io"},
+				Resources: []string{"workflowtaskresults"},
+				Verbs:     []string{"create", "get", "list", "watch", "update", "patch"},
+			},
+		},
+	}
+	if err := r.Client.Create(ctx, role); err != nil && !apierrors.IsAlreadyExists(err) {
+		logger.Error(err, "Failed to create Role", "Namespace", namespaceName)
+		return err
+	}
+
+	// Step 4: Create RoleBinding
+	roleBinding := &rbacv1.RoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "argo-workflow-binding",
+			Namespace: namespaceName,
+		},
+		Subjects: []rbacv1.Subject{
+			{
+				Kind:      "ServiceAccount",
+				Name:      "argo-workflow-sa",
+				Namespace: namespaceName,
+			},
+		},
+		RoleRef: rbacv1.RoleRef{
+			Kind:     "Role",
+			Name:     "argo-workflow-role",
+			APIGroup: "rbac.authorization.k8s.io",
+		},
+	}
+	if err := r.Client.Create(ctx, roleBinding); err != nil && !apierrors.IsAlreadyExists(err) {
+		logger.Error(err, "Failed to create RoleBinding", "Namespace", namespaceName)
+		return err
+	}
+	logger.Info("Namespace resources created successfully", "Namespace", namespaceName)
+	return nil
 }
 
 func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, logger logr.Logger) (*argo.Workflow, error) {
@@ -92,7 +188,7 @@ func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, 
 			var workflow argo.Workflow
 			// Buildpack path
 			if build.Spec.BuildConfiguration.Buildpack.Name != "" {
-				workflow = *CreateBuildpackWorkflow(build)
+				workflow = *createBuildpackWorkflow(build)
 			} else { // Dockerpath
 				// TODO
 				workflow = argo.Workflow{}
@@ -136,7 +232,7 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 	}
 	stepInfo, isFound := GetStepByTemplateName(Nodes, steps[0].stepName)
 	if isFound && meta.FindStatusCondition(build.Status.Conditions, steps[0].conditionType) == nil {
-		switch GetStepPhase(stepInfo.Phase) {
+		switch getStepPhase(stepInfo.Phase) {
 		// Edge case, this would not occur
 		case Unknown:
 			// Set condition Clone to false
@@ -235,7 +331,7 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 
 	stepInfo, isFound = GetStepByTemplateName(Nodes, steps[1].stepName)
 	if isFound && meta.FindStatusCondition(build.Status.Conditions, steps[1].conditionType) == nil {
-		switch GetStepPhase(stepInfo.Phase) {
+		switch getStepPhase(stepInfo.Phase) {
 		case Unknown:
 			// Set condition Build to false
 			// Do not retry and set completed condition
@@ -333,7 +429,7 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 
 	stepInfo, isFound = GetStepByTemplateName(Nodes, steps[2].stepName)
 	if isFound && meta.FindStatusCondition(build.Status.Conditions, steps[2].conditionType) == nil {
-		switch GetStepPhase(stepInfo.Phase) {
+		switch getStepPhase(stepInfo.Phase) {
 		case Unknown:
 			// Set condition Push to false
 			// Do not retry and set completed condition
@@ -458,7 +554,7 @@ const (
 	Unknown   StepPhase = "Unknown"
 )
 
-func GetStepPhase(phase argo.NodePhase) StepPhase {
+func getStepPhase(phase argo.NodePhase) StepPhase {
 	switch phase {
 	case argo.NodeRunning, argo.NodePending:
 		return Running
@@ -470,14 +566,6 @@ func GetStepPhase(phase argo.NodePhase) StepPhase {
 	return Unknown
 }
 
-// SetupWithManager sets up the controller with the Manager.
-func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&choreov1.Build{}).
-		Named("build").
-		Complete(r)
-}
-
 func GetStepByTemplateName(nodes argo.Nodes, step string) (*argo.NodeStatus, bool) {
 	for _, node := range nodes {
 		if node.TemplateName == step {
@@ -487,9 +575,86 @@ func GetStepByTemplateName(nodes argo.Nodes, step string) (*argo.NodeStatus, boo
 	return nil, false
 }
 
+func generateImageName(build *choreov1.Build) string {
+	// Extract necessary fields
+	componentName := build.ObjectMeta.Labels["core.choreo.dev/component"]
+	orgName := build.ObjectMeta.Labels["core.choreo.dev/organization"]
+	projName := build.ObjectMeta.Labels["core.choreo.dev/project"]
+
+	// Create the hash input
+	hashInput := fmt.Sprintf("%s-%s", orgName, projName)
+
+	// Generate SHA256 hash
+	hash := sha256.Sum256([]byte(hashInput))
+
+	// Convert hash to hex string
+	hashString := hex.EncodeToString(hash[:])
+
+	// Generate the final string
+	return fmt.Sprintf("%s-%s:%s-latest", hashString, componentName, build.ObjectMeta.Labels["core.choreo.dev/deployment-track"])
+}
+
+func hashBuildSpec(build choreov1.Build) (string, error) {
+	// Marshal the spec into JSON
+	specJSON, err := json.Marshal(build.Spec)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal spec: %w", err)
+	}
+
+	// Compute SHA256 hash
+	hash := sha256.Sum256(specJSON)
+
+	// Convert hash to a hexadecimal string
+	return hex.EncodeToString(hash[:]), nil
+}
+
+func generateDeployableArtifactName(build choreov1.Build) string {
+	hashedBuildSpec, err := hashBuildSpec(build)
+	if err != nil {
+		return build.ObjectMeta.Name
+	}
+	return fmt.Sprintf("%s-%s", build.ObjectMeta.Name, hashedBuildSpec)
+}
+
+// NewDeployableArtifact creates a DeployableArtifact instance.
+func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreov1.Build, logger logr.Logger) error {
+	deployableArtifact := &choreov1.DeployableArtifact{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "DeployableArtifact",
+			APIVersion: "core.choreo.dev/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      generateDeployableArtifactName(*build),
+			Namespace: build.ObjectMeta.Namespace,
+			Annotations: map[string]string{
+				"core.choreo.dev/display-name": build.ObjectMeta.Name,
+				"core.choreo.dev/description":  "Deployable Artifact was created by the buld.",
+			},
+			Labels: map[string]string{
+				"core.choreo.dev/deployment-track": build.ObjectMeta.Labels["deployment-track"],
+				"core.choreo.dev/component":        build.ObjectMeta.Labels["component"],
+				"core.choreo.dev/project":          build.ObjectMeta.Labels["project"],
+				"core.choreo.dev/organization":     build.ObjectMeta.Labels["organization"],
+			},
+		},
+		Spec: choreov1.DeployableArtifactSpec{
+			TargetArtifact: choreov1.TargetArtifact{
+				FromBuildRef: choreov1.FromBuildRef{
+					Name: build.ObjectMeta.Name,
+				},
+			},
+		},
+	}
+	if err := r.Client.Create(ctx, deployableArtifact); err != nil && !apierrors.IsAlreadyExists(err) {
+		logger.Error(err, "Failed to create deployable artifact", "Build.Name", build.ObjectMeta.Name)
+		return err
+	}
+	return nil
+}
+
 func int32Ptr(i int32) *int32 { return &i }
 
-func CreateBuildpackWorkflow(build *choreov1.Build) *argo.Workflow {
+func createBuildpackWorkflow(build *choreov1.Build) *argo.Workflow {
 	repo := "https://github.com/chalindukodikara/choreo-samples.git"
 	var branch string
 	if build.Spec.Branch != "" {
@@ -536,7 +701,7 @@ func CreateBuildpackWorkflow(build *choreov1.Build) *argo.Workflow {
 						Args: []string{
 							fmt.Sprintf(`set -e
 echo "Cloning repository from branch %s..."
-git clone --single-branch --branch %s %s /mnt/vol/choreo-samples
+git clone --single-branch --branch %s %s /mnt/vol/source
 echo "Repository cloned successfully."`, branch, branch, repo),
 						},
 						VolumeMounts: []corev1.VolumeMount{
@@ -552,31 +717,7 @@ echo "Repository cloned successfully."`, branch, branch, repo),
 							Privileged: pointer.BoolPtr(true),
 						},
 						Command: []string{"sh", "-c"},
-						Args: []string{
-							fmt.Sprintf(`set -e
-echo "Setting up Podman socket for Buildpacks..."
-podman system service --time=0 &
-sleep 2
-
-echo "Configuring Podman storage..."
-mkdir -p /etc/containers
-cat <<EOF > /etc/containers/storage.conf
-[storage]
-driver = "overlay"
-runroot = "/run/containers/storage"
-graphroot = "/shared/podman/cache"
-[storage.options.overlay]
-mount_program = "/usr/bin/fuse-overlayfs"
-EOF
-
-echo "Building image using Buildpacks..."
-/usr/local/bin/pack build %s:latest \
-  --builder=gcr.io/buildpacks/builder:google-22 --docker-host=inherit \
-  --path=/mnt/vol/choreo-samples/docker-time-logger-schedule --platform linux/arm64
-
-echo "Saving Docker image..."
-podman save -o /mnt/vol/app-image.tar %s:latest`, build.Name, build.Name),
-						},
+						Args:    generateBuildArgs(build),
 						VolumeMounts: []corev1.VolumeMount{
 							{Name: "workspace", MountPath: "/mnt/vol"},
 							{Name: "podman-cache", MountPath: "/shared/podman/cache"},
@@ -606,10 +747,10 @@ EOF
 
 podman load -i /mnt/vol/app-image.tar
 echo "Tagging Docker image for the registry..."
-podman tag docker-time-logger:v1.1 registry.choreo-dp:5000/%s:latest
+podman tag %s registry.choreo-dp:5000/%s
 echo "Pushing Docker image to the registry..."
-podman push --tls-verify=false registry.choreo-dp:5000/%s:latest
-echo "Docker image pushed successfully."`, build.Name, build.Name),
+podman push --tls-verify=false registry.choreo-dp:5000/%s
+echo "Docker image pushed successfully."`, generateImageName(build), generateImageName(build), generateImageName(build)),
 						},
 						VolumeMounts: []corev1.VolumeMount{
 							{Name: "workspace", MountPath: "/mnt/vol"},
@@ -670,4 +811,57 @@ echo "Docker image pushed successfully."`, build.Name, build.Name),
 		},
 	}
 	return &workflow
+}
+
+func generateBuildArgs(build *choreov1.Build) []string {
+	if build.Spec.BuildConfiguration.Buildpack.Name != "" {
+		return []string{
+			fmt.Sprintf(`set -e
+echo "Setting up Podman socket for Buildpacks..."
+podman system service --time=0 &
+sleep 2
+
+echo "Configuring Podman storage..."
+mkdir -p /etc/containers
+cat <<EOF > /etc/containers/storage.conf
+[storage]
+driver = "overlay"
+runroot = "/run/containers/storage"
+graphroot = "/shared/podman/cache"
+[storage.options.overlay]
+mount_program = "/usr/bin/fuse-overlayfs"
+EOF
+
+echo "Building image using Buildpacks..."
+/usr/local/bin/pack build %s \
+  --builder=gcr.io/buildpacks/builder:google-22 --docker-host=inherit \
+  --path=/mnt/vol/source/%s --platform linux/arm64
+
+echo "Saving Docker image..."
+podman save -o /mnt/vol/app-image.tar %s`, generateImageName(build), build.Spec.Path, build.Name),
+		}
+	}
+	return []string{
+		fmt.Sprintf(`set -e
+echo "Setting up Podman socket for Buildpacks..."
+podman system service --time=0 &
+sleep 2
+
+echo "Configuring Podman storage..."
+mkdir -p /etc/containers
+cat <<EOF > /etc/containers/storage.conf
+[storage]
+driver = "overlay"
+runroot = "/run/containers/storage"
+graphroot = "/shared/podman/cache"
+[storage.options.overlay]
+mount_program = "/usr/bin/fuse-overlayfs"
+EOF
+
+echo "Building Docker image..."
+podman build -t %s /mnt/vol/source/%s
+
+echo "Saving Docker image..."
+podman save -o /mnt/vol/app-image.tar %s`, generateImageName(build), build.Spec.Path, build.Name),
+	}
 }
