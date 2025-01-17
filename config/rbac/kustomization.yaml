@@ -32,6 +32,10 @@ resources:
 - dataplane_viewer_role.yaml
 - environment_editor_role.yaml
 - environment_viewer_role.yaml
+- deployment_editor_role.yaml
+- deployment_viewer_role.yaml
+- deployableartifact_editor_role.yaml
+- deployableartifact_viewer_role.yaml
 - project_editor_role.yaml
 - project_viewer_role.yaml
 - organization_editor_role.yaml
