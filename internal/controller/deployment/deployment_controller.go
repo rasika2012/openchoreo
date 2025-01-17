@@ -25,7 +25,9 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
@@ -154,11 +156,11 @@ func (r *Reconciler) reconcileExternalResources(
 	deploymentCtx integrations.DeploymentContext) error {
 
 	handlerNameLogKey := "resourceHandler"
-	for _, handler := range resourceHandlers {
-		logger := log.FromContext(ctx).WithValues(handlerNameLogKey, handler.Name())
+	for _, resourceHandler := range resourceHandlers {
+		logger := log.FromContext(ctx).WithValues(handlerNameLogKey, resourceHandler.Name())
 		// Delete the external resource if it is not configured
-		if !handler.IsRequired(deploymentCtx) {
-			if err := handler.Delete(ctx, deploymentCtx); err != nil {
+		if !resourceHandler.IsRequired(deploymentCtx) {
+			if err := resourceHandler.Delete(ctx, deploymentCtx); err != nil {
 				logger.Error(err, "Error deleting external resource")
 				return err
 			}
@@ -168,7 +170,7 @@ func (r *Reconciler) reconcileExternalResources(
 		}
 
 		// Check if the external resource exists
-		currentState, err := handler.GetCurrentState(ctx, deploymentCtx)
+		currentState, err := resourceHandler.GetCurrentState(ctx, deploymentCtx)
 		if err != nil {
 			logger.Error(err, "Error retrieving current state of the external resource")
 			return err
@@ -177,13 +179,13 @@ func (r *Reconciler) reconcileExternalResources(
 		exists := currentState != nil
 		if !exists {
 			// Create the external resource if it does not exist
-			if err := handler.Create(ctx, deploymentCtx); err != nil {
+			if err := resourceHandler.Create(ctx, deploymentCtx); err != nil {
 				logger.Error(err, "Error creating external resource")
 				return err
 			}
 		} else {
 			// Update the external resource if it exists
-			if err := handler.Update(ctx, deploymentCtx, currentState); err != nil {
+			if err := resourceHandler.Update(ctx, deploymentCtx, currentState); err != nil {
 				logger.Error(err, "Error updating external resource")
 				return err
 			}
@@ -197,10 +199,61 @@ func (r *Reconciler) reconcileExternalResources(
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+
+	// Create a field index for the deployment artifact reference so that we can list deployments by the deployment artifact reference
+	err := mgr.GetFieldIndexer().IndexField(
+		context.Background(),
+		&choreov1.Deployment{},
+		"spec.deploymentArtifactRef",
+		func(obj client.Object) []string {
+			deployment := obj.(*choreov1.Deployment)
+			return []string{deployment.Spec.DeploymentArtifactRef}
+		},
+	)
+	if err != nil {
+		return err
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&choreov1.Deployment{}).
 		Named("deployment").
+		Watches(
+			&choreov1.DeployableArtifact{},
+			handler.EnqueueRequestsFromMapFunc(r.deployableArtifactToDeploymentRequest),
+		).
 		Complete(r)
+}
+
+func (r *Reconciler) deployableArtifactToDeploymentRequest(ctx context.Context, obj client.Object) []reconcile.Request {
+	deployableArtifact, ok := obj.(*choreov1.DeployableArtifact)
+	if !ok {
+		// Ideally, this should not happen as obj is always expected to be a DeployableArtifact from the Watch
+		return nil
+	}
+
+	// List all the deployments that have .spec.deploymentArtifactRef equal to the name of the deployable artifact
+	deploymentList := &choreov1.DeploymentList{}
+	if err := r.List(
+		ctx,
+		deploymentList,
+		client.MatchingFields{"spec.deploymentArtifactRef": deployableArtifact.Name},
+	); err != nil {
+		return nil
+	}
+
+	// Enqueue all the deployments that have the deployable artifact as the deployment artifact
+	requests := make([]reconcile.Request, len(deploymentList.Items))
+	for i, deployment := range deploymentList.Items {
+		requests[i] = reconcile.Request{
+			NamespacedName: client.ObjectKey{
+				Namespace: deployment.Namespace,
+				Name:      deployment.Name,
+			},
+		}
+	}
+
+	// Enqueue the deployment if the deployable artifact is updated
+	return requests
 }
 
 func (r *Reconciler) findDeployableArtifact(ctx context.Context, deployment *choreov1.Deployment) (*choreov1.DeployableArtifact, error) {
