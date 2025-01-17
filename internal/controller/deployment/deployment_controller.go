@@ -21,7 +21,7 @@ import (
 	"fmt"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -131,6 +131,19 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 	// TODO: Update the status of the deployment and emit events
 
+	if err := controller.UpdateCondition(
+		ctx,
+		r.Status(),
+		deployment,
+		&deployment.Status.Conditions,
+		controller.TypeReady,
+		metav1.ConditionTrue,
+		"DeploymentReady",
+		"Deployment is ready",
+	); err != nil {
+		return ctrl.Result{}, err
+	}
+
 	return ctrl.Result{}, nil
 }
 
@@ -218,7 +231,7 @@ func (r *Reconciler) findDeployableArtifact(ctx context.Context, deployment *cho
 	return targetDeployableArtifact, nil
 }
 
-func makeHierarchyLabelsForDeploymentTrack(objMeta v1.ObjectMeta) map[string]string {
+func makeHierarchyLabelsForDeploymentTrack(objMeta metav1.ObjectMeta) map[string]string {
 	// Hierarchical labels to be used for DeploymentTrack
 	keys := []string{
 		controller.LabelKeyOrganizationName,
