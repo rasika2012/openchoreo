@@ -12,12 +12,18 @@ metadata:
 spec:
   gatewayClassName: gateway
   listeners:
-    - name: http
-      protocol: HTTP
-      port: 80
+    - name: https
+      protocol: HTTPS
+      port: 443
       allowedRoutes:
         namespaces:
           from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: envoy-gateway-tls-secret
+            namespace: {{ $.Values.namespace | default $.Release.Namespace }}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
@@ -26,9 +32,15 @@ metadata:
 spec:
   gatewayClassName: gateway
   listeners:
-    - name: http
-      protocol: HTTP
-      port: 80
+    - name: https
+      protocol: HTTPS
+      port: 443
       allowedRoutes:
         namespaces:
           from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: envoy-gateway-tls-secret
+            namespace: {{ $.Values.namespace | default $.Release.Namespace }}

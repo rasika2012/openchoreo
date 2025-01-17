@@ -24,6 +24,9 @@ version: 0.1.0
 appVersion: "1.16.0"
 
 dependencies:
+  - name: choreo-controllers
+    version: 0.1.0
+    condition: choreo-controllers.enabled
   - name: ingress-nginx
     version: 4.2.1
     repository: "https://kubernetes.github.io/ingress-nginx"
@@ -38,3 +41,8 @@ dependencies:
   - name: argo-workflows
     repository: "https://argoproj.github.io/argo-helm"
     version: 0.45.2
+  - name: cert-manager
+    version: v1.16.2
+    repository: https://charts.jetstack.io
+    alias: cert-manager
+    condition: cert-manager.enabled

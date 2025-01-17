@@ -86,3 +86,32 @@ gateway-helm:
             requests:
                cpu: 100m
                memory: 128Mi
+
+cert-manager:
+   enabled: true
+   crds:
+      enabled: true
+   # resources for cert manager controller
+   resources:
+      requests:
+         cpu: 10m
+         memory: 32Mi
+      limits:
+         cpu: 50m
+         memory: 64Mi
+   cainjector:
+      resources:
+         requests:
+            cpu: 10m
+            memory: 32Mi
+         limits:
+            cpu: 50m
+            memory: 64Mi
+   webhook:
+      resources:
+         requests:
+            cpu: 10m
+            memory: 32Mi
+         limits:
+            cpu: 50m
+            memory: 64Mi
