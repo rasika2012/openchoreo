@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package deployableartifact
+package deployableArtifact
 
 import (
 	"context"
@@ -27,8 +27,8 @@ import (
 	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 )
 
-// Reconciler reconciles a DeployableArtifact object
-type Reconciler struct {
+// DeployableArtifactReconciler reconciles a DeployableArtifact object
+type DeployableArtifactReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
@@ -46,7 +46,7 @@ type Reconciler struct {
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/reconcile
-func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *DeployableArtifactReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
 	// TODO(user): your logic here
@@ -55,7 +55,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *DeployableArtifactReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&corev1.DeployableArtifact{}).
 		Named("deployableartifact").
