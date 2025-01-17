@@ -134,6 +134,7 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&choreov1.Organization{}).
 		Owns(&corev1.Namespace{}). // Watch any changes to owned Namespaces
 		Named("organization").
+		Owns(&corev1.Namespace{}).
 		Complete(r)
 }
 

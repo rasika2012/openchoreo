@@ -588,7 +588,7 @@ spec:
                     type: array
                 type: object
               targetArtifact:
-                description: Reference to the artifact that is being deployed.
+                description: DeployableArtifactSpec defines the spec section of DeployableArtifact.
                 properties:
                   fromBuildRef:
                     description: Mutually exclusive references to a build or an image.

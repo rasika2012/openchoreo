@@ -4,23 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.4
-  name: deploymenttracks.core.choreo.dev
+  name: builds.core.choreo.dev
 spec:
   group: core.choreo.dev
   names:
-    kind: DeploymentTrack
-    listKind: DeploymentTrackList
-    plural: deploymenttracks
-    shortNames:
-    - deptrack
-    - deptracks
-    singular: deploymenttrack
+    kind: Build
+    listKind: BuildList
+    plural: builds
+    singular: build
   scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: DeploymentTrack is the Schema for the deploymenttracks API.
+        description: Build is the Schema for the builds API.
         properties:
           apiVersion:
             description: |-
@@ -40,57 +37,77 @@ spec:
           metadata:
             type: object
           spec:
-            description: DeploymentTrackSpec defines the desired state of DeploymentTrack.
+            description: BuildSpec defines the desired state of Build.
             properties:
-              buildTemplateSpec:
-                description: BuildTemplateSpec defines the build template configuration
+              autoBuild:
+                type: boolean
+              branch:
+                type: string
+              buildConfiguration:
+                description: BuildConfiguration specifies the build configuration
+                  details
                 properties:
-                  branch:
-                    description: Branch specifies the Git branch to use
-                    type: string
-                  buildConfiguration:
-                    description: BuildConfiguration specifies the build settings
+                  buildpack:
+                    description: Buildpack specifies the buildpack to use
                     properties:
-                      buildpack:
-                        description: Buildpack specifies the buildpack to use
-                        properties:
-                          name:
-                            type: string
-                          version:
-                            type: string
-                        required:
-                        - name
-                        type: object
-                      docker:
-                        description: Docker specifies the Docker-specific build configuration
-                        properties:
-                          context:
-                            description: Context specifies the build context path
-                            type: string
-                          dockerfilePath:
-                            description: DockerfilePath specifies the path to the
-                              Dockerfile
-                            type: string
-                        required:
-                        - context
-                        - dockerfilePath
-                        type: object
+                      name:
+                        type: string
+                      version:
+                        type: string
                     required:
-                    - buildpack
+                    - name
                     type: object
-                  path:
-                    description: Path specifies the repository path to use
-                    type: string
+                  docker:
+                    description: Docker specifies the Docker-specific build configuration
+                    properties:
+                      context:
+                        description: Context specifies the build context path
+                        type: string
+                      dockerfilePath:
+                        description: DockerfilePath specifies the path to the Dockerfile
+                        type: string
+                    required:
+                    - context
+                    - dockerfilePath
+                    type: object
                 required:
-                - branch
-                - buildConfiguration
-                - path
+                - buildpack
                 type: object
+              buildEnvironment:
+                properties:
+                  env:
+                    items:
+                      properties:
+                        name:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                      - name
+                      - value
+                      type: object
+                    type: array
+                  envFrom:
+                    items:
+                      properties:
+                        secretRef:
+                          type: string
+                      required:
+                      - secretRef
+                      type: object
+                    type: array
+                type: object
+              path:
+                type: string
+            required:
+            - buildConfiguration
             type: object
           status:
-            description: DeploymentTrackStatus defines the observed state of DeploymentTrack.
+            description: BuildStatus defines the observed state of Build.
             properties:
               conditions:
+                description: Conditions represent the latest available observations
+                  of an object's current state.
                 items:
                   description: Condition contains details for one aspect of the current
                     state of this API Resource.
@@ -146,10 +163,16 @@ spec:
                   - type
                   type: object
                 type: array
-              observedGeneration:
-                format: int64
-                type: integer
+              imageStatus:
+                properties:
+                  image:
+                    type: string
+                required:
+                - image
+                type: object
             type: object
+        required:
+        - spec
         type: object
     served: true
     storage: true

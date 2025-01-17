@@ -19,6 +19,7 @@ package main
 import (
 	"crypto/tls"
 	"flag"
+	"log"
 	"os"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -36,6 +37,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/build"
+	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/build/argo/workflow/v1alpha1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/component"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/dataplane"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployableartifact"
@@ -152,6 +155,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Register the Argo Workflow types to the scheme
+	if err := argo.AddToScheme(mgr.GetScheme()); err != nil {
+		log.Fatalf("unable to add Argo Workflow types to scheme: %v", err)
+	}
+
 	if err = (&organization.Reconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
@@ -164,6 +172,13 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Project")
+		os.Exit(1)
+	}
+	if err = (&build.Reconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Build")
 		os.Exit(1)
 	}
 	if err = (&environment.Reconciler{

@@ -24,18 +24,6 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // DockerConfiguration specifies the Docker build configuration
-type DockerConfiguration struct {
-	// Context specifies the build context path
-	Context string `json:"context"`
-	// DockerfilePath specifies the path to the Dockerfile
-	DockerfilePath string `json:"dockerfilePath"`
-}
-
-// BuildConfiguration specifies the build configuration details
-type BuildConfiguration struct {
-	// Docker specifies the Docker-specific build configuration
-	Docker DockerConfiguration `json:"docker"`
-}
 
 // BuildTemplateSpec defines the build template configuration
 type BuildTemplateSpec struct {

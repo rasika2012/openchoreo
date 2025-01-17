@@ -29,13 +29,27 @@ type DeployableArtifactSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Reference to the artifact that is being deployed.
-	// +required
+	// DeployableArtifactSpec defines the spec section of DeployableArtifact.
 	TargetArtifact TargetArtifact `json:"targetArtifact"`
 
 	// Configuration parameters for this deployable artifact.
 	// +optional
 	Configuration *Configuration `json:"configuration,omitempty"`
+}
+
+// Configuration is the top-level configuration block of DeployableArtifactSpec.
+type Configuration struct {
+	// A list of endpoints exposed by the component.
+	// +optional
+	EndpointTemplates []EndpointTemplate `json:"endpointTemplates,omitempty"`
+
+	// Dependencies required by this component.
+	// +optional
+	Dependencies *Dependencies `json:"dependencies,omitempty"`
+
+	// Application runtime parameters/configurations.
+	// +optional
+	Application *Application `json:"application,omitempty"`
 }
 
 // TargetArtifact references the source artifact to be deployed.
@@ -70,21 +84,6 @@ type FromImageRef struct {
 	// Whether to skip version validation (for semantic version compliance).
 	// +optional
 	SkipVersionValidation bool `json:"skipVersionValidation,omitempty"`
-}
-
-// Configuration is the top-level configuration block of DeployableArtifactSpec.
-type Configuration struct {
-	// A list of endpoints exposed by the component.
-	// +optional
-	EndpointTemplates []EndpointTemplate `json:"endpointTemplates,omitempty"`
-
-	// Dependencies required by this component.
-	// +optional
-	Dependencies *Dependencies `json:"dependencies,omitempty"`
-
-	// Application runtime parameters/configurations.
-	// +optional
-	Application *Application `json:"application,omitempty"`
 }
 
 // EndpointTemplate represents an endpoint derived from a component descriptor.
