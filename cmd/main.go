@@ -19,7 +19,6 @@ package main
 import (
 	"crypto/tls"
 	"flag"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployableArtifact"
 	"log"
 	"os"
 
@@ -40,8 +39,16 @@ import (
 	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/build"
 	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/build/argo/workflow/v1alpha1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/component"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/dataplane"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployableartifact"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deploymentpipeline"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deploymenttrack"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/environment"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/organization"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/project"
+	ciliumv2 "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/cilium.io/v2"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -53,6 +60,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
+	utilruntime.Must(ciliumv2.AddToScheme(scheme))
 	utilruntime.Must(corev1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 }
@@ -173,11 +181,53 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Build")
 		os.Exit(1)
 	}
-	if err = (&deployableArtifact.DeployableArtifactReconciler{
+	if err = (&environment.Reconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Environment")
+		os.Exit(1)
+	}
+	if err = (&dataplane.Reconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "DataPlane")
+		os.Exit(1)
+	}
+	if err = (&deploymentpipeline.Reconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "DeploymentPipeline")
+		os.Exit(1)
+	}
+	if err = (&component.Reconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Component")
+		os.Exit(1)
+	}
+	if err = (&deploymenttrack.Reconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "DeploymentTrack")
+		os.Exit(1)
+	}
+	if err = (&deployableartifact.Reconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "DeployableArtifact")
+		os.Exit(1)
+	}
+	if err = (&deployment.Reconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Deployment")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

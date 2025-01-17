@@ -15,12 +15,26 @@ cilium:
   priorityClassName: system-node-critical
   hubble:
     relay:
-      enabled: true
+      enabled: false
     ui:
-      enabled: true
+      enabled: false
+  resources:
+    limits:
+      memory: 256Mi
+      cpu: 250m
+    requests:
+      memory: 124Mi
+      cpu: 100m
   operator:
     replicas: 1
     rollOutPods: true
+    resources:
+      limits:
+        memory: 128Mi
+        cpu: 100m
+      requests:
+        memory: 64Mi
+        cpu: 50m
     unmanagedPodWatcher:
       restart: true
     priorityClassName: system-cluster-critical

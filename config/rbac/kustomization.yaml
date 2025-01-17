@@ -28,10 +28,25 @@ resources:
   - project_viewer_role.yaml
   - organization_editor_role.yaml
   - organization_viewer_role.yaml
-# For each CRD, "Editor" and "Viewer" roles are scaffolded by
-# default, aiding admins in cluster management. Those roles are
-# not used by the Project itself. You can comment the following lines
-# if you do not want those helpers be installed with your Project.
-- deployableartifact_editor_role.yaml
-- deployableartifact_viewer_role.yaml
-
+  # For each CRD, "Editor" and "Viewer" roles are scaffolded by
+  # default, aiding admins in cluster management. Those roles are
+  # not used by the Project itself. You can comment the following lines
+  # if you do not want those helpers be installed with your Project.
+  - deploymenttrack_editor_role.yaml
+  - deploymenttrack_viewer_role.yaml
+  - component_editor_role.yaml
+  - component_viewer_role.yaml
+  - deploymentpipeline_editor_role.yaml
+  - deploymentpipeline_viewer_role.yaml
+  - dataplane_editor_role.yaml
+  - dataplane_viewer_role.yaml
+  - environment_editor_role.yaml
+  - environment_viewer_role.yaml
+  - deployment_editor_role.yaml
+  - deployment_viewer_role.yaml
+  - deployableartifact_editor_role.yaml
+  - deployableartifact_viewer_role.yaml
+  - project_editor_role.yaml
+  - project_viewer_role.yaml
+  - organization_editor_role.yaml
+  - organization_viewer_role.yaml

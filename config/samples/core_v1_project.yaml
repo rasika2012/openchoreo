@@ -1,12 +1,13 @@
 apiVersion: core.choreo.dev/v1
 kind: Project
 metadata:
-  name: wso2-internal-apps
+  name: internal-apps
+  namespace: default-organization
   annotations:
     core.choreo.dev/display-name: Internal Applications
-    core.choreo.dev/description: This project contains components that are used by WSO2 internal applications
+    core.choreo.dev/description: This project contains components that are used by companies internal applications
   labels:
-    core.choreo.dev/organization: wso2
+    core.choreo.dev/organization: default-organization
     core.choreo.dev/name: internal-apps
 spec:
-  deploymentPipelineRef: wso2-default-deployment-pipeline
+  deploymentPipelineRef: default-deployment-pipeline

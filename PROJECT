@@ -4,43 +4,52 @@
 # More info: https://book.kubebuilder.io/reference/project-config.html
 domain: choreo.dev
 layout:
-- go.kubebuilder.io/v4
+  - go.kubebuilder.io/v4
 projectName: choreo
 repo: github.com/wso2-enterprise/choreo-cp-declarative-api
 resources:
-- api:
-    crdVersion: v1
-  controller: true
-  domain: choreo.dev
-  group: core
-  kind: Organization
-  path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
-  version: v1
-- api:
-    crdVersion: v1
-    namespaced: true
-  controller: true
-  domain: choreo.dev
-  group: core
-  kind: Project
-  path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
-  version: v1
-- api:
-    crdVersion: v1
-    namespaced: true
-  controller: true
-  domain: choreo.dev
-  group: core
-  kind: Build
-  path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
-  version: v1
-- api:
-    crdVersion: v1
-    namespaced: true
-  controller: true
-  domain: choreo.dev
-  group: core
-  kind: DeployableArtifact
-  path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
-  version: v1
+  - api:
+      crdVersion: v1
+    controller: true
+    domain: choreo.dev
+    group: core
+    kind: Organization
+    path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
+    version: v1
+  - api:
+      crdVersion: v1
+      namespaced: true
+    controller: true
+    domain: choreo.dev
+    group: core
+    kind: Project
+    path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
+    version: v1
+  - api:
+      crdVersion: v1
+      namespaced: true
+    controller: true
+    domain: choreo.dev
+    group: core
+    kind: Build
+    path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
+    version: v1
+  - api:
+      crdVersion: v1
+      namespaced: true
+    controller: true
+    domain: choreo.dev
+    group: core
+    kind: DeployableArtifact
+    path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
+    version: v1
+  - api:
+      crdVersion: v1
+      namespaced: true
+    controller: true
+    domain: choreo.dev
+    group: core
+    kind: Deployment
+    path: github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1
+    version: v1
 version: "3"

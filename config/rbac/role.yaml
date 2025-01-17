@@ -4,50 +4,71 @@ kind: ClusterRole
 metadata:
   name: manager-role
 rules:
-- apiGroups:
-  - ""
-  resources:
-  - namespaces
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - core.choreo.dev
-  resources:
-  - builds
-  - deployableartifacts
-  - organizations
-  - projects
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - core.choreo.dev
-  resources:
-  - builds/finalizers
-  - deployableartifacts/finalizers
-  - organizations/finalizers
-  - projects/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - core.choreo.dev
-  resources:
-  - builds/status
-  - deployableartifacts/status
-  - organizations/status
-  - projects/status
-  verbs:
-  - get
-  - patch
-  - update
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - core.choreo.dev
+    resources:
+      - builds
+      - deployableartifacts
+      - components
+      - dataplanes
+      - deployableartifacts
+      - deploymentpipelines
+      - deployments
+      - deploymenttracks
+      - environments
+      - organizations
+      - projects
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - core.choreo.dev
+    resources:
+      - builds/finalizers
+      - deployableartifacts/finalizers
+      - components/finalizers
+      - dataplanes/finalizers
+      - deployableartifacts/finalizers
+      - deploymentpipelines/finalizers
+      - deployments/finalizers
+      - deploymenttracks/finalizers
+      - environments/finalizers
+      - organizations/finalizers
+      - projects/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - core.choreo.dev
+    resources:
+      - builds/status
+      - deployableartifacts/status
+      - components/status
+      - dataplanes/status
+      - deployableartifacts/status
+      - deploymentpipelines/status
+      - deployments/status
+      - deploymenttracks/status
+      - environments/status
+      - organizations/status
+      - projects/status
+    verbs:
+      - get
+      - patch
+      - update

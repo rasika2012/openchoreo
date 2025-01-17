@@ -124,3 +124,11 @@ Run the following to verify that your changes are working as expected:
 ```bash
 make test
 ```
+
+## Update the helm chart 
+
+Run the following to update the helm chart for your generated CRD.
+
+```bash
+make helm
+```
