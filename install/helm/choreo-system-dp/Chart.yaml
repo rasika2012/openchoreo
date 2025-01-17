@@ -27,10 +27,6 @@ dependencies:
   - name: choreo-controllers
     version: 0.1.0
     condition: choreo-controllers.enabled
-  - name: ingress-nginx
-    version: 4.2.1
-    repository: "https://kubernetes.github.io/ingress-nginx"
-    condition: ingress-nginx.enabled
   - name: vault
     version: 0.29.1
     repository: "https://helm.releases.hashicorp.com"

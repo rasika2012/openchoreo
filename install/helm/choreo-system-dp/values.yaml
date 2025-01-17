@@ -6,11 +6,6 @@ metricsServer:
   enabled: false
   kubeletInsecureTlsEnabled: true
 
-ingress-nginx:
-   enabled: false
-   namespace: choreo-webapps
-   fullnameOverride: ingress-nginx
-
 gateway-helm:
    config:
       envoyGateway:
