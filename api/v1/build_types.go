@@ -65,8 +65,8 @@ type BuildpackConfiguration struct {
 }
 
 type BuildEnvironment struct {
-	Env     []BuildEnvironmentVariable `json:"env"`
-	EnvFrom []BuildEnvironmentFrom     `json:"envFrom"`
+	Env     []BuildEnvironmentVariable `json:"env,omitempty"`
+	EnvFrom []BuildEnvironmentFrom     `json:"envFrom,omitempty"`
 }
 
 type BuildEnvironmentVariable struct {

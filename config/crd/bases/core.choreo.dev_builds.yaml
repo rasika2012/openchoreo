@@ -96,9 +96,6 @@ spec:
                       - secretRef
                       type: object
                     type: array
-                required:
-                - env
-                - envFrom
                 type: object
               path:
                 type: string
