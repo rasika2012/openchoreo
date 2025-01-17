@@ -19,9 +19,12 @@ package project
 import (
 	"context"
 
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -30,17 +33,11 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 )
 
-// // States for conditions
-// const (
-// 	TypeAccepted    = "Accepted"
-// 	TypeProgressing = "Progressing"
-// 	TypeAvailable   = "Available"
-// )
-
 // Reconciler reconciles a Project object
 type Reconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme   *runtime.Scheme
+	recorder record.EventRecorder
 }
 
 // +kubebuilder:rbac:groups=core.choreo.dev,resources=projects,verbs=get;list;watch;create;update;patch;delete
@@ -72,6 +69,8 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	}
 
+	previousCondition := meta.FindStatusCondition(project.Status.Conditions, controller.TypeCreated)
+
 	project.Status.ObservedGeneration = project.Generation
 	if err := controller.UpdateCondition(
 		ctx,
@@ -84,6 +83,10 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		"Project is created",
 	); err != nil {
 		return ctrl.Result{}, err
+	} else {
+		if previousCondition == nil {
+			r.recorder.Event(project, corev1.EventTypeNormal, "ReconcileComplete", "Successfully created "+project.Name)
+		}
 	}
 
 	return ctrl.Result{}, nil
@@ -91,6 +94,10 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+	if r.recorder == nil {
+		r.recorder = mgr.GetEventRecorderFor("project-controller")
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&choreov1.Project{}).
 		Named("project").

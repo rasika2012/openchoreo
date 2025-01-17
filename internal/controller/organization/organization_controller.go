@@ -21,8 +21,10 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -34,7 +36,8 @@ import (
 // Reconciler reconciles a Organization object
 type Reconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme   *runtime.Scheme
+	recorder record.EventRecorder
 }
 
 // +kubebuilder:rbac:groups=core.choreo.dev,resources=organizations,verbs=get;list;watch;create;update;patch;delete
@@ -66,6 +69,8 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		logger.Error(err, "Failed to get Organization")
 		return ctrl.Result{}, err
 	}
+
+	previousCondition := meta.FindStatusCondition(organization.Status.Conditions, controller.TypeReady)
 
 	// Check if the Namespace already exists, if not create a new one
 	namespace := &corev1.Namespace{}
@@ -123,6 +128,10 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		"Successfully created the Namespace",
 	); err != nil {
 		return ctrl.Result{}, err
+	} else {
+		if previousCondition == nil {
+			r.recorder.Event(organization, corev1.EventTypeNormal, "ReconcileComplete", "Successfully created "+organization.Name)
+		}
 	}
 
 	return ctrl.Result{}, nil
@@ -130,6 +139,10 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+	if r.recorder == nil {
+		r.recorder = mgr.GetEventRecorderFor("organization-controller")
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&choreov1.Organization{}).
 		Owns(&corev1.Namespace{}). // Watch any changes to owned Namespaces
