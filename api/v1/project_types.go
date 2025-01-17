@@ -42,7 +42,7 @@ type ProjectStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-
+// +kubebuilder:resource:scope=Namespaced,shortName=proj;projs
 // Project is the Schema for the projects API.
 type Project struct {
 	metav1.TypeMeta   `json:",inline"`
