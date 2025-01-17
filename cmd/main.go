@@ -49,6 +49,7 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/project"
 	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/argoproj.io/workflow/v1alpha1"
 	ciliumv2 "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/cilium.io/v2"
+	webhookcorev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/webhook/v1"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -230,6 +231,13 @@ func main() {
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Deployment")
 		os.Exit(1)
+	}
+	// nolint:goconst
+	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
+		if err = webhookcorev1.SetupProjectWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "Project")
+			os.Exit(1)
+		}
 	}
 	// +kubebuilder:scaffold:builder
 
