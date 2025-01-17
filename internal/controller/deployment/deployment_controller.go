@@ -124,14 +124,30 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 	// Find and reconcile all the external resources
 	externalResourceHandlers := r.makeExternalResourceHandlers()
+	if err := r.reconcileExternalResources(ctx, externalResourceHandlers, deploymentCtx); err != nil {
+		logger.Error(err, "Error reconciling external resources")
+		return ctrl.Result{}, err
+	}
+
+	// TODO: Update the status of the deployment and emit events
+
+	return ctrl.Result{}, nil
+}
+
+// reconcileExternalResources reconciles the provided external resources based on the deployment context.
+func (r *Reconciler) reconcileExternalResources(
+	ctx context.Context,
+	resourceHandlers []integrations.ResourceHandler,
+	deploymentCtx integrations.DeploymentContext) error {
+
 	handlerNameLogKey := "resourceHandler"
-	for _, handler := range externalResourceHandlers {
-		logger := logger.WithValues(handlerNameLogKey, handler.Name())
+	for _, handler := range resourceHandlers {
+		logger := log.FromContext(ctx).WithValues(handlerNameLogKey, handler.Name())
 		// Delete the external resource if it is not configured
 		if !handler.IsRequired(deploymentCtx) {
 			if err := handler.Delete(ctx, deploymentCtx); err != nil {
 				logger.Error(err, "Error deleting external resource")
-				return ctrl.Result{}, err
+				return err
 			}
 			// No need to reconcile the external resource if it is not required
 			logger.Info("Deleted external resource")
@@ -142,7 +158,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		currentState, err := handler.GetCurrentState(ctx, deploymentCtx)
 		if err != nil {
 			logger.Error(err, "Error retrieving current state of the external resource")
-			return ctrl.Result{}, err
+			return err
 		}
 
 		exists := currentState != nil
@@ -150,22 +166,20 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			// Create the external resource if it does not exist
 			if err := handler.Create(ctx, deploymentCtx); err != nil {
 				logger.Error(err, "Error creating external resource")
-				return ctrl.Result{}, err
+				return err
 			}
 		} else {
 			// Update the external resource if it exists
 			if err := handler.Update(ctx, deploymentCtx, currentState); err != nil {
 				logger.Error(err, "Error updating external resource")
-				return ctrl.Result{}, err
+				return err
 			}
 		}
 
 		logger.Info("Reconciled external resource")
 	}
 
-	// TODO: Update the status of the deployment and emit events
-
-	return ctrl.Result{}, nil
+	return nil
 }
 
 // SetupWithManager sets up the controller with the Manager.

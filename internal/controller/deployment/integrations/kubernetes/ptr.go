@@ -9,6 +9,11 @@
 
 package kubernetes
 
+// This file includes helper functions for creating pointers.
+// These functions can be used where primitive type pointers are required, such as when setting optional
+// fields in Kubernetes API objects or working with custom types that follow the Kubernetes conventions
+// for nullable values.
+
 func PtrBool(b bool) *bool {
 	return &b
 }
