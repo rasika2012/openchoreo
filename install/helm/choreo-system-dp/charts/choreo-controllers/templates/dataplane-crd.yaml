@@ -1,7 +1,7 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: deploymenttracks.core.choreo.dev
+  name: dataplanes.core.choreo.dev
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.4
   labels:
@@ -9,16 +9,19 @@ metadata:
 spec:
   group: core.choreo.dev
   names:
-    kind: DeploymentTrack
-    listKind: DeploymentTrackList
-    plural: deploymenttracks
-    singular: deploymenttrack
+    kind: DataPlane
+    listKind: DataPlaneList
+    plural: dataplanes
+    shortNames:
+    - dp
+    - dps
+    singular: dataplane
   scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: DeploymentTrack is the Schema for the deploymenttracks API.
+        description: DataPlane is the Schema for the dataplanes API.
         properties:
           apiVersion:
             description: |-
@@ -38,44 +41,59 @@ spec:
           metadata:
             type: object
           spec:
-            description: DeploymentTrackSpec defines the desired state of DeploymentTrack.
+            description: DataPlaneSpec defines the desired state of DataPlane.
             properties:
-              buildTemplateSpec:
-                description: BuildTemplateSpec defines the build template configuration
+              gateway:
+                description: Gateway specifies the gateway configuration
                 properties:
-                  branch:
-                    description: Branch specifies the Git branch to use
+                  organizationVirtualHost:
+                    description: Organization-specific virtual host for the gateway
                     type: string
-                  buildConfiguration:
-                    description: BuildConfiguration specifies the build settings
-                    properties:
-                      docker:
-                        description: Docker specifies the Docker-specific build configuration
-                        properties:
-                          context:
-                            description: Context specifies the build context path
-                            type: string
-                          dockerfilePath:
-                            description: DockerfilePath specifies the path to the Dockerfile
-                            type: string
-                        required:
-                        - context
-                        - dockerfilePath
-                        type: object
-                    required:
-                    - docker
-                    type: object
-                  path:
-                    description: Path specifies the repository path to use
+                  publicVirtualHost:
+                    description: Public virtual host for the gateway
                     type: string
                 required:
-                - branch
-                - buildConfiguration
-                - path
+                - organizationVirtualHost
+                - publicVirtualHost
                 type: object
+              kubernetesCluster:
+                description: KubernetesCluster specifies the target cluster configuration
+                properties:
+                  connectionConfigRef:
+                    description: Reference to the connection configuration for the cluster
+                    type: string
+                  featureFlags:
+                    description: FeatureFlags specifies enabled/disabled features
+                    properties:
+                      cilium:
+                        description: Enable/disable Cilium networking
+                        type: boolean
+                      gatewayType:
+                        description: GatewayType specifies the type of gateway to be
+                          used (e.g., envoy)
+                        type: string
+                      scaleToZero:
+                        description: Enable/disable scale to zero functionality
+                        type: boolean
+                    required:
+                    - cilium
+                    - gatewayType
+                    - scaleToZero
+                    type: object
+                  name:
+                    description: Name of the Kubernetes cluster
+                    type: string
+                required:
+                - connectionConfigRef
+                - featureFlags
+                - name
+                type: object
+            required:
+            - gateway
+            - kubernetesCluster
             type: object
           status:
-            description: DeploymentTrackStatus defines the observed state of DeploymentTrack.
+            description: DataPlaneStatus defines the observed state of DataPlane.
             properties:
               conditions:
                 items:
@@ -134,6 +152,9 @@ spec:
                   type: object
                 type: array
               observedGeneration:
+                description: |-
+                  INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+                  Important: Run "make" to regenerate code after modifying this file
                 format: int64
                 type: integer
             type: object

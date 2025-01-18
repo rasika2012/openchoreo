@@ -1,7 +1,7 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: projects.core.choreo.dev
+  name: deploymenttracks.core.choreo.dev
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.4
   labels:
@@ -9,16 +9,19 @@ metadata:
 spec:
   group: core.choreo.dev
   names:
-    kind: Project
-    listKind: ProjectList
-    plural: projects
-    singular: project
+    kind: DeploymentTrack
+    listKind: DeploymentTrackList
+    plural: deploymenttracks
+    shortNames:
+    - deptrack
+    - deptracks
+    singular: deploymenttrack
   scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: Project is the Schema for the projects API.
+        description: DeploymentTrack is the Schema for the deploymenttracks API.
         properties:
           apiVersion:
             description: |-
@@ -38,15 +41,54 @@ spec:
           metadata:
             type: object
           spec:
-            description: ProjectSpec defines the desired state of Project.
+            description: DeploymentTrackSpec defines the desired state of DeploymentTrack.
             properties:
-              deploymentPipelineRef:
-                description: Foo is an example field of Project. Edit project_types.go
-                  to remove/update
-                type: string
+              buildTemplateSpec:
+                description: BuildTemplateSpec defines the build template configuration
+                properties:
+                  branch:
+                    description: Branch specifies the Git branch to use
+                    type: string
+                  buildConfiguration:
+                    description: BuildConfiguration specifies the build settings
+                    properties:
+                      buildpack:
+                        description: Buildpack specifies the buildpack to use
+                        properties:
+                          name:
+                            type: string
+                          version:
+                            type: string
+                        required:
+                        - name
+                        type: object
+                      docker:
+                        description: Docker specifies the Docker-specific build configuration
+                        properties:
+                          context:
+                            description: Context specifies the build context path
+                            type: string
+                          dockerfilePath:
+                            description: DockerfilePath specifies the path to the Dockerfile
+                            type: string
+                        required:
+                        - context
+                        - dockerfilePath
+                        type: object
+                    required:
+                    - buildpack
+                    type: object
+                  path:
+                    description: Path specifies the repository path to use
+                    type: string
+                required:
+                - branch
+                - buildConfiguration
+                - path
+                type: object
             type: object
           status:
-            description: ProjectStatus defines the observed state of Project.
+            description: DeploymentTrackStatus defines the observed state of DeploymentTrack.
             properties:
               conditions:
                 items:
@@ -105,9 +147,6 @@ spec:
                   type: object
                 type: array
               observedGeneration:
-                description: |-
-                  INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-                  Important: Run "make" to regenerate code after modifying this file
                 format: int64
                 type: integer
             type: object

@@ -20,9 +20,13 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - builds
+  - deployableartifacts
   - components
   - dataplanes
+  - deployableartifacts
   - deploymentpipelines
+  - deployments
   - deploymenttracks
   - environments
   - organizations
@@ -38,9 +42,13 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - builds/finalizers
+  - deployableartifacts/finalizers
   - components/finalizers
   - dataplanes/finalizers
+  - deployableartifacts/finalizers
   - deploymentpipelines/finalizers
+  - deployments/finalizers
   - deploymenttracks/finalizers
   - environments/finalizers
   - organizations/finalizers
@@ -50,9 +58,13 @@ rules:
 - apiGroups:
   - core.choreo.dev
   resources:
+  - builds/status
+  - deployableartifacts/status
   - components/status
   - dataplanes/status
+  - deployableartifacts/status
   - deploymentpipelines/status
+  - deployments/status
   - deploymenttracks/status
   - environments/status
   - organizations/status

@@ -1,7 +1,7 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: dataplanes.core.choreo.dev
+  name: projects.core.choreo.dev
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.4
   labels:
@@ -9,16 +9,19 @@ metadata:
 spec:
   group: core.choreo.dev
   names:
-    kind: DataPlane
-    listKind: DataPlaneList
-    plural: dataplanes
-    singular: dataplane
+    kind: Project
+    listKind: ProjectList
+    plural: projects
+    shortNames:
+    - proj
+    - projs
+    singular: project
   scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: DataPlane is the Schema for the dataplanes API.
+        description: Project is the Schema for the projects API.
         properties:
           apiVersion:
             description: |-
@@ -38,59 +41,15 @@ spec:
           metadata:
             type: object
           spec:
-            description: DataPlaneSpec defines the desired state of DataPlane.
+            description: ProjectSpec defines the desired state of Project.
             properties:
-              gateway:
-                description: Gateway specifies the gateway configuration
-                properties:
-                  organizationVirtualHost:
-                    description: Organization-specific virtual host for the gateway
-                    type: string
-                  publicVirtualHost:
-                    description: Public virtual host for the gateway
-                    type: string
-                required:
-                - organizationVirtualHost
-                - publicVirtualHost
-                type: object
-              kubernetesCluster:
-                description: KubernetesCluster specifies the target cluster configuration
-                properties:
-                  connectionConfigRef:
-                    description: Reference to the connection configuration for the cluster
-                    type: string
-                  featureFlags:
-                    description: FeatureFlags specifies enabled/disabled features
-                    properties:
-                      cilium:
-                        description: Enable/disable Cilium networking
-                        type: boolean
-                      gatewayType:
-                        description: GatewayType specifies the type of gateway to be
-                          used (e.g., envoy)
-                        type: string
-                      scaleToZero:
-                        description: Enable/disable scale to zero functionality
-                        type: boolean
-                    required:
-                    - cilium
-                    - gatewayType
-                    - scaleToZero
-                    type: object
-                  name:
-                    description: Name of the Kubernetes cluster
-                    type: string
-                required:
-                - connectionConfigRef
-                - featureFlags
-                - name
-                type: object
-            required:
-            - gateway
-            - kubernetesCluster
+              deploymentPipelineRef:
+                description: Foo is an example field of Project. Edit project_types.go
+                  to remove/update
+                type: string
             type: object
           status:
-            description: DataPlaneStatus defines the observed state of DataPlane.
+            description: ProjectStatus defines the observed state of Project.
             properties:
               conditions:
                 items:
