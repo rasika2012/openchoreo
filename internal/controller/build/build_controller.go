@@ -195,8 +195,7 @@ func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, 
 	if err != nil {
 		// Create the workflow
 		if apierrors.IsNotFound(err) {
-			var workflow argo.Workflow
-			workflow = *createBuildpackWorkflow(build, component.Spec.Source.GitRepository.URL)
+			workflow := *createBuildpackWorkflow(build, component.Spec.Source.GitRepository.URL)
 
 			if err := r.Create(ctx, &workflow); err != nil {
 				return nil, err
