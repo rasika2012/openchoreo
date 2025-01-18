@@ -179,16 +179,16 @@ func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName
 }
 
 func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, logger logr.Logger) (*argo.Workflow, error) {
-	// component := choreov1.Component{}
-	// err := r.Get(ctx, client.ObjectKey{Name: build.ObjectMeta.Labels["core.choreo.dev/component"], Namespace: build.ObjectMeta.Namespace}, &component)
-	// if err != nil {
-	// 	if apierrors.IsNotFound(err) {
-	// 		logger.Info("Component of the build is not found", "Build.Name", build.Name)
-	// 		return nil, err
-	// 	}
-	// 	logger.Info("Error occurred while retrieving the component of the build", "Build.Name", build.Name)
-	// 	return nil, err
-	// }
+	component := choreov1.Component{}
+	err := r.Get(ctx, client.ObjectKey{Name: build.ObjectMeta.Labels["core.choreo.dev/component"], Namespace: build.ObjectMeta.Namespace}, &component)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			logger.Info("Component of the build is not found", "Build.Name", build.Name)
+			return nil, err
+		}
+		logger.Info("Error occurred while retrieving the component of the build", "Build.Name", build.Name)
+		return nil, err
+	}
 	existingWorkflow := argo.Workflow{}
 	err = r.Get(ctx, client.ObjectKey{Name: build.ObjectMeta.Name, Namespace: "argo-build"}, &existingWorkflow)
 	if err != nil {
