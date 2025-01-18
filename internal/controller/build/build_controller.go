@@ -23,6 +23,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/utils/ptr"
 
 	"github.com/go-logr/logr"
@@ -121,60 +122,60 @@ func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName
 		return err
 	}
 
-	// // Step 2: Create ServiceAccount
-	// sa := &corev1.ServiceAccount{
-	// 	ObjectMeta: metav1.ObjectMeta{
-	// 		Name:      "argo-workflow-sa",
-	// 		Namespace: namespaceName,
-	// 	},
-	// }
-	// if err := r.Client.Create(ctx, sa); err != nil && !apierrors.IsAlreadyExists(err) {
-	// 	logger.Error(err, "Failed to create ServiceAccount", "Namespace", namespaceName)
-	// 	return err
-	// }
+	// Step 2: Create ServiceAccount
+	sa := &corev1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "argo-workflow-sa",
+			Namespace: namespaceName,
+		},
+	}
+	if err := r.Client.Create(ctx, sa); err != nil && !apierrors.IsAlreadyExists(err) {
+		logger.Error(err, "Failed to create ServiceAccount", "Namespace", namespaceName)
+		return err
+	}
 
-	// // Step 3: Create Role
-	// role := &rbacv1.Role{
-	// 	ObjectMeta: metav1.ObjectMeta{
-	// 		Name:      "argo-workflow-role",
-	// 		Namespace: namespaceName,
-	// 	},
-	// 	Rules: []rbacv1.PolicyRule{
-	// 		{
-	// 			APIGroups: []string{"argoproj.io"},
-	// 			Resources: []string{"workflowtaskresults"},
-	// 			Verbs:     []string{"create", "get", "list", "watch", "update", "patch"},
-	// 		},
-	// 	},
-	// }
-	// if err := r.Client.Create(ctx, role); err != nil && !apierrors.IsAlreadyExists(err) {
-	// 	logger.Error(err, "Failed to create Role", "Namespace", namespaceName)
-	// 	return err
-	// }
+	// Step 3: Create Role
+	role := &rbacv1.Role{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "argo-workflow-role",
+			Namespace: namespaceName,
+		},
+		Rules: []rbacv1.PolicyRule{
+			{
+				APIGroups: []string{"argoproj.io"},
+				Resources: []string{"workflowtaskresults"},
+				Verbs:     []string{"create", "get", "list", "watch", "update", "patch"},
+			},
+		},
+	}
+	if err := r.Client.Create(ctx, role); err != nil && !apierrors.IsAlreadyExists(err) {
+		logger.Error(err, "Failed to create Role", "Namespace", namespaceName)
+		return err
+	}
 
-	// // Step 4: Create RoleBinding
-	// roleBinding := &rbacv1.RoleBinding{
-	// 	ObjectMeta: metav1.ObjectMeta{
-	// 		Name:      "argo-workflow-binding",
-	// 		Namespace: namespaceName,
-	// 	},
-	// 	Subjects: []rbacv1.Subject{
-	// 		{
-	// 			Kind:      "ServiceAccount",
-	// 			Name:      "argo-workflow-sa",
-	// 			Namespace: namespaceName,
-	// 		},
-	// 	},
-	// 	RoleRef: rbacv1.RoleRef{
-	// 		Kind:     "Role",
-	// 		Name:     "argo-workflow-role",
-	// 		APIGroup: "rbac.authorization.k8s.io",
-	// 	},
-	// }
-	// if err := r.Client.Create(ctx, roleBinding); err != nil && !apierrors.IsAlreadyExists(err) {
-	// 	logger.Error(err, "Failed to create RoleBinding", "Namespace", namespaceName)
-	// 	return err
-	// }
+	// Step 4: Create RoleBinding
+	roleBinding := &rbacv1.RoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "argo-workflow-binding",
+			Namespace: namespaceName,
+		},
+		Subjects: []rbacv1.Subject{
+			{
+				Kind:      "ServiceAccount",
+				Name:      "argo-workflow-sa",
+				Namespace: namespaceName,
+			},
+		},
+		RoleRef: rbacv1.RoleRef{
+			Kind:     "Role",
+			Name:     "argo-workflow-role",
+			APIGroup: "rbac.authorization.k8s.io",
+		},
+	}
+	if err := r.Client.Create(ctx, roleBinding); err != nil && !apierrors.IsAlreadyExists(err) {
+		logger.Error(err, "Failed to create RoleBinding", "Namespace", namespaceName)
+		return err
+	}
 	return nil
 }
 
