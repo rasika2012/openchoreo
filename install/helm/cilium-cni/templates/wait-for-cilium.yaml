@@ -20,4 +20,4 @@ spec:
           kubectl wait --namespace {{ .Release.Namespace }} \
             --for=condition=Ready pods --all --timeout=900s
       restartPolicy: Never
-  backoffLimit: 4
+  backoffLimit: 5
