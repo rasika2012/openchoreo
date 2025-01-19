@@ -18,10 +18,33 @@ rules:
   - update
   - watch
 - apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cilium.io
+  resources:
+  - ciliumnetworkpolicies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - core.choreo.dev
   resources:
   - builds
-  - deployableartifacts
   - components
   - dataplanes
   - deployableartifacts
@@ -43,7 +66,6 @@ rules:
   - core.choreo.dev
   resources:
   - builds/finalizers
-  - deployableartifacts/finalizers
   - components/finalizers
   - dataplanes/finalizers
   - deployableartifacts/finalizers
@@ -59,7 +81,6 @@ rules:
   - core.choreo.dev
   resources:
   - builds/status
-  - deployableartifacts/status
   - components/status
   - dataplanes/status
   - deployableartifacts/status

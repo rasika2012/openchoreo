@@ -75,15 +75,12 @@ spec:
                         - context
                         - dockerfilePath
                         type: object
-                    required:
-                    - buildpack
                     type: object
                   path:
                     description: Path specifies the repository path to use
                     type: string
                 required:
                 - branch
-                - buildConfiguration
                 - path
                 type: object
             type: object
