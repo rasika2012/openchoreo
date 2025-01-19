@@ -133,9 +133,12 @@ spec:
     branch: main
     path: /github-issue-reporter
     buildConfiguration:
-      docker:
-        context: /github-issue-reporter
-        dockerfilePath: /github-issue-reporter/Dockerfile
+#      docker:
+#        context: /github-issue-reporter
+#        dockerfilePath: /github-issue-reporter/Dockerfile
+      buildpack:
+        name: Go
+        version: "1.22"
 ---
 ## Sample Build kind (Namespaced)
 apiVersion: core.choreo.dev/v1
@@ -156,11 +159,13 @@ spec:
   branch: main
   path: /github-issue-reporter
   buildConfiguration:
-    docker:
-      context: /github-issue-reporter
-      dockerfilePath: /github-issue-reporter/Dockerfile
-status:
-  containerImage: mirage20/sample-task-report-generator:v1
+#    docker:
+#      context: /github-issue-reporter
+#      dockerfilePath: /github-issue-reporter/Dockerfile
+    buildpack:
+      name: Go
+      version: "1.22"
+
 ---
 ## Sample DeployableArtifact kind (Namespaced)
 apiVersion: core.choreo.dev/v1
