@@ -185,7 +185,7 @@ metadata:
 spec:
   targetArtifact:
     fromBuildRef:
-      name: build-2024-12-10-1
+      name: github-issue-reporter-daily-build-2024-12-10-1
   configuration:
     application:
       env:

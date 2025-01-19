@@ -19,6 +19,7 @@ type DeploymentContext struct {
 	Project            *choreov1.Project
 	Component          *choreov1.Component
 	DeploymentTrack    *choreov1.DeploymentTrack
+	Build              *choreov1.Build
 	DeployableArtifact *choreov1.DeployableArtifact
 	Deployment         *choreov1.Deployment
 	Environment        *choreov1.Environment

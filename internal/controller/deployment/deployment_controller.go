@@ -311,12 +311,26 @@ func makeHierarchyLabelsForDeploymentTrack(objMeta metav1.ObjectMeta) map[string
 	return hierarchyLabelMap
 }
 
-func (r *Reconciler) findContainerImage(_ context.Context, deployableArtifact *choreov1.DeployableArtifact) (string, error) {
+// TODO: move this logic to the resource handler implementation as figuring out the container image is specific to the external resource
+func (r *Reconciler) findContainerImage(ctx context.Context, deployableArtifact *choreov1.DeployableArtifact) (string, error) {
 	if buildRef := deployableArtifact.Spec.TargetArtifact.FromBuildRef; buildRef != nil {
 		if buildRef.Name != "" {
+			// Find the build that the deployable artifact is referring to
+			buildList := &choreov1.BuildList{}
+			listOpts := []client.ListOption{
+				client.InNamespace(deployableArtifact.Namespace),
+				client.MatchingLabels(makeHierarchyLabelsForDeploymentTrack(deployableArtifact.ObjectMeta)),
+			}
+			if err := r.Client.List(ctx, buildList, listOpts...); err != nil {
+				return "", fmt.Errorf("findContainerImage: failed to list builds: %w", err)
+			}
 
-			// TODO: Fix this once the build resource is available
-			return "mirage20/sample-task-report-generator:v1", nil
+			for _, build := range buildList.Items {
+				if build.Name == buildRef.Name {
+					return build.Status.ImageStatus.Image, nil
+				}
+			}
+			return "", fmt.Errorf("build %q is not found for deployable artifact: %s/%s", buildRef.Name, deployableArtifact.Namespace, deployableArtifact.Name)
 		} else if buildRef.GitRevision != "" {
 			// TODO: Search for the build by git revision
 			return "", fmt.Errorf("search by git revision is not supported")
