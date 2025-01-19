@@ -10,8 +10,8 @@ controllerManager:
         drop:
         - ALL
     image:
-      repository: shirok/choreo
-      tag: tag_sk_2
+      repository: choreov3testacr.azurecr.io/choreo-v3/controller
+      tag: v0.1.0
     imagePullPolicy: IfNotPresent
     resources:
       limits:
