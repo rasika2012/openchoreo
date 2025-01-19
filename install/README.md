@@ -69,13 +69,17 @@ To check the installation status, you can run
 $ ./check-status.sh
 
 Installation status:
-- cilium-agent : pending
-- cilium-operator : ready
-- vault : not started
-- vault-agent-injector : not started
-- argo-workflows-server : not started
-- argo-workflows-workflow-controller : not started
-- ingress-nginx : not started
+✅ cilium-agent : ready 
+✅ cilium-operator : ready 
+✅ vault : ready 
+✅ vault-agent-injector : ready 
+🕑 argo-workflows-server : pending 
+🕑 argo-workflows-workflow-controller : pending 
+✅ cert-manager : ready 
+✅ cainjector : ready 
+🕑 webhook : pending 
+🕑 choreo-controllers : pending 
+✅ gateway-helm : ready 
 ```
 
 ## Uninstalling choreo
