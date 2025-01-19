@@ -51,7 +51,7 @@ type BuildConfiguration struct {
 	// Docker specifies the Docker-specific build configuration
 	Docker *DockerConfiguration `json:"docker,omitempty"`
 	// Buildpack specifies the buildpack to use
-	Buildpack BuildpackConfiguration `json:"buildpack"`
+	Buildpack *BuildpackConfiguration `json:"buildpack,omitempty"`
 }
 
 type Docker struct {

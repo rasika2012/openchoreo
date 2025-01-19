@@ -70,8 +70,6 @@ spec:
                     - context
                     - dockerfilePath
                     type: object
-                required:
-                - buildpack
                 type: object
               buildEnvironment:
                 properties:

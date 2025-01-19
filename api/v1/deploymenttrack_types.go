@@ -32,7 +32,7 @@ type BuildTemplateSpec struct {
 	// Path specifies the repository path to use
 	Path string `json:"path"`
 	// BuildConfiguration specifies the build settings
-	BuildConfiguration BuildConfiguration `json:"buildConfiguration"`
+	BuildConfiguration *BuildConfiguration `json:"buildConfiguration,omitempty"`
 }
 
 // DeploymentTrackSpec defines the desired state of DeploymentTrack.
@@ -41,7 +41,7 @@ type DeploymentTrackSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// BuildTemplateSpec defines the build template configuration
-	BuildTemplateSpec BuildTemplateSpec `json:"buildTemplateSpec,omitempty"`
+	BuildTemplateSpec *BuildTemplateSpec `json:"buildTemplateSpec,omitempty"`
 }
 
 // DeploymentTrackStatus defines the observed state of DeploymentTrack.
