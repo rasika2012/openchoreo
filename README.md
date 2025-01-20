@@ -40,7 +40,7 @@ This repository defines Choreo abstractions in the form of Kubernetes CRDs, enab
 
 These abstractions simplify the development and deployment process, allowing developers to focus on writing code while Choreo handles the underlying infrastructure and operational tasks.
 
-For more details about the abstractions, refer to [Choreo Resource Kinds](docs/Readme.md).
+For more details about the abstractions, refer to [Choreo Resource Kinds](docs/README.md).
 
 ## Getting Started
 This guide will help users set up the necessary prerequisites, download and install the Choreo Helm chart, verify their setup and deploy the sample application.
