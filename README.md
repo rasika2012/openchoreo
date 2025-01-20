@@ -56,32 +56,39 @@ This section guides you through setting up a Kind cluster and installing Choreo 
 Make sure you have installed kind : https://kind.sigs.k8s.io/docs/user/quick-start/#installation
 
 2. Create a Kind cluster:
-                ```sh
-                kind create cluster --config=install/kind/kind-config.yaml
-                ```
+
+    ```sh
+    kind create cluster --config=install/kind/kind-config.yaml
+    ```
 
 3. Install Cilium:
-                ```sh
-           helm upgrade --install cilium-cni oci://choreov3testacr.azurecr.io/choreo-v3/cilium-cni  --version 0.1.0 --namespace "choreo-system-dp" --create-namespace --timeout 30m
-                ```
+
+    ```sh
+    helm upgrade --install cilium-cni oci://choreov3testacr.azurecr.io/choreo-v3/cilium-cni  --version 0.1.0 --namespace "choreo-system-dp" --create-namespace --timeout 30m
+    ```
 
 4. Install Choreo Helm Chart:
-                ```sh
-                helm upgrade --install choreo-dp oci://choreov3testacr.azurecr.io/choreo-v3/choreo-opensource-dp  --version 0.2.0 --namespace "choreo-system-dp" --create-namespace --timeout 30m
-                ```
+
+    ```sh
+    helm upgrade --install choreo-dp oci://choreov3testacr.azurecr.io/choreo-v3/choreo-opensource-dp  --version 0.2.0 --namespace "choreo-system-dp" --create-namespace --timeout 30m
+    ```
+
 5. Verify Installations:
-                ```sh
-                sh install/check-status.sh
-                ```
+
+    ```sh
+    sh install/check-status.sh
+    ```
 
 6. Deploy Choreo Sample Application:
-                ```sh
-                kubectl apply -k config/samples/sample-scheduled-task.yaml
-                ```
-7. Check Created Resources
-                ```sh
-                kubectl get orgs,projects,components,dataplanes,deploymentpipelines,deploymenttracks,environments,deployments.core.choreo.dev -A 
-                ```
+
+    ```sh
+    kubectl apply -k config/samples/sample-scheduled-task.yaml
+    ```
+7. Check Created Resources:
+
+    ```sh
+    kubectl get orgs,projects,components,dataplanes,deploymentpipelines,deploymenttracks,environments,deployments.core.choreo.dev -A 
+    ```
 
 ## Contributor Guide
 
