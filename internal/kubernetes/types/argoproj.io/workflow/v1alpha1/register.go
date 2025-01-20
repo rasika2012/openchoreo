@@ -1,11 +1,11 @@
 package v1alpha1
 
 import (
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/build/argo/workflow"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/argoproj.io/workflow"
 )
 
 // SchemeGroupVersion is group version used to register these objects
