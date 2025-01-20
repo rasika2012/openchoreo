@@ -1,21 +1,116 @@
 # Choreo
-Choreo is an internal developer platform that simplifies the build, deploy, and management of applications.
 
-## Description
+Choreo is an internal developer platform that simplifies the build, deployment, and management of applications. It provides a unified interface for developers to create, test, and deploy cloud-native applications with ease. Choreo offers features such as automated CI/CD pipelines, integrated API management, and seamless integration with various cloud services, enabling developers to focus on writing code while the platform handles the operational complexities.
+
+## Table of Contents
+- [Introduction](#introduction)
+        - [Choreo Abstractions](#choreo-abstractions)
+- [Getting Started](#getting-started)
+        - [Prerequisites](#prerequisites)
+        - [Install from Scratch Using Kind Cluster](#install-from-scratch-using-kind-cluster)
+- [Contributor Guide](#contributor-guide)
+        - [Prerequisites for Contributors](#prerequisites-for-contributors)
+        - [Build and Use Binaries](#build-and-use-binaries)
+        - [To Deploy on the cluster](#to-deploy-on-the-cluster)
+        - [To Uninstall](#to-uninstall)
+- [Project Distribution](#project-distribution)
+        - [Implement Custom Resources](#implement-custom-resources)
+- [License](#license)
+
+## Introduction
+
 The Choreo repository is a collection of Kubernetes CRDs that enables application development functionalities. These CRDs enable cloud-native deployments, seamless API management, and integration workflows by defining declarative configurations for Kubernetes.
 
+### Choreo Abstractions
+
+This repository defines Choreo abstractions in the form of Kubernetes CRDs, enabling developers to use these abstractions to create projects, components, builds, deployments, and more. By leveraging these CRDs, developers can declaratively manage their application's lifecycle and infrastructure, ensuring consistency and repeatability across environments.
+
+- **DataPlane**: Represents a Data Plane in Choreo, responsible for maintaining the health status of the data plane and providing data plane information to other resources.
+- **Environment**: Represents an environment bound to a specific data plane in Choreo, with a reference to an existing `DataPlane` resource.
+- **DeploymentPipeline**: Represents an ordered set of environments that a deployment will go through to reach a critical environment, with a default deployment pipeline for each organization.
+- **Project**: Represents a project in Choreo, enforcing a promotion order for the components within the project, with an optional reference to a deployment pipeline.
+- **Component**: Represents a deployable unit in Choreo, managing the entire lifecycle of the component from source to deployment, with various deployment architectures.
+- **DeploymentTrack**: Represents a deployment path for a component, managing the deployment of the component across environments and handling auto deployment and build management.
+- **Build**: Represents a source code to artifact transformation, managed by the deployment track controller, responsible for configuring build parameters and tracking build artifacts.
+- **DeployableArtifact**: Represents a build artifact with environment-independent configurations, ready to be deployed to an environment, created by the build controller or manually by the user.
+- **Deployment**: Represents a deployment in an environment bound to a deployment track, managing deployment revisions, deploying artifacts, and monitoring deployment status.
+- **DeploymentRevision**: Represents a snapshot of the deployment resource at a given time, created by the deployment controller to track deployment history and restore deployment specs during revert operations.
+- **Endpoint**: Represents an endpoint exposed by the component, responsible for updating Kubernetes resources, creating managed APIs, and configuring API settings.
+- **Secret**: Represents configuration parameters stored in a key vault, used for storing both system secrets and environment-specific secrets, with various secret types like GitHub, Bitbucket, GitLab, and DockerHub.
+
+These abstractions simplify the development and deployment process, allowing developers to focus on writing code while Choreo handles the underlying infrastructure and operational tasks.
+
+For more details about the abstractions, refer to [Choreo Resource Kinds](docs/Readme.md).
+
 ## Getting Started
+This guide will help users set up the necessary prerequisites, download and install the Choreo Helm chart, verify their setup and deploy the sample application.
+#### Prerequisites
+- Helm version v3.16+
 
-### Prerequisites
+#### Install from Scratch Using Kind Cluster
+
+This section guides you through setting up a Kind cluster and installing Choreo from scratch.
+
+
+1. Install Kind:
+Make sure you have installed kind : https://kind.sigs.k8s.io/docs/user/quick-start/#installation
+
+2. Create a Kind cluster:
+                ```sh
+                kind create cluster --config=install/kind/kind-config.yaml
+                ```
+
+3. Install Cilium:
+                ```sh
+           helm upgrade --install cilium-cni oci://choreov3testacr.azurecr.io/choreo-v3/cilium-cni  --version 0.1.0 --namespace "choreo-system-dp" --create-namespace --timeout 30m
+                ```
+
+4. Install Choreo Helm Chart:
+                ```sh
+                helm upgrade --install choreo-dp oci://choreov3testacr.azurecr.io/choreo-v3/choreo-opensource-dp  --version 0.2.0 --namespace "choreo-system-dp" --create-namespace --timeout 30m
+                ```
+5. Verify Installations:
+                ```sh
+                sh install/check-status.sh
+                ```
+
+6. Deploy Choreo Sample Application:
+                ```sh
+                kubectl apply -k config/samples/sample-scheduled-task.yaml
+                ```
+7. Check Created Resources
+                ```sh
+                kubectl get orgs,projects,components,dataplanes,deploymentpipelines,deploymenttracks,environments,deployments.core.choreo.dev -A 
+                ```
+
+## Contributor Guide
+
+This section provides a comprehensive guide for contributors to set up their development environment, build and use the binaries, and deploy Choreo on a Kubernetes cluster for testing and development purposes.
+
+### Prerequisites for Contributors
 - Go version v1.23.0+
-- Docker version 17.03+.
-- Kubernetes cluster with version v1.30.0+.
+- Docker version 17.03+
+- Kubernetes cluster with version v1.30.0+
 
-To verify the prerequisites, run the following command:
+### Build and Use Binaries
 
-```sh
-./check-tools.sh
-```
+1. Clone the repository:
+                ```sh
+                git clone https://github.com/<org>/choreo.git
+                cd choreo
+                ```
+
+2. Build the binaries:
+                ```sh
+                make build
+                ```
+
+3. Run the binaries:
+                ```sh
+                ./bin/manager
+                ```
+
+4. Follow the deployment steps mentioned below under "To Deploy on the cluster" section.
 
 ### To Deploy on the cluster
 **Build and push your image to the location specified by `IMG`:**
@@ -93,10 +188,7 @@ Users can just run kubectl apply -f <URL for YAML BUNDLE> to install the project
 ```sh
 kubectl apply -f https://raw.githubusercontent.com/<org>/choreo/<tag or branch>/dist/install.yaml
 ```
-
-## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
-
+### Implement Custom Resources
 **NOTE:** Run `make help` for more information on all potential `make` targets
 
 More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
@@ -109,11 +201,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+                http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
