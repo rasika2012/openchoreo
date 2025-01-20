@@ -103,7 +103,7 @@ func makeHTTPRouteName(deployCtx integrations.DeploymentContext) string {
 func makeHTTPRoute(deployCtx integrations.DeploymentContext) *gatewayv1.HTTPRoute {
 	pathType := gatewayv1.PathMatchPathPrefix
 	hostname := gatewayv1.Hostname(deployCtx.Component.Name + "-" + deployCtx.Environment.Name + ".choreo.local")
-	port := gatewayv1.PortNumber(8080) // Hard-coded ports, needs to be dynamic
+	port := gatewayv1.PortNumber(deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates[0].Service.Port) // Hard-coded ports, needs to be dynamic
 
 	return &gatewayv1.HTTPRoute{
 		ObjectMeta: metav1.ObjectMeta{

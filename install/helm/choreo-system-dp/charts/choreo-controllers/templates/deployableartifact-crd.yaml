@@ -581,6 +581,90 @@ spec:
                     items:
                       description: EndpointTemplate represents an endpoint derived from
                         a component descriptor.
+                      properties:
+                        spec:
+                          description: Specification of the endpoint
+                          properties:
+                            networkVisibilities:
+                              description: Network visibility levels
+                              enum:
+                              - Public
+                              - Organization
+                              - Project
+                              items:
+                                type: string
+                              type: array
+                            organizationVisibilityConfigurations:
+                              description: Organization visibility configurations
+                              properties:
+                                cors:
+                                  description: CORS configuration
+                                  properties:
+                                    allowHeaders:
+                                      description: Allowed headers
+                                      items:
+                                        type: string
+                                      type: array
+                                    allowMethods:
+                                      description: Allowed methods
+                                      items:
+                                        type: string
+                                      type: array
+                                    allowOrigins:
+                                      description: Allowed origins
+                                      items:
+                                        type: string
+                                      type: array
+                                    enabled:
+                                      description: Whether CORS is enabled
+                                      type: boolean
+                                    exposeHeaders:
+                                      description: Exposed headers
+                                      items:
+                                        type: string
+                                      type: array
+                                  type: object
+                                rateLimit:
+                                  description: Rate limit configuration
+                                  properties:
+                                    tier:
+                                      description: Rate limit tier
+                                      type: string
+                                  type: object
+                              type: object
+                            service:
+                              description: Service configuration
+                              properties:
+                                basePath:
+                                  description: Base path of the service
+                                  type: string
+                                port:
+                                  description: Port of the service
+                                  format: int32
+                                  type: integer
+                                url:
+                                  description: URL of the upstream service
+                                  type: string
+                              required:
+                              - port
+                              type: object
+                            type:
+                              description: Protocol type of the endpoint
+                              enum:
+                              - HTTP
+                              - REST
+                              - gRPC
+                              - GraphQL
+                              - Websocket
+                              - TCP
+                              - UDP
+                              type: string
+                          required:
+                          - service
+                          - type
+                          type: object
+                      required:
+                      - spec
                       type: object
                     type: array
                 type: object
@@ -628,3 +712,4 @@ status:
     plural: ""
   conditions: []
   storedVersions: []
+  

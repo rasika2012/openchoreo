@@ -26,7 +26,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -115,16 +114,20 @@ func makeService(deployCtx integrations.DeploymentContext) *corev1.Service {
 }
 
 func makeServiceSpec(deployCtx integrations.DeploymentContext) corev1.ServiceSpec {
+
+	ports := []corev1.ServicePort{}
+
+	for _, v := range deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates {
+		ports = append(ports, corev1.ServicePort{
+			Port:     v.Service.Port,
+			Protocol: corev1.ProtocolTCP,
+		})
+	}
+
 	return corev1.ServiceSpec{
 		Selector: makeWorkloadLabels(deployCtx),
-		Ports: []corev1.ServicePort{
-			{
-				Port:       8080, // Hard-coded ports, needs to be dynamic
-				TargetPort: intstr.FromInt(80),
-				Protocol:   corev1.ProtocolTCP,
-			},
-		},
-		Type: corev1.ServiceTypeClusterIP,
+		Ports:    ports,
+		Type:     corev1.ServiceTypeClusterIP,
 	}
 }
 
