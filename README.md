@@ -4,17 +4,17 @@ Choreo is an internal developer platform that simplifies the build, deployment, 
 
 ## Table of Contents
 - [Introduction](#introduction)
-        - [Choreo Abstractions](#choreo-abstractions)
+  - [Choreo Abstractions](#choreo-abstractions)
 - [Getting Started](#getting-started)
-        - [Prerequisites](#prerequisites)
-        - [Install from Scratch Using Kind Cluster](#install-from-scratch-using-kind-cluster)
+  - [Prerequisites](#prerequisites)
+  - [Install from Scratch Using Kind Cluster](#install-from-scratch-using-kind-cluster)
 - [Contributor Guide](#contributor-guide)
-        - [Prerequisites for Contributors](#prerequisites-for-contributors)
-        - [Build and Use Binaries](#build-and-use-binaries)
-        - [To Deploy on the cluster](#to-deploy-on-the-cluster)
-        - [To Uninstall](#to-uninstall)
+  - [Prerequisites for Contributors](#prerequisites-for-contributors)
+  - [Build and Use Binaries](#build-and-use-binaries)
+  - [To Deploy on the Cluster](#to-deploy-on-the-cluster)
+  - [To Uninstall](#to-uninstall)
 - [Project Distribution](#project-distribution)
-        - [Implement Custom Resources](#implement-custom-resources)
+  - [Implement Custom Resources](#implement-custom-resources)
 - [License](#license)
 
 ## Introduction
