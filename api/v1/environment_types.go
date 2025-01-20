@@ -31,7 +31,7 @@ type EnvironmentSpec struct {
 	// Foo is an example field of Environment. Edit environment_types.go to remove/update
 	DataPlaneRef string `json:"dataPlaneRef,omitempty"`
 	IsProduction bool   `json:"isProduction,omitempty"`
-	DnsPrefix    string `json:"dnsPrefix,omitempty"`
+	DNSPrefix    string `json:"dnsPrefix,omitempty"`
 }
 
 // EnvironmentStatus defines the observed state of Environment.
@@ -45,6 +45,7 @@ type EnvironmentStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:scope=Namespaced,shortName=env;envs
+
 // Environment is the Schema for the environments API.
 type Environment struct {
 	metav1.TypeMeta   `json:",inline"`

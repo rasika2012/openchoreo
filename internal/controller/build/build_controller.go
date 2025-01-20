@@ -23,23 +23,21 @@ import (
 	"encoding/json"
 	"fmt"
 
-	rbacv1 "k8s.io/api/rbac/v1"
-	"k8s.io/utils/ptr"
-
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
-	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/argoproj.io/workflow/v1alpha1"
-
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+
+	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/argoproj.io/workflow/v1alpha1"
 )
 
 // Reconciler reconciles a Build object
@@ -231,7 +229,7 @@ func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, 
 }
 
 // TODO: Break down this function
-func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build, Nodes argo.Nodes, logger logr.Logger) (ctrl.Result, error) {
+func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build, nodes argo.Nodes, logger logr.Logger) (ctrl.Result, error) {
 	steps := []struct {
 		stepName      string
 		conditionType string
@@ -240,7 +238,7 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 		{"build-step", "BuildSucceeded"},
 		{"push-step", "PushSucceeded"},
 	}
-	stepInfo, isFound := GetStepByTemplateName(Nodes, steps[0].stepName)
+	stepInfo, isFound := GetStepByTemplateName(nodes, steps[0].stepName)
 	if isFound && meta.FindStatusCondition(build.Status.Conditions, steps[0].conditionType) == nil {
 		switch getStepPhase(stepInfo.Phase) {
 		// Edge case, this would not occur
@@ -340,7 +338,7 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 		}
 	}
 
-	stepInfo, isFound = GetStepByTemplateName(Nodes, steps[1].stepName)
+	stepInfo, isFound = GetStepByTemplateName(nodes, steps[1].stepName)
 	if isFound && meta.FindStatusCondition(build.Status.Conditions, steps[1].conditionType) == nil {
 		switch getStepPhase(stepInfo.Phase) {
 		case Unknown:
@@ -439,7 +437,7 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 		}
 	}
 
-	stepInfo, isFound = GetStepByTemplateName(Nodes, steps[2].stepName)
+	stepInfo, isFound = GetStepByTemplateName(nodes, steps[2].stepName)
 	if isFound && meta.FindStatusCondition(build.Status.Conditions, steps[2].conditionType) == nil {
 		switch getStepPhase(stepInfo.Phase) {
 		case Unknown:

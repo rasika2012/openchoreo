@@ -164,7 +164,6 @@ func (r *Reconciler) reconcileExternalResources(
 	ctx context.Context,
 	resourceHandlers []integrations.ResourceHandler,
 	deploymentCtx integrations.DeploymentContext) error {
-
 	handlerNameLogKey := "resourceHandler"
 	for _, resourceHandler := range resourceHandlers {
 		logger := log.FromContext(ctx).WithValues(handlerNameLogKey, resourceHandler.Name())
@@ -209,7 +208,6 @@ func (r *Reconciler) reconcileExternalResources(
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
-
 	// Create a field index for the deployment artifact reference so that we can list deployments by the deployment artifact reference
 	err := mgr.GetFieldIndexer().IndexField(
 		context.Background(),
@@ -267,7 +265,6 @@ func (r *Reconciler) deployableArtifactToDeploymentRequest(ctx context.Context, 
 }
 
 func (r *Reconciler) findDeployableArtifact(ctx context.Context, deployment *choreov1.Deployment) (*choreov1.DeployableArtifact, error) {
-
 	// Find the DeployableArtifact that the Deployment is referring to within the hierarchy
 	deployableArtifactList := &choreov1.DeployableArtifactList{}
 	listOpts := []client.ListOption{

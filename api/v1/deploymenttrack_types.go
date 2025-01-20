@@ -56,6 +56,7 @@ type DeploymentTrackStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:scope=Namespaced,shortName=deptrack;deptracks
+
 // DeploymentTrack is the Schema for the deploymenttracks API.
 type DeploymentTrack struct {
 	metav1.TypeMeta   `json:",inline"`

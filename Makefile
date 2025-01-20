@@ -211,6 +211,13 @@ mv $(1) $(1)-$(3) ;\
 ln -sf $(1)-$(3) $(1)
 endef
 
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+# Custom Makefile targets specific to the project
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+
 HELMIFY ?= $(LOCALBIN)/helmify
 HELM_CHART_OUTPUT ?= ./install/helm/choreo-system-dp/charts/choreo-controllers
 
@@ -229,3 +236,18 @@ helm: manifests kustomize helmify
 	  fi; \
 	done
 
+
+#-----------------------------------------------------------------------------
+# Code Generation Check targets
+#-----------------------------------------------------------------------------
+
+.PHONY: code.gen
+code.gen: manifests generate helm lint-fix
+
+.PHONY: code.gen-check
+code.gen-check: code.gen
+	@if [ ! -z "$$(git status --porcelain)" ]; then \
+	  git status --porcelain; \
+      echo "There are new changes after the code generation. Please run 'make code.gen' and commit the changes"; \
+      exit 1; \
+    fi

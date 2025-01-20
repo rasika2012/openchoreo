@@ -20,7 +20,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment/integrations"
 )
 
