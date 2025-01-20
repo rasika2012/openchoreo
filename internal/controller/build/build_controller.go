@@ -23,6 +23,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/utils/ptr"
 
 	"github.com/go-logr/logr"
@@ -121,78 +122,80 @@ func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName
 		return err
 	}
 
-	// // Step 2: Create ServiceAccount
-	// sa := &corev1.ServiceAccount{
-	//	ObjectMeta: metav1.ObjectMeta{
-	//		Name:      "argo-workflow-sa",
-	//		Namespace: namespaceName,
-	//	},
-	// }
-	// if err := r.Client.Create(ctx, sa); err != nil && !apierrors.IsAlreadyExists(err) {
-	//	logger.Error(err, "Failed to create ServiceAccount", "Namespace", namespaceName)
-	//	return err
-	// }
-	//
-	// // Step 3: Create Role
-	// role := &rbacv1.Role{
-	//	ObjectMeta: metav1.ObjectMeta{
-	//		Name:      "argo-workflow-role",
-	//		Namespace: namespaceName,
-	//	},
-	//	Rules: []rbacv1.PolicyRule{
-	//		{
-	//			APIGroups: []string{"argoproj.io"},
-	//			Resources: []string{"workflowtaskresults"},
-	//			Verbs:     []string{"create", "get", "list", "watch", "update", "patch"},
-	//		},
-	//	},
-	// }
-	// if err := r.Client.Create(ctx, role); err != nil && !apierrors.IsAlreadyExists(err) {
-	//	logger.Error(err, "Failed to create Role", "Namespace", namespaceName)
-	//	return err
-	// }
-	//
-	// // Step 4: Create RoleBinding
-	// roleBinding := &rbacv1.RoleBinding{
-	//	ObjectMeta: metav1.ObjectMeta{
-	//		Name:      "argo-workflow-binding",
-	//		Namespace: namespaceName,
-	//	},
-	//	Subjects: []rbacv1.Subject{
-	//		{
-	//			Kind:      "ServiceAccount",
-	//			Name:      "argo-workflow-sa",
-	//			Namespace: namespaceName,
-	//		},
-	//	},
-	//	RoleRef: rbacv1.RoleRef{
-	//		Kind:     "Role",
-	//		Name:     "argo-workflow-role",
-	//		APIGroup: "rbac.authorization.k8s.io",
-	//	},
-	// }
-	// if err := r.Client.Create(ctx, roleBinding); err != nil && !apierrors.IsAlreadyExists(err) {
-	//	logger.Error(err, "Failed to create RoleBinding", "Namespace", namespaceName)
-	//	return err
-	// }
-	logger.Info("Namespace resources created successfully", "Namespace", namespaceName)
+	// Step 2: Create ServiceAccount
+	sa := &corev1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "argo-workflow-sa",
+			Namespace: namespaceName,
+		},
+	}
+	if err := r.Client.Create(ctx, sa); err != nil && !apierrors.IsAlreadyExists(err) {
+		logger.Error(err, "Failed to create ServiceAccount", "Namespace", namespaceName)
+		return err
+	}
+
+	// Step 3: Create Role
+	role := &rbacv1.Role{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "argo-workflow-role",
+			Namespace: namespaceName,
+		},
+		Rules: []rbacv1.PolicyRule{
+			{
+				APIGroups: []string{"argoproj.io"},
+				Resources: []string{"workflowtaskresults"},
+				Verbs:     []string{"create", "get", "list", "watch", "update", "patch"},
+			},
+		},
+	}
+	if err := r.Client.Create(ctx, role); err != nil && !apierrors.IsAlreadyExists(err) {
+		logger.Error(err, "Failed to create Role", "Namespace", namespaceName)
+		return err
+	}
+
+	// Step 4: Create RoleBinding
+	roleBinding := &rbacv1.RoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "argo-workflow-binding",
+			Namespace: namespaceName,
+		},
+		Subjects: []rbacv1.Subject{
+			{
+				Kind:      "ServiceAccount",
+				Name:      "argo-workflow-sa",
+				Namespace: namespaceName,
+			},
+		},
+		RoleRef: rbacv1.RoleRef{
+			Kind:     "Role",
+			Name:     "argo-workflow-role",
+			APIGroup: "rbac.authorization.k8s.io",
+		},
+	}
+	if err := r.Client.Create(ctx, roleBinding); err != nil && !apierrors.IsAlreadyExists(err) {
+		logger.Error(err, "Failed to create RoleBinding", "Namespace", namespaceName)
+		return err
+	}
 	return nil
 }
 
 func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, logger logr.Logger) (*argo.Workflow, error) {
+	component := choreov1.Component{}
+	err := r.Get(ctx, client.ObjectKey{Name: build.ObjectMeta.Labels["core.choreo.dev/component"], Namespace: build.ObjectMeta.Namespace}, &component)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			logger.Info("Component of the build is not found", "Build.Name", build.Name)
+			return nil, err
+		}
+		logger.Info("Error occurred while retrieving the component of the build", "Build.Name", build.Name)
+		return nil, err
+	}
 	existingWorkflow := argo.Workflow{}
-	err := r.Get(ctx, client.ObjectKey{Name: build.ObjectMeta.Name, Namespace: "argo-build"}, &existingWorkflow)
+	err = r.Get(ctx, client.ObjectKey{Name: build.ObjectMeta.Name, Namespace: "argo-build"}, &existingWorkflow)
 	if err != nil {
 		// Create the workflow
 		if apierrors.IsNotFound(err) {
-			var workflow argo.Workflow
-			// Buildpack path
-			if build.Spec.BuildConfiguration.Buildpack.Name != "" {
-				workflow = *createBuildpackWorkflow(build)
-			} else { // Dockerpath
-				// TODO
-				workflow = argo.Workflow{}
-			}
+			workflow := *createBuildpackWorkflow(build, component.Spec.Source.GitRepository.URL)
 
 			if err := r.Create(ctx, &workflow); err != nil {
 				return nil, err
@@ -291,6 +294,7 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 				}
 				logger.Info("Updated Build status", "Build.Name", build.Name)
 			}
+			return ctrl.Result{Requeue: true}, nil
 		case Failed:
 			// Set condition Cloned to false
 			// Do not retry and set completed condition
@@ -370,7 +374,7 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 			}
 			return ctrl.Result{Requeue: false}, fmt.Errorf("Image build step failed due to an unknown error")
 		case Running:
-			return ctrl.Result{Requeue: true}, nil
+			return ctrl.Result{Requeue: true, RequeueAfter: 60000000000}, nil
 		case Succeeded:
 			// Set condition Build to true
 			newCondition := metav1.Condition{
@@ -389,6 +393,7 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 				}
 				logger.Info("Updated Build status", "Build.Name", build.Name)
 			}
+			return ctrl.Result{Requeue: true}, nil
 		case Failed:
 			// Set condition Build to false
 			// Do not retry and set completed condition
@@ -468,7 +473,7 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 			}
 			return ctrl.Result{Requeue: false}, fmt.Errorf("Image push step failed due to an unknown error")
 		case Running:
-			return ctrl.Result{Requeue: true}, nil
+			return ctrl.Result{Requeue: true, RequeueAfter: 10000000000}, nil
 		case Succeeded:
 			// Set condition Push to true
 			newCondition := metav1.Condition{
@@ -495,6 +500,10 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 				Message:            "Build completed successfully.",
 			}
 			changed = meta.SetStatusCondition(&build.Status.Conditions, newCondition)
+			imageName := generateImageName(build)
+			if build.Status.ImageStatus.Image != imageName {
+				build.Status.ImageStatus.Image = imageName
+			}
 			if changed {
 				logger.Info("Updating Build status", "Build.Name", build.Name)
 				if err := r.Status().Update(ctx, build); err != nil {
@@ -632,10 +641,10 @@ func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreo
 				"core.choreo.dev/description":  "Deployable Artifact was created by the buld.",
 			},
 			Labels: map[string]string{
-				"core.choreo.dev/deployment-track": build.ObjectMeta.Labels["deployment-track"],
-				"core.choreo.dev/component":        build.ObjectMeta.Labels["component"],
-				"core.choreo.dev/project":          build.ObjectMeta.Labels["project"],
-				"core.choreo.dev/organization":     build.ObjectMeta.Labels["organization"],
+				"core.choreo.dev/deployment-track": build.ObjectMeta.Labels["core.choreo.dev/deployment-track"],
+				"core.choreo.dev/component":        build.ObjectMeta.Labels["core.choreo.dev/component"],
+				"core.choreo.dev/project":          build.ObjectMeta.Labels["core.choreo.dev/project"],
+				"core.choreo.dev/organization":     build.ObjectMeta.Labels["core.choreo.dev/organization"],
 			},
 		},
 		Spec: choreov1.DeployableArtifactSpec{
@@ -655,8 +664,7 @@ func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreo
 
 func int32Ptr(i int32) *int32 { return &i }
 
-func createBuildpackWorkflow(build *choreov1.Build) *argo.Workflow {
-	repo := "https://github.com/chalindukodikara/choreo-samples.git"
+func createBuildpackWorkflow(build *choreov1.Build, repo string) *argo.Workflow {
 	var branch string
 	if build.Spec.Branch != "" {
 		branch = build.Spec.Branch
@@ -671,7 +679,7 @@ func createBuildpackWorkflow(build *choreov1.Build) *argo.Workflow {
 			Namespace: "argo-build",
 		},
 		Spec: argo.WorkflowSpec{
-			ServiceAccountName: "argo-workflow",
+			ServiceAccountName: "argo-workflow-sa",
 			Entrypoint:         "build-workflow",
 			Templates: []argo.Template{
 				{
@@ -741,16 +749,16 @@ cat <<EOF > /etc/containers/storage.conf
 [storage]
 driver = "overlay"
 runroot = "/run/containers/storage"
-graphroot = "/shared/podman/cache"
+graphroot = "/var/lib/containers/storage"
 [storage.options.overlay]
 mount_program = "/usr/bin/fuse-overlayfs"
 EOF
 
 podman load -i /mnt/vol/app-image.tar
 echo "Tagging Docker image for the registry..."
-podman tag %s registry.choreo-dp:5000/%s
+podman tag %s registry.choreo-system-dp:5000/%s
 echo "Pushing Docker image to the registry..."
-podman push --tls-verify=false registry.choreo-dp:5000/%s
+podman push --tls-verify=false registry.choreo-system-dp:5000/%s
 echo "Docker image pushed successfully."`, generateImageName(build), generateImageName(build), generateImageName(build)),
 						},
 						VolumeMounts: []corev1.VolumeMount{
@@ -828,7 +836,7 @@ cat <<EOF > /etc/containers/storage.conf
 [storage]
 driver = "overlay"
 runroot = "/run/containers/storage"
-graphroot = "/shared/podman/cache"
+graphroot = "/var/lib/containers/storage"
 [storage.options.overlay]
 mount_program = "/usr/bin/fuse-overlayfs"
 EOF
@@ -839,7 +847,7 @@ echo "Building image using Buildpacks..."
   --path=/mnt/vol/source/%s --platform linux/arm64
 
 echo "Saving Docker image..."
-podman save -o /mnt/vol/app-image.tar %s`, generateImageName(build), build.Spec.Path, build.Name),
+podman save -o /mnt/vol/app-image.tar %s`, generateImageName(build), build.Spec.Path, generateImageName(build)),
 		}
 	}
 	return []string{
@@ -854,7 +862,7 @@ cat <<EOF > /etc/containers/storage.conf
 [storage]
 driver = "overlay"
 runroot = "/run/containers/storage"
-graphroot = "/shared/podman/cache"
+graphroot = "/var/lib/containers/storage"
 [storage.options.overlay]
 mount_program = "/usr/bin/fuse-overlayfs"
 EOF
@@ -863,6 +871,6 @@ echo "Building Docker image..."
 podman build -t %s /mnt/vol/source/%s
 
 echo "Saving Docker image..."
-podman save -o /mnt/vol/app-image.tar %s`, generateImageName(build), build.Spec.Path, build.Name),
+podman save -o /mnt/vol/app-image.tar %s`, generateImageName(build), build.Spec.Path, generateImageName(build)),
 	}
 }
