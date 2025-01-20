@@ -22,6 +22,7 @@ rules:
   resources:
   - workflows
   - workflowtaskresults
+  - services
   verbs:
   - create
   - delete
@@ -31,11 +32,9 @@ rules:
   - update
   - watch
 - apiGroups:
-  - '*'
+  - apps
   resources:
   - deployments
-  - httproutes
-  - services
   verbs:
   - create
   - delete
@@ -126,6 +125,18 @@ rules:
   resources:
   - rolebindings
   - roles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+    - gateway.networking.k8s.io
+  resources:
+  - httproutes
   verbs:
   - create
   - delete

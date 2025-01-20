@@ -1,0 +1,209 @@
+## Sample Organization kind (Cluster-scoped)
+apiVersion: core.choreo.dev/v1
+kind: Organization
+metadata:
+  annotations:
+    core.choreo.dev/display-name: Default Organization
+    core.choreo.dev/description: This is the default organization for this setup
+  labels:
+    core.choreo.dev/name: default-organization
+  name: default-organization
+spec:
+
+---
+## Sample DataPlane kind (Namespaced)
+apiVersion: core.choreo.dev/v1
+kind: DataPlane
+metadata:
+  name: dp-local
+  namespace: default-organization
+  annotations:
+    core.choreo.dev/display-name: Local Data Plane
+    core.choreo.dev/description: Data plane in KinD cluster
+  labels:
+    core.choreo.dev/organization: default-organization
+    core.choreo.dev/name: dp-local
+spec:
+  kubernetesCluster:
+    name: kind-cluster-1
+    connectionConfigRef: kind-cluster-1-connection-config
+    featureFlags:
+      cilium: true
+      scaleToZero: true
+      gatewayType: envoy
+  gateway:
+    publicVirtualHost: choreoapis.local
+    organizationVirtualHost: internal.choreoapis.local
+---
+## Sample DeploymentPipeline kind (Namespaced)
+apiVersion: core.choreo.dev/v1
+kind: DeploymentPipeline
+metadata:
+  name: default-deployment-pipeline
+  namespace: default-organization
+  annotations:
+    core.choreo.dev/display-name: Default Deployment Pipeline
+    core.choreo.dev/description: Allows promoting from dev to production
+  labels:
+    core.choreo.dev/organization: default-organization
+    core.choreo.dev/name: default-deployment-pipeline
+spec:
+  promotionPaths:
+    - sourceEnvironmentRef: development
+      targetEnvironmentRefs:
+        - name: staging
+          requiresApproval: false
+        - name: production
+          isManualApprovalRequired: true
+    - sourceEnvironmentRef: staging
+      targetEnvironmentRefs:
+        - name: production
+          requiresApproval: true
+---
+## Sample Environment kind (Namespaced)
+apiVersion: core.choreo.dev/v1
+kind: Environment
+metadata:
+  name: development
+  namespace: default-organization
+  annotations:
+    core.choreo.dev/display-name: Development Environment
+    core.choreo.dev/description: The environment where you can play around
+  labels:
+    core.choreo.dev/organization: default-organization
+    core.choreo.dev/name: development
+spec:
+  dataPlaneRef: dp-local #TODO: Name or label selector?
+  isProduction: false
+  dnsPrefix: local-dev
+---
+## Sample Project kind (Namespaced)
+apiVersion: core.choreo.dev/v1
+kind: Project
+metadata:
+  name: internal-apps
+  namespace: default-organization
+  annotations:
+    core.choreo.dev/display-name: Internal Applications
+    core.choreo.dev/description: This project contains components that are used by WSO2 internal applications
+  labels:
+    core.choreo.dev/organization: default-organization
+    core.choreo.dev/name: internal-apps
+spec:
+  deploymentPipelineRef: default-deployment-pipeline
+---
+## Sample Component kind (Namespaced)
+apiVersion: core.choreo.dev/v1
+kind: Component
+metadata:
+  name: react-nginx
+  namespace: default-organization
+  annotations:
+    core.choreo.dev/display-name: React Nginx
+    core.choreo.dev/description: Basic React + Nginx Template
+  labels:
+    core.choreo.dev/organization: default-organization
+    core.choreo.dev/project: internal-apps
+    core.choreo.dev/name: react-nginx
+spec:
+  type: WebApplication
+  source:
+    gitRepository:
+      url: https://github.com/wso2/github-issue-reporter.git
+    authentication:
+      secretRef: choreo-bot-git-pat
+---
+## Sample DeploymentTrack kind (Namespaced)
+apiVersion: core.choreo.dev/v1
+kind: DeploymentTrack
+metadata:
+  name: react-nginx-main
+  namespace: default-organization
+  annotations:
+    core.choreo.dev/display-name: Main deployment track
+    core.choreo.dev/description: 
+  labels:
+    core.choreo.dev/organization: default-organization
+    core.choreo.dev/project: internal-apps
+    core.choreo.dev/component: react-nginx
+    core.choreo.dev/name: main
+spec:
+  buildTemplateSpec:
+    branch: main
+    path: /react-nginx
+    buildConfiguration:
+     docker:
+       context: /react-nginx
+       dockerfilePath: /react-nginx/Dockerfile
+---
+## Sample Build kind (Namespaced)
+apiVersion: core.choreo.dev/v1
+kind: Build
+metadata:
+  name: react-nginx
+  namespace: default-organization
+  annotations:
+    core.choreo.dev/display-name: Build 2024-12-10 1
+    core.choreo.dev/description: Build 1 triggered on 2024-12-10
+  labels:
+    core.choreo.dev/organization: default-organization
+    core.choreo.dev/project: internal-apps
+    core.choreo.dev/component: react-nginx
+    core.choreo.dev/deployment-track: daily
+    core.choreo.dev/name: build-2024-12-10-1
+spec:
+  branch: main
+  path: /react-nginx
+  buildConfiguration:
+     docker:
+       context: /react-nginx
+       dockerfilePath: /react-nginx/Dockerfile
+
+---
+## Sample DeployableArtifact kind (Namespaced)
+apiVersion: core.choreo.dev/v1
+kind: DeployableArtifact
+metadata:
+  name: react-nginx-main-artifact-2024-12-10-1
+  namespace: default-organization
+  annotations:
+    core.choreo.dev/display-name: Daily Deployable Artifact
+    core.choreo.dev/description: Generated artifact from Build 2024-12-10 1
+  labels:
+    core.choreo.dev/organization: default-organization
+    core.choreo.dev/project: internal-apps
+    core.choreo.dev/component: react-nginx
+    core.choreo.dev/deployment-track: main
+    core.choreo.dev/name: react-nginx
+spec:
+  targetArtifact:
+    fromBuildRef:
+      name: react-nginx
+  configuration:
+    application:
+      env:
+        - key: GITHUB_REPOSITORY
+          value: https://github.com/wso2/product-apim
+    endpointTemplates:
+    - type: HTTP
+      service:
+        port: 80       
+---
+## Sample Deployment kind (Namespaced)
+apiVersion: core.choreo.dev/v1
+kind: Deployment
+metadata:
+  name: react-nginx
+  namespace: default-organization
+  annotations:
+    core.choreo.dev/display-name: react-nginx
+    core.choreo.dev/description: 
+  labels:
+    core.choreo.dev/organization: default-organization
+    core.choreo.dev/project: internal-apps
+    core.choreo.dev/environment: development
+    core.choreo.dev/component: react-nginx
+    core.choreo.dev/deployment-track: main
+    core.choreo.dev/name: development
+spec:
+  deploymentArtifactRef: react-nginx-main-artifact-2024-12-10-1

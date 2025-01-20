@@ -10,6 +10,7 @@ rules:
   resources:
   - namespaces
   - serviceaccounts
+  - services
   verbs:
   - create
   - delete
@@ -23,6 +24,9 @@ rules:
   resources:
   - workflows
   - workflowtaskresults
+  - apps
+  resources:
+  - deployments
   verbs:
   - create
   - delete
@@ -113,6 +117,18 @@ rules:
   resources:
   - rolebindings
   - roles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+    - gateway.networking.k8s.io
+  resources:
+  - httproutes
   verbs:
   - create
   - delete

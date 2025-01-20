@@ -99,7 +99,7 @@ func makeServiceName(deployCtx integrations.DeploymentContext) string {
 	componentName := deployCtx.Component.Name
 	deploymentTrackName := deployCtx.DeploymentTrack.Name
 	// Limit the name to 253 characters to comply with the K8s name length limit
-	return GenerateK8sNameWithLengthLimit(253, componentName, deploymentTrackName)
+	return GenerateK8sName(componentName, deploymentTrackName)
 }
 
 func makeService(deployCtx integrations.DeploymentContext) *corev1.Service {

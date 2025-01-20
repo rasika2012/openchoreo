@@ -101,43 +101,47 @@ func makeHTTPRouteName(deployCtx integrations.DeploymentContext) string {
 }
 
 func makeHTTPRoute(deployCtx integrations.DeploymentContext) *gatewayv1.HTTPRoute {
-	pathType := gatewayv1.PathMatchPathPrefix
-	hostname := gatewayv1.Hostname(deployCtx.Component.Name + "-" + deployCtx.Environment.Name + ".choreo.local")
-	port := gatewayv1.PortNumber(deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates[0].Service.Port) // Hard-coded ports, needs to be dynamic
-
 	return &gatewayv1.HTTPRoute{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      makeHTTPRouteName(deployCtx),
 			Namespace: makeNamespaceName(deployCtx),
 			Labels:    makeWorkloadLabels(deployCtx),
 		},
-		Spec: gatewayv1.HTTPRouteSpec{
-			CommonRouteSpec: gatewayv1.CommonRouteSpec{
-				ParentRefs: []gatewayv1.ParentReference{
-					{
-						Name:      "gateway-external",                                    // Internal / external
-						Namespace: (*gatewayv1.Namespace)(PtrString("choreo-system-dp")), // Change NS based on where envoy gateway is deployed
-					},
+		Spec: makeHTTPRouteSpec(deployCtx),
+	}
+}
+
+func makeHTTPRouteSpec(deployCtx integrations.DeploymentContext) gatewayv1.HTTPRouteSpec {
+	pathType := gatewayv1.PathMatchPathPrefix
+	hostname := gatewayv1.Hostname(deployCtx.Component.Name + "-" + deployCtx.Environment.Name + ".choreo.local")
+	port := gatewayv1.PortNumber(deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates[0].Service.Port) // Hard-coded ports, needs to be dynamic
+
+	return gatewayv1.HTTPRouteSpec{
+		CommonRouteSpec: gatewayv1.CommonRouteSpec{
+			ParentRefs: []gatewayv1.ParentReference{
+				{
+					Name:      "gateway-external",                                    // Internal / external
+					Namespace: (*gatewayv1.Namespace)(PtrString("choreo-system-dp")), // Change NS based on where envoy gateway is deployed
 				},
 			},
-			Hostnames: []gatewayv1.Hostname{hostname},
-			Rules: []gatewayv1.HTTPRouteRule{
-				{
-					Matches: []gatewayv1.HTTPRouteMatch{
-						{
-							Path: &gatewayv1.HTTPPathMatch{
-								Type:  &pathType,
-								Value: stringPtr("/"),
-							},
+		},
+		Hostnames: []gatewayv1.Hostname{hostname},
+		Rules: []gatewayv1.HTTPRouteRule{
+			{
+				Matches: []gatewayv1.HTTPRouteMatch{
+					{
+						Path: &gatewayv1.HTTPPathMatch{
+							Type:  &pathType,
+							Value: PtrString("/"),
 						},
 					},
-					BackendRefs: []gatewayv1.HTTPBackendRef{
-						{
-							BackendRef: gatewayv1.BackendRef{
-								BackendObjectReference: gatewayv1.BackendObjectReference{
-									Name: gatewayv1.ObjectName(makeServiceName(deployCtx)),
-									Port: &port,
-								},
+				},
+				BackendRefs: []gatewayv1.HTTPBackendRef{
+					{
+						BackendRef: gatewayv1.BackendRef{
+							BackendObjectReference: gatewayv1.BackendObjectReference{
+								Name: gatewayv1.ObjectName(makeServiceName(deployCtx)),
+								Port: &port,
 							},
 						},
 					},
@@ -154,8 +158,4 @@ func (h *httpRouteHandler) shouldUpdate(current, new *gatewayv1.HTTPRoute) bool 
 	}
 
 	return !cmp.Equal(current.Spec, new.Spec, cmpopts.EquateEmpty())
-}
-
-func stringPtr(s string) *string {
-	return &s
 }
