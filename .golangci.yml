@@ -77,9 +77,6 @@ linters-settings:
     #      - opinionated
     #    disabled-tags:
     #      - experimental
-  gocyclo:
-    # Minimal code complexity to report.
-    min-complexity: 60
   goimports:
     # put imports beginning with prefix after 3rd-party packages;
     # it's a comma-separated list of prefixes
