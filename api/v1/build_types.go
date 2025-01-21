@@ -23,52 +23,6 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-type Image struct {
-	Image string `json:"image"`
-}
-
-// BuildSpec defines the desired state of Build.
-type BuildSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	Branch             string             `json:"branch,omitempty"`
-	Path               string             `json:"path,omitempty"`
-	AutoBuild          bool               `json:"autoBuild,omitempty"`
-	BuildConfiguration BuildConfiguration `json:"buildConfiguration"`
-	BuildEnvironment   BuildEnvironment   `json:"buildEnvironment,omitempty"`
-}
-
-type DockerConfiguration struct {
-	// Context specifies the build context path
-	Context string `json:"context"`
-	// DockerfilePath specifies the path to the Dockerfile
-	DockerfilePath string `json:"dockerfilePath"`
-}
-
-// BuildConfiguration specifies the build configuration details
-type BuildConfiguration struct {
-	// Docker specifies the Docker-specific build configuration
-	Docker *DockerConfiguration `json:"docker,omitempty"`
-	// Buildpack specifies the buildpack to use
-	Buildpack *BuildpackConfiguration `json:"buildpack,omitempty"`
-}
-
-type Docker struct {
-	Context        string `json:"context,omitempty"`
-	DockerfilePath string `json:"dockerfilePath,omitempty"`
-}
-
-type BuildpackConfiguration struct {
-	Name    BuildpackName `json:"name"`
-	Version string        `json:"version,omitempty"`
-}
-
-type BuildEnvironment struct {
-	Env     []BuildEnvironmentVariable `json:"env,omitempty"`
-	EnvFrom []BuildEnvironmentFrom     `json:"envFrom,omitempty"`
-}
-
 type BuildEnvironmentVariable struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
@@ -76,6 +30,11 @@ type BuildEnvironmentVariable struct {
 
 type BuildEnvironmentFrom struct {
 	SecretRef string `json:"secretRef"`
+}
+
+type BuildEnvironment struct {
+	Env     []BuildEnvironmentVariable `json:"env,omitempty"`
+	EnvFrom []BuildEnvironmentFrom     `json:"envFrom,omitempty"`
 }
 
 type BuildpackName string
@@ -91,6 +50,39 @@ const (
 	BuildpackDotNET     BuildpackName = ".NET"
 	BuildpackSpringBoot BuildpackName = "SpringBoot"
 )
+
+type DockerConfiguration struct {
+	// Context specifies the build context path
+	Context string `json:"context"`
+	// DockerfilePath specifies the path to the Dockerfile
+	DockerfilePath string `json:"dockerfilePath"`
+}
+
+type BuildpackConfiguration struct {
+	Name    BuildpackName `json:"name"`
+	Version string        `json:"version,omitempty"`
+}
+
+// BuildConfiguration specifies the build configuration details
+type BuildConfiguration struct {
+	// Docker specifies the Docker-specific build configuration
+	Docker *DockerConfiguration `json:"docker,omitempty"`
+	// Buildpack specifies the buildpack to use
+	Buildpack *BuildpackConfiguration `json:"buildpack,omitempty"`
+}
+
+// BuildSpec defines the desired state of Build.
+type BuildSpec struct {
+	Branch             string             `json:"branch,omitempty"`
+	Path               string             `json:"path,omitempty"`
+	AutoBuild          bool               `json:"autoBuild,omitempty"`
+	BuildConfiguration BuildConfiguration `json:"buildConfiguration"`
+	BuildEnvironment   BuildEnvironment   `json:"buildEnvironment,omitempty"`
+}
+
+type Image struct {
+	Image string `json:"image"`
+}
 
 // BuildStatus defines the observed state of Build.
 type BuildStatus struct {
