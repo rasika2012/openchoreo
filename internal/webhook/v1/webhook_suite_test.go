@@ -28,12 +28,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
 	admissionv1 "k8s.io/api/admission/v1"
-
-	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-
-	// +kubebuilder:scaffold:imports
 	apimachineryruntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -43,6 +38,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+
+	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	// +kubebuilder:scaffold:imports
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to
@@ -133,6 +131,7 @@ var _ = BeforeSuite(func() {
 	dialer := &net.Dialer{Timeout: time.Second}
 	addrPort := fmt.Sprintf("%s:%d", webhookInstallOptions.LocalServingHost, webhookInstallOptions.LocalServingPort)
 	Eventually(func() error {
+		//nolint:gosec // Disable TLS verification for testing purposes
 		conn, err := tls.DialWithDialer(dialer, "tcp", addrPort, &tls.Config{InsecureSkipVerify: true})
 		if err != nil {
 			return err

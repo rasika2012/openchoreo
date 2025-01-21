@@ -21,7 +21,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	// TODO (user): Add any additional imports if needed
 )
 
 var _ = Describe("Project Webhook", func() {
