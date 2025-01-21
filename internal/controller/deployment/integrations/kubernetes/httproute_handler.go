@@ -114,6 +114,12 @@ func makeHTTPRoute(deployCtx integrations.DeploymentContext) *gatewayv1.HTTPRout
 }
 
 func makeHTTPRouteSpec(deployCtx integrations.DeploymentContext) gatewayv1.HTTPRouteSpec {
+	// If there are no endpoint templates, return an empty spec.
+	// This should be validated from the admission controller.x
+	if len(deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates) == 0 {
+		return gatewayv1.HTTPRouteSpec{}
+	}
+
 	pathType := gatewayv1.PathMatchPathPrefix
 	hostname := gatewayv1.Hostname(deployCtx.Component.Name + "-" + deployCtx.Environment.Name + ".choreo.local")
 	port := gatewayv1.PortNumber(deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates[0].Service.Port) // Hard-coded ports, needs to be dynamic
