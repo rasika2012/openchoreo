@@ -20,13 +20,22 @@ rules:
   - update
   - watch
 - apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - argoproj.io
   resources:
   - workflows
   - workflowtaskresults
-  - apps
-  resources:
-  - deployments
   verbs:
   - create
   - delete
@@ -113,10 +122,9 @@ rules:
   - patch
   - update
 - apiGroups:
-  - rbac.authorization.k8s.io
+  - gateway.networking.k8s.io
   resources:
-  - rolebindings
-  - roles
+  - httproutes
   verbs:
   - create
   - delete
@@ -126,9 +134,10 @@ rules:
   - update
   - watch
 - apiGroups:
-    - gateway.networking.k8s.io
+  - rbac.authorization.k8s.io
   resources:
-  - httproutes
+  - rolebindings
+  - roles
   verbs:
   - create
   - delete

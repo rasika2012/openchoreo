@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package kubernetes
 
 import (
@@ -21,13 +22,14 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment/integrations"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment/integrations"
 )
 
 type deploymentHandler struct {
@@ -123,7 +125,6 @@ func makeDeployment(deployCtx integrations.DeploymentContext) *appsv1.Deployment
 }
 
 func makeDeploymentSpec(deployCtx integrations.DeploymentContext) appsv1.DeploymentSpec {
-
 	ports := []corev1.ContainerPort{}
 
 	for _, v := range deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates {

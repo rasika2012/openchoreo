@@ -133,8 +133,6 @@ issues:
   exclude-dirs:
     - "internal/kubernetes/types" #3rd party types for CustomResourceDefinitions
     - "test" # E2E tests
-  exclude-files:
-    - "internal/controller/workflow_types.go" # TODO: Remove this once the file is removed
   # The list of ids of default excludes to include.
   include:
     - EXC0013 # Package comments should be of the form "Package pkg ..."
