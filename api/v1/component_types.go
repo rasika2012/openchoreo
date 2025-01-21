@@ -79,6 +79,7 @@ type ComponentStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:scope=Namespaced,shortName=comp;comps
+
 // Component is the Schema for the components API.
 type Component struct {
 	metav1.TypeMeta   `json:",inline"`

@@ -2,31 +2,22 @@ run:
   timeout: 5m
   allow-parallel-runners: true
 
-issues:
-  # don't skip warning about doc comments
-  # don't exclude the default set of lint
-  exclude-use-default: false
-  # restore some of the defaults
-  # (fill in the rest as needed)
-  exclude-rules:
-    - path: "api/*"
-      linters:
-        - lll
-    - path: "internal/*"
-      linters:
-        - dupl
-        - lll
 linters:
   disable-all: true
   enable:
     - dupl
     - errcheck
+    - errorlint
     - copyloopvar
     - ginkgolinter
+    - gci
     - goconst
+    - gocritic
     - gocyclo
     - gofmt
     - goimports
+    - goprintffuncname
+    - gosec
     - gosimple
     - govet
     - ineffassign
@@ -40,11 +31,111 @@ linters:
     - unconvert
     - unparam
     - unused
+    - whitespace
 
 linters-settings:
+  errcheck:
+    # report about assignment of errors to blank identifier: `num, _ := strconv.Atoi(numStr)`;
+    # default is false: such cases aren't reported by default.
+    check-blank: false
+    # report about not checking of errors in type assertions: `a := b.(MyStruct)`;
+    # default is false: such cases aren't reported by default.
+    check-type-assertions: false
+    # List of functions to exclude from checking, where each entry is a single function to exclude.
+    # See https://github.com/kisielk/errcheck#excluding-functions for details.
+  gci:
+    # list of prefixes to use for grouping imports
+    sections:
+      - standard
+      - default
+      - prefix(github.com/wso2-enterprise/choreo-cp-declarative-api)
+  govet:
+    # Enable all analyzers.
+    # Default: false
+    enable-all: true
+    # Disable analyzers by name.
+    disable:
+      - fieldalignment
+      - shadow
+  gocritic:
+    # Which checks should be enabled; can't be combined with 'disabled-checks';
+    # See https://go-critic.github.io/overview#checks-overview
+    # To check which checks are enabled run `GL_DEBUG=gocritic golangci-lint run`
+    # By default list of stable checks is used.
+    # Which checks should be disabled; can't be combined with 'enabled-checks'; default is empty
+    disabled-checks:
+      - exitAfterDefer
+      - ifElseChain
+      - elseif
+    # Enable multiple checks by tags, run `GL_DEBUG=gocritic golangci-lint run` to see all tags and checks.
+    # Empty list by default. See https://github.com/go-critic/go-critic#usage -> section "Tags".
+    enabled-tags:
+      - diagnostic
+    #      - style
+    #      - performance
+    #      - experimental
+    #      - opinionated
+    #    disabled-tags:
+    #      - experimental
   gocyclo:
     # Minimal code complexity to report.
     min-complexity: 60
+  goimports:
+    # put imports beginning with prefix after 3rd-party packages;
+    # it's a comma-separated list of prefixes
+    local-prefixes: github.com/wso2-enterprise/choreo-cp-declarative-api
+  misspell:
+    # Correct spellings using locale preferences for US or UK.
+    # Default is to use a neutral variety of English.
+    # Setting locale to US will correct the British spelling of 'colour' to 'color'.
+    locale: US
+    ignore-words:
+      - cancelled
   revive:
     rules:
+      - name: struct-tag
+        arguments: [ "json,inline" ]
+      - name: var-naming
+      #        arguments:
+      #          - [ "ID" ,"UUID" ] # Ignore list. The items in this list does not need to follow the rule of initialisms. https://go.dev/wiki/CodeReviewComments#initialisms
+      #          - [ "GRPC" ] # Deny list. Add custom initialisms to the linter.
+      - name: redundant-import-alias
       - name: comment-spacings
+      - name: exported
+        arguments:
+          - disableStutteringCheck
+      - name: package-comments
+
+issues:
+  # Maximum issues count per one linter.
+  # Set to 0 to disable.
+  # Default: 50
+  max-issues-per-linter: 0
+  # Maximum count of issues with the same text.
+  # Set to 0 to disable.
+  # Default: 3
+  max-same-issues: 0
+  # restore some of the defaults
+  # (fill in the rest as needed)
+  exclude-rules:
+    - path: "api/*"
+      linters:
+        - lll
+    - path: "internal/*"
+      linters:
+        - dupl
+        - lll
+    # Exclude gci check for +kubebuilder:scaffold comments.
+    # See https://github.com/daixiang0/gci/issues/135
+    - linters:
+        - gci
+      source: "\\+kubebuilder:scaffold"
+  exclude-dirs:
+    - "internal/kubernetes/types" #3rd party types for CustomResourceDefinitions
+    - "test" # E2E tests
+  # The list of ids of default excludes to include.
+  include:
+    - EXC0013 # Package comments should be of the form "Package pkg ..."
+    - EXC0014 # Comment on exported type should be of the form "Type T ..."
+output:
+  show-stats: true

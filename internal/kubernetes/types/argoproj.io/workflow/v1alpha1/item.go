@@ -140,7 +140,6 @@ func (iv *ItemValue) UnmarshalJSON(value []byte) error {
 
 	iv.Type = String
 	return json.Unmarshal(value, &iv.StrVal)
-
 }
 
 func (iv *ItemValue) String() string {

@@ -30,7 +30,7 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 )
 
-// ComponentReconciler reconciles a Component object
+// Reconciler reconciles a Component object
 type Reconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
