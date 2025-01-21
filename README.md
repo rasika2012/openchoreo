@@ -173,6 +173,19 @@ make uninstall
 make undeploy
 ```
 
+### Code Generation and Linting
+
+After updating the Custom Resource Definitions (CRDs) or the controller code, run the following commands to generate necessary code and lint the codebase before committing the changes.
+
+1. Run the linter:
+    ```sh
+    make lint
+    ```
+2. Run the code generator:
+    ```sh
+    make code.gen
+    ```
+
 ## Project Distribution
 
 Following are the steps to build the installer and distribute this project to users.
