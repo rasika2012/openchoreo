@@ -28,7 +28,6 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
-	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/utils/ptr"
@@ -79,7 +78,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	}
 
-	// Check if the namespace exists, and create it if not
+	// Check if the build namespace exists, and create it if not
 	if err := r.ensureNamespaceResources(ctx, "argo-build", logger); err != nil {
 		return ctrl.Result{Requeue: true}, err
 	}
@@ -94,7 +93,20 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{Requeue: true}, err
 	}
 
-	result, err := r.handleBuildSteps(ctx, build, existingWorkflow.Status.Nodes, logger)
+	requeue, err := r.handleBuildSteps(ctx, build, existingWorkflow.Status.Nodes, logger)
+	if err != nil {
+		return ctrl.Result{Requeue: true}, err
+	}
+	stepInfo, isFound := GetStepByTemplateName(existingWorkflow.Status.Nodes, BuildStep)
+	// If the build step is still running, requeue the reconciliation after 1 minute.
+	// This provides a controlled requeue interval instead of relying on exponential backoff.
+	if requeue && isFound && meta.FindStatusCondition(build.Status.Conditions, string(BuildSucceeded)) == nil {
+		if getStepPhase(stepInfo.Phase) == Running {
+			return ctrl.Result{Requeue: true, RequeueAfter: 60000000000}, nil
+		}
+	} else if requeue {
+		return ctrl.Result{Requeue: true}, err
+	}
 
 	if meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, "Completed", metav1.ConditionTrue) {
 		err := r.createDeployableArtifact(ctx, build, logger)
@@ -102,7 +114,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			return ctrl.Result{Requeue: true}, err
 		}
 	}
-	return result, err
+	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -126,7 +138,7 @@ func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName
 		return err
 	}
 
-	// Step 2: Create ServiceAccount
+	// Step 2: Create ServiceAccount if it doesn't exist
 	sa := &corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "argo-workflow-sa",
@@ -138,7 +150,7 @@ func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName
 		return err
 	}
 
-	// Step 3: Create Role
+	// Step 3: Create Role if it doesn't exist
 	role := &rbacv1.Role{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "argo-workflow-role",
@@ -157,7 +169,7 @@ func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName
 		return err
 	}
 
-	// Step 4: Create RoleBinding
+	// Step 4: Create RoleBinding if it doesn't exist
 	roleBinding := &rbacv1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "argo-workflow-binding",
@@ -199,14 +211,14 @@ func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, 
 	if err != nil {
 		// Create the workflow
 		if apierrors.IsNotFound(err) {
-			workflow := *createBuildpackWorkflow(build, component.Spec.Source.GitRepository.URL)
+			workflow := createArgoWorkflow(build, component.Spec.Source.GitRepository.URL)
 
-			if err := r.Create(ctx, &workflow); err != nil {
+			if err := r.Create(ctx, workflow); err != nil {
 				return nil, err
 			}
 
 			newCondition := metav1.Condition{
-				Type:               "Initialized",
+				Type:               string(Initialized),
 				Status:             metav1.ConditionTrue,
 				LastTransitionTime: metav1.Now(),
 				Reason:             "WorkflowCreated",
@@ -228,283 +240,68 @@ func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, 
 	return &existingWorkflow, nil
 }
 
-// TODO: Break down this function
-func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build, nodes argo.Nodes, logger logr.Logger) (ctrl.Result, error) {
+func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build, Nodes argo.Nodes, logger logr.Logger) (bool, error) {
 	steps := []struct {
-		stepName      string
-		conditionType string
+		stepName      WorkflowStep
+		conditionType ConditionType
 	}{
-		{"clone-step", "CloneSucceeded"},
-		{"build-step", "BuildSucceeded"},
-		{"push-step", "PushSucceeded"},
+		{CloneStep, CloneSucceeded},
+		{BuildStep, BuildSucceeded},
+		{PushStep, PushSucceeded},
 	}
-	stepInfo, isFound := GetStepByTemplateName(nodes, steps[0].stepName)
-	if isFound && meta.FindStatusCondition(build.Status.Conditions, steps[0].conditionType) == nil {
+
+	stepInfo, isFound := GetStepByTemplateName(Nodes, steps[0].stepName)
+	if isFound && meta.FindStatusCondition(build.Status.Conditions, string(steps[0].conditionType)) == nil {
 		switch getStepPhase(stepInfo.Phase) {
-		// Edge case, this would not occur
-		case Unknown:
-			// Set condition Clone to false
-			// Do not retry and set completed condition
-			newCondition := metav1.Condition{
-				Type:               steps[0].conditionType,
-				Status:             metav1.ConditionFalse,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "CloneFailed",
-				Message:            "Unknown status was found.",
-			}
-			changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			newCondition = metav1.Condition{
-				Type:               "Completed",
-				Status:             metav1.ConditionTrue,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "BuildCompleted",
-				Message:            "Build completed with an unknown status.",
-			}
-			changed = meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			return ctrl.Result{Requeue: false}, fmt.Errorf("Source code clone step failed due to an unknown error")
 		case Running:
-			return ctrl.Result{Requeue: true}, nil
+			return true, nil
 		case Succeeded:
 			// Set condition Cloned to true
-			newCondition := metav1.Condition{
-				Type:               steps[0].conditionType,
-				Status:             metav1.ConditionTrue,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "CloneCompleted",
-				Message:            "Source code cloning was successful.",
-			}
-			changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			return ctrl.Result{Requeue: true}, nil
+			err := r.markStepAsSucceeded(ctx, build, steps[0].conditionType, logger)
+			return true, err
 		case Failed:
 			// Set condition Cloned to false
 			// Do not retry and set completed condition
-			newCondition := metav1.Condition{
-				Type:               steps[0].conditionType,
-				Status:             metav1.ConditionFalse,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "CloneFailed",
-				Message:            "Source code cloning was failed.",
-			}
-			changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			newCondition = metav1.Condition{
-				Type:               "Completed",
-				Status:             metav1.ConditionTrue,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "BuildCompleted",
-				Message:            "Build completed with a failure status.",
-			}
-			changed = meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			return ctrl.Result{Requeue: false}, fmt.Errorf("Source code clone step failed")
+			return r.markStepAsFailed(ctx, build, steps[0].conditionType, logger)
 		}
 	}
 
-	stepInfo, isFound = GetStepByTemplateName(nodes, steps[1].stepName)
-	if isFound && meta.FindStatusCondition(build.Status.Conditions, steps[1].conditionType) == nil {
+	stepInfo, isFound = GetStepByTemplateName(Nodes, steps[1].stepName)
+	if isFound && meta.FindStatusCondition(build.Status.Conditions, string(steps[1].conditionType)) == nil {
 		switch getStepPhase(stepInfo.Phase) {
-		case Unknown:
-			// Set condition Build to false
-			// Do not retry and set completed condition
-			newCondition := metav1.Condition{
-				Type:               steps[1].conditionType,
-				Status:             metav1.ConditionFalse,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "BuildFailed",
-				Message:            "Unknown status was found.",
-			}
-			changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			newCondition = metav1.Condition{
-				Type:               "Completed",
-				Status:             metav1.ConditionTrue,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "BuildCompleted",
-				Message:            "Build completed with an unknown status.",
-			}
-			changed = meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			return ctrl.Result{Requeue: false}, fmt.Errorf("Image build step failed due to an unknown error")
 		case Running:
-			return ctrl.Result{Requeue: true, RequeueAfter: 60000000000}, nil
+			return true, nil
 		case Succeeded:
 			// Set condition Build to true
-			newCondition := metav1.Condition{
-				Type:               steps[1].conditionType,
-				Status:             metav1.ConditionTrue,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "BuildCompleted",
-				Message:            "Image build was successful.",
-			}
-			changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			return ctrl.Result{Requeue: true}, nil
+			err := r.markStepAsSucceeded(ctx, build, steps[1].conditionType, logger)
+			return true, err
 		case Failed:
 			// Set condition Build to false
 			// Do not retry and set completed condition
-			newCondition := metav1.Condition{
-				Type:               steps[1].conditionType,
-				Status:             metav1.ConditionFalse,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "BuildFailed",
-				Message:            "Image build was failed.",
-			}
-			changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			newCondition = metav1.Condition{
-				Type:               "Completed",
-				Status:             metav1.ConditionTrue,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "BuildCompleted",
-				Message:            "Build completed with a failure status.",
-			}
-			changed = meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			return ctrl.Result{Requeue: false}, fmt.Errorf("Image build step failed")
+			return r.markStepAsFailed(ctx, build, steps[1].conditionType, logger)
 		}
 	}
 
-	stepInfo, isFound = GetStepByTemplateName(nodes, steps[2].stepName)
-	if isFound && meta.FindStatusCondition(build.Status.Conditions, steps[2].conditionType) == nil {
+	stepInfo, isFound = GetStepByTemplateName(Nodes, steps[2].stepName)
+	if isFound && meta.FindStatusCondition(build.Status.Conditions, string(steps[2].conditionType)) == nil {
 		switch getStepPhase(stepInfo.Phase) {
-		case Unknown:
-			// Set condition Push to false
-			// Do not retry and set completed condition
-			newCondition := metav1.Condition{
-				Type:               steps[2].conditionType,
-				Status:             metav1.ConditionFalse,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "ImagePushFailed",
-				Message:            "Unknown status was found.",
-			}
-			changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			newCondition = metav1.Condition{
-				Type:               "Completed",
-				Status:             metav1.ConditionTrue,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "BuildCompleted",
-				Message:            "Build completed with an unknown status.",
-			}
-			changed = meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			return ctrl.Result{Requeue: false}, fmt.Errorf("Image push step failed due to an unknown error")
 		case Running:
-			return ctrl.Result{Requeue: true, RequeueAfter: 10000000000}, nil
+			return true, nil
 		case Succeeded:
 			// Set condition Push to true
+			err := r.markStepAsSucceeded(ctx, build, steps[0].conditionType, logger)
+			if err != nil {
+				return true, err
+			}
 			newCondition := metav1.Condition{
-				Type:               steps[2].conditionType,
-				Status:             metav1.ConditionTrue,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "ImagePushCompleted",
-				Message:            "Image push to the registry was successful.",
-			}
-			changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			newCondition = metav1.Condition{
-				Type:               "Completed",
+				Type:               string(Completed),
 				Status:             metav1.ConditionTrue,
 				LastTransitionTime: metav1.Now(),
 				Reason:             "BuildCompleted",
 				Message:            "Build completed successfully.",
 			}
-			changed = meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			imageName := generateImageName(build)
+			changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
+			imageName := constructImageNameWithTag(build)
 			if build.Status.ImageStatus.Image != imageName {
 				build.Status.ImageStatus.Image = imageName
 			}
@@ -512,84 +309,112 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 				logger.Info("Updating Build status", "Build.Name", build.Name)
 				if err := r.Status().Update(ctx, build); err != nil {
 					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
+					return true, err
 				}
 				logger.Info("Updated Build status", "Build.Name", build.Name)
 			}
-			return ctrl.Result{Requeue: true}, nil
+			return false, nil
 		case Failed:
 			// Set condition Push to false
 			// Do not retry and set completed condition
-			newCondition := metav1.Condition{
-				Type:               steps[2].conditionType,
-				Status:             metav1.ConditionFalse,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "ImagePushFailed",
-				Message:            "Image push was failed.",
-			}
-			changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			newCondition = metav1.Condition{
-				Type:               "Completed",
-				Status:             metav1.ConditionTrue,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "BuildCompleted",
-				Message:            "Build completed with a failure status.",
-			}
-			changed = meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return ctrl.Result{Requeue: true}, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			return ctrl.Result{Requeue: false}, fmt.Errorf("Image push step failed")
+			return r.markStepAsFailed(ctx, build, steps[2].conditionType, logger)
 		}
 	}
-	return ctrl.Result{Requeue: true}, nil
+	return true, nil
 }
 
-type StepPhase string
-
-// Workflow and node statuses
-const (
-	Running   StepPhase = "Running"
-	Succeeded StepPhase = "Succeeded"
-	Failed    StepPhase = "Failed"
-	Unknown   StepPhase = "Unknown"
-)
-
-func getStepPhase(phase argo.NodePhase) StepPhase {
-	switch phase {
-	case argo.NodeRunning, argo.NodePending:
-		return Running
-	case argo.NodeFailed, argo.NodeError, argo.NodeSkipped:
-		return Failed
-	case argo.NodeSucceeded:
-		return Succeeded
+func (r *Reconciler) markStepAsSucceeded(ctx context.Context, build *choreov1.Build, conditionType ConditionType, logger logr.Logger) error {
+	successDescriptiors := map[ConditionType]struct {
+		Reason  string
+		Message string
+	}{
+		CloneSucceeded: {
+			Reason:  "CloneSourceCodeSucceeded",
+			Message: "Source code cloning was successful.",
+		},
+		BuildSucceeded: {
+			Reason:  "BuildImageSucceeded",
+			Message: "Building the source code was successful.",
+		},
+		PushSucceeded: {
+			Reason:  "PushImageSucceeded",
+			Message: "Pushing the built image to the registry was successful.",
+		},
 	}
-	return Unknown
-}
 
-func GetStepByTemplateName(nodes argo.Nodes, step string) (*argo.NodeStatus, bool) {
-	for _, node := range nodes {
-		if node.TemplateName == step {
-			return &node, true
+	newCondition := metav1.Condition{
+		Type:               string(conditionType),
+		Status:             metav1.ConditionTrue,
+		LastTransitionTime: metav1.Now(),
+		Reason:             successDescriptiors[conditionType].Reason,
+		Message:            successDescriptiors[conditionType].Message,
+	}
+	changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
+	if changed {
+		logger.Info("Updating Build status", "Build.Name", build.Name)
+		if err := r.Status().Update(ctx, build); err != nil {
+			logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
+			return err
 		}
+		logger.Info("Updated Build status", "Build.Name", build.Name)
 	}
-	return nil, false
+	return nil
 }
 
-func generateImageName(build *choreov1.Build) string {
+func (r *Reconciler) markStepAsFailed(ctx context.Context, build *choreov1.Build, conditionType ConditionType, logger logr.Logger) (bool, error) {
+	failureDescriptors := map[ConditionType]struct {
+		Reason  string
+		Message string
+	}{
+		CloneSucceeded: {
+			Reason:  "CloneSourceCodeFailed",
+			Message: "Source code cloning failed.",
+		},
+		BuildSucceeded: {
+			Reason:  "BuildImageFailed",
+			Message: "Building the source code failed.",
+		},
+		PushSucceeded: {
+			Reason:  "PushImageFailed",
+			Message: "Pushing the built image to the registry failed.",
+		},
+	}
+	newCondition := metav1.Condition{
+		Type:               string(conditionType),
+		Status:             metav1.ConditionFalse,
+		LastTransitionTime: metav1.Now(),
+		Reason:             failureDescriptors[conditionType].Reason,
+		Message:            failureDescriptors[conditionType].Message,
+	}
+	changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
+	if changed {
+		logger.Info("Updating Build status", "Build.Name", build.Name)
+		if err := r.Status().Update(ctx, build); err != nil {
+			logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
+			return true, err
+		}
+		logger.Info("Updated Build status", "Build.Name", build.Name)
+	}
+	newCondition = metav1.Condition{
+		Type:               "Completed",
+		Status:             metav1.ConditionTrue,
+		LastTransitionTime: metav1.Now(),
+		Reason:             "BuildCompleted",
+		Message:            "Build completed with a failure status.",
+	}
+	changed = meta.SetStatusCondition(&build.Status.Conditions, newCondition)
+	if changed {
+		logger.Info("Updating Build status", "Build.Name", build.Name)
+		if err := r.Status().Update(ctx, build); err != nil {
+			logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
+			return true, err
+		}
+		logger.Info("Updated Build status", "Build.Name", build.Name)
+	}
+	return false, nil
+}
+
+func constructImageNameWithTag(build *choreov1.Build) string {
 	// Extract necessary fields
 	componentName := build.ObjectMeta.Labels["core.choreo.dev/component"]
 	orgName := build.ObjectMeta.Labels["core.choreo.dev/organization"]
@@ -664,217 +489,4 @@ func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreo
 		return err
 	}
 	return nil
-}
-
-func int32Ptr(i int32) *int32 { return &i }
-
-func createBuildpackWorkflow(build *choreov1.Build, repo string) *argo.Workflow {
-	var branch string
-	if build.Spec.Branch != "" {
-		branch = build.Spec.Branch
-	} else {
-		branch = "dev"
-	}
-	// Create the Argo Workflow object
-	hostPathType := corev1.HostPathDirectoryOrCreate
-	workflow := argo.Workflow{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      build.ObjectMeta.Name,
-			Namespace: "argo-build",
-		},
-		Spec: argo.WorkflowSpec{
-			ServiceAccountName: "argo-workflow-sa",
-			Entrypoint:         "build-workflow",
-			Templates: []argo.Template{
-				{
-					Name: "build-workflow",
-					Steps: []argo.ParallelSteps{
-						{
-							Steps: []argo.WorkflowStep{
-								{Name: "clone-step", Template: "clone-step"},
-							},
-						},
-						{
-							Steps: []argo.WorkflowStep{
-								{Name: "build-step", Template: "build-step"},
-							},
-						},
-						{
-							Steps: []argo.WorkflowStep{
-								{Name: "push-step", Template: "push-step"},
-							},
-						},
-					},
-				},
-				{
-					Name: "clone-step",
-					Container: &corev1.Container{
-						Image:   "alpine/git",
-						Command: []string{"sh", "-c"},
-						Args: []string{
-							fmt.Sprintf(`set -e
-echo "Cloning repository from branch %s..."
-git clone --single-branch --branch %s %s /mnt/vol/source
-echo "Repository cloned successfully."`, branch, branch, repo),
-						},
-						VolumeMounts: []corev1.VolumeMount{
-							{Name: "workspace", MountPath: "/mnt/vol"},
-						},
-					},
-				},
-				{
-					Name: "build-step",
-					Container: &corev1.Container{
-						Image: "chalindukodikara/podman:v1.0",
-						SecurityContext: &corev1.SecurityContext{
-							Privileged: ptr.To(true),
-						},
-						Command: []string{"sh", "-c"},
-						Args:    generateBuildArgs(build),
-						VolumeMounts: []corev1.VolumeMount{
-							{Name: "workspace", MountPath: "/mnt/vol"},
-							{Name: "podman-cache", MountPath: "/shared/podman/cache"},
-						},
-					},
-				},
-				{
-					Name: "push-step",
-					Container: &corev1.Container{
-						Image: "chalindukodikara/podman:v1.0",
-						SecurityContext: &corev1.SecurityContext{
-							Privileged: ptr.To(true),
-						},
-						Command: []string{"sh", "-c"},
-						Args: []string{
-							fmt.Sprintf(`set -e
-echo "Configuring Podman storage..."
-mkdir -p /etc/containers
-cat <<EOF > /etc/containers/storage.conf
-[storage]
-driver = "overlay"
-runroot = "/run/containers/storage"
-graphroot = "/var/lib/containers/storage"
-[storage.options.overlay]
-mount_program = "/usr/bin/fuse-overlayfs"
-EOF
-
-podman load -i /mnt/vol/app-image.tar
-echo "Tagging Docker image for the registry..."
-podman tag %s registry.choreo-system-dp:5000/%s
-echo "Pushing Docker image to the registry..."
-podman push --tls-verify=false registry.choreo-system-dp:5000/%s
-echo "Docker image pushed successfully."`, generateImageName(build), generateImageName(build), generateImageName(build)),
-						},
-						VolumeMounts: []corev1.VolumeMount{
-							{Name: "workspace", MountPath: "/mnt/vol"},
-							{Name: "podman-cache", MountPath: "/shared/podman/cache"},
-						},
-					},
-				},
-			},
-			VolumeClaimTemplates: []corev1.PersistentVolumeClaim{
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "workspace",
-					},
-					Spec: corev1.PersistentVolumeClaimSpec{
-						AccessModes: []corev1.PersistentVolumeAccessMode{
-							corev1.ReadWriteOnce,
-						},
-						Resources: corev1.VolumeResourceRequirements{
-							Requests: corev1.ResourceList{
-								corev1.ResourceStorage: resource.MustParse("2Gi"),
-							},
-						},
-					},
-				},
-			},
-			Affinity: &corev1.Affinity{
-				NodeAffinity: &corev1.NodeAffinity{
-					RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
-						NodeSelectorTerms: []corev1.NodeSelectorTerm{
-							{
-								MatchExpressions: []corev1.NodeSelectorRequirement{
-									{
-										Key:      "kubernetes.io/hostname",
-										Operator: corev1.NodeSelectorOpIn,
-										Values:   []string{"kind-worker2"},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			Volumes: []corev1.Volume{
-				{
-					Name: "podman-cache",
-					VolumeSource: corev1.VolumeSource{
-						HostPath: &corev1.HostPathVolumeSource{
-							Path: "/shared/podman/cache",
-							Type: &hostPathType,
-						},
-					},
-				},
-			},
-			TTLStrategy: &argo.TTLStrategy{
-				SecondsAfterFailure: int32Ptr(600),
-				SecondsAfterSuccess: int32Ptr(600),
-			},
-		},
-	}
-	return &workflow
-}
-
-func generateBuildArgs(build *choreov1.Build) []string {
-	if build.Spec.BuildConfiguration.Buildpack.Name != "" {
-		return []string{
-			fmt.Sprintf(`set -e
-echo "Setting up Podman socket for Buildpacks..."
-podman system service --time=0 &
-sleep 2
-
-echo "Configuring Podman storage..."
-mkdir -p /etc/containers
-cat <<EOF > /etc/containers/storage.conf
-[storage]
-driver = "overlay"
-runroot = "/run/containers/storage"
-graphroot = "/var/lib/containers/storage"
-[storage.options.overlay]
-mount_program = "/usr/bin/fuse-overlayfs"
-EOF
-
-echo "Building image using Buildpacks..."
-/usr/local/bin/pack build %s \
-  --builder=gcr.io/buildpacks/builder:google-22 --docker-host=inherit \
-  --path=/mnt/vol/source/%s --platform linux/arm64
-
-echo "Saving Docker image..."
-podman save -o /mnt/vol/app-image.tar %s`, generateImageName(build), build.Spec.Path, generateImageName(build)),
-		}
-	}
-	return []string{
-		fmt.Sprintf(`set -e
-echo "Setting up Podman socket for Buildpacks..."
-podman system service --time=0 &
-sleep 2
-
-echo "Configuring Podman storage..."
-mkdir -p /etc/containers
-cat <<EOF > /etc/containers/storage.conf
-[storage]
-driver = "overlay"
-runroot = "/run/containers/storage"
-graphroot = "/var/lib/containers/storage"
-[storage.options.overlay]
-mount_program = "/usr/bin/fuse-overlayfs"
-EOF
-
-echo "Building Docker image..."
-podman build -t %s /mnt/vol/source/%s
-
-echo "Saving Docker image..."
-podman save -o /mnt/vol/app-image.tar %s`, generateImageName(build), build.Spec.Path, generateImageName(build)),
-	}
 }
