@@ -3,6 +3,8 @@ kind: CustomResourceDefinition
 metadata:
   name: deploymentpipelines.core.choreo.dev
   annotations:
+    cert-manager.io/inject-ca-from: '{{ .Release.Namespace }}/{{ include "choreo-controllers.fullname"
+      . }}-serving-cert'
     controller-gen.kubebuilder.io/version: v0.16.4
   labels:
   {{- include "choreo-controllers.labels" . | nindent 4 }}

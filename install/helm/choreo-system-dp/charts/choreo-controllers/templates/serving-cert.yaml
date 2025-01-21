@@ -1,0 +1,16 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "choreo-controllers.fullname" . }}-serving-cert
+  labels:
+  {{- include "choreo-controllers.labels" . | nindent 4 }}
+spec:
+  dnsNames:
+  - '{{ include "choreo-controllers.fullname" . }}-webhook-service.{{ .Release.Namespace
+    }}.svc'
+  - '{{ include "choreo-controllers.fullname" . }}-webhook-service.{{ .Release.Namespace
+    }}.svc.{{ .Values.kubernetesClusterDomain }}'
+  issuerRef:
+    kind: Issuer
+    name: '{{ include "choreo-controllers.fullname" . }}-selfsigned-issuer'
+  secretName: webhook-server-cert
