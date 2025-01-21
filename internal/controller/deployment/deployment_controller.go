@@ -20,9 +20,12 @@ import (
 	"context"
 	"fmt"
 
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -38,7 +41,8 @@ import (
 // Reconciler reconciles a Deployment object
 type Reconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme   *runtime.Scheme
+	recorder record.EventRecorder
 }
 
 // +kubebuilder:rbac:groups=core.choreo.dev,resources=deployments,verbs=get;list;watch;create;update;patch;delete
@@ -74,6 +78,8 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		logger.Error(err, "Failed to get Deployment")
 		return ctrl.Result{}, err
 	}
+
+	previousCondition := meta.FindStatusCondition(deployment.Status.Conditions, controller.TypeReady)
 
 	// Check if the labels are set
 	if deployment.Labels == nil {
@@ -154,6 +160,10 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		"Deployment is ready",
 	); err != nil {
 		return ctrl.Result{}, err
+	} else {
+		if previousCondition == nil {
+			r.recorder.Event(deployment, corev1.EventTypeNormal, "ReconcileComplete", "Successfully created "+deployment.Name)
+		}
 	}
 
 	return ctrl.Result{}, nil
@@ -208,6 +218,10 @@ func (r *Reconciler) reconcileExternalResources(
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+	if r.recorder == nil {
+		r.recorder = mgr.GetEventRecorderFor("deployment-controller")
+	}
+
 	// Create a field index for the deployment artifact reference so that we can list deployments by the deployment artifact reference
 	err := mgr.GetFieldIndexer().IndexField(
 		context.Background(),

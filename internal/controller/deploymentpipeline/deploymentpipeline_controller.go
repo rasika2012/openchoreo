@@ -19,9 +19,12 @@ package deploymentpipeline
 import (
 	"context"
 
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -33,7 +36,8 @@ import (
 // Reconciler reconciles a DeploymentPipeline object
 type Reconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme   *runtime.Scheme
+	recorder record.EventRecorder
 }
 
 // +kubebuilder:rbac:groups=core.choreo.dev,resources=deploymentpipelines,verbs=get;list;watch;create;update;patch;delete
@@ -65,6 +69,8 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	}
 
+	previousCondition := meta.FindStatusCondition(deploymentPipeline.Status.Conditions, controller.TypeAvailable)
+
 	deploymentPipeline.Status.ObservedGeneration = deploymentPipeline.Generation
 	if err := controller.UpdateCondition(
 		ctx,
@@ -77,6 +83,10 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		"DeploymentPipeline is available",
 	); err != nil {
 		return ctrl.Result{}, err
+	} else {
+		if previousCondition == nil {
+			r.recorder.Event(deploymentPipeline, corev1.EventTypeNormal, "ReconcileComplete", "Successfully created "+deploymentPipeline.Name)
+		}
 	}
 
 	return ctrl.Result{}, nil
@@ -84,6 +94,10 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+	if r.recorder == nil {
+		r.recorder = mgr.GetEventRecorderFor("deploymentPipeline-controller")
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&choreov1.DeploymentPipeline{}).
 		Named("deploymentpipeline").
