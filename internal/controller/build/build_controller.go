@@ -30,11 +30,13 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/argoproj.io/workflow/v1alpha1"
 )
 
@@ -194,9 +196,33 @@ func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName
 	return nil
 }
 
+func (r *Reconciler) getComponent(ctx context.Context, build *choreov1.Build) (*choreov1.Component, error) {
+	componentList := &choreov1.ComponentList{}
+	listOpts := []client.ListOption{
+		client.InNamespace(build.Namespace),
+		client.MatchingLabels{
+			controller.LabelKeyOrganizationName: build.Labels[controller.LabelKeyOrganizationName],
+			controller.LabelKeyProjectName:      build.Labels[controller.LabelKeyProjectName],
+		},
+	}
+	if err := r.Client.List(ctx, componentList, listOpts...); err != nil {
+		return nil, err
+	}
+
+	for _, component := range componentList.Items {
+		if component.Labels == nil {
+			// Ideally, this should not happen as the component should have the organization and project labels
+			continue
+		}
+		if component.Labels[controller.LabelKeyName] == build.Labels[controller.LabelKeyComponentName] {
+			return &component, nil
+		}
+	}
+	return nil, apierrors.NewNotFound(schema.GroupResource{Group: "core.choreo.dev", Resource: "Component"}, build.Labels[controller.LabelKeyComponentName])
+}
+
 func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, logger logr.Logger) (*argo.Workflow, error) {
-	component := choreov1.Component{}
-	err := r.Get(ctx, client.ObjectKey{Name: build.ObjectMeta.Labels["core.choreo.dev/component"], Namespace: build.ObjectMeta.Namespace}, &component)
+	component, err := r.getComponent(ctx, build)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			logger.Info("Component of the build is not found", "Build.Name", build.Name)
