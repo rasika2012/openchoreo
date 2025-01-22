@@ -3,12 +3,13 @@ package build
 import (
 	"fmt"
 
-	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/argoproj.io/workflow/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
+
+	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/argoproj.io/workflow/v1alpha1"
 )
 
 func createArgoWorkflow(build *choreov1.Build, repo string) *argo.Workflow {
