@@ -30,7 +30,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -80,38 +79,38 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 	// Check if the build namespace exists, and create it if not
 	if err := r.ensureNamespaceResources(ctx, "argo-build", logger); err != nil {
-		return ctrl.Result{Requeue: true}, err
+		return ctrl.Result{}, err
 	}
 
-	// Build is in the completed status
-	if meta.FindStatusCondition(build.Status.Conditions, "Completed") != nil {
+	if meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, string(Completed), metav1.ConditionFalse) {
 		return ctrl.Result{}, nil
 	}
 
 	existingWorkflow, err := r.ensureWorkflow(ctx, build, logger)
 	if err != nil {
-		return ctrl.Result{Requeue: true}, err
+		return ctrl.Result{}, err
 	}
 
 	requeue, err := r.handleBuildSteps(ctx, build, existingWorkflow.Status.Nodes, logger)
 	if err != nil {
-		return ctrl.Result{Requeue: true}, err
+		return ctrl.Result{}, err
 	}
+
 	stepInfo, isFound := GetStepByTemplateName(existingWorkflow.Status.Nodes, BuildStep)
 	// If the build step is still running, requeue the reconciliation after 1 minute.
 	// This provides a controlled requeue interval instead of relying on exponential backoff.
 	if requeue && isFound && meta.FindStatusCondition(build.Status.Conditions, string(BuildSucceeded)) == nil {
 		if getStepPhase(stepInfo.Phase) == Running {
-			return ctrl.Result{Requeue: true, RequeueAfter: 60000000000}, nil
+			return ctrl.Result{RequeueAfter: 60000000000}, nil
 		}
 	} else if requeue {
-		return ctrl.Result{Requeue: true}, err
+		return ctrl.Result{Requeue: true}, nil
 	}
 
-	if meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, "Completed", metav1.ConditionTrue) {
+	if meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, string(Completed), metav1.ConditionTrue) {
 		err := r.createDeployableArtifact(ctx, build, logger)
 		if err != nil {
-			return ctrl.Result{Requeue: true}, err
+			return ctrl.Result{}, err
 		}
 	}
 	return ctrl.Result{}, nil
@@ -240,7 +239,7 @@ func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, 
 	return &existingWorkflow, nil
 }
 
-func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build, Nodes argo.Nodes, logger logr.Logger) (bool, error) {
+func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build, nodes argo.Nodes, logger logr.Logger) (bool, error) {
 	steps := []struct {
 		stepName      WorkflowStep
 		conditionType ConditionType
@@ -250,49 +249,43 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 		{PushStep, PushSucceeded},
 	}
 
-	stepInfo, isFound := GetStepByTemplateName(Nodes, steps[0].stepName)
+	stepInfo, isFound := GetStepByTemplateName(nodes, steps[0].stepName)
 	if isFound && meta.FindStatusCondition(build.Status.Conditions, string(steps[0].conditionType)) == nil {
 		switch getStepPhase(stepInfo.Phase) {
 		case Running:
 			return true, nil
 		case Succeeded:
-			// Set condition Cloned to true
 			err := r.markStepAsSucceeded(ctx, build, steps[0].conditionType, logger)
 			return true, err
 		case Failed:
-			// Set condition Cloned to false
-			// Do not retry and set completed condition
 			return r.markStepAsFailed(ctx, build, steps[0].conditionType, logger)
 		}
 	}
 
-	stepInfo, isFound = GetStepByTemplateName(Nodes, steps[1].stepName)
+	stepInfo, isFound = GetStepByTemplateName(nodes, steps[1].stepName)
 	if isFound && meta.FindStatusCondition(build.Status.Conditions, string(steps[1].conditionType)) == nil {
 		switch getStepPhase(stepInfo.Phase) {
 		case Running:
 			return true, nil
 		case Succeeded:
-			// Set condition Build to true
 			err := r.markStepAsSucceeded(ctx, build, steps[1].conditionType, logger)
 			return true, err
 		case Failed:
-			// Set condition Build to false
-			// Do not retry and set completed condition
 			return r.markStepAsFailed(ctx, build, steps[1].conditionType, logger)
 		}
 	}
 
-	stepInfo, isFound = GetStepByTemplateName(Nodes, steps[2].stepName)
+	stepInfo, isFound = GetStepByTemplateName(nodes, steps[2].stepName)
 	if isFound && meta.FindStatusCondition(build.Status.Conditions, string(steps[2].conditionType)) == nil {
 		switch getStepPhase(stepInfo.Phase) {
 		case Running:
 			return true, nil
 		case Succeeded:
-			// Set condition Push to true
 			err := r.markStepAsSucceeded(ctx, build, steps[0].conditionType, logger)
 			if err != nil {
 				return true, err
 			}
+
 			newCondition := metav1.Condition{
 				Type:               string(Completed),
 				Status:             metav1.ConditionTrue,
@@ -315,8 +308,6 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 			}
 			return false, nil
 		case Failed:
-			// Set condition Push to false
-			// Do not retry and set completed condition
 			return r.markStepAsFailed(ctx, build, steps[2].conditionType, logger)
 		}
 	}
