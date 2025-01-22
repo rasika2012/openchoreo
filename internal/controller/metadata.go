@@ -49,9 +49,19 @@ func GetEnvironmentName(obj client.Object) string {
 	return getLabelValueOrEmpty(obj, LabelKeyEnvironmentName)
 }
 
-// GetName returns the name of the object. This is specific to the Choreo and it is not the Kubernetes object name.
+// GetName returns the name of the object. This is specific to the Choreo, and it is not the Kubernetes object name.
 func GetName(obj client.Object) string {
 	return getLabelValueOrEmpty(obj, LabelKeyName)
+}
+
+// GetDisplayName returns the display name of the object.
+func GetDisplayName(obj client.Object) string {
+	return getAnnotationValueOrEmpty(obj, AnnotationKeyDisplayName)
+}
+
+// GetDescription returns the description of the object.
+func GetDescription(obj client.Object) string {
+	return getAnnotationValueOrEmpty(obj, AnnotationKeyDescription)
 }
 
 func getLabelValueOrEmpty(obj client.Object, labelKey string) string {
@@ -59,4 +69,11 @@ func getLabelValueOrEmpty(obj client.Object, labelKey string) string {
 		return ""
 	}
 	return obj.GetLabels()[labelKey]
+}
+
+func getAnnotationValueOrEmpty(obj client.Object, annotationKey string) string {
+	if obj.GetAnnotations() == nil {
+		return ""
+	}
+	return obj.GetAnnotations()[annotationKey]
 }

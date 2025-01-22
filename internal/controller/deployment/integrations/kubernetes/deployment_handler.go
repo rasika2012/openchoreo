@@ -52,14 +52,14 @@ func (h *deploymentHandler) Name() string {
 
 // IsRequired indicates whether the external resource needs to be configured or not based on the deployment context.
 // If this returns false, the controller will attempt to delete the resource.
-func (h *deploymentHandler) IsRequired(deployCtx integrations.DeploymentContext) bool {
+func (h *deploymentHandler) IsRequired(deployCtx *integrations.DeploymentContext) bool {
 	// Kubernetes Deployments are required for Web Applications and Services
 	return deployCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication
 }
 
 // GetCurrentState returns the current state of the external resource.
 // If the resource does not exist, the implementation should return nil.
-func (h *deploymentHandler) GetCurrentState(ctx context.Context, deployCtx integrations.DeploymentContext) (interface{}, error) {
+func (h *deploymentHandler) GetCurrentState(ctx context.Context, deployCtx *integrations.DeploymentContext) (interface{}, error) {
 	namespace := makeNamespaceName(deployCtx)
 	name := makeDeploymentName(deployCtx)
 	out := &appsv1.Deployment{}
@@ -73,7 +73,7 @@ func (h *deploymentHandler) GetCurrentState(ctx context.Context, deployCtx integ
 }
 
 // Create creates the external resource.
-func (h *deploymentHandler) Create(ctx context.Context, deployCtx integrations.DeploymentContext) error {
+func (h *deploymentHandler) Create(ctx context.Context, deployCtx *integrations.DeploymentContext) error {
 	deployment := makeDeployment(deployCtx)
 	return h.kubernetesClient.Create(ctx, deployment)
 }
@@ -81,7 +81,7 @@ func (h *deploymentHandler) Create(ctx context.Context, deployCtx integrations.D
 // Update updates the external resource.
 // The currentState parameter will provide the current state of the resource that is returned by GetCurrentState
 // Implementation should compare the current state with the new derived state and update the resource accordingly.
-func (h *deploymentHandler) Update(ctx context.Context, deployCtx integrations.DeploymentContext, currentState interface{}) error {
+func (h *deploymentHandler) Update(ctx context.Context, deployCtx *integrations.DeploymentContext, currentState interface{}) error {
 	currentDeployment, ok := currentState.(*appsv1.Deployment)
 	if !ok {
 		return errors.New("failed to cast current state to CronJob")
@@ -99,7 +99,7 @@ func (h *deploymentHandler) Update(ctx context.Context, deployCtx integrations.D
 
 // Delete deletes the external resource.
 // The implementation should handle the case where the resource does not exist and return nil.
-func (h *deploymentHandler) Delete(ctx context.Context, deployCtx integrations.DeploymentContext) error {
+func (h *deploymentHandler) Delete(ctx context.Context, deployCtx *integrations.DeploymentContext) error {
 	deployment := makeDeployment(deployCtx)
 	err := h.kubernetesClient.Delete(ctx, deployment)
 	if apierrors.IsNotFound(err) {
@@ -108,14 +108,14 @@ func (h *deploymentHandler) Delete(ctx context.Context, deployCtx integrations.D
 	return err
 }
 
-func makeDeploymentName(deployCtx integrations.DeploymentContext) string {
+func makeDeploymentName(deployCtx *integrations.DeploymentContext) string {
 	componentName := deployCtx.Component.Name
 	deploymentTrackName := deployCtx.DeploymentTrack.Name
 	// Limit the name to 253 characters to comply with the K8s name length limit for Deployments
 	return GenerateK8sNameWithLengthLimit(253, componentName, deploymentTrackName)
 }
 
-func makeDeployment(deployCtx integrations.DeploymentContext) *appsv1.Deployment {
+func makeDeployment(deployCtx *integrations.DeploymentContext) *appsv1.Deployment {
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      makeDeploymentName(deployCtx),
@@ -126,7 +126,7 @@ func makeDeployment(deployCtx integrations.DeploymentContext) *appsv1.Deployment
 	}
 }
 
-func makeDeploymentSpec(deployCtx integrations.DeploymentContext) appsv1.DeploymentSpec {
+func makeDeploymentSpec(deployCtx *integrations.DeploymentContext) appsv1.DeploymentSpec {
 	ports := []corev1.ContainerPort{}
 
 	for _, v := range deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates {

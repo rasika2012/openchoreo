@@ -18,6 +18,8 @@
 
 package controller
 
+// This file contains the all the labels that are used to store Choreo specific the metadata in the Kubernetes objects.
+
 const (
 	LabelKeyOrganizationName    = "core.choreo.dev/organization"
 	LabelKeyProjectName         = "core.choreo.dev/project"

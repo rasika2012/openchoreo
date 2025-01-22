@@ -43,7 +43,7 @@ const (
 	LabelValueBelongTo  = "user-workloads"
 )
 
-func makeLabels(deployCtx integrations.DeploymentContext) map[string]string {
+func makeLabels(deployCtx *integrations.DeploymentContext) map[string]string {
 	return map[string]string{
 		LabelKeyOrganizationName:    controller.GetOrganizationName(deployCtx.Project),
 		LabelKeyProjectName:         controller.GetName(deployCtx.Project),
@@ -61,7 +61,7 @@ func makeLabels(deployCtx integrations.DeploymentContext) map[string]string {
 	}
 }
 
-func makeWorkloadLabels(deployCtx integrations.DeploymentContext) map[string]string {
+func makeWorkloadLabels(deployCtx *integrations.DeploymentContext) map[string]string {
 	labels := makeLabels(deployCtx)
 	labels[LabelKeyComponentType] = string(deployCtx.Component.Spec.Type)
 	return labels

@@ -68,7 +68,7 @@ type Reconciler struct {
 func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	// Fetch the Deployment instance
+	// Fetch the Deployment instance for this reconcile request
 	deployment := &choreov1.Deployment{}
 	if err := r.Get(ctx, req.NamespacedName, deployment); err != nil {
 		if apierrors.IsNotFound(err) {
@@ -89,57 +89,11 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, nil
 	}
 
-	targetDeployableArtifact, err := r.findDeployableArtifact(ctx, deployment)
+	// Create a new deployment context for the deployment with relevant hierarchy objects
+	deploymentCtx, err := r.makeDeploymentContext(ctx, deployment)
 	if err != nil {
-		logger.Error(err, "Error getting deployable artifact")
-		// TODO: Emit an event
-		// No point in retrying as the deployable artifact is not found
-		return ctrl.Result{}, nil
-	}
-
-	containerImage, err := r.findContainerImage(ctx, targetDeployableArtifact)
-	if err != nil {
-		logger.Error(err, "Error getting container image")
+		logger.Error(err, "Error creating deployment context")
 		return ctrl.Result{}, err
-	}
-
-	project, err := r.getProject(ctx, deployment)
-	if err != nil {
-		logger.Error(err, "Error getting project")
-		return ctrl.Result{}, err
-	}
-
-	component, err := r.getComponent(ctx, deployment)
-	if err != nil {
-		logger.Error(err, "Error getting component")
-		return ctrl.Result{}, err
-	}
-
-	deploymentTrack, err := r.getDeploymentTrack(ctx, deployment)
-	if err != nil {
-		logger.Error(err, "Error getting deployment track")
-		return ctrl.Result{}, err
-	}
-
-	environment, err := r.getEnvironment(ctx, deployment)
-	if err != nil {
-		logger.Error(err, "Error getting environment")
-		return ctrl.Result{}, err
-	}
-
-	deploymentCtx := integrations.DeploymentContext{
-		Project:            project,
-		Component:          component,
-		DeploymentTrack:    deploymentTrack,
-		DeployableArtifact: targetDeployableArtifact,
-		Deployment:         deployment,
-		Environment:        environment,
-		ContainerImage:     containerImage,
-	}
-
-	if component.Spec.Type == "WebApplication" {
-		// TODO: REMOVE THIS
-		deploymentCtx.ContainerImage = "docker.io/jhivandb/react-nginx:latest"
 	}
 
 	// Find and reconcile all the external resources
@@ -169,53 +123,6 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	return ctrl.Result{}, nil
-}
-
-// reconcileExternalResources reconciles the provided external resources based on the deployment context.
-func (r *Reconciler) reconcileExternalResources(
-	ctx context.Context,
-	resourceHandlers []integrations.ResourceHandler,
-	deploymentCtx integrations.DeploymentContext) error {
-	handlerNameLogKey := "resourceHandler"
-	for _, resourceHandler := range resourceHandlers {
-		logger := log.FromContext(ctx).WithValues(handlerNameLogKey, resourceHandler.Name())
-		// Delete the external resource if it is not configured
-		if !resourceHandler.IsRequired(deploymentCtx) {
-			if err := resourceHandler.Delete(ctx, deploymentCtx); err != nil {
-				logger.Error(err, "Error deleting external resource")
-				return err
-			}
-			// No need to reconcile the external resource if it is not required
-			logger.Info("Deleted external resource")
-			continue
-		}
-
-		// Check if the external resource exists
-		currentState, err := resourceHandler.GetCurrentState(ctx, deploymentCtx)
-		if err != nil {
-			logger.Error(err, "Error retrieving current state of the external resource")
-			return err
-		}
-
-		exists := currentState != nil
-		if !exists {
-			// Create the external resource if it does not exist
-			if err := resourceHandler.Create(ctx, deploymentCtx); err != nil {
-				logger.Error(err, "Error creating external resource")
-				return err
-			}
-		} else {
-			// Update the external resource if it exists
-			if err := resourceHandler.Update(ctx, deploymentCtx, currentState); err != nil {
-				logger.Error(err, "Error updating external resource")
-				return err
-			}
-		}
-
-		logger.Info("Reconciled external resource")
-	}
-
-	return nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -364,110 +271,51 @@ func (r *Reconciler) findContainerImage(ctx context.Context, deployableArtifact 
 	return "", fmt.Errorf("one of the build or image reference should be provided")
 }
 
-// TODO: Find a way to bring this to a common place. Ex: Get object by given hierarchy labels
-func (r *Reconciler) getProject(ctx context.Context, deployment *choreov1.Deployment) (*choreov1.Project, error) {
-	projectList := &choreov1.ProjectList{}
-	listOpts := []client.ListOption{
-		client.InNamespace(deployment.Namespace),
-		client.MatchingLabels{
-			controller.LabelKeyOrganizationName: deployment.Labels[controller.LabelKeyOrganizationName],
-		},
-	}
-	if err := r.Client.List(ctx, projectList, listOpts...); err != nil {
-		return nil, err
+// makeDeploymentContext creates a deployment context for the given deployment by retrieving the
+// parent objects that this deployment is associated with.
+func (r *Reconciler) makeDeploymentContext(ctx context.Context, deployment *choreov1.Deployment) (*integrations.DeploymentContext, error) {
+	project, err := controller.GetProject(ctx, r.Client, deployment)
+	if err != nil {
+		return nil, fmt.Errorf("cannot retrieve the project: %w", err)
 	}
 
-	for _, project := range projectList.Items {
-		if project.Labels == nil {
-			// Ideally, this should not happen as the project should have the organization label
-			continue
-		}
-		if project.Labels[controller.LabelKeyName] == deployment.Labels[controller.LabelKeyProjectName] {
-			return &project, nil
-		}
+	component, err := controller.GetComponent(ctx, r.Client, deployment)
+	if err != nil {
+		return nil, fmt.Errorf("cannot retrieve the component: %w", err)
 	}
 
-	return nil, fmt.Errorf("project not found")
+	deploymentTrack, err := controller.GetDeploymentTrack(ctx, r.Client, deployment)
+	if err != nil {
+		return nil, fmt.Errorf("cannot retrieve the deployment track: %w", err)
+	}
+
+	environment, err := controller.GetEnvironment(ctx, r.Client, deployment)
+	if err != nil {
+		return nil, fmt.Errorf("cannot retrieve the environment: %w", err)
+	}
+
+	targetDeployableArtifact, err := r.findDeployableArtifact(ctx, deployment)
+	if err != nil {
+		return nil, fmt.Errorf("cannot retrieve the deployable artifact: %w", err)
+	}
+
+	containerImage, err := r.findContainerImage(ctx, targetDeployableArtifact)
+	if err != nil {
+		return nil, fmt.Errorf("cannot retrieve the container image: %w", err)
+	}
+	return &integrations.DeploymentContext{
+		Project:            project,
+		Component:          component,
+		DeploymentTrack:    deploymentTrack,
+		DeployableArtifact: targetDeployableArtifact,
+		Deployment:         deployment,
+		Environment:        environment,
+		ContainerImage:     containerImage,
+	}, nil
 }
 
-func (r *Reconciler) getComponent(ctx context.Context, deployment *choreov1.Deployment) (*choreov1.Component, error) {
-	componentList := &choreov1.ComponentList{}
-	listOpts := []client.ListOption{
-		client.InNamespace(deployment.Namespace),
-		client.MatchingLabels{
-			controller.LabelKeyOrganizationName: deployment.Labels[controller.LabelKeyOrganizationName],
-			controller.LabelKeyProjectName:      deployment.Labels[controller.LabelKeyProjectName],
-		},
-	}
-	if err := r.Client.List(ctx, componentList, listOpts...); err != nil {
-		return nil, err
-	}
-
-	for _, component := range componentList.Items {
-		if component.Labels == nil {
-			// Ideally, this should not happen as the component should have the organization and project labels
-			continue
-		}
-		if component.Labels[controller.LabelKeyName] == deployment.Labels[controller.LabelKeyComponentName] {
-			return &component, nil
-		}
-	}
-
-	return nil, fmt.Errorf("component not found")
-}
-
-func (r *Reconciler) getDeploymentTrack(ctx context.Context, deployment *choreov1.Deployment) (*choreov1.DeploymentTrack, error) {
-	deploymentTrackList := &choreov1.DeploymentTrackList{}
-	listOpts := []client.ListOption{
-		client.InNamespace(deployment.Namespace),
-		client.MatchingLabels{
-			controller.LabelKeyOrganizationName: deployment.Labels[controller.LabelKeyOrganizationName],
-			controller.LabelKeyProjectName:      deployment.Labels[controller.LabelKeyProjectName],
-			controller.LabelKeyComponentName:    deployment.Labels[controller.LabelKeyComponentName],
-		},
-	}
-	if err := r.Client.List(ctx, deploymentTrackList, listOpts...); err != nil {
-		return nil, err
-	}
-
-	for _, deploymentTrack := range deploymentTrackList.Items {
-		if deploymentTrack.Labels == nil {
-			// Ideally, this should not happen as the deployment track should have the organization, project and component labels
-			continue
-		}
-		if deploymentTrack.Labels[controller.LabelKeyName] == deployment.Labels[controller.LabelKeyDeploymentTrackName] {
-			return &deploymentTrack, nil
-		}
-	}
-
-	return nil, fmt.Errorf("deployment track not found")
-}
-
-func (r *Reconciler) getEnvironment(ctx context.Context, deployment *choreov1.Deployment) (*choreov1.Environment, error) {
-	environmentList := &choreov1.EnvironmentList{}
-	listOpts := []client.ListOption{
-		client.InNamespace(deployment.Namespace),
-		client.MatchingLabels{
-			controller.LabelKeyOrganizationName: deployment.Labels[controller.LabelKeyOrganizationName],
-		},
-	}
-	if err := r.Client.List(ctx, environmentList, listOpts...); err != nil {
-		return nil, err
-	}
-
-	for _, environment := range environmentList.Items {
-		if environment.Labels == nil {
-			// Ideally, this should not happen as the environment should have the organization, project, component and deployment track labels
-			continue
-		}
-		if environment.Labels[controller.LabelKeyName] == deployment.Labels[controller.LabelKeyEnvironmentName] {
-			return &environment, nil
-		}
-	}
-
-	return nil, fmt.Errorf("environment not found")
-}
-
+// makeExternalResourceHandlers creates the chain of external resource handlers that are used to
+// bring the external resources to the desired state.
 func (r *Reconciler) makeExternalResourceHandlers() []integrations.ResourceHandler {
 	var handlers []integrations.ResourceHandler
 
@@ -481,4 +329,51 @@ func (r *Reconciler) makeExternalResourceHandlers() []integrations.ResourceHandl
 	handlers = append(handlers, k8sintegrations.NewHTTPRouteHandler(r.Client))
 
 	return handlers
+}
+
+// reconcileExternalResources reconciles the provided external resources based on the deployment context.
+func (r *Reconciler) reconcileExternalResources(
+	ctx context.Context,
+	resourceHandlers []integrations.ResourceHandler,
+	deploymentCtx *integrations.DeploymentContext) error {
+	handlerNameLogKey := "resourceHandler"
+	for _, resourceHandler := range resourceHandlers {
+		logger := log.FromContext(ctx).WithValues(handlerNameLogKey, resourceHandler.Name())
+		// Delete the external resource if it is not configured
+		if !resourceHandler.IsRequired(deploymentCtx) {
+			if err := resourceHandler.Delete(ctx, deploymentCtx); err != nil {
+				logger.Error(err, "Error deleting external resource")
+				return err
+			}
+			// No need to reconcile the external resource if it is not required
+			logger.Info("Deleted external resource")
+			continue
+		}
+
+		// Check if the external resource exists
+		currentState, err := resourceHandler.GetCurrentState(ctx, deploymentCtx)
+		if err != nil {
+			logger.Error(err, "Error retrieving current state of the external resource")
+			return err
+		}
+
+		exists := currentState != nil
+		if !exists {
+			// Create the external resource if it does not exist
+			if err := resourceHandler.Create(ctx, deploymentCtx); err != nil {
+				logger.Error(err, "Error creating external resource")
+				return err
+			}
+		} else {
+			// Update the external resource if it exists
+			if err := resourceHandler.Update(ctx, deploymentCtx, currentState); err != nil {
+				logger.Error(err, "Error updating external resource")
+				return err
+			}
+		}
+
+		logger.Info("Reconciled external resource")
+	}
+
+	return nil
 }

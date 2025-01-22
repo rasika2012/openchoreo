@@ -49,12 +49,12 @@ func (h *httpRouteHandler) Name() string {
 	return "KubernetesHTTPRouteHandler"
 }
 
-func (h *httpRouteHandler) IsRequired(deployCtx integrations.DeploymentContext) bool {
+func (h *httpRouteHandler) IsRequired(deployCtx *integrations.DeploymentContext) bool {
 	// HTTPRoutes are required for Web Applications
 	return deployCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication
 }
 
-func (h *httpRouteHandler) GetCurrentState(ctx context.Context, deployCtx integrations.DeploymentContext) (interface{}, error) {
+func (h *httpRouteHandler) GetCurrentState(ctx context.Context, deployCtx *integrations.DeploymentContext) (interface{}, error) {
 	namespace := makeNamespaceName(deployCtx)
 	name := makeHTTPRouteName(deployCtx)
 	out := &gatewayv1.HTTPRoute{}
@@ -67,12 +67,12 @@ func (h *httpRouteHandler) GetCurrentState(ctx context.Context, deployCtx integr
 	return out, nil
 }
 
-func (h *httpRouteHandler) Create(ctx context.Context, deployCtx integrations.DeploymentContext) error {
+func (h *httpRouteHandler) Create(ctx context.Context, deployCtx *integrations.DeploymentContext) error {
 	httpRoute := makeHTTPRoute(deployCtx)
 	return h.kubernetesClient.Create(ctx, httpRoute)
 }
 
-func (h *httpRouteHandler) Update(ctx context.Context, deployCtx integrations.DeploymentContext, currentState interface{}) error {
+func (h *httpRouteHandler) Update(ctx context.Context, deployCtx *integrations.DeploymentContext, currentState interface{}) error {
 	currentHTTPRoute, ok := currentState.(*gatewayv1.HTTPRoute)
 	if !ok {
 		return errors.New("failed to cast current state to HTTPRoute")
@@ -88,7 +88,7 @@ func (h *httpRouteHandler) Update(ctx context.Context, deployCtx integrations.De
 	return nil
 }
 
-func (h *httpRouteHandler) Delete(ctx context.Context, deployCtx integrations.DeploymentContext) error {
+func (h *httpRouteHandler) Delete(ctx context.Context, deployCtx *integrations.DeploymentContext) error {
 	httpRoute := makeHTTPRoute(deployCtx)
 	err := h.kubernetesClient.Delete(ctx, httpRoute)
 	if apierrors.IsNotFound(err) {
@@ -97,14 +97,14 @@ func (h *httpRouteHandler) Delete(ctx context.Context, deployCtx integrations.De
 	return err
 }
 
-func makeHTTPRouteName(deployCtx integrations.DeploymentContext) string {
+func makeHTTPRouteName(deployCtx *integrations.DeploymentContext) string {
 	componentName := deployCtx.Component.Name
 	deploymentTrackName := deployCtx.DeploymentTrack.Name
 	// Limit the name to 253 characters to comply with the K8s name length limit
 	return GenerateK8sNameWithLengthLimit(253, componentName, deploymentTrackName)
 }
 
-func makeHTTPRoute(deployCtx integrations.DeploymentContext) *gatewayv1.HTTPRoute {
+func makeHTTPRoute(deployCtx *integrations.DeploymentContext) *gatewayv1.HTTPRoute {
 	return &gatewayv1.HTTPRoute{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      makeHTTPRouteName(deployCtx),
@@ -115,7 +115,7 @@ func makeHTTPRoute(deployCtx integrations.DeploymentContext) *gatewayv1.HTTPRout
 	}
 }
 
-func makeHTTPRouteSpec(deployCtx integrations.DeploymentContext) gatewayv1.HTTPRouteSpec {
+func makeHTTPRouteSpec(deployCtx *integrations.DeploymentContext) gatewayv1.HTTPRouteSpec {
 	// If there are no endpoint templates, return an empty spec.
 	// This should be validated from the admission controller.x
 	if len(deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates) == 0 {
