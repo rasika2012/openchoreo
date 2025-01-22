@@ -5,11 +5,12 @@ import argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kuber
 type ConditionType string
 
 const (
-	Initialized    ConditionType = "Initialized"
-	CloneSucceeded ConditionType = "CloneSucceeded"
-	BuildSucceeded ConditionType = "BuildSucceeded"
-	PushSucceeded  ConditionType = "PushSucceeded"
-	Completed      ConditionType = "Completed"
+	Initialized               ConditionType = "Initialized"
+	CloneSucceeded            ConditionType = "CloneSucceeded"
+	BuildSucceeded            ConditionType = "BuildSucceeded"
+	PushSucceeded             ConditionType = "PushSucceeded"
+	Completed                 ConditionType = "Completed"
+	DeployableArtifactCreated ConditionType = "DeployableArtifactCreated"
 )
 
 type WorkflowStep string

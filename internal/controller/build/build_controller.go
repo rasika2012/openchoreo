@@ -20,7 +20,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 
 	"github.com/go-logr/logr"
@@ -79,13 +78,13 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	}
 
+	if meta.FindStatusCondition(build.Status.Conditions, string(DeployableArtifactCreated)) != nil {
+		return ctrl.Result{}, nil
+	}
+
 	// Check if the build namespace exists, and create it if not
 	if err := r.ensureNamespaceResources(ctx, "argo-build", logger); err != nil {
 		return ctrl.Result{}, err
-	}
-
-	if meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, string(Completed), metav1.ConditionFalse) {
-		return ctrl.Result{}, nil
 	}
 
 	existingWorkflow, err := r.ensureWorkflow(ctx, build, logger)
@@ -113,6 +112,22 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		err := r.createDeployableArtifact(ctx, build, logger)
 		if err != nil {
 			return ctrl.Result{}, err
+		}
+		newCondition := metav1.Condition{
+			Type:               string(DeployableArtifactCreated),
+			Status:             metav1.ConditionTrue,
+			LastTransitionTime: metav1.Now(),
+			Reason:             "ArtifactCreationSuccessful",
+			Message:            "Successfully created a deployable artifact referencing the associated build.",
+		}
+		changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
+		if changed {
+			logger.Info("Updating Build status", "Build.Name", build.Name)
+			if err := r.Status().Update(ctx, build); err != nil {
+				logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
+				return ctrl.Result{}, err
+			}
+			logger.Info("Updated Build status", "Build.Name", build.Name)
 		}
 	}
 	return ctrl.Result{}, nil
@@ -450,28 +465,6 @@ func constructImageNameWithTag(build *choreov1.Build) string {
 	return fmt.Sprintf("%s-%s:%s-latest", hashString, componentName, build.ObjectMeta.Labels["core.choreo.dev/deployment-track"])
 }
 
-func hashBuildSpec(build choreov1.Build) (string, error) {
-	// Marshal the spec into JSON
-	specJSON, err := json.Marshal(build.Spec)
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal spec: %w", err)
-	}
-
-	// Compute SHA256 hash
-	hash := sha256.Sum256(specJSON)
-
-	// Convert hash to a hexadecimal string
-	return hex.EncodeToString(hash[:]), nil
-}
-
-func generateDeployableArtifactName(build choreov1.Build) string {
-	hashedBuildSpec, err := hashBuildSpec(build)
-	if err != nil {
-		return build.ObjectMeta.Name
-	}
-	return fmt.Sprintf("%s-%s", build.ObjectMeta.Name, hashedBuildSpec)
-}
-
 // NewDeployableArtifact creates a DeployableArtifact instance.
 func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreov1.Build, logger logr.Logger) error {
 	deployableArtifact := &choreov1.DeployableArtifact{
@@ -480,13 +473,15 @@ func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreo
 			APIVersion: "core.choreo.dev/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      generateDeployableArtifactName(*build),
+			Name:      build.ObjectMeta.Name,
 			Namespace: build.ObjectMeta.Namespace,
 			Annotations: map[string]string{
 				"core.choreo.dev/display-name": build.ObjectMeta.Name,
-				"core.choreo.dev/description":  "Deployable Artifact was created by the buld.",
+				"core.choreo.dev/description":  "Deployable Artifact was created by the build.",
 			},
 			Labels: map[string]string{
+				"core.choreo.dev/name":             build.ObjectMeta.Name,
+				"core.choreo.dev/build":            build.ObjectMeta.Name,
 				"core.choreo.dev/deployment-track": build.ObjectMeta.Labels["core.choreo.dev/deployment-track"],
 				"core.choreo.dev/component":        build.ObjectMeta.Labels["core.choreo.dev/component"],
 				"core.choreo.dev/project":          build.ObjectMeta.Labels["core.choreo.dev/project"],
