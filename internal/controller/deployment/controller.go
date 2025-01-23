@@ -32,7 +32,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
@@ -46,15 +45,6 @@ type Reconciler struct {
 	Scheme   *runtime.Scheme
 	recorder record.EventRecorder
 }
-
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=deployments,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=deployments/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=deployments/finalizers,verbs=update
-// +kubebuilder:rbac:groups=cilium.io,resources=ciliumnetworkpolicies,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=batch,resources=cronjobs,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=core,resources=services,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=httproutes,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -131,60 +121,20 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 		r.recorder = mgr.GetEventRecorderFor("deployment-controller")
 	}
 
-	// Create a field index for the deployment artifact reference so that we can list deployments by the deployment artifact reference
-	err := mgr.GetFieldIndexer().IndexField(
-		context.Background(),
-		&choreov1.Deployment{},
-		"spec.deploymentArtifactRef",
-		func(obj client.Object) []string {
-			deployment := obj.(*choreov1.Deployment)
-			return []string{deployment.Spec.DeploymentArtifactRef}
-		},
-	)
-	if err != nil {
-		return err
+	// Set up the index for the deployment artifact reference
+	if err := r.setupDeploymentArtifactRefIndex(context.Background(), mgr); err != nil {
+		return fmt.Errorf("failed to setup deployment artifact reference index: %w", err)
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&choreov1.Deployment{}).
 		Named("deployment").
+		// Watch for DeployableArtifact changes to reconcile the deployments
 		Watches(
 			&choreov1.DeployableArtifact{},
-			handler.EnqueueRequestsFromMapFunc(r.deployableArtifactToDeploymentRequest),
+			handler.EnqueueRequestsFromMapFunc(r.listDeploymentsForDeployableArtifact),
 		).
 		Complete(r)
-}
-
-func (r *Reconciler) deployableArtifactToDeploymentRequest(ctx context.Context, obj client.Object) []reconcile.Request {
-	deployableArtifact, ok := obj.(*choreov1.DeployableArtifact)
-	if !ok {
-		// Ideally, this should not happen as obj is always expected to be a DeployableArtifact from the Watch
-		return nil
-	}
-
-	// List all the deployments that have .spec.deploymentArtifactRef equal to the name of the deployable artifact
-	deploymentList := &choreov1.DeploymentList{}
-	if err := r.List(
-		ctx,
-		deploymentList,
-		client.MatchingFields{"spec.deploymentArtifactRef": deployableArtifact.Name},
-	); err != nil {
-		return nil
-	}
-
-	// Enqueue all the deployments that have the deployable artifact as the deployment artifact
-	requests := make([]reconcile.Request, len(deploymentList.Items))
-	for i, deployment := range deploymentList.Items {
-		requests[i] = reconcile.Request{
-			NamespacedName: client.ObjectKey{
-				Namespace: deployment.Namespace,
-				Name:      deployment.Name,
-			},
-		}
-	}
-
-	// Enqueue the deployment if the deployable artifact is updated
-	return requests
 }
 
 func (r *Reconciler) findDeployableArtifact(ctx context.Context, deployment *choreov1.Deployment) (*choreov1.DeployableArtifact, error) {
