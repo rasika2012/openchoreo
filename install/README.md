@@ -16,15 +16,21 @@ Make sure you have installed kind : https://kind.sigs.k8s.io/docs/user/quick-sta
 
 On macos via Homebrew
 
-```
+```shell
 $ brew install kind
 ```
 
 #### Step 2 - Creating a Kind cluster
 
-```
+```shell
 $ kind create cluster --config=kind/kind-config.yaml
 ```
+
+> Note: If you are using kind for testing, you could speedup the installation process by pre-loading the images required for the installation. You can use the following script to load images to your kind cluster.
+> ```shell
+> $ ./kind/load-images.sh --kind-cluster-name kind
+> ```
+
 
 ### k3d (k3s in docker)
 
@@ -34,13 +40,13 @@ Install a stable version of k3d : https://k3d.io/stable/#installation
 
 On macos via Homebrew
 
-```
+```shell
 $ brew install k3d
 ```
 
 #### Step 2 - Creating a k3d cluster
 
-```
+```shell
 $ k3d cluster create --config k3d/k3d-config.yaml
 ```
 
@@ -55,7 +61,7 @@ This is installing two helm charts to your cluster to install the followings.
 
 Run the provided shell script to install the required artifacts.
 
-```
+```shell
 $ ./install.sh
 ```
 
@@ -65,7 +71,7 @@ This process may take some time to bring the components into a running state, as
 
 To check the installation status, you can run
 
-```
+```shell
 $ ./check-status.sh
 
 Installation status:
@@ -84,7 +90,7 @@ Installation status:
 
 ## Uninstalling choreo
 
-```
+```shell
 $ ./uninstall.sh
 ```
 

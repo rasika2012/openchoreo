@@ -2,6 +2,7 @@
 
 # This pulls the following images to the local docker context (if not exists) and load them into the kind cluster.
 # This can be used to speedup the installation.
+# usage: ./load-images.sh --kind-cluster-name <kind-cluster-name>
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in 
