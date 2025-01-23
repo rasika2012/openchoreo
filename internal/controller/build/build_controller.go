@@ -83,11 +83,12 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	// Check if the build namespace exists, and create it if not
-	if err := r.ensureNamespaceResources(ctx, "argo-build", logger); err != nil {
+	buildNamespace := "argo-build"
+	if err := r.ensureNamespaceResources(ctx, buildNamespace, logger); err != nil {
 		return ctrl.Result{}, err
 	}
 
-	existingWorkflow, err := r.ensureWorkflow(ctx, build, logger)
+	existingWorkflow, err := r.ensureWorkflow(ctx, build, buildNamespace, logger)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -236,7 +237,7 @@ func (r *Reconciler) getComponent(ctx context.Context, build *choreov1.Build) (*
 	return nil, apierrors.NewNotFound(schema.GroupResource{Group: "core.choreo.dev", Resource: "Component"}, build.Labels[controller.LabelKeyComponentName])
 }
 
-func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, logger logr.Logger) (*argo.Workflow, error) {
+func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, buildNamespace string, logger logr.Logger) (*argo.Workflow, error) {
 	component, err := r.getComponent(ctx, build)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
@@ -247,11 +248,11 @@ func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, 
 		return nil, err
 	}
 	existingWorkflow := argo.Workflow{}
-	err = r.Get(ctx, client.ObjectKey{Name: build.ObjectMeta.Name, Namespace: "argo-build"}, &existingWorkflow)
+	err = r.Get(ctx, client.ObjectKey{Name: build.ObjectMeta.Name, Namespace: buildNamespace}, &existingWorkflow)
 	if err != nil {
 		// Create the workflow
 		if apierrors.IsNotFound(err) {
-			workflow := createArgoWorkflow(build, component.Spec.Source.GitRepository.URL)
+			workflow := createArgoWorkflow(build, component.Spec.Source.GitRepository.URL, buildNamespace)
 
 			if err := r.Create(ctx, workflow); err != nil {
 				return nil, err
