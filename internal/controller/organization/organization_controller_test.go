@@ -20,68 +20,186 @@ package organization
 
 import (
 	"context"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	apiv1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/ptr"
 )
 
-var _ = Describe("Organization Controller", func() {
-	Context("When reconciling a resource", func() {
-		const resourceName = "test-resource"
+var _ = Context("Organization Controller", func() {
+	const orgName = "test-organization"
+
+	typeNamespacedName := types.NamespacedName{
+		Name: orgName,
+	}
+
+	Describe("create and reconcile an organization resource", func() {
 
 		ctx := context.Background()
 
-		typeNamespacedName := types.NamespacedName{
-			Name:      resourceName,
-			Namespace: "default", // TODO(user):Modify as needed
-		}
-		organization := &corev1.Organization{}
+		organization := &apiv1.Organization{}
 
-		BeforeEach(func() {
-			By("creating the custom resource for the Kind Organization")
+		It("should successfully create a custom resource for the kind organization", func() {
+			By("creating a custom resource for the Kind Organization")
 			err := k8sClient.Get(ctx, typeNamespacedName, organization)
 			if err != nil && errors.IsNotFound(err) {
-				resource := &corev1.Organization{
+				org := &apiv1.Organization{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      resourceName,
-						Namespace: "default",
+						Name: orgName,
 					},
-					// TODO(user): Specify other spec details if needed.
 				}
-				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
+				Expect(k8sClient.Create(ctx, org)).To(Succeed())
 			}
 		})
 
-		AfterEach(func() {
-			// TODO(user): Cleanup logic after each test, like removing the resource instance.
-			resource := &corev1.Organization{}
-			err := k8sClient.Get(ctx, typeNamespacedName, resource)
-			Expect(err).NotTo(HaveOccurred())
-
-			By("Cleanup the specific resource instance Organization")
-			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
-		})
-		It("should successfully reconcile the resource", func() {
-			By("Reconciling the created resource")
+		It("should successfully reconcile the organization resource", func() {
 			controllerReconciler := &Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
 				recorder: record.NewFakeRecorder(100),
 			}
 
-			_, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
+			result, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
 				NamespacedName: typeNamespacedName,
 			})
 			Expect(err).NotTo(HaveOccurred())
-			// TODO(user): Add more specific assertions depending on your controller's reconciliation logic.
-			// Example: If you expect a certain status condition after reconciliation, verify it here.
+			Expect(result.Requeue).To(BeFalse())
+		})
+
+		It("should have successfully created the expected namespace for organization", func() {
+			By("checking that the namespace is eventually created")
+			namespace := &corev1.Namespace{}
+			Eventually(func() error {
+				return k8sClient.Get(ctx, client.ObjectKey{Name: orgName}, namespace)
+			}, time.Second*10, time.Millisecond*500).Should(Succeed())
+
+			By("verifying the namespace has the expected attributes")
+			Expect(namespace.Name).To(Equal(orgName))
+			Expect(namespace.Labels).To(HaveKeyWithValue(controller.LabelKeyManagedBy, controller.LabelValueManagedBy))
+			Expect(namespace.Labels).To(HaveKeyWithValue(controller.LabelKeyOrganizationName, orgName))
+			Expect(namespace.Labels).To(HaveKeyWithValue(controller.LabelKeyName, orgName))
+		})
+
+		It("should not return an error for non-existing organization", func() {
+			By("Reconciling the non-existing organization resource")
+			const nonExistOrgName = "non-existing-organization"
+
+			controllerReconciler := &Reconciler{
+				Client:   k8sClient,
+				Scheme:   k8sClient.Scheme(),
+				recorder: record.NewFakeRecorder(100),
+			}
+
+			result, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
+				NamespacedName: types.NamespacedName{
+					Name: nonExistOrgName,
+				},
+			})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.Requeue).To(BeFalse())
+		})
+
+		When("update the organization", func() {
+			It("should be able to update organization's namespace", func() {
+				orgNamespace := &corev1.Namespace{}
+				err := k8sClient.Get(ctx, typeNamespacedName, orgNamespace)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(orgNamespace.ObjectMeta.Labels).NotTo(BeNil())
+
+				By("Updating the organization's namespace resource labels")
+				orgNamespace.ObjectMeta.Labels = map[string]string{
+					controller.LabelKeyManagedBy:        controller.LabelValueManagedBy,
+					controller.LabelKeyOrganizationName: "new-org-name",
+					controller.LabelKeyName:             "new-org-name",
+				}
+				err = k8sClient.Update(ctx, orgNamespace)
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should successfully reconcile the organization resource", func() {
+				By("Reconciling the organization resource with updated namespace labels")
+				controllerReconciler := &Reconciler{
+					Client:   k8sClient,
+					Scheme:   k8sClient.Scheme(),
+					recorder: record.NewFakeRecorder(100),
+				}
+
+				result, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
+					NamespacedName: typeNamespacedName,
+				})
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result.Requeue).To(BeFalse())
+			})
+
+			It("should have successfully updated the namespace labels back original", func() {
+				By("update the namespace labels with something else")
+				namespace := &corev1.Namespace{}
+				err := k8sClient.Get(ctx, client.ObjectKey{Name: orgName}, namespace)
+				Expect(err).NotTo(HaveOccurred())
+
+				By("verifying the namespace has the updated labels")
+				Expect(namespace.Name).To(Equal(orgName))
+				Expect(namespace.Labels).To(HaveKeyWithValue(controller.LabelKeyManagedBy, controller.LabelValueManagedBy))
+				Expect(namespace.Labels).To(HaveKeyWithValue(controller.LabelKeyOrganizationName, orgName))
+				Expect(namespace.Labels).To(HaveKeyWithValue(controller.LabelKeyName, orgName))
+			})
+		})
+	})
+
+	Describe("delete an organization resource", func() {
+		var uuidOfOrgResource types.UID
+		It("should be able to delete the organization resource", func() {
+			resource := &apiv1.Organization{}
+			err := k8sClient.Get(ctx, typeNamespacedName, resource)
+			Expect(err).NotTo(HaveOccurred())
+			// saving the UUID of the resource to verify the owner reference
+			uuidOfOrgResource = resource.GetUID()
+			By("Cleanup the specific resource instance Organization")
+			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
+		})
+
+		It("should successfully reconcile the organization resource even after deletion", func() {
+			controllerReconciler := &Reconciler{
+				Client:   k8sClient,
+				Scheme:   k8sClient.Scheme(),
+				recorder: record.NewFakeRecorder(100),
+			}
+
+			result, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
+				NamespacedName: typeNamespacedName,
+			})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.Requeue).To(BeFalse())
+		})
+
+		It("should have deleted the namespace for the organization", func() {
+			namespace := &corev1.Namespace{}
+			err := k8sClient.Get(ctx, client.ObjectKey{Name: orgName}, namespace)
+
+			// Since the envtest api server does not support owner reference deletion, the namespace will not be deleted
+			// and the error will be nil. Hence validating just the owner reference
+			// https://github.com/kubernetes-sigs/kubebuilder/blob/master/docs/book/src/reference/envtest.md#testing-considerations
+			expectedOwnerReference := metav1.OwnerReference{
+				Kind:               "Organization",
+				APIVersion:         "core.choreo.dev/v1",
+				UID:                uuidOfOrgResource,
+				Name:               orgName,
+				Controller:         ptr.Bool(true),
+				BlockOwnerDeletion: ptr.Bool(true),
+			}
+			Expect(err).NotTo(HaveOccurred())
+			Expect(namespace.ObjectMeta.OwnerReferences).To(ContainElement(expectedOwnerReference))
 		})
 	})
 })
