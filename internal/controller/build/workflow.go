@@ -12,145 +12,149 @@ import (
 	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/argoproj.io/workflow/v1alpha1"
 )
 
-func createArgoWorkflow(build *choreov1.Build, repo string) *argo.Workflow {
+func createArgoWorkflow(build *choreov1.Build, repo string, buildNamespace string) *argo.Workflow {
 	var branch string
 	if build.Spec.Branch != "" {
 		branch = build.Spec.Branch
 	} else {
-		branch = "dev"
+		branch = "main"
 	}
 	// Create the Argo Workflow object
 	hostPathType := corev1.HostPathDirectoryOrCreate
 	workflow := argo.Workflow{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      build.ObjectMeta.Name,
-			Namespace: "argo-build",
+			Namespace: buildNamespace,
 		},
-		Spec: argo.WorkflowSpec{
-			ServiceAccountName: "argo-workflow-sa",
-			Entrypoint:         "build-workflow",
-			Templates: []argo.Template{
-				{
-					Name: "build-workflow",
-					Steps: []argo.ParallelSteps{
-						{
-							Steps: []argo.WorkflowStep{
-								{Name: "clone-step", Template: "clone-step"},
-							},
+		Spec: createWorkflowSpec(build, hostPathType, branch, repo),
+	}
+	return &workflow
+}
+
+func createWorkflowSpec(build *choreov1.Build, hostPathType corev1.HostPathType, branch string, repo string) argo.WorkflowSpec {
+	return argo.WorkflowSpec{
+		ServiceAccountName: "argo-workflow-sa",
+		Entrypoint:         "build-workflow",
+		Templates: []argo.Template{
+			{
+				Name: "build-workflow",
+				Steps: []argo.ParallelSteps{
+					{
+						Steps: []argo.WorkflowStep{
+							{Name: string(CloneStep), Template: string(CloneStep)},
 						},
-						{
-							Steps: []argo.WorkflowStep{
-								{Name: "build-step", Template: "build-step"},
-							},
+					},
+					{
+						Steps: []argo.WorkflowStep{
+							{Name: string(BuildStep), Template: string(BuildStep)},
 						},
-						{
-							Steps: []argo.WorkflowStep{
-								{Name: "push-step", Template: "push-step"},
-							},
+					},
+					{
+						Steps: []argo.WorkflowStep{
+							{Name: string(PushStep), Template: string(PushStep)},
 						},
 					},
 				},
-				{
-					Name: "clone-step",
-					Container: &corev1.Container{
-						Image:   "alpine/git",
-						Command: []string{"sh", "-c"},
-						Args: []string{
-							fmt.Sprintf(`set -e
+			},
+			{
+				Name: string(CloneStep),
+				Container: &corev1.Container{
+					Image:   "alpine/git",
+					Command: []string{"sh", "-c"},
+					Args: []string{
+						fmt.Sprintf(`set -e
 echo "Cloning repository from branch %s..."
 git clone --single-branch --branch %s %s /mnt/vol/source
 echo "Repository cloned successfully."`, branch, branch, repo),
-						},
-						VolumeMounts: []corev1.VolumeMount{
-							{Name: "workspace", MountPath: "/mnt/vol"},
-						},
+					},
+					VolumeMounts: []corev1.VolumeMount{
+						{Name: "workspace", MountPath: "/mnt/vol"},
 					},
 				},
-				{
-					Name: "build-step",
-					Container: &corev1.Container{
-						Image: "chalindukodikara/podman:v1.0",
-						SecurityContext: &corev1.SecurityContext{
-							Privileged: ptr.To(true),
-						},
-						Command: []string{"sh", "-c"},
-						Args:    generateBuildArgs(build, constructImageNameWithTag(build)),
-						VolumeMounts: []corev1.VolumeMount{
-							{Name: "workspace", MountPath: "/mnt/vol"},
-							{Name: "podman-cache", MountPath: "/shared/podman/cache"},
-						},
+			},
+			{
+				Name: string(BuildStep),
+				Container: &corev1.Container{
+					Image: "chalindukodikara/podman:v1.0",
+					SecurityContext: &corev1.SecurityContext{
+						Privileged: ptr.To(true),
+					},
+					Command: []string{"sh", "-c"},
+					Args:    generateBuildArgs(build, constructImageNameWithTag(build)),
+					VolumeMounts: []corev1.VolumeMount{
+						{Name: "workspace", MountPath: "/mnt/vol"},
+						{Name: "podman-cache", MountPath: "/shared/podman/cache"},
 					},
 				},
-				{
-					Name: "push-step",
-					Container: &corev1.Container{
-						Image: "chalindukodikara/podman:v1.0",
-						SecurityContext: &corev1.SecurityContext{
-							Privileged: ptr.To(true),
-						},
-						Command: []string{"sh", "-c"},
-						Args: []string{
-							generatePushImageScript(constructImageNameWithTag(build)),
-						},
-						VolumeMounts: []corev1.VolumeMount{
-							{Name: "workspace", MountPath: "/mnt/vol"},
-							{Name: "podman-cache", MountPath: "/shared/podman/cache"},
+			},
+			{
+				Name: string(PushStep),
+				Container: &corev1.Container{
+					Image: "chalindukodikara/podman:v1.0",
+					SecurityContext: &corev1.SecurityContext{
+						Privileged: ptr.To(true),
+					},
+					Command: []string{"sh", "-c"},
+					Args: []string{
+						generatePushImageScript(constructImageNameWithTag(build)),
+					},
+					VolumeMounts: []corev1.VolumeMount{
+						{Name: "workspace", MountPath: "/mnt/vol"},
+						{Name: "podman-cache", MountPath: "/shared/podman/cache"},
+					},
+				},
+			},
+		},
+		VolumeClaimTemplates: []corev1.PersistentVolumeClaim{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "workspace",
+				},
+				Spec: corev1.PersistentVolumeClaimSpec{
+					AccessModes: []corev1.PersistentVolumeAccessMode{
+						corev1.ReadWriteOnce,
+					},
+					Resources: corev1.VolumeResourceRequirements{
+						Requests: corev1.ResourceList{
+							corev1.ResourceStorage: resource.MustParse("2Gi"),
 						},
 					},
 				},
 			},
-			VolumeClaimTemplates: []corev1.PersistentVolumeClaim{
-				{
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "workspace",
-					},
-					Spec: corev1.PersistentVolumeClaimSpec{
-						AccessModes: []corev1.PersistentVolumeAccessMode{
-							corev1.ReadWriteOnce,
-						},
-						Resources: corev1.VolumeResourceRequirements{
-							Requests: corev1.ResourceList{
-								corev1.ResourceStorage: resource.MustParse("2Gi"),
-							},
-						},
-					},
-				},
-			},
-			Affinity: &corev1.Affinity{
-				NodeAffinity: &corev1.NodeAffinity{
-					RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
-						NodeSelectorTerms: []corev1.NodeSelectorTerm{
-							{
-								MatchExpressions: []corev1.NodeSelectorRequirement{
-									{
-										Key:      "kubernetes.io/hostname",
-										Operator: corev1.NodeSelectorOpIn,
-										Values:   []string{"kind-worker2"},
-									},
+		},
+		Affinity: &corev1.Affinity{
+			NodeAffinity: &corev1.NodeAffinity{
+				RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
+					NodeSelectorTerms: []corev1.NodeSelectorTerm{
+						{
+							MatchExpressions: []corev1.NodeSelectorRequirement{
+								{
+									Key:      "kubernetes.io/hostname",
+									Operator: corev1.NodeSelectorOpIn,
+									Values:   []string{"kind-worker2"},
 								},
 							},
 						},
 					},
 				},
 			},
-			Volumes: []corev1.Volume{
-				{
-					Name: "podman-cache",
-					VolumeSource: corev1.VolumeSource{
-						HostPath: &corev1.HostPathVolumeSource{
-							Path: "/shared/podman/cache",
-							Type: &hostPathType,
-						},
+		},
+		Volumes: []corev1.Volume{
+			{
+				Name: "podman-cache",
+				VolumeSource: corev1.VolumeSource{
+					HostPath: &corev1.HostPathVolumeSource{
+						Path: "/shared/podman/cache",
+						Type: &hostPathType,
 					},
 				},
 			},
-			TTLStrategy: &argo.TTLStrategy{
-				SecondsAfterFailure: int32Ptr(600),
-				SecondsAfterSuccess: int32Ptr(600),
-			},
+		},
+		TTLStrategy: &argo.TTLStrategy{
+			SecondsAfterFailure: int32Ptr(600),
+			SecondsAfterSuccess: int32Ptr(600),
 		},
 	}
-	return &workflow
 }
 
 func int32Ptr(i int32) *int32 { return &i }
