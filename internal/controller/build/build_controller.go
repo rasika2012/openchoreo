@@ -78,23 +78,27 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	}
 
-	if meta.FindStatusCondition(build.Status.Conditions, string(DeployableArtifactCreated)) != nil {
+	if meta.FindStatusCondition(build.Status.Conditions, string(DeployableArtifactCreated)) != nil ||
+		meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, string(Completed), metav1.ConditionFalse) {
 		return ctrl.Result{}, nil
 	}
 
 	// Check if the build namespace exists, and create it if not
 	buildNamespace := "argo-build"
 	if err := r.ensureNamespaceResources(ctx, buildNamespace, logger); err != nil {
+		logger.Error(err, "Failed to ensure namespace resources")
 		return ctrl.Result{}, err
 	}
 
 	existingWorkflow, err := r.ensureWorkflow(ctx, build, buildNamespace, logger)
 	if err != nil {
+		logger.Error(err, "Failed to ensure workflow")
 		return ctrl.Result{}, err
 	}
 
 	requeue, err := r.handleBuildSteps(ctx, build, existingWorkflow.Status.Nodes, logger)
 	if err != nil {
+		logger.Error(err, "Failed to handle build steps")
 		return ctrl.Result{}, err
 	}
 
