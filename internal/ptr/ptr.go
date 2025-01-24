@@ -16,29 +16,29 @@
  * under the License.
  */
 
-package kubernetes
+package ptr
 
 // This file includes helper functions for creating pointers.
 // These functions can be used where primitive type pointers are required, such as when setting optional
 // fields in Kubernetes API objects or working with custom types that follow the Kubernetes conventions
 // for nullable values.
 
-func PtrBool(b bool) *bool {
+func Bool(b bool) *bool {
 	return &b
 }
 
-func PtrString(s string) *string {
+func String(s string) *string {
 	return &s
 }
 
-func PtrInt(i int) *int {
+func Int(i int) *int {
 	return &i
 }
 
-func PtrInt32(i int32) *int32 {
+func Int32(i int32) *int32 {
 	return &i
 }
 
-func PtrInt64(i int64) *int64 {
+func Int64(i int64) *int64 {
 	return &i
 }

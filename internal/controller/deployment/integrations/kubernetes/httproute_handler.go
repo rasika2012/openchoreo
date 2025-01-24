@@ -31,6 +31,7 @@ import (
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment/integrations"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/ptr"
 )
 
 type httpRouteHandler struct {
@@ -130,8 +131,8 @@ func makeHTTPRouteSpec(deployCtx *integrations.DeploymentContext) gatewayv1.HTTP
 		CommonRouteSpec: gatewayv1.CommonRouteSpec{
 			ParentRefs: []gatewayv1.ParentReference{
 				{
-					Name:      "gateway-external",                                    // Internal / external
-					Namespace: (*gatewayv1.Namespace)(PtrString("choreo-system-dp")), // Change NS based on where envoy gateway is deployed
+					Name:      "gateway-external",                                     // Internal / external
+					Namespace: (*gatewayv1.Namespace)(ptr.String("choreo-system-dp")), // Change NS based on where envoy gateway is deployed
 				},
 			},
 		},
@@ -142,7 +143,7 @@ func makeHTTPRouteSpec(deployCtx *integrations.DeploymentContext) gatewayv1.HTTP
 					{
 						Path: &gatewayv1.HTTPPathMatch{
 							Type:  &pathType,
-							Value: PtrString("/"),
+							Value: ptr.String("/"),
 						},
 					},
 				},

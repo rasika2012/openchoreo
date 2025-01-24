@@ -32,6 +32,7 @@ import (
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment/integrations"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/ptr"
 )
 
 type cronJobHandler struct {
@@ -137,8 +138,8 @@ func makeCronJobSpec(deployCtx *integrations.DeploymentContext) batchv1.CronJobS
 			},
 			Spec: batchv1.JobSpec{
 				// TODO: These are free tire values from Choreo v2. Make these configurable that are coming from the deployment context
-				ActiveDeadlineSeconds: PtrInt64(300),
-				BackoffLimit:          PtrInt32(4),
+				ActiveDeadlineSeconds: ptr.Int64(300),
+				BackoffLimit:          ptr.Int32(4),
 				Template: corev1.PodTemplateSpec{
 					ObjectMeta: metav1.ObjectMeta{
 						Labels: makeWorkloadLabels(deployCtx),
@@ -154,11 +155,11 @@ func makeCronJobSpec(deployCtx *integrations.DeploymentContext) batchv1.CronJobS
 						RestartPolicy: corev1.RestartPolicyNever,
 					},
 				},
-				TTLSecondsAfterFinished: PtrInt32(360),
+				TTLSecondsAfterFinished: ptr.Int32(360),
 			},
 		},
-		Suspend:  PtrBool(false),
-		TimeZone: PtrString("Etc/UTC"),
+		Suspend:  ptr.Bool(false),
+		TimeZone: ptr.String("Etc/UTC"),
 	}
 	var taskSpec *choreov1.TaskConfig
 	if deployCtx.DeployableArtifact.Spec.Configuration != nil &&
@@ -170,13 +171,13 @@ func makeCronJobSpec(deployCtx *integrations.DeploymentContext) batchv1.CronJobS
 	}
 
 	if taskSpec.Disabled {
-		cronJobSpec.Suspend = PtrBool(true)
+		cronJobSpec.Suspend = ptr.Bool(true)
 	}
 
 	if taskSpec.Schedule != nil {
 		cronJobSpec.Schedule = taskSpec.Schedule.Cron
 		if taskSpec.Schedule.Timezone != "" {
-			cronJobSpec.TimeZone = PtrString(taskSpec.Schedule.Timezone)
+			cronJobSpec.TimeZone = ptr.String(taskSpec.Schedule.Timezone)
 		}
 	}
 	return cronJobSpec
