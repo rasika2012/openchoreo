@@ -12,6 +12,7 @@ spec:
       containers:
       - name: wait-for-ready
         image: {{ .Values.waitJob.image }}
+        imagePullPolicy: IfNotPresent
         command:
         - /bin/sh
         - -c
