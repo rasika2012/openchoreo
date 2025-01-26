@@ -92,6 +92,14 @@ type Deployment struct {
 	Status DeploymentStatus `json:"status,omitempty"`
 }
 
+func (d *Deployment) GetConditions() []metav1.Condition {
+	return d.Status.Conditions
+}
+
+func (d *Deployment) SetConditions(conditions []metav1.Condition) {
+	d.Status.Conditions = conditions
+}
+
 // +kubebuilder:object:root=true
 
 // DeploymentList contains a list of Deployment.

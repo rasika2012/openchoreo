@@ -22,7 +22,6 @@ import (
 	"context"
 	"fmt"
 
-	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -71,18 +70,24 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	}
 
-	previousCondition := meta.FindStatusCondition(deployment.Status.Conditions, controller.TypeReady)
-
 	// Check if the labels are set
 	if deployment.Labels == nil {
 		logger.Info("Deployment labels not set. Ignoring since it is not valid.")
 		return ctrl.Result{}, nil
 	}
 
+	old := deployment.DeepCopy()
+
+	// Mark the deployment as progressing so that any non-terminating paths will persist the progressing status
+	meta.SetStatusCondition(&deployment.Status.Conditions, NewDeploymentProgressingCondition(deployment.Generation))
+
 	// Create a new deployment context for the deployment with relevant hierarchy objects
 	deploymentCtx, err := r.makeDeploymentContext(ctx, deployment)
 	if err != nil {
 		logger.Error(err, "Error creating deployment context")
+		if err := controller.UpdateStatusConditions(ctx, r.Client, old, deployment); err != nil {
+			return ctrl.Result{}, err
+		}
 		return ctrl.Result{}, err
 	}
 
@@ -95,21 +100,11 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 	// TODO: Update the status of the deployment and emit events
 
-	if err := controller.UpdateCondition(
-		ctx,
-		r.Status(),
-		deployment,
-		&deployment.Status.Conditions,
-		controller.TypeReady,
-		metav1.ConditionTrue,
-		"DeploymentReady",
-		"Deployment is ready",
-	); err != nil {
+	// Mark the deployment as ready. Reaching this point means the deployment is successfully reconciled.
+	meta.SetStatusCondition(&deployment.Status.Conditions, NewDeploymentReadyCondition(deployment.Generation))
+
+	if err := controller.UpdateStatusConditions(ctx, r.Client, old, deployment); err != nil {
 		return ctrl.Result{}, err
-	} else {
-		if previousCondition == nil {
-			r.recorder.Event(deployment, corev1.EventTypeNormal, "ReconcileComplete", "Successfully created "+deployment.Name)
-		}
 	}
 
 	return ctrl.Result{}, nil
@@ -190,7 +185,7 @@ func makeHierarchyLabelsForDeploymentTrack(objMeta metav1.ObjectMeta) map[string
 }
 
 // TODO: move this logic to the resource handler implementation as figuring out the container image is specific to the external resource
-func (r *Reconciler) findContainerImage(ctx context.Context, deployableArtifact *choreov1.DeployableArtifact) (string, error) {
+func (r *Reconciler) findContainerImage(ctx context.Context, deployment *choreov1.Deployment, deployableArtifact *choreov1.DeployableArtifact) (string, error) {
 	if buildRef := deployableArtifact.Spec.TargetArtifact.FromBuildRef; buildRef != nil {
 		if buildRef.Name != "" {
 			// Find the build that the deployable artifact is referring to
@@ -208,6 +203,8 @@ func (r *Reconciler) findContainerImage(ctx context.Context, deployableArtifact 
 					return build.Status.ImageStatus.Image, nil
 				}
 			}
+			meta.SetStatusCondition(&deployment.Status.Conditions,
+				NewArtifactBuildNotFoundCondition(deployment.Spec.DeploymentArtifactRef, buildRef.Name, deployment.Generation))
 			return "", fmt.Errorf("build %q is not found for deployable artifact: %s/%s", buildRef.Name, deployableArtifact.Namespace, deployableArtifact.Name)
 		} else if buildRef.GitRevision != "" {
 			// TODO: Search for the build by git revision
@@ -246,13 +243,18 @@ func (r *Reconciler) makeDeploymentContext(ctx context.Context, deployment *chor
 
 	targetDeployableArtifact, err := r.findDeployableArtifact(ctx, deployment)
 	if err != nil {
+		meta.SetStatusCondition(&deployment.Status.Conditions,
+			NewArtifactNotFoundCondition(deployment.Spec.DeploymentArtifactRef, deployment.Generation))
 		return nil, fmt.Errorf("cannot retrieve the deployable artifact: %w", err)
 	}
 
-	containerImage, err := r.findContainerImage(ctx, targetDeployableArtifact)
+	containerImage, err := r.findContainerImage(ctx, deployment, targetDeployableArtifact)
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve the container image: %w", err)
 	}
+
+	meta.SetStatusCondition(&deployment.Status.Conditions, NewArtifactResolvedCondition(deployment.Generation))
+
 	return &dataplane.DeploymentContext{
 		Project:            project,
 		Component:          component,

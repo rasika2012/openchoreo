@@ -165,6 +165,9 @@ func main() {
 		log.Fatalf("unable to add Argo Workflow types to scheme: %v", err)
 	}
 
+	// -----------------------------------------------------------------------------
+	// Setup controllers with the controller manager
+	// -----------------------------------------------------------------------------
 	if err = (&organization.Reconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
@@ -242,6 +245,11 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Endpoint")
 		os.Exit(1)
 	}
+
+	// -----------------------------------------------------------------------------
+	// Setup webhooks with the controller manager
+	// -----------------------------------------------------------------------------
+
 	// nolint:goconst
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
 		if err = webhookcorev1.SetupProjectWebhookWithManager(mgr); err != nil {
