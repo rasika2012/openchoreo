@@ -128,7 +128,7 @@ issues:
         - gci
       source: "\\+kubebuilder:scaffold"
   exclude-dirs:
-    - "internal/kubernetes/types" #3rd party types for CustomResourceDefinitions
+    - "internal/dataplane/kubernetes/types" #3rd party types for CustomResourceDefinitions
     - "test" # E2E tests
   # The list of ids of default excludes to include.
   include:

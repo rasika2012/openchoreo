@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package integrations
+package dataplane
 
 import (
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"

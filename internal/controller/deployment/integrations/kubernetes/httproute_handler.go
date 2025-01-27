@@ -30,7 +30,8 @@ import (
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment/integrations"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
+	dpkubernetes "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/ptr"
 )
 
@@ -38,9 +39,9 @@ type httpRouteHandler struct {
 	kubernetesClient client.Client
 }
 
-var _ integrations.ResourceHandler = (*httpRouteHandler)(nil)
+var _ dataplane.ResourceHandler = (*httpRouteHandler)(nil)
 
-func NewHTTPRouteHandler(kubernetesClient client.Client) integrations.ResourceHandler {
+func NewHTTPRouteHandler(kubernetesClient client.Client) dataplane.ResourceHandler {
 	return &httpRouteHandler{
 		kubernetesClient: kubernetesClient,
 	}
@@ -50,12 +51,12 @@ func (h *httpRouteHandler) Name() string {
 	return "KubernetesHTTPRouteHandler"
 }
 
-func (h *httpRouteHandler) IsRequired(deployCtx *integrations.DeploymentContext) bool {
+func (h *httpRouteHandler) IsRequired(deployCtx *dataplane.DeploymentContext) bool {
 	// HTTPRoutes are required for Web Applications
 	return deployCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication
 }
 
-func (h *httpRouteHandler) GetCurrentState(ctx context.Context, deployCtx *integrations.DeploymentContext) (interface{}, error) {
+func (h *httpRouteHandler) GetCurrentState(ctx context.Context, deployCtx *dataplane.DeploymentContext) (interface{}, error) {
 	namespace := makeNamespaceName(deployCtx)
 	name := makeHTTPRouteName(deployCtx)
 	out := &gatewayv1.HTTPRoute{}
@@ -68,12 +69,12 @@ func (h *httpRouteHandler) GetCurrentState(ctx context.Context, deployCtx *integ
 	return out, nil
 }
 
-func (h *httpRouteHandler) Create(ctx context.Context, deployCtx *integrations.DeploymentContext) error {
+func (h *httpRouteHandler) Create(ctx context.Context, deployCtx *dataplane.DeploymentContext) error {
 	httpRoute := makeHTTPRoute(deployCtx)
 	return h.kubernetesClient.Create(ctx, httpRoute)
 }
 
-func (h *httpRouteHandler) Update(ctx context.Context, deployCtx *integrations.DeploymentContext, currentState interface{}) error {
+func (h *httpRouteHandler) Update(ctx context.Context, deployCtx *dataplane.DeploymentContext, currentState interface{}) error {
 	currentHTTPRoute, ok := currentState.(*gatewayv1.HTTPRoute)
 	if !ok {
 		return errors.New("failed to cast current state to HTTPRoute")
@@ -89,7 +90,7 @@ func (h *httpRouteHandler) Update(ctx context.Context, deployCtx *integrations.D
 	return nil
 }
 
-func (h *httpRouteHandler) Delete(ctx context.Context, deployCtx *integrations.DeploymentContext) error {
+func (h *httpRouteHandler) Delete(ctx context.Context, deployCtx *dataplane.DeploymentContext) error {
 	httpRoute := makeHTTPRoute(deployCtx)
 	err := h.kubernetesClient.Delete(ctx, httpRoute)
 	if apierrors.IsNotFound(err) {
@@ -98,14 +99,14 @@ func (h *httpRouteHandler) Delete(ctx context.Context, deployCtx *integrations.D
 	return err
 }
 
-func makeHTTPRouteName(deployCtx *integrations.DeploymentContext) string {
+func makeHTTPRouteName(deployCtx *dataplane.DeploymentContext) string {
 	componentName := deployCtx.Component.Name
 	deploymentTrackName := deployCtx.DeploymentTrack.Name
 	// Limit the name to 253 characters to comply with the K8s name length limit
-	return GenerateK8sNameWithLengthLimit(253, componentName, deploymentTrackName)
+	return dpkubernetes.GenerateK8sNameWithLengthLimit(253, componentName, deploymentTrackName)
 }
 
-func makeHTTPRoute(deployCtx *integrations.DeploymentContext) *gatewayv1.HTTPRoute {
+func makeHTTPRoute(deployCtx *dataplane.DeploymentContext) *gatewayv1.HTTPRoute {
 	return &gatewayv1.HTTPRoute{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      makeHTTPRouteName(deployCtx),
@@ -116,7 +117,7 @@ func makeHTTPRoute(deployCtx *integrations.DeploymentContext) *gatewayv1.HTTPRou
 	}
 }
 
-func makeHTTPRouteSpec(deployCtx *integrations.DeploymentContext) gatewayv1.HTTPRouteSpec {
+func makeHTTPRouteSpec(deployCtx *dataplane.DeploymentContext) gatewayv1.HTTPRouteSpec {
 	// If there are no endpoint templates, return an empty spec.
 	// This should be validated from the admission controller.x
 	if len(deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates) == 0 {

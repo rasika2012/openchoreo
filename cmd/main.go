@@ -49,8 +49,8 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/environment"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/organization"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/project"
-	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/argoproj.io/workflow/v1alpha1"
-	ciliumv2 "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/cilium.io/v2"
+	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes/types/argoproj.io/workflow/v1alpha1"
+	ciliumv2 "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes/types/cilium.io/v2"
 	webhookcorev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/webhook/v1"
 	// +kubebuilder:scaffold:imports
 )

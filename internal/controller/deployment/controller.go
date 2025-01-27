@@ -35,8 +35,8 @@ import (
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment/integrations"
 	k8sintegrations "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment/integrations/kubernetes"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
 )
 
 // Reconciler reconciles a Deployment object
@@ -223,7 +223,7 @@ func (r *Reconciler) findContainerImage(ctx context.Context, deployableArtifact 
 
 // makeDeploymentContext creates a deployment context for the given deployment by retrieving the
 // parent objects that this deployment is associated with.
-func (r *Reconciler) makeDeploymentContext(ctx context.Context, deployment *choreov1.Deployment) (*integrations.DeploymentContext, error) {
+func (r *Reconciler) makeDeploymentContext(ctx context.Context, deployment *choreov1.Deployment) (*dataplane.DeploymentContext, error) {
 	project, err := controller.GetProject(ctx, r.Client, deployment)
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve the project: %w", err)
@@ -253,7 +253,7 @@ func (r *Reconciler) makeDeploymentContext(ctx context.Context, deployment *chor
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve the container image: %w", err)
 	}
-	return &integrations.DeploymentContext{
+	return &dataplane.DeploymentContext{
 		Project:            project,
 		Component:          component,
 		DeploymentTrack:    deploymentTrack,
@@ -266,8 +266,8 @@ func (r *Reconciler) makeDeploymentContext(ctx context.Context, deployment *chor
 
 // makeExternalResourceHandlers creates the chain of external resource handlers that are used to
 // bring the external resources to the desired state.
-func (r *Reconciler) makeExternalResourceHandlers() []integrations.ResourceHandler {
-	var handlers []integrations.ResourceHandler
+func (r *Reconciler) makeExternalResourceHandlers() []dataplane.ResourceHandler {
+	var handlers []dataplane.ResourceHandler
 
 	// IMPORTANT: The order of the handlers is important when reconciling the resources.
 	// For example, the namespace handler should be reconciled before creating resources that depend on the namespace.
@@ -284,8 +284,8 @@ func (r *Reconciler) makeExternalResourceHandlers() []integrations.ResourceHandl
 // reconcileExternalResources reconciles the provided external resources based on the deployment context.
 func (r *Reconciler) reconcileExternalResources(
 	ctx context.Context,
-	resourceHandlers []integrations.ResourceHandler,
-	deploymentCtx *integrations.DeploymentContext) error {
+	resourceHandlers []dataplane.ResourceHandler,
+	deploymentCtx *dataplane.DeploymentContext) error {
 	handlerNameLogKey := "resourceHandler"
 	for _, resourceHandler := range resourceHandlers {
 		logger := log.FromContext(ctx).WithValues(handlerNameLogKey, resourceHandler.Name())

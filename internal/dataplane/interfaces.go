@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package integrations
+package dataplane
 
 import (
 	"context"

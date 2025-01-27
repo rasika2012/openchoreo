@@ -20,68 +20,49 @@ package kubernetes
 
 import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment/integrations"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
+	dpkubernetes "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes"
 )
 
-const (
-	LabelKeyOrganizationName    = "organization-name"
-	LabelKeyProjectName         = "project-name"
-	LabelKeyProjectID           = "project-id"
-	LabelKeyComponentName       = "component-name"
-	LabelKeyComponentID         = "component-id"
-	LabelKeyDeploymentTrackName = "deployment-track-name"
-	LabelKeyDeploymentTrackID   = "deployment-track-id"
-	LabelKeyEnvironmentName     = "environment-name"
-	LabelKeyEnvironmentID       = "environment-id"
-	LabelKeyDeploymentName      = "deployment-name"
-	LabelKeyDeploymentID        = "deployment-id"
-	LabelKeyManagedBy           = "managed-by"
-	LabelKeyBelongTo            = "belong-to"
-	LabelKeyComponentType       = "component-type"
-
-	LabelValueManagedBy = "choreo-deployment-controller"
-	LabelValueBelongTo  = "user-workloads"
-)
-
-func makeLabels(deployCtx *integrations.DeploymentContext) map[string]string {
+func makeLabels(deployCtx *dataplane.DeploymentContext) map[string]string {
 	return map[string]string{
-		LabelKeyOrganizationName:    controller.GetOrganizationName(deployCtx.Project),
-		LabelKeyProjectName:         controller.GetName(deployCtx.Project),
-		LabelKeyProjectID:           string(deployCtx.Project.UID),
-		LabelKeyComponentName:       controller.GetName(deployCtx.Component),
-		LabelKeyComponentID:         string(deployCtx.Component.UID),
-		LabelKeyDeploymentTrackName: controller.GetName(deployCtx.DeploymentTrack),
-		LabelKeyDeploymentTrackID:   string(deployCtx.DeploymentTrack.UID),
-		LabelKeyEnvironmentName:     controller.GetName(deployCtx.Environment),
-		LabelKeyEnvironmentID:       string(deployCtx.Environment.UID),
-		LabelKeyDeploymentName:      controller.GetName(deployCtx.Deployment),
-		LabelKeyDeploymentID:        string(deployCtx.Deployment.UID),
-		LabelKeyManagedBy:           LabelValueManagedBy,
-		LabelKeyBelongTo:            LabelValueBelongTo,
+		dpkubernetes.LabelKeyOrganizationName:    controller.GetOrganizationName(deployCtx.Project),
+		dpkubernetes.LabelKeyProjectName:         controller.GetName(deployCtx.Project),
+		dpkubernetes.LabelKeyProjectID:           string(deployCtx.Project.UID),
+		dpkubernetes.LabelKeyComponentName:       controller.GetName(deployCtx.Component),
+		dpkubernetes.LabelKeyComponentID:         string(deployCtx.Component.UID),
+		dpkubernetes.LabelKeyDeploymentTrackName: controller.GetName(deployCtx.DeploymentTrack),
+		dpkubernetes.LabelKeyDeploymentTrackID:   string(deployCtx.DeploymentTrack.UID),
+		dpkubernetes.LabelKeyEnvironmentName:     controller.GetName(deployCtx.Environment),
+		dpkubernetes.LabelKeyEnvironmentID:       string(deployCtx.Environment.UID),
+		dpkubernetes.LabelKeyDeploymentName:      controller.GetName(deployCtx.Deployment),
+		dpkubernetes.LabelKeyDeploymentID:        string(deployCtx.Deployment.UID),
+		dpkubernetes.LabelKeyManagedBy:           dpkubernetes.LabelValueManagedBy,
+		dpkubernetes.LabelKeyBelongTo:            dpkubernetes.LabelValueBelongTo,
 	}
 }
 
-func makeWorkloadLabels(deployCtx *integrations.DeploymentContext) map[string]string {
+func makeWorkloadLabels(deployCtx *dataplane.DeploymentContext) map[string]string {
 	labels := makeLabels(deployCtx)
-	labels[LabelKeyComponentType] = string(deployCtx.Component.Spec.Type)
+	labels[dpkubernetes.LabelKeyComponentType] = string(deployCtx.Component.Spec.Type)
 	return labels
 }
 
 func extractManagedLabels(labels map[string]string) map[string]string {
 	return map[string]string{
-		LabelKeyOrganizationName:    labels[LabelKeyOrganizationName],
-		LabelKeyProjectName:         labels[LabelKeyProjectName],
-		LabelKeyProjectID:           labels[LabelKeyProjectID],
-		LabelKeyComponentName:       labels[LabelKeyComponentName],
-		LabelKeyComponentID:         labels[LabelKeyComponentID],
-		LabelKeyDeploymentTrackName: labels[LabelKeyDeploymentTrackName],
-		LabelKeyDeploymentTrackID:   labels[LabelKeyDeploymentTrackID],
-		LabelKeyEnvironmentName:     labels[LabelKeyEnvironmentName],
-		LabelKeyEnvironmentID:       labels[LabelKeyEnvironmentID],
-		LabelKeyDeploymentName:      labels[LabelKeyDeploymentName],
-		LabelKeyDeploymentID:        labels[LabelKeyDeploymentID],
-		LabelKeyManagedBy:           labels[LabelKeyManagedBy],
-		LabelKeyBelongTo:            labels[LabelKeyBelongTo],
-		LabelKeyComponentType:       labels[LabelKeyComponentType],
+		dpkubernetes.LabelKeyOrganizationName:    labels[dpkubernetes.LabelKeyOrganizationName],
+		dpkubernetes.LabelKeyProjectName:         labels[dpkubernetes.LabelKeyProjectName],
+		dpkubernetes.LabelKeyProjectID:           labels[dpkubernetes.LabelKeyProjectID],
+		dpkubernetes.LabelKeyComponentName:       labels[dpkubernetes.LabelKeyComponentName],
+		dpkubernetes.LabelKeyComponentID:         labels[dpkubernetes.LabelKeyComponentID],
+		dpkubernetes.LabelKeyDeploymentTrackName: labels[dpkubernetes.LabelKeyDeploymentTrackName],
+		dpkubernetes.LabelKeyDeploymentTrackID:   labels[dpkubernetes.LabelKeyDeploymentTrackID],
+		dpkubernetes.LabelKeyEnvironmentName:     labels[dpkubernetes.LabelKeyEnvironmentName],
+		dpkubernetes.LabelKeyEnvironmentID:       labels[dpkubernetes.LabelKeyEnvironmentID],
+		dpkubernetes.LabelKeyDeploymentName:      labels[dpkubernetes.LabelKeyDeploymentName],
+		dpkubernetes.LabelKeyDeploymentID:        labels[dpkubernetes.LabelKeyDeploymentID],
+		dpkubernetes.LabelKeyManagedBy:           labels[dpkubernetes.LabelKeyManagedBy],
+		dpkubernetes.LabelKeyBelongTo:            labels[dpkubernetes.LabelKeyBelongTo],
+		dpkubernetes.LabelKeyComponentType:       labels[dpkubernetes.LabelKeyComponentType],
 	}
 }

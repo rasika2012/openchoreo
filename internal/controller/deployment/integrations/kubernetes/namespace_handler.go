@@ -29,16 +29,17 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment/integrations"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
+	dpkubernetes "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes"
 )
 
 type namespaceHandler struct {
 	kubernetesClient client.Client
 }
 
-var _ integrations.ResourceHandler = (*namespaceHandler)(nil)
+var _ dataplane.ResourceHandler = (*namespaceHandler)(nil)
 
-func NewNamespaceHandler(kubernetesClient client.Client) integrations.ResourceHandler {
+func NewNamespaceHandler(kubernetesClient client.Client) dataplane.ResourceHandler {
 	return &namespaceHandler{
 		kubernetesClient: kubernetesClient,
 	}
@@ -48,13 +49,13 @@ func (h *namespaceHandler) Name() string {
 	return "KubernetesNamespace"
 }
 
-func (h *namespaceHandler) IsRequired(deployCtx *integrations.DeploymentContext) bool {
+func (h *namespaceHandler) IsRequired(deployCtx *dataplane.DeploymentContext) bool {
 	// Namespace is always required and the deletion of a namespace should be handled by the project deletion
 	// This will ensure the namespace is lazily created during the first deployment
 	return true
 }
 
-func (h *namespaceHandler) GetCurrentState(ctx context.Context, deployCtx *integrations.DeploymentContext) (interface{}, error) {
+func (h *namespaceHandler) GetCurrentState(ctx context.Context, deployCtx *dataplane.DeploymentContext) (interface{}, error) {
 	name := makeNamespaceName(deployCtx)
 	out := &corev1.Namespace{}
 	err := h.kubernetesClient.Get(ctx, client.ObjectKey{Name: name}, out)
@@ -66,12 +67,12 @@ func (h *namespaceHandler) GetCurrentState(ctx context.Context, deployCtx *integ
 	return out, nil
 }
 
-func (h *namespaceHandler) Create(ctx context.Context, deployCtx *integrations.DeploymentContext) error {
+func (h *namespaceHandler) Create(ctx context.Context, deployCtx *dataplane.DeploymentContext) error {
 	namespace := makeNamespace(deployCtx)
 	return h.kubernetesClient.Create(ctx, namespace)
 }
 
-func (h *namespaceHandler) Update(ctx context.Context, deployCtx *integrations.DeploymentContext, currentState interface{}) error {
+func (h *namespaceHandler) Update(ctx context.Context, deployCtx *dataplane.DeploymentContext, currentState interface{}) error {
 	currentNamespace, ok := currentState.(*corev1.Namespace)
 	if !ok {
 		return errors.New("failed to cast the current state to a Namespace")
@@ -85,7 +86,7 @@ func (h *namespaceHandler) Update(ctx context.Context, deployCtx *integrations.D
 	return nil
 }
 
-func (h *namespaceHandler) Delete(ctx context.Context, deployCtx *integrations.DeploymentContext) error {
+func (h *namespaceHandler) Delete(ctx context.Context, deployCtx *dataplane.DeploymentContext) error {
 	namespace := makeNamespace(deployCtx)
 	err := h.kubernetesClient.Delete(ctx, namespace)
 	if apierrors.IsNotFound(err) {
@@ -100,14 +101,14 @@ func (h *namespaceHandler) shouldUpdate(current, new *corev1.Namespace) bool {
 }
 
 // NamespaceName has the format dp-<organization-name>-<project-name>-<environment-name>-<hash>
-func makeNamespaceName(deployCtx *integrations.DeploymentContext) string {
+func makeNamespaceName(deployCtx *dataplane.DeploymentContext) string {
 	organizationName := controller.GetOrganizationName(deployCtx.Project)
 	projectName := controller.GetName(deployCtx.Project)
 	environmentName := controller.GetName(deployCtx.Environment)
-	return GenerateK8sName("dp", organizationName, projectName, environmentName)
+	return dpkubernetes.GenerateK8sName("dp", organizationName, projectName, environmentName)
 }
 
-func makeNamespace(deployCtx *integrations.DeploymentContext) *corev1.Namespace {
+func makeNamespace(deployCtx *dataplane.DeploymentContext) *corev1.Namespace {
 	return &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   makeNamespaceName(deployCtx),

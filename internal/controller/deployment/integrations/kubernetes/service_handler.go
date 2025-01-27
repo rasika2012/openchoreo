@@ -30,16 +30,17 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment/integrations"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
+	dpkubernetes "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes"
 )
 
 type serviceHandler struct {
 	kubernetesClient client.Client
 }
 
-var _ integrations.ResourceHandler = (*serviceHandler)(nil)
+var _ dataplane.ResourceHandler = (*serviceHandler)(nil)
 
-func NewServiceHandler(kubernetesClient client.Client) integrations.ResourceHandler {
+func NewServiceHandler(kubernetesClient client.Client) dataplane.ResourceHandler {
 	return &serviceHandler{
 		kubernetesClient: kubernetesClient,
 	}
@@ -49,12 +50,12 @@ func (h *serviceHandler) Name() string {
 	return "KubernetesServiceHandler"
 }
 
-func (h *serviceHandler) IsRequired(deployCtx *integrations.DeploymentContext) bool {
+func (h *serviceHandler) IsRequired(deployCtx *dataplane.DeploymentContext) bool {
 	// Services are required for Web Applications
 	return deployCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication
 }
 
-func (h *serviceHandler) GetCurrentState(ctx context.Context, deployCtx *integrations.DeploymentContext) (interface{}, error) {
+func (h *serviceHandler) GetCurrentState(ctx context.Context, deployCtx *dataplane.DeploymentContext) (interface{}, error) {
 	namespace := makeNamespaceName(deployCtx)
 	name := makeServiceName(deployCtx)
 	out := &corev1.Service{}
@@ -67,12 +68,12 @@ func (h *serviceHandler) GetCurrentState(ctx context.Context, deployCtx *integra
 	return out, nil
 }
 
-func (h *serviceHandler) Create(ctx context.Context, deployCtx *integrations.DeploymentContext) error {
+func (h *serviceHandler) Create(ctx context.Context, deployCtx *dataplane.DeploymentContext) error {
 	service := makeService(deployCtx)
 	return h.kubernetesClient.Create(ctx, service)
 }
 
-func (h *serviceHandler) Update(ctx context.Context, deployCtx *integrations.DeploymentContext, currentState interface{}) error {
+func (h *serviceHandler) Update(ctx context.Context, deployCtx *dataplane.DeploymentContext, currentState interface{}) error {
 	currentService, ok := currentState.(*corev1.Service)
 	if !ok {
 		return errors.New("failed to cast current state to Service")
@@ -90,7 +91,7 @@ func (h *serviceHandler) Update(ctx context.Context, deployCtx *integrations.Dep
 	return nil
 }
 
-func (h *serviceHandler) Delete(ctx context.Context, deployCtx *integrations.DeploymentContext) error {
+func (h *serviceHandler) Delete(ctx context.Context, deployCtx *dataplane.DeploymentContext) error {
 	service := makeService(deployCtx)
 	err := h.kubernetesClient.Delete(ctx, service)
 	if apierrors.IsNotFound(err) {
@@ -99,14 +100,14 @@ func (h *serviceHandler) Delete(ctx context.Context, deployCtx *integrations.Dep
 	return err
 }
 
-func makeServiceName(deployCtx *integrations.DeploymentContext) string {
+func makeServiceName(deployCtx *dataplane.DeploymentContext) string {
 	componentName := deployCtx.Component.Name
 	deploymentTrackName := deployCtx.DeploymentTrack.Name
 	// Limit the name to 253 characters to comply with the K8s name length limit
-	return GenerateK8sName(componentName, deploymentTrackName)
+	return dpkubernetes.GenerateK8sName(componentName, deploymentTrackName)
 }
 
-func makeService(deployCtx *integrations.DeploymentContext) *corev1.Service {
+func makeService(deployCtx *dataplane.DeploymentContext) *corev1.Service {
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      makeServiceName(deployCtx),
@@ -117,7 +118,7 @@ func makeService(deployCtx *integrations.DeploymentContext) *corev1.Service {
 	}
 }
 
-func makeServiceSpec(deployCtx *integrations.DeploymentContext) corev1.ServiceSpec {
+func makeServiceSpec(deployCtx *dataplane.DeploymentContext) corev1.ServiceSpec {
 	ports := []corev1.ServicePort{}
 
 	for _, v := range deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates {

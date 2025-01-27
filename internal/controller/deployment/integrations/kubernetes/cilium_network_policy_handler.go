@@ -28,17 +28,17 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment/integrations"
-	ciliumv2 "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/kubernetes/types/cilium.io/v2"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
+	ciliumv2 "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes/types/cilium.io/v2"
 )
 
 type ciliumNetworkPolicyHandler struct {
 	kubernetesClient client.Client
 }
 
-var _ integrations.ResourceHandler = (*ciliumNetworkPolicyHandler)(nil)
+var _ dataplane.ResourceHandler = (*ciliumNetworkPolicyHandler)(nil)
 
-func NewCiliumNetworkPolicyHandler(kubernetesClient client.Client) integrations.ResourceHandler {
+func NewCiliumNetworkPolicyHandler(kubernetesClient client.Client) dataplane.ResourceHandler {
 	return &ciliumNetworkPolicyHandler{
 		kubernetesClient: kubernetesClient,
 	}
@@ -48,13 +48,13 @@ func (h *ciliumNetworkPolicyHandler) Name() string {
 	return "KubernetesCiliumNetworkPolicy"
 }
 
-func (h *ciliumNetworkPolicyHandler) IsRequired(deployCtx *integrations.DeploymentContext) bool {
+func (h *ciliumNetworkPolicyHandler) IsRequired(deployCtx *dataplane.DeploymentContext) bool {
 	// CiliumNetworkPolicy is always required and the deletion of this should be handled by the project deletion
 	// This will ensure the CiliumNetworkPolicy is lazily created during the first deployment for a namespace
 	return true
 }
 
-func (h *ciliumNetworkPolicyHandler) GetCurrentState(ctx context.Context, deployCtx *integrations.DeploymentContext) (interface{}, error) {
+func (h *ciliumNetworkPolicyHandler) GetCurrentState(ctx context.Context, deployCtx *dataplane.DeploymentContext) (interface{}, error) {
 	namespace := makeNamespaceName(deployCtx)
 	name := makeCiliumNetworkPolicyName(deployCtx)
 	out := &ciliumv2.CiliumNetworkPolicy{}
@@ -67,12 +67,12 @@ func (h *ciliumNetworkPolicyHandler) GetCurrentState(ctx context.Context, deploy
 	return out, nil
 }
 
-func (h *ciliumNetworkPolicyHandler) Create(ctx context.Context, deployCtx *integrations.DeploymentContext) error {
+func (h *ciliumNetworkPolicyHandler) Create(ctx context.Context, deployCtx *dataplane.DeploymentContext) error {
 	cnp := makeCiliumNetworkPolicy(deployCtx)
 	return h.kubernetesClient.Create(ctx, cnp)
 }
 
-func (h *ciliumNetworkPolicyHandler) Update(ctx context.Context, deployCtx *integrations.DeploymentContext, currentState interface{}) error {
+func (h *ciliumNetworkPolicyHandler) Update(ctx context.Context, deployCtx *dataplane.DeploymentContext, currentState interface{}) error {
 	currentCNP, ok := currentState.(*ciliumv2.CiliumNetworkPolicy)
 	if !ok {
 		return errors.New("failed to cast current state to CiliumNetworkPolicy")
@@ -87,7 +87,7 @@ func (h *ciliumNetworkPolicyHandler) Update(ctx context.Context, deployCtx *inte
 	return nil
 }
 
-func (h *ciliumNetworkPolicyHandler) Delete(ctx context.Context, deployCtx *integrations.DeploymentContext) error {
+func (h *ciliumNetworkPolicyHandler) Delete(ctx context.Context, deployCtx *dataplane.DeploymentContext) error {
 	cnp := makeCiliumNetworkPolicy(deployCtx)
 	err := h.kubernetesClient.Delete(ctx, cnp)
 	if apierrors.IsNotFound(err) {
@@ -108,11 +108,11 @@ func (h *ciliumNetworkPolicyHandler) shouldUpdate(current, new *ciliumv2.CiliumN
 	return false
 }
 
-func makeCiliumNetworkPolicyName(deployCtx *integrations.DeploymentContext) string {
+func makeCiliumNetworkPolicyName(deployCtx *dataplane.DeploymentContext) string {
 	return "default-policy"
 }
 
-func makeCiliumNetworkPolicy(deployCtx *integrations.DeploymentContext) *ciliumv2.CiliumNetworkPolicy {
+func makeCiliumNetworkPolicy(deployCtx *dataplane.DeploymentContext) *ciliumv2.CiliumNetworkPolicy {
 	return &ciliumv2.CiliumNetworkPolicy{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "cilium.io/v2",
