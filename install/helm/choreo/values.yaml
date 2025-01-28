@@ -18,8 +18,8 @@ controllerManager:
         drop:
         - ALL
     image:
-      repository: choreov3testacr.azurecr.io/choreo-v3/controller
-      tag: v0.1.0
+      repository: choreo-controller
+      tag: latest
     imagePullPolicy: IfNotPresent
     resources:
       limits:
