@@ -503,9 +503,47 @@ func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreo
 			},
 		},
 	}
+	componentType := r.getComponentType(ctx, build, logger)
+	addComponentSpecificConfigs(componentType, deployableArtifact)
 	if err := r.Client.Create(ctx, deployableArtifact); err != nil && !apierrors.IsAlreadyExists(err) {
 		logger.Error(err, "Failed to create deployable artifact", "Build.Name", build.ObjectMeta.Name)
 		return err
 	}
 	return nil
+}
+
+func (r *Reconciler) getComponentType(ctx context.Context, build *choreov1.Build, logger logr.Logger) choreov1.ComponentType {
+	component, err := r.getComponent(ctx, build)
+	if err != nil {
+		logger.Info("Error occurred while retrieving the component of the build", "Build.Name", build.Name)
+		return ""
+	}
+	return component.Spec.Type
+}
+
+func addComponentSpecificConfigs(componentType choreov1.ComponentType, deployableArtifact *choreov1.DeployableArtifact) {
+	if componentType == choreov1.ComponentTypeScheduledTask {
+		deployableArtifact.Spec.Configuration = &choreov1.Configuration{
+			Application: &choreov1.Application{
+				Task: &choreov1.TaskConfig{
+					Disabled: false,
+					Schedule: &choreov1.TaskSchedule{
+						Cron:     "*/1 * * * *",
+						Timezone: "Asia/Colombo",
+					},
+				},
+			},
+		}
+	} else if componentType == choreov1.ComponentTypeWebApplication {
+		deployableArtifact.Spec.Configuration = &choreov1.Configuration{
+			EndpointTemplates: []choreov1.EndpointTemplate{
+				{
+					Type: "HTTP",
+					Service: choreov1.ServiceConfig{
+						Port: 80,
+					},
+				},
+			},
+		}
+	}
 }
