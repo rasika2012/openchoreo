@@ -24,10 +24,10 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/utils/ptr"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes/types/argoproj.io/workflow/v1alpha1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/ptr"
 )
 
 func makeArgoWorkflow(build *choreov1.Build, repo string, buildNamespace string) *argo.Workflow {
@@ -92,8 +92,8 @@ func makeWorkflowSpec(build *choreov1.Build, branch string, repo string) argo.Wo
 			},
 		},
 		TTLStrategy: &argo.TTLStrategy{
-			SecondsAfterFailure: int32Ptr(600),
-			SecondsAfterSuccess: int32Ptr(600),
+			SecondsAfterFailure: ptr.Int32(600),
+			SecondsAfterSuccess: ptr.Int32(600),
 		},
 	}
 }
@@ -194,7 +194,36 @@ func makePersistentVolumeClaim() []corev1.PersistentVolumeClaim {
 	}
 }
 
-func int32Ptr(i int32) *int32 { return &i }
+func getDockerContext(build *choreov1.Build) string {
+	if build.Spec.BuildConfiguration.Docker.Context != "" {
+		return build.Spec.BuildConfiguration.Docker.Context
+	}
+	return build.Spec.Path
+}
+
+func getDockerfilePath(build *choreov1.Build) string {
+	if build.Spec.BuildConfiguration.Docker.DockerfilePath != "" {
+		return build.Spec.BuildConfiguration.Docker.DockerfilePath
+	}
+	return "Dockerfile"
+}
+
+func getLanguageVersion(build *choreov1.Build) string {
+	if build.Spec.BuildConfiguration.Buildpack.Version == "" {
+		return ""
+	}
+	if build.Spec.BuildConfiguration.Buildpack.Name == choreov1.BuildpackGo {
+		return fmt.Sprintf("--env GOOGLE_GO_VERSION=\"%s\"", build.Spec.BuildConfiguration.Buildpack.Version)
+	} else if build.Spec.BuildConfiguration.Buildpack.Name == choreov1.BuildpackNodeJS {
+		return fmt.Sprintf("--env GOOGLE_NODEJS_VERSION=%s", build.Spec.BuildConfiguration.Buildpack.Version)
+	} else if build.Spec.BuildConfiguration.Buildpack.Name == choreov1.BuildpackPython {
+		return fmt.Sprintf("--env GOOGLE_PYTHON_VERSION=\"%s\"", build.Spec.BuildConfiguration.Buildpack.Version)
+	} else if build.Spec.BuildConfiguration.Buildpack.Name == choreov1.BuildpackPHP {
+		return fmt.Sprintf("--env GOOGLE_COMPOSER_VERSION=\"%s\"", build.Spec.BuildConfiguration.Buildpack.Version)
+	}
+	// BuildpackRuby and BuildpackJava
+	return fmt.Sprintf("--env GOOGLE_RUNTIME_VERSION=%s", build.Spec.BuildConfiguration.Buildpack.Version)
+}
 
 func generateBuildArgs(build *choreov1.Build, imageName string) []string {
 	baseScript := `set -e
@@ -217,14 +246,14 @@ podman system service --time=0 &`
 		buildScript = fmt.Sprintf(`
 echo "Building image using Buildpack..."
 /usr/local/bin/pack build %s --builder=gcr.io/buildpacks/builder:google-22 --docker-host=inherit \
-  --path=/mnt/vol/source/%s --pull-policy if-not-present
+  --path=/mnt/vol/source/%s --pull-policy if-not-present %s
 
 podman save -o /mnt/vol/app-image.tar %s
-podman volume prune --force`, imageName, build.Spec.Path, imageName)
+podman volume prune --force`, imageName, build.Spec.Path, getLanguageVersion(build), imageName)
 	} else {
 		buildScript = fmt.Sprintf(`
-podman build -t %s /mnt/vol/source/%s
-podman save -o /mnt/vol/app-image.tar %s`, imageName, build.Spec.Path, imageName)
+podman build -t %s -f %s /mnt/vol/source/%s
+podman save -o /mnt/vol/app-image.tar %s`, imageName, getDockerfilePath(build), getDockerContext(build), imageName)
 	}
 
 	return []string{baseScript + buildScript}
