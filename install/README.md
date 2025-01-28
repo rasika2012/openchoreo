@@ -26,6 +26,20 @@ $ brew install kind
 $ kind create cluster --config=kind/kind-config.yaml
 ```
 
+##### Build and load controller latest image to kind cluster
+
+Use the following command from the root directory of this project to build the controller image.
+
+```shell
+IMG="choreo-controller:latest" make docker-build
+```
+
+Load the image to the kind cluster
+
+```shell
+kind load docker-image choreo-controller:latest --name kind
+```
+
 > Note: If you are using kind for testing, you could speedup the installation process by pre-loading the images required for the installation. You can use the following script to load images to your kind cluster.
 > ```shell
 > $ ./kind/load-images.sh --kind-cluster-name kind
