@@ -121,7 +121,7 @@ metadata:
   namespace: default-organization
   annotations:
     core.choreo.dev/display-name: Main deployment track
-    core.choreo.dev/description: 
+    core.choreo.dev/description: The main deployment track for the react-nginx component
   labels:
     core.choreo.dev/organization: default-organization
     core.choreo.dev/project: internal-apps
@@ -132,9 +132,9 @@ spec:
     branch: main
     path: /react-nginx
     buildConfiguration:
-     docker:
-       context: /react-nginx
-       dockerfilePath: /react-nginx/Dockerfile
+      docker:
+        context: /react-nginx
+        dockerfilePath: /react-nginx/Dockerfile
 ---
 ## Sample Build kind (Namespaced)
 apiVersion: core.choreo.dev/v1
@@ -155,9 +155,9 @@ spec:
   branch: main
   path: /react-nginx
   buildConfiguration:
-     docker:
-       context: /react-nginx
-       dockerfilePath: /react-nginx/Dockerfile
+    docker:
+      context: /react-nginx
+      dockerfilePath: /react-nginx/Dockerfile
 
 ---
 ## Sample DeployableArtifact kind (Namespaced)
@@ -184,10 +184,14 @@ spec:
       env:
         - key: GITHUB_REPOSITORY
           value: https://github.com/wso2/product-apim
-    endpointTemplates:
-    - type: HTTP
-      service:
-        port: 80       
+    templates:
+      - metadata: {}
+        spec:
+          type: HTTP
+          service:
+            url: ""
+            port: 80
+            basePath: /
 ---
 ## Sample Deployment kind (Namespaced)
 apiVersion: core.choreo.dev/v1
@@ -197,7 +201,7 @@ metadata:
   namespace: default-organization
   annotations:
     core.choreo.dev/display-name: react-nginx
-    core.choreo.dev/description: 
+    core.choreo.dev/description:
   labels:
     core.choreo.dev/organization: default-organization
     core.choreo.dev/project: internal-apps
@@ -207,3 +211,23 @@ metadata:
     core.choreo.dev/name: development
 spec:
   deploymentArtifactRef: react-nginx-main-artifact-2024-12-10-1
+---
+apiVersion: core.choreo.dev/v1
+kind: Endpoint
+metadata:
+  namespace: default-organization
+  name: sample-rest-endpoint
+  labels:
+    core.choreo.dev/organization: default-organization
+    core.choreo.dev/project: internal-apps
+    core.choreo.dev/environment: development
+    core.choreo.dev/component: react-nginx
+    core.choreo.dev/deployment-track: main
+    core.choreo.dev/name: development
+    core.choreo.dev/deployable-artifact: react-nginx-main-artifact-2024-12-10-1
+spec:
+  type: REST
+  service:
+    url: ""
+    port: 80
+    basePath: /

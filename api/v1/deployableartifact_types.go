@@ -43,7 +43,7 @@ type DeployableArtifactSpec struct {
 type Configuration struct {
 	// A list of endpoints exposed by the component.
 	// +optional
-	EndpointTemplates []EndpointTemplate `json:"endpointTemplates,omitempty"`
+	Templates []EndpointTemplate `json:"templates,omitempty"`
 
 	// Dependencies required by this component.
 	// +optional
@@ -90,82 +90,11 @@ type FromImageRef struct {
 
 // EndpointTemplate represents an endpoint derived from a component descriptor.
 type EndpointTemplate struct {
-	// TODO: Add EndpointTemplate fields here
 	// Specification of the endpoint
-	// +required
-	// Protocol type of the endpoint
-	// +required
-	// +kubebuilder:validation:Enum=HTTP;REST;gRPC;GraphQL;Websocket;TCP;UDP
-	Type string `json:"type"`
-
-	// Service configuration
-	// +required
-	Service ServiceConfig `json:"service"`
-
-	// Network visibility levels
-	// +optional
-	// +kubebuilder:validation:Enum=Public;Organization;Project
-	NetworkVisibilities []string `json:"networkVisibilities,omitempty"`
-
-	// Organization visibility configurations
-	// +optional
-	OrganizationVisibilityConfigurations *OrgVisibilityConfig `json:"organizationVisibilityConfigurations,omitempty"`
-}
-
-// ServiceConfig defines the configuration for an endpoint's service
-type ServiceConfig struct {
-	// URL of the upstream service
-	// +optional
-	URL string `json:"url,omitempty"`
-
-	// Base path of the service
-	// +optional
-	BasePath string `json:"basePath,omitempty"`
-
-	// Port of the service
-	// +required
-	Port int32 `json:"port"`
-}
-
-// OrgVisibilityConfig defines organization-level visibility configurations
-type OrgVisibilityConfig struct {
-	// CORS configuration
-	// +optional
-	CORS *CORSConfig `json:"cors,omitempty"`
-
-	// Rate limit configuration
-	// +optional
-	RateLimit *RateLimitConfig `json:"rateLimit,omitempty"`
-}
-
-// CORSConfig defines CORS settings
-type CORSConfig struct {
-	// Whether CORS is enabled
-	// +optional
-	Enabled bool `json:"enabled,omitempty"`
-
-	// Allowed origins
-	// +optional
-	AllowOrigins []string `json:"allowOrigins,omitempty"`
-
-	// Allowed methods
-	// +optional
-	AllowMethods []string `json:"allowMethods,omitempty"`
-
-	// Allowed headers
-	// +optional
-	AllowHeaders []string `json:"allowHeaders,omitempty"`
-
-	// Exposed headers
-	// +optional
-	ExposeHeaders []string `json:"exposeHeaders,omitempty"`
-}
-
-// RateLimitConfig defines rate limiting settings
-type RateLimitConfig struct {
-	// Rate limit tier
-	// +optional
-	Tier string `json:"tier,omitempty"`
+	//+required
+	metav1.ObjectMeta `json:"metadata"`
+	//+required
+	Spec EndpointSpec `json:"spec"`
 }
 
 // Dependencies captures references to connections and other dependencies.

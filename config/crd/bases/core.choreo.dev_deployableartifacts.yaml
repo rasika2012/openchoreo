@@ -579,91 +579,207 @@ spec:
                   dependencies:
                     description: Dependencies required by this component.
                     type: object
-                  endpointTemplates:
+                  templates:
                     description: A list of endpoints exposed by the component.
                     items:
                       description: EndpointTemplate represents an endpoint derived
                         from a component descriptor.
                       properties:
-                        networkVisibilities:
-                          description: Network visibility levels
-                          enum:
-                          - Public
-                          - Organization
-                          - Project
-                          items:
-                            type: string
-                          type: array
-                        organizationVisibilityConfigurations:
-                          description: Organization visibility configurations
+                        metadata:
+                          description: Specification of the endpoint
+                          type: object
+                        spec:
+                          description: EndpointSpec defines the desired state of Endpoint
                           properties:
-                            cors:
-                              description: CORS configuration
+                            apiSettings:
+                              description: Configuration parameters related to the
+                                managed endpoint
                               properties:
-                                allowHeaders:
-                                  description: Allowed headers
+                                authorizationHeader:
+                                  type: string
+                                backendJwt:
+                                  description: BackendJWTConfig defines JWT configuration
+                                    for backend services
+                                  properties:
+                                    configuration:
+                                      description: BackendJWTConfigDetails contains
+                                        the detailed JWT configuration
+                                      properties:
+                                        audiences:
+                                          items:
+                                            type: string
+                                          type: array
+                                      required:
+                                      - audiences
+                                      type: object
+                                    enabled:
+                                      type: boolean
+                                  required:
+                                  - configuration
+                                  - enabled
+                                  type: object
+                                operationPolicies:
                                   items:
-                                    type: string
+                                    description: OperationPolicy defines authentication
+                                      policy for an API operation
+                                    properties:
+                                      authenticationType:
+                                        type: string
+                                      target:
+                                        type: string
+                                    required:
+                                    - authenticationType
+                                    - target
+                                    type: object
                                   type: array
-                                allowMethods:
-                                  description: Allowed methods
-                                  items:
-                                    type: string
-                                  type: array
-                                allowOrigins:
-                                  description: Allowed origins
-                                  items:
-                                    type: string
-                                  type: array
-                                enabled:
-                                  description: Whether CORS is enabled
-                                  type: boolean
-                                exposeHeaders:
-                                  description: Exposed headers
+                                organizationVisibilityConfigurations:
+                                  description: VisibilityConfigurations defines configurations
+                                    for different visibility levels
+                                  properties:
+                                    cors:
+                                      description: CORSConfig defines Cross-Origin
+                                        Resource Sharing configuration
+                                      properties:
+                                        allowHeaders:
+                                          items:
+                                            type: string
+                                          type: array
+                                        allowMethods:
+                                          items:
+                                            type: string
+                                          type: array
+                                        allowOrigins:
+                                          items:
+                                            type: string
+                                          type: array
+                                        enabled:
+                                          type: boolean
+                                        exposeHeaders:
+                                          items:
+                                            type: string
+                                          type: array
+                                      required:
+                                      - allowHeaders
+                                      - allowMethods
+                                      - allowOrigins
+                                      - enabled
+                                      - exposeHeaders
+                                      type: object
+                                    rateLimit:
+                                      description: RateLimitConfig defines rate limiting
+                                        configuration
+                                      properties:
+                                        tier:
+                                          type: string
+                                      required:
+                                      - tier
+                                      type: object
+                                  type: object
+                                publicVisibilityConfigurations:
+                                  description: VisibilityConfigurations defines configurations
+                                    for different visibility levels
+                                  properties:
+                                    cors:
+                                      description: CORSConfig defines Cross-Origin
+                                        Resource Sharing configuration
+                                      properties:
+                                        allowHeaders:
+                                          items:
+                                            type: string
+                                          type: array
+                                        allowMethods:
+                                          items:
+                                            type: string
+                                          type: array
+                                        allowOrigins:
+                                          items:
+                                            type: string
+                                          type: array
+                                        enabled:
+                                          type: boolean
+                                        exposeHeaders:
+                                          items:
+                                            type: string
+                                          type: array
+                                      required:
+                                      - allowHeaders
+                                      - allowMethods
+                                      - allowOrigins
+                                      - enabled
+                                      - exposeHeaders
+                                      type: object
+                                    rateLimit:
+                                      description: RateLimitConfig defines rate limiting
+                                        configuration
+                                      properties:
+                                        tier:
+                                          type: string
+                                      required:
+                                      - tier
+                                      type: object
+                                  type: object
+                                securitySchemes:
                                   items:
                                     type: string
                                   type: array
                               type: object
-                            rateLimit:
-                              description: Rate limit configuration
+                            networkVisibilities:
+                              description: Network visibility levels that the endpoint
+                                is exposed
+                              items:
+                                type: string
+                              type: array
+                            schema:
+                              description: Schema of the endpoint if available
                               properties:
-                                tier:
-                                  description: Rate limit tier
+                                content:
+                                  description: Inline content of the schema
+                                  type: string
+                                filePath:
+                                  description: File path of the schema relative to
+                                    the component source code
                                   type: string
                               type: object
-                          type: object
-                        service:
-                          description: Service configuration
-                          properties:
-                            basePath:
-                              description: Base path of the service
+                            service:
+                              description: Configuration of the upstream service
+                              properties:
+                                basePath:
+                                  description: Base path of the upstream service
+                                  type: string
+                                port:
+                                  description: Port of the upstream service
+                                  format: int32
+                                  type: integer
+                                url:
+                                  description: URL of the upstream service
+                                  type: string
+                              required:
+                              - port
+                              type: object
+                            type:
+                              description: Type indicates the protocol of the endpoint
+                              enum:
+                              - HTTP
+                              - REST
+                              - gRPC
+                              - GraphQL
+                              - Websocket
+                              - TCP
+                              - UDP
                               type: string
-                            port:
-                              description: Port of the service
-                              format: int32
-                              type: integer
-                            url:
-                              description: URL of the upstream service
-                              type: string
+                            webappGatewaySettings:
+                              additionalProperties:
+                                type: string
+                              description: Configuration parameters related to the
+                                webapp gateway
+                              type: object
                           required:
-                          - port
+                          - service
+                          - type
                           type: object
-                        type:
-                          description: |-
-                            Specification of the endpoint
-                            Protocol type of the endpoint
-                          enum:
-                          - HTTP
-                          - REST
-                          - gRPC
-                          - GraphQL
-                          - Websocket
-                          - TCP
-                          - UDP
-                          type: string
                       required:
-                      - service
-                      - type
+                      - metadata
+                      - spec
                       type: object
                     type: array
                 type: object

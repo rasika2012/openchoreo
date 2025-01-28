@@ -132,3 +132,28 @@ func GetEnvironment(ctx context.Context, c client.Client, obj client.Object) (*c
 
 	return nil, fmt.Errorf("cannot find an environment with the name %s", GetEnvironmentName(obj))
 }
+
+func GetDeployableArtifact(ctx context.Context, c client.Client, obj client.Object) (*choreov1.DeployableArtifact, error) {
+	deployableArtifactList := &choreov1.DeployableArtifactList{}
+	listOpts := []client.ListOption{
+		client.InNamespace(obj.GetNamespace()),
+		client.MatchingLabels{
+			LabelKeyOrganizationName: GetOrganizationName(obj),
+			LabelKeyProjectName:      GetProjectName(obj),
+			LabelKeyComponentName:    GetComponentName(obj),
+		},
+	}
+	if err := c.List(ctx, deployableArtifactList, listOpts...); err != nil {
+		return nil, fmt.Errorf("failed to list deployable artifacts: %w", err)
+	}
+
+	deployableArtifactName := GetDeployableArtifactName(obj)
+
+	for _, deployableArtifact := range deployableArtifactList.Items {
+		if deployableArtifact.Name == deployableArtifactName {
+			return &deployableArtifact, nil
+		}
+	}
+
+	return nil, fmt.Errorf("cannot find a deployable artifact with the name %s", deployableArtifactName)
+}

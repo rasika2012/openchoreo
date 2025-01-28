@@ -77,6 +77,7 @@ rules:
   - deploymentpipelines
   - deployments
   - deploymenttracks
+  - endpoints
   - environments
   - organizations
   - projects
@@ -98,6 +99,7 @@ rules:
   - deploymentpipelines/finalizers
   - deployments/finalizers
   - deploymenttracks/finalizers
+  - endpoints/finalizers
   - environments/finalizers
   - organizations/finalizers
   - projects/finalizers
@@ -113,6 +115,7 @@ rules:
   - deploymentpipelines/status
   - deployments/status
   - deploymenttracks/status
+  - endpoints/status
   - environments/status
   - organizations/status
   - projects/status

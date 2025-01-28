@@ -46,6 +46,7 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deploymentpipeline"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deploymenttrack"
+	endpoint "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/endpoint"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/environment"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/organization"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/project"
@@ -240,6 +241,13 @@ func main() {
 			setupLog.Error(err, "unable to create webhook", "webhook", "Project")
 			os.Exit(1)
 		}
+	}
+	if err = (&endpoint.Reconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Endpoint")
+		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder
 

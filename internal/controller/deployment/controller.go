@@ -276,7 +276,6 @@ func (r *Reconciler) makeExternalResourceHandlers() []dataplane.ResourceHandler 
 	handlers = append(handlers, k8sintegrations.NewCronJobHandler(r.Client))
 	handlers = append(handlers, k8sintegrations.NewDeploymentHandler(r.Client))
 	handlers = append(handlers, k8sintegrations.NewServiceHandler(r.Client))
-	handlers = append(handlers, k8sintegrations.NewHTTPRouteHandler(r.Client))
 
 	return handlers
 }

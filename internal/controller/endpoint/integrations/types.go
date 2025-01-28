@@ -16,20 +16,23 @@
  * under the License.
  */
 
-package controller
+package integrations
 
-// This file contains the all the labels that are used to store Choreo specific the metadata in the Kubernetes objects.
-
-const (
-	LabelKeyOrganizationName    = "core.choreo.dev/organization"
-	LabelKeyProjectName         = "core.choreo.dev/project"
-	LabelKeyComponentName       = "core.choreo.dev/component"
-	LabelKeyDeploymentTrackName = "core.choreo.dev/deployment-track"
-	LabelKeyEnvironmentName     = "core.choreo.dev/environment"
-	LabelKeyName                = "core.choreo.dev/name"
-	LabelKeyDeployableArtifact  = "core.choreo.dev/deployable-artifact"
-
-	LabelKeyManagedBy = "managed-by"
-
-	LabelValueManagedBy = "choreo-control-plane"
+import (
+	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	corev1 "k8s.io/api/core/v1"
 )
+
+// EndpointContext is a struct that holds the all necessary data required for the resource handlers to
+// perform their operations.
+type EndpointContext struct {
+	Project            *choreov1.Project
+	Component          *choreov1.Component
+	DeploymentTrack    *choreov1.DeploymentTrack
+	Build              *choreov1.Build
+	DeployableArtifact *choreov1.DeployableArtifact
+	Deployment         *choreov1.Deployment
+	Environment        *choreov1.Environment
+	Endpoint           *choreov1.Endpoint
+	Service            *corev1.Service
+}

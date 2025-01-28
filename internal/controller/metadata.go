@@ -44,6 +44,11 @@ func GetDeploymentTrackName(obj client.Object) string {
 	return getLabelValueOrEmpty(obj, LabelKeyDeploymentTrackName)
 }
 
+// GetDeployableArtifactName returns the deployable artifact name that the object belongs to.
+func GetDeployableArtifactName(obj client.Object) string {
+	return getLabelValueOrEmpty(obj, LabelKeyDeployableArtifact)
+}
+
 // GetEnvironmentName returns the environment name that the object belongs to.
 func GetEnvironmentName(obj client.Object) string {
 	return getLabelValueOrEmpty(obj, LabelKeyEnvironmentName)
