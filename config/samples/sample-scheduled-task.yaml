@@ -97,20 +97,20 @@ spec:
 apiVersion: core.choreo.dev/v1
 kind: Component
 metadata:
-  name: github-issue-reporter
+  name: time-logger
   namespace: default-organization
   annotations:
-    core.choreo.dev/display-name: GitHub Issue Reporter
-    core.choreo.dev/description: This component will generate a report of the issues in the GitHub repository
+    core.choreo.dev/display-name: Time Logger
+    core.choreo.dev/description: This component will print the time
   labels:
     core.choreo.dev/organization: default-organization
     core.choreo.dev/project: internal-apps
-    core.choreo.dev/name: github-issue-reporter
+    core.choreo.dev/name: time-logger
 spec:
   type: ScheduledTask
   source:
     gitRepository:
-      url: https://github.com/wso2/github-issue-reporter.git
+      url: https://github.com/wso2/choreo-samples
     authentication:
       secretRef: choreo-bot-git-pat
 ---
@@ -118,101 +118,97 @@ spec:
 apiVersion: core.choreo.dev/v1
 kind: DeploymentTrack
 metadata:
-  name: github-issue-reporter-daily
+  name: time-logger-dt
   namespace: default-organization
   annotations:
-    core.choreo.dev/display-name: Daily Deployment Track
-    core.choreo.dev/description: This deployment track will produce a daily report
+    core.choreo.dev/display-name: Deployment Track
+    core.choreo.dev/description: This deployment track will print time
   labels:
     core.choreo.dev/organization: default-organization
     core.choreo.dev/project: internal-apps
-    core.choreo.dev/component: github-issue-reporter
-    core.choreo.dev/name: daily
+    core.choreo.dev/component: time-logger
+    core.choreo.dev/name: time-logger-dt
 spec:
   buildTemplateSpec:
     branch: main
-    path: /github-issue-reporter
+    path: docker-time-logger-schedule
     buildConfiguration:
-#      docker:
-#        context: /github-issue-reporter
-#        dockerfilePath: /github-issue-reporter/Dockerfile
       buildpack:
         name: Go
-        version: "1.22"
 ---
 ## Sample Build kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: Build
 metadata:
-  name: github-issue-reporter-daily-build-2024-12-10-1
+  name: time-logger-01
   namespace: default-organization
   annotations:
-    core.choreo.dev/display-name: Build 2024-12-10 1
-    core.choreo.dev/description: Build 1 triggered on 2024-12-10
+    core.choreo.dev/display-name: Build 1
+    core.choreo.dev/description: Build 01
   labels:
     core.choreo.dev/organization: default-organization
     core.choreo.dev/project: internal-apps
-    core.choreo.dev/component: github-issue-reporter
-    core.choreo.dev/deployment-track: daily
-    core.choreo.dev/name: build-2024-12-10-1
+    core.choreo.dev/component: time-logger
+    core.choreo.dev/deployment-track: time-logger-dt
+    core.choreo.dev/name: time-logger-01
 spec:
   branch: main
-  path: /github-issue-reporter
+  path: docker-time-logger-schedule
   buildConfiguration:
-#    docker:
-#      context: /github-issue-reporter
-#      dockerfilePath: /github-issue-reporter/Dockerfile
+    #    docker:
+    #      context: docker-time-logger-schedule
+    #      dockerfilePath: /docker-time-logger-schedule/Dockerfile
     buildpack:
       name: Go
-      version: "1.22"
+#      version: "1.22"
 
 ---
-## Sample DeployableArtifact kind (Namespaced)
-apiVersion: core.choreo.dev/v1
-kind: DeployableArtifact
-metadata:
-  name: github-issue-reporter-daily-deployable-artifact-2024-12-10-1
-  namespace: default-organization
-  annotations:
-    core.choreo.dev/display-name: Daily Deployable Artifact
-    core.choreo.dev/description: Generated artifact from Build 2024-12-10 1
-  labels:
-    core.choreo.dev/organization: default-organization
-    core.choreo.dev/project: internal-apps
-    core.choreo.dev/component: github-issue-reporter
-    core.choreo.dev/deployment-track: daily
-    core.choreo.dev/name: build-2024-12-10-1
-spec:
-  targetArtifact:
-    fromBuildRef:
-      name: github-issue-reporter-daily-build-2024-12-10-1
-  configuration:
-    application:
-      env:
-        - key: GITHUB_REPOSITORY
-          value: https://github.com/wso2/product-apim
-      task:
-        disabled: false
-        schedule:
-          cron: "*/1 * * * *"
-          timezone: Asia/Colombo
----
-## Sample Deployment kind (Namespaced)
+#### Sample Deployment kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: Deployment
 metadata:
-  name: github-issue-reporter-daily-deployment-2024-12-10-1-development
+  name: time-logger-01-deployment-development
   namespace: default-organization
   annotations:
-    core.choreo.dev/display-name: Daily Deployment
-    core.choreo.dev/description: This deployment will produce a daily report
+    core.choreo.dev/display-name: Deployment of Time Logger
+    core.choreo.dev/description: This deployment will print the time
   labels:
     core.choreo.dev/organization: default-organization
     core.choreo.dev/project: internal-apps
     core.choreo.dev/environment: development
-    core.choreo.dev/component: github-issue-reporter
-    core.choreo.dev/deployment-track: daily
+    core.choreo.dev/component: time-logger
+    core.choreo.dev/deployment-track: time-logger-dt
     core.choreo.dev/name: development
 spec:
-  deploymentArtifactRef: github-issue-reporter-daily-deployable-artifact-2024-12-10-1
+  deploymentArtifactRef: time-logger-01
 
+---
+### Sample DeployableArtifact kind (Namespaced)
+#apiVersion: core.choreo.dev/v1
+#kind: DeployableArtifact
+#metadata:
+#  name: github-issue-reporter-daily-deployable-artifact-2024-12-10-1
+#  namespace: default-organization
+#  annotations:
+#    core.choreo.dev/display-name: Daily Deployable Artifact
+#    core.choreo.dev/description: Generated artifact from Build 2024-12-10 1
+#  labels:
+#    core.choreo.dev/organization: default-organization
+#    core.choreo.dev/project: internal-apps
+#    core.choreo.dev/component: github-issue-reporter
+#    core.choreo.dev/deployment-track: daily
+#    core.choreo.dev/name: build-2024-12-10-1
+#spec:
+#  targetArtifact:
+#    fromBuildRef:
+#      name: github-issue-reporter-daily-build-2024-12-10-1
+#  configuration:
+#    application:
+#      env:
+#        - key: GITHUB_REPOSITORY
+#          value: https://github.com/wso2/product-apim
+#      task:
+#        disabled: false
+#        schedule:
+#          cron: "*/1 * * * *"
+#          timezone: Asia/Colombo
