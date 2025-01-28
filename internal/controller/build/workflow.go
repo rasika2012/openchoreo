@@ -213,13 +213,13 @@ func getLanguageVersion(build *choreov1.Build) string {
 		return ""
 	}
 	if build.Spec.BuildConfiguration.Buildpack.Name == choreov1.BuildpackGo {
-		return fmt.Sprintf("--env GOOGLE_GO_VERSION=\"%s\"", build.Spec.BuildConfiguration.Buildpack.Version)
+		return fmt.Sprintf("--env GOOGLE_GO_VERSION=%q", build.Spec.BuildConfiguration.Buildpack.Version)
 	} else if build.Spec.BuildConfiguration.Buildpack.Name == choreov1.BuildpackNodeJS {
 		return fmt.Sprintf("--env GOOGLE_NODEJS_VERSION=%s", build.Spec.BuildConfiguration.Buildpack.Version)
 	} else if build.Spec.BuildConfiguration.Buildpack.Name == choreov1.BuildpackPython {
-		return fmt.Sprintf("--env GOOGLE_PYTHON_VERSION=\"%s\"", build.Spec.BuildConfiguration.Buildpack.Version)
+		return fmt.Sprintf("--env GOOGLE_PYTHON_VERSION=%q", build.Spec.BuildConfiguration.Buildpack.Version)
 	} else if build.Spec.BuildConfiguration.Buildpack.Name == choreov1.BuildpackPHP {
-		return fmt.Sprintf("--env GOOGLE_COMPOSER_VERSION=\"%s\"", build.Spec.BuildConfiguration.Buildpack.Version)
+		return fmt.Sprintf("--env GOOGLE_COMPOSER_VERSION=%q", build.Spec.BuildConfiguration.Buildpack.Version)
 	}
 	// BuildpackRuby and BuildpackJava
 	return fmt.Sprintf("--env GOOGLE_RUNTIME_VERSION=%s", build.Spec.BuildConfiguration.Buildpack.Version)
