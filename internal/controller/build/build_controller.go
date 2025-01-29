@@ -528,7 +528,7 @@ func addComponentSpecificConfigs(componentType choreov1.ComponentType, deployabl
 				Task: &choreov1.TaskConfig{
 					Disabled: false,
 					Schedule: &choreov1.TaskSchedule{
-						Cron:     "*/1 * * * *",
+						Cron:     "* * * * *",
 						Timezone: "Asia/Colombo",
 					},
 				},
