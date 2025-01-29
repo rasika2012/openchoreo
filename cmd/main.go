@@ -46,7 +46,7 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deploymentpipeline"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deploymenttrack"
-	endpoint "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/endpoint"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/endpoint"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/environment"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/organization"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/project"

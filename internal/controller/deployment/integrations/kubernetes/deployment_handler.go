@@ -130,7 +130,7 @@ func makeDeployment(deployCtx *dataplane.DeploymentContext) *appsv1.Deployment {
 func makeDeploymentSpec(deployCtx *dataplane.DeploymentContext) appsv1.DeploymentSpec {
 	ports := []corev1.ContainerPort{}
 
-	for _, v := range deployCtx.DeployableArtifact.Spec.Configuration.Templates {
+	for _, v := range deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates {
 		ports = append(ports, corev1.ContainerPort{
 			ContainerPort: v.Spec.Service.Port,
 		})

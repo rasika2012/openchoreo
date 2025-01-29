@@ -242,7 +242,7 @@ podman system service --time=0 &`
 
 	var buildScript string
 
-	if build.Spec.BuildConfiguration.Buildpack.Name != "" {
+	if build.Spec.BuildConfiguration.Buildpack != nil && build.Spec.BuildConfiguration.Buildpack.Name != "" {
 		buildScript = fmt.Sprintf(`
 echo "Building image using Buildpack..."
 /usr/local/bin/pack build %s --builder=gcr.io/buildpacks/builder:google-22 --docker-host=inherit \

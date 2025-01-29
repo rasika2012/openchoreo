@@ -77,8 +77,15 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 	// Set status to unknown if conditions are not set
 	if endpoint.Status.Conditions != nil || len(endpoint.Status.Conditions) == 0 {
-		meta.SetStatusCondition(&endpoint.Status.Conditions,
-			metav1.Condition{Type: typeAvailable, Status: metav1.ConditionUnknown, Reason: "Reconciling", Message: "Starting reconciliation"})
+		condition := metav1.Condition{
+			Type:    typeAvailable,
+			Status:  metav1.ConditionUnknown,
+			Reason:  "Reconciling",
+			Message: "Starting reconciliation",
+		}
+
+		meta.SetStatusCondition(&endpoint.Status.Conditions, condition)
+
 		if err := r.Status().Update(ctx, endpoint); err != nil {
 			logger.Error(err, "Failed to update Endpoint status")
 			return ctrl.Result{}, err
