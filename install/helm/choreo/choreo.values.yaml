@@ -137,6 +137,9 @@ registry:
   service:
     # -- NodePort for the registry service
     nodePort: 30003
+  # -- Persistent volume storage for the registry
+  storage:
+    size: 2Gi
 # customizing the envoy gateway configurations
 gateway-helm:
   config:
