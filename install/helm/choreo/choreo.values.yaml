@@ -65,6 +65,9 @@ registry:
     requests:
       memory: 128Mi
       cpu: 50m
+  service:
+    # -- NodePort for the registry service
+    nodePort: 30003
 # customizing the envoy gateway configurations
 gateway-helm:
   config:
