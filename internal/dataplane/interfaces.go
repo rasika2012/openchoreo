@@ -48,23 +48,28 @@ import (
 // - `Create` would provision the database instance if needed.
 // - `Update` would modify configurations like storage capacity or backup settings.
 // - `Delete` would delete the database instance when it is no longer required.
-type ResourceHandler interface {
+type ResourceHandler[T any] interface {
 	// Name returns the name of the external resource.
 	// The name should be in PascalCase in order to keep the consistency.
 	Name() string
-	// IsRequired indicates whether the external resource needs to be configured or not based on the deployment context.
+
+	// IsRequired indicates whether the external resource needs to be configured or not based on the endpoint context.
 	// If this returns false, the controller will attempt to delete the resource.
-	IsRequired(deployCtx *DeploymentContext) bool
+	IsRequired(ctx *T) bool
+
 	// GetCurrentState returns the current state of the external resource.
 	// If the resource does not exist, the implementation should return nil.
-	GetCurrentState(ctx context.Context, deployCtx *DeploymentContext) (interface{}, error)
+	GetCurrentState(ctx context.Context, resourceCtx *T) (interface{}, error)
+
 	// Create creates the external resource.
-	Create(ctx context.Context, deployCtx *DeploymentContext) error
+	Create(ctx context.Context, resourceCtx *T) error
+
 	// Update updates the external resource.
 	// The currentState parameter will provide the current state of the resource that is returned by GetCurrentState
 	// Implementation should compare the current state with the new derived state and update the resource accordingly.
-	Update(ctx context.Context, deployCtx *DeploymentContext, currentState interface{}) error
+	Update(ctx context.Context, resourceCtx *T, currentState interface{}) error
+
 	// Delete deletes the external resource.
 	// The implementation should handle the case where the resource does not exist and return nil.
-	Delete(ctx context.Context, deployCtx *DeploymentContext) error
+	Delete(ctx context.Context, resourceCtx *T) error
 }

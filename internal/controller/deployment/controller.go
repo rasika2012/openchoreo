@@ -266,8 +266,8 @@ func (r *Reconciler) makeDeploymentContext(ctx context.Context, deployment *chor
 
 // makeExternalResourceHandlers creates the chain of external resource handlers that are used to
 // bring the external resources to the desired state.
-func (r *Reconciler) makeExternalResourceHandlers() []dataplane.ResourceHandler {
-	var handlers []dataplane.ResourceHandler
+func (r *Reconciler) makeExternalResourceHandlers() []dataplane.ResourceHandler[dataplane.DeploymentContext] {
+	var handlers []dataplane.ResourceHandler[dataplane.DeploymentContext]
 
 	// IMPORTANT: The order of the handlers is important when reconciling the resources.
 	// For example, the namespace handler should be reconciled before creating resources that depend on the namespace.
@@ -283,7 +283,7 @@ func (r *Reconciler) makeExternalResourceHandlers() []dataplane.ResourceHandler 
 // reconcileExternalResources reconciles the provided external resources based on the deployment context.
 func (r *Reconciler) reconcileExternalResources(
 	ctx context.Context,
-	resourceHandlers []dataplane.ResourceHandler,
+	resourceHandlers []dataplane.ResourceHandler[dataplane.DeploymentContext],
 	deploymentCtx *dataplane.DeploymentContext) error {
 	handlerNameLogKey := "resourceHandler"
 	for _, resourceHandler := range resourceHandlers {

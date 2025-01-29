@@ -36,9 +36,9 @@ type ciliumNetworkPolicyHandler struct {
 	kubernetesClient client.Client
 }
 
-var _ dataplane.ResourceHandler = (*ciliumNetworkPolicyHandler)(nil)
+var _ dataplane.ResourceHandler[dataplane.DeploymentContext] = (*ciliumNetworkPolicyHandler)(nil)
 
-func NewCiliumNetworkPolicyHandler(kubernetesClient client.Client) dataplane.ResourceHandler {
+func NewCiliumNetworkPolicyHandler(kubernetesClient client.Client) dataplane.ResourceHandler[dataplane.DeploymentContext] {
 	return &ciliumNetworkPolicyHandler{
 		kubernetesClient: kubernetesClient,
 	}

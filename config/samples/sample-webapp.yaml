@@ -225,6 +225,7 @@ metadata:
     core.choreo.dev/deployment-track: main
     core.choreo.dev/name: development
     core.choreo.dev/deployable-artifact: react-nginx-main-artifact-2024-12-10-1
+    core.choreo.dev/deployment: react-nginx
 spec:
   type: REST
   service:

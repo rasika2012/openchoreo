@@ -38,9 +38,9 @@ type serviceHandler struct {
 	kubernetesClient client.Client
 }
 
-var _ dataplane.ResourceHandler = (*serviceHandler)(nil)
+var _ dataplane.ResourceHandler[dataplane.DeploymentContext] = (*serviceHandler)(nil)
 
-func NewServiceHandler(kubernetesClient client.Client) dataplane.ResourceHandler {
+func NewServiceHandler(kubernetesClient client.Client) dataplane.ResourceHandler[dataplane.DeploymentContext] {
 	return &serviceHandler{
 		kubernetesClient: kubernetesClient,
 	}

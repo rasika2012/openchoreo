@@ -21,13 +21,14 @@ package controller
 // This file contains the all the labels that are used to store Choreo specific the metadata in the Kubernetes objects.
 
 const (
-	LabelKeyOrganizationName    = "core.choreo.dev/organization"
-	LabelKeyProjectName         = "core.choreo.dev/project"
-	LabelKeyComponentName       = "core.choreo.dev/component"
-	LabelKeyDeploymentTrackName = "core.choreo.dev/deployment-track"
-	LabelKeyEnvironmentName     = "core.choreo.dev/environment"
-	LabelKeyName                = "core.choreo.dev/name"
-	LabelKeyDeployableArtifact  = "core.choreo.dev/deployable-artifact"
+	LabelKeyOrganizationName       = "core.choreo.dev/organization"
+	LabelKeyProjectName            = "core.choreo.dev/project"
+	LabelKeyComponentName          = "core.choreo.dev/component"
+	LabelKeyDeploymentTrackName    = "core.choreo.dev/deployment-track"
+	LabelKeyEnvironmentName        = "core.choreo.dev/environment"
+	LabelKeyName                   = "core.choreo.dev/name"
+	LabelKeyDeployableArtifactName = "core.choreo.dev/deployable-artifact"
+	LabelKeyDeploymentName         = "core.choreo.dev/deployment"
 
 	LabelKeyManagedBy = "managed-by"
 

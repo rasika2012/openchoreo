@@ -37,9 +37,9 @@ type namespaceHandler struct {
 	kubernetesClient client.Client
 }
 
-var _ dataplane.ResourceHandler = (*namespaceHandler)(nil)
+var _ dataplane.ResourceHandler[dataplane.DeploymentContext] = (*namespaceHandler)(nil)
 
-func NewNamespaceHandler(kubernetesClient client.Client) dataplane.ResourceHandler {
+func NewNamespaceHandler(kubernetesClient client.Client) dataplane.ResourceHandler[dataplane.DeploymentContext] {
 	return &namespaceHandler{
 		kubernetesClient: kubernetesClient,
 	}

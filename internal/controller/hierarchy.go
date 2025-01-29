@@ -131,6 +131,35 @@ func GetEnvironment(ctx context.Context, c client.Client, obj client.Object) (*c
 	}
 
 	return nil, fmt.Errorf("cannot find an environment with the name %s", GetEnvironmentName(obj))
+
+}
+
+func GetDeployment(ctx context.Context, c client.Client, obj client.Object) (*choreov1.Deployment, error) {
+	deploymentList := &choreov1.DeploymentList{}
+	listOpts := []client.ListOption{
+		client.InNamespace(obj.GetNamespace()),
+		client.MatchingLabels{
+			LabelKeyOrganizationName:    GetOrganizationName(obj),
+			LabelKeyProjectName:         GetProjectName(obj),
+			LabelKeyComponentName:       GetComponentName(obj),
+			LabelKeyDeploymentTrackName: GetDeploymentTrackName(obj),
+		},
+	}
+	if err := c.List(ctx, deploymentList, listOpts...); err != nil {
+		return nil, fmt.Errorf("failed to list deployments: %w", err)
+	}
+
+	for _, deployment := range deploymentList.Items {
+		if deployment.Labels == nil {
+			// Ideally, this should not happen as the deployment should have the organization, project, component and deployment track labels
+			continue
+		}
+		if deployment.Name == GetDeploymentName(obj) {
+			return &deployment, nil
+		}
+	}
+
+	return nil, fmt.Errorf("cannot find a deployment with the name %s", GetDeploymentName(obj))
 }
 
 func GetDeployableArtifact(ctx context.Context, c client.Client, obj client.Object) (*choreov1.DeployableArtifact, error) {

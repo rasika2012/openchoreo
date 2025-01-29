@@ -40,9 +40,9 @@ type cronJobHandler struct {
 	kubernetesClient client.Client
 }
 
-var _ dataplane.ResourceHandler = (*cronJobHandler)(nil)
+var _ dataplane.ResourceHandler[dataplane.DeploymentContext] = (*cronJobHandler)(nil)
 
-func NewCronJobHandler(kubernetesClient client.Client) dataplane.ResourceHandler {
+func NewCronJobHandler(kubernetesClient client.Client) dataplane.ResourceHandler[dataplane.DeploymentContext] {
 	return &cronJobHandler{
 		kubernetesClient: kubernetesClient,
 	}

@@ -28,12 +28,10 @@ import (
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-	integrations "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/endpoint/integrations"
-	dpkubernetes "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/ptr"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/endpoint/integrations/kubernetes"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 // Reconciler reconciles a Endpoint object
@@ -48,12 +46,6 @@ const (
 	typeAvailable = "Available"
 	// typeDegraded represents the status used when the custom resource is deleted and the finalizer operations are yet to occur.
 	typeDegraded = "Degraded"
-)
-
-// Gateway Types
-const (
-	gatewayExternal = "gateway-external"
-	gatewayInternal = "gateway-internal"
 )
 
 // +kubebuilder:rbac:groups=core.choreo.dev,resources=endpoints,verbs=get;list;watch;create;update;patch;delete
@@ -103,123 +95,36 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, nil
 	}
 
-	found := &gatewayv1.HTTPRoute{}
-
 	endpointCtx, err := r.makeEndpointContext(ctx, endpoint)
-
 	if err != nil {
+		logger.Error(err, "Failed to create endpoint context")
 		return ctrl.Result{}, err
 	}
-	new := makeHTTPRoute(endpointCtx)
 
-	err = r.Get(ctx, client.ObjectKey{Name: makeHTTPRouteName(endpointCtx), Namespace: makeNamespaceName(endpointCtx)}, found)
-
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			// Create HTTPRoute
-			if err = r.Create(ctx, new); err != nil {
-				return ctrl.Result{}, err
-			}
-		}
+	if err = r.reconcileExternalResources(ctx, r.makeExternalResourceHandlers(), endpointCtx); err != nil {
+		logger.Error(err, "Failed to reconcile external resources")
 		return ctrl.Result{}, err
 	}
-	// Update HTTPRoute
-	new.SetResourceVersion(found.GetResourceVersion())
-	if err := r.Update(ctx, new); err != nil {
+
+	if err := controller.UpdateCondition(
+		ctx,
+		r.Status(),
+		endpoint,
+		&endpoint.Status.Conditions,
+		controller.TypeReady,
+		metav1.ConditionTrue,
+		"EndpointReady",
+		"Endpoint is ready",
+	); err != nil {
 		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, nil
 }
 
-// SetupWithManager sets up the controller with the Manager.
-func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&choreov1.Endpoint{}).
-		Named("endpoint").
-		Complete(r)
-}
-
-func makeHTTPRoute(endpointCtx *integrations.EndpointContext) *gatewayv1.HTTPRoute {
-	return &gatewayv1.HTTPRoute{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      makeHTTPRouteName(endpointCtx),
-			Namespace: makeNamespaceName(endpointCtx),
-			Labels:    makeWorkloadLabels(endpointCtx),
-		},
-		Spec: makeHTTPRouteSpec(endpointCtx),
-	}
-}
-
-func makeHTTPRouteName(endpointCtx *integrations.EndpointContext) string {
-	componentName := endpointCtx.Component.Name
-	endpointName := endpointCtx.Endpoint.Name
-	return dpkubernetes.GenerateK8sName(componentName, endpointName)
-}
-
-func makeHTTPRouteSpec(endpointCtx *integrations.EndpointContext) gatewayv1.HTTPRouteSpec {
-	// If there are no endpoint templates, return an empty spec.
-	// This should be validated from the admission controller.x
-	// if len(deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates) == 0 {
-	// 	return gatewayv1.HTTPRouteSpec{}
-	// }
-
-	pathType := gatewayv1.PathMatchPathPrefix
-	hostname := gatewayv1.Hostname(endpointCtx.Component.Name + "-" + endpointCtx.Environment.Name + ".choreo.local")
-	port := gatewayv1.PortNumber(endpointCtx.Endpoint.Spec.Service.Port)
-	return gatewayv1.HTTPRouteSpec{
-		CommonRouteSpec: gatewayv1.CommonRouteSpec{
-			ParentRefs: []gatewayv1.ParentReference{
-				{
-					Name:      gatewayv1.ObjectName(gatewayExternal),                  // Internal / external
-					Namespace: (*gatewayv1.Namespace)(ptr.String("choreo-system-dp")), // Change NS based on where envoy gateway is deployed
-				},
-			},
-		},
-		Hostnames: []gatewayv1.Hostname{hostname},
-		Rules: []gatewayv1.HTTPRouteRule{
-			{
-				Matches: []gatewayv1.HTTPRouteMatch{
-					{
-						Path: &gatewayv1.HTTPPathMatch{
-							Type:  &pathType,
-							Value: ptr.String(endpointCtx.Endpoint.Spec.Service.BasePath),
-						},
-					},
-				},
-				BackendRefs: []gatewayv1.HTTPBackendRef{
-					{
-						BackendRef: gatewayv1.BackendRef{
-							BackendObjectReference: gatewayv1.BackendObjectReference{
-								Name: gatewayv1.ObjectName(makeServiceName(endpointCtx)),
-								Port: &port,
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-}
-
-// NamespaceName has the format dp-<organization-name>-<project-name>-<environment-name>-<hash>
-func makeNamespaceName(endpointCtx *integrations.EndpointContext) string {
-	organizationName := controller.GetOrganizationName(endpointCtx.Project)
-	projectName := controller.GetName(endpointCtx.Project)
-	environmentName := controller.GetName(endpointCtx.Environment)
-	return dpkubernetes.GenerateK8sName("dp", organizationName, projectName, environmentName)
-}
-
-func makeServiceName(deployCtx *integrations.EndpointContext) string {
-	componentName := deployCtx.Component.Name
-	deploymentTrackName := deployCtx.DeploymentTrack.Name
-	// Limit the name to 253 characters to comply with the K8s name length limit for Deployments
-	return dpkubernetes.GenerateK8sName(componentName, deploymentTrackName)
-}
-
-// makeDeploymentContext creates a deployment context for the given deployment by retrieving the
+// makeEndpointContext creates a endpoint context for the given deployment by retrieving the
 // parent objects that this deployment is associated with.
-func (r *Reconciler) makeEndpointContext(ctx context.Context, endpoint *choreov1.Endpoint) (*integrations.EndpointContext, error) {
+func (r *Reconciler) makeEndpointContext(ctx context.Context, endpoint *choreov1.Endpoint) (*dataplane.EndpointContext, error) {
 	project, err := controller.GetProject(ctx, r.Client, endpoint)
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve the project: %w", err)
@@ -240,17 +145,87 @@ func (r *Reconciler) makeEndpointContext(ctx context.Context, endpoint *choreov1
 		return nil, fmt.Errorf("cannot retrieve the environment: %w", err)
 	}
 
+	deployment, err := controller.GetDeployment(ctx, r.Client, endpoint)
+	if err != nil {
+		return nil, fmt.Errorf("cannot retrieve the deployment: %w", err)
+	}
+
 	targetDeployableArtifact, err := controller.GetDeployableArtifact(ctx, r.Client, endpoint)
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve the deployable artifact: %w", err)
 	}
 
-	return &integrations.EndpointContext{
+	return &dataplane.EndpointContext{
 		Project:            project,
 		Component:          component,
 		DeploymentTrack:    deploymentTrack,
 		DeployableArtifact: targetDeployableArtifact,
+		Deployment:         deployment,
 		Environment:        environment,
 		Endpoint:           endpoint,
 	}, nil
+}
+
+func (r *Reconciler) makeExternalResourceHandlers() []dataplane.ResourceHandler[dataplane.EndpointContext] {
+	// Define the resource handlers for the external resources
+	resourceHandlers := []dataplane.ResourceHandler[dataplane.EndpointContext]{
+		kubernetes.NewHTTPRouteHandler(r.Client),
+	}
+
+	return resourceHandlers
+}
+
+// reconcileExternalResources reconciles the provided external resources based on the deployment context.
+func (r *Reconciler) reconcileExternalResources(
+	ctx context.Context,
+	resourceHandlers []dataplane.ResourceHandler[dataplane.EndpointContext],
+	endpointCtx *dataplane.EndpointContext) error {
+	handlerNameLogKey := "resourceHandler"
+	for _, resourceHandler := range resourceHandlers {
+		logger := log.FromContext(ctx).WithValues(handlerNameLogKey, resourceHandler.Name())
+		// Delete the external resource if it is not configured
+		if !resourceHandler.IsRequired(endpointCtx) {
+			if err := resourceHandler.Delete(ctx, endpointCtx); err != nil {
+				logger.Error(err, "Error deleting external resource")
+				return err
+			}
+			// No need to reconcile the external resource if it is not required
+			logger.Info("Deleted external resource")
+			continue
+		}
+
+		// Check if the external resource exists
+		currentState, err := resourceHandler.GetCurrentState(ctx, endpointCtx)
+		if err != nil {
+			logger.Error(err, "Error retrieving current state of the external resource")
+			return err
+		}
+
+		exists := currentState != nil
+		if !exists {
+			// Create the external resource if it does not exist
+			if err := resourceHandler.Create(ctx, endpointCtx); err != nil {
+				logger.Error(err, "Error creating external resource")
+				return err
+			}
+		} else {
+			// Update the external resource if it exists
+			if err := resourceHandler.Update(ctx, endpointCtx, currentState); err != nil {
+				logger.Error(err, "Error updating external resource")
+				return err
+			}
+		}
+
+		logger.Info("Reconciled external resource")
+	}
+
+	return nil
+}
+
+// SetupWithManager sets up the controller with the Manager.
+func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&choreov1.Endpoint{}).
+		Named("endpoint").
+		Complete(r)
 }

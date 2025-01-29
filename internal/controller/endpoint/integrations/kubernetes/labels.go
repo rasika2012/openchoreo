@@ -1,11 +1,12 @@
-package integrations
+package kubernetes
 
 import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
 	dpkubernetes "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes"
 )
 
-func makeLabels(endpointCtx *EndpointContext) map[string]string {
+func makeLabels(endpointCtx *dataplane.EndpointContext) map[string]string {
 	return map[string]string{
 		dpkubernetes.LabelKeyOrganizationName:    controller.GetOrganizationName(endpointCtx.Project),
 		dpkubernetes.LabelKeyProjectName:         controller.GetName(endpointCtx.Project),
@@ -23,7 +24,7 @@ func makeLabels(endpointCtx *EndpointContext) map[string]string {
 	}
 }
 
-func makeWorkloadLabels(endpointCtx *EndpointContext) map[string]string {
+func makeWorkloadLabels(endpointCtx *dataplane.EndpointContext) map[string]string {
 	labels := makeLabels(endpointCtx)
 	labels[dpkubernetes.LabelKeyComponentType] = string(endpointCtx.Component.Spec.Type)
 	return labels
