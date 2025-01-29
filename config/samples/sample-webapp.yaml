@@ -184,7 +184,7 @@ spec:
       env:
         - key: GITHUB_REPOSITORY
           value: https://github.com/wso2/product-apim
-    templates:
+    endpointTemplates:
       - metadata: {}
         spec:
           type: HTTP

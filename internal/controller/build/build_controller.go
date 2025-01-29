@@ -538,9 +538,11 @@ func addComponentSpecificConfigs(componentType choreov1.ComponentType, deployabl
 		deployableArtifact.Spec.Configuration = &choreov1.Configuration{
 			EndpointTemplates: []choreov1.EndpointTemplate{
 				{
-					Type: "HTTP",
-					Service: choreov1.ServiceConfig{
-						Port: 80,
+					Spec: choreov1.EndpointSpec{
+						Type: "HTTP",
+						Service: choreov1.EndpointServiceSpec{
+							Port: 80,
+						},
 					},
 				},
 			},

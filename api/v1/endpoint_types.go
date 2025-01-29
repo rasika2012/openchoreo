@@ -30,6 +30,7 @@ type EndpointServiceSpec struct {
 	BasePath string `json:"basePath,omitempty"`
 
 	// Port of the upstream service
+	// +required
 	Port int32 `json:"port"`
 }
 
@@ -96,6 +97,7 @@ type EndpointSpec struct {
 	Type string `json:"type"`
 
 	// Configuration of the upstream service
+	// +required
 	Service EndpointServiceSpec `json:"service"`
 
 	// Schema of the endpoint if available
@@ -121,10 +123,9 @@ type EndpointStatus struct {
 	Conditions         []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-
 // Endpoint is the Schema for the endpoints API
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 type Endpoint struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -132,8 +133,6 @@ type Endpoint struct {
 	Spec   EndpointSpec   `json:"spec,omitempty"`
 	Status EndpointStatus `json:"status,omitempty"`
 }
-
-//+kubebuilder:object:root=true
 
 // EndpointList contains a list of Endpoint
 type EndpointList struct {

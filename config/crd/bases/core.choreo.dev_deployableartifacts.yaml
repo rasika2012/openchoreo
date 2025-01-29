@@ -579,7 +579,7 @@ spec:
                   dependencies:
                     description: Dependencies required by this component.
                     type: object
-                  templates:
+                  endpointTemplates:
                     description: A list of endpoints exposed by the component.
                     items:
                       description: EndpointTemplate represents an endpoint derived

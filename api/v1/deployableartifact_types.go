@@ -43,7 +43,7 @@ type DeployableArtifactSpec struct {
 type Configuration struct {
 	// A list of endpoints exposed by the component.
 	// +optional
-	Templates []EndpointTemplate `json:"templates,omitempty"`
+	EndpointTemplates []EndpointTemplate `json:"endpointTemplates,omitempty"`
 
 	// Dependencies required by this component.
 	// +optional
