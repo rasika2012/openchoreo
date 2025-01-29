@@ -150,7 +150,7 @@ func makeCronJobSpec(deployCtx *dataplane.DeploymentContext) batchv1.CronJobSpec
 							{
 								Name:  "main",
 								Env:   makeEnvironmentVariables(deployCtx),
-								Image: deployCtx.ContainerImage,
+								Image: "localhost:30003/" + deployCtx.ContainerImage,
 							},
 						},
 						RestartPolicy: corev1.RestartPolicyNever,

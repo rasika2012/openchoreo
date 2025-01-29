@@ -148,7 +148,7 @@ func makeDeploymentSpec(deployCtx *dataplane.DeploymentContext) appsv1.Deploymen
 				Containers: []corev1.Container{
 					{
 						Name:  "main",
-						Image: deployCtx.ContainerImage,
+						Image: "localhost:30003/" + deployCtx.ContainerImage,
 						Ports: ports,
 					},
 				},
