@@ -131,7 +131,7 @@ metadata:
 spec:
   buildTemplateSpec:
     branch: main
-    path: docker-time-logger-schedule
+    path: /docker-time-logger-schedule
     buildConfiguration:
       buildpack:
         name: Go

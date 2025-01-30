@@ -35,6 +35,21 @@ spec:
     publicVirtualHost: choreoapis.local
     organizationVirtualHost: internal.choreoapis.local
 ---
+## Sample Project kind (Namespaced)
+apiVersion: core.choreo.dev/v1
+kind: Project
+metadata:
+  name: internal-apps
+  namespace: default-organization
+  annotations:
+    core.choreo.dev/display-name: Internal Applications
+    core.choreo.dev/description: This project contains components that are used by WSO2 internal applications
+  labels:
+    core.choreo.dev/organization: default-organization
+    core.choreo.dev/name: internal-apps
+spec:
+  deploymentPipelineRef: default-deployment-pipeline
+---
 ## Sample DeploymentPipeline kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: DeploymentPipeline
@@ -109,7 +124,7 @@ spec:
   type: WebApplication
   source:
     gitRepository:
-      url: https://github.com/wso2/github-issue-reporter.git
+      url: https://github.com/docker/awesome-compose
     authentication:
       secretRef: choreo-bot-git-pat
 ---
@@ -129,7 +144,7 @@ metadata:
     core.choreo.dev/name: main
 spec:
   buildTemplateSpec:
-    branch: main
+    branch: master
     path: /react-nginx
     buildConfiguration:
       docker:
@@ -152,7 +167,7 @@ metadata:
     core.choreo.dev/deployment-track: daily
     core.choreo.dev/name: build-2024-12-10-1
 spec:
-  branch: main
+  branch: master
   path: /react-nginx
   buildConfiguration:
     docker:
@@ -182,8 +197,8 @@ spec:
   configuration:
     application:
       env:
-        - key: GITHUB_REPOSITORY
-          value: https://github.com/wso2/product-apim
+        - key: REACT_APP_BACKEND_URL
+          value: http://sample-rest-endpoint
     endpointTemplates:
       - metadata: {}
         spec:

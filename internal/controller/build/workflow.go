@@ -246,13 +246,13 @@ podman system service --time=0 &`
 		buildScript = fmt.Sprintf(`
 echo "Building image using Buildpack..."
 /usr/local/bin/pack build %s --builder=gcr.io/buildpacks/builder:google-22 --docker-host=inherit \
-  --path=/mnt/vol/source/%s --pull-policy if-not-present %s
+  --path=/mnt/vol/source%s --pull-policy if-not-present %s
 
 podman save -o /mnt/vol/app-image.tar %s
 podman volume prune --force`, imageName, build.Spec.Path, getLanguageVersion(build), imageName)
 	} else {
 		buildScript = fmt.Sprintf(`
-podman build -t %s -f %s /mnt/vol/source/%s
+podman build -t %s -f /mnt/vol/source%s /mnt/vol/source%s
 podman save -o /mnt/vol/app-image.tar %s`, imageName, getDockerfilePath(build), getDockerContext(build), imageName)
 	}
 
