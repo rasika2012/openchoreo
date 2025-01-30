@@ -22,15 +22,16 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
+
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
 	dpkubernetes "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/ptr"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 // Gateway Types
