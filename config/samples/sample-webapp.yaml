@@ -164,7 +164,7 @@ metadata:
     core.choreo.dev/organization: default-organization
     core.choreo.dev/project: internal-apps
     core.choreo.dev/component: react-nginx
-    core.choreo.dev/deployment-track: daily
+    core.choreo.dev/deployment-track: main
     core.choreo.dev/name: build-2024-12-10-1
 spec:
   branch: master
