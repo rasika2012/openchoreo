@@ -436,9 +436,9 @@ func (r *Reconciler) markStepAsFailed(ctx context.Context, build *choreov1.Build
 	}
 	newCondition = metav1.Condition{
 		Type:               "Completed",
-		Status:             metav1.ConditionTrue,
+		Status:             metav1.ConditionFalse,
 		LastTransitionTime: metav1.Now(),
-		Reason:             "BuildCompleted",
+		Reason:             "BuildFailed",
 		Message:            "Build completed with a failure status.",
 	}
 	changed = meta.SetStatusCondition(&build.Status.Conditions, newCondition)
