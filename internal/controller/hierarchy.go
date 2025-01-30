@@ -166,9 +166,10 @@ func GetDeployableArtifact(ctx context.Context, c client.Client, obj client.Obje
 	listOpts := []client.ListOption{
 		client.InNamespace(obj.GetNamespace()),
 		client.MatchingLabels{
-			LabelKeyOrganizationName: GetOrganizationName(obj),
-			LabelKeyProjectName:      GetProjectName(obj),
-			LabelKeyComponentName:    GetComponentName(obj),
+			LabelKeyOrganizationName:    GetOrganizationName(obj),
+			LabelKeyProjectName:         GetProjectName(obj),
+			LabelKeyComponentName:       GetComponentName(obj),
+			LabelKeyDeploymentTrackName: GetDeploymentTrackName(obj),
 		},
 	}
 	if err := c.List(ctx, deployableArtifactList, listOpts...); err != nil {

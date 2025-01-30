@@ -1,18 +1,20 @@
 /*
-Copyright 2025.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ * Copyright (c) 2025, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package endpoint
 
@@ -39,20 +41,6 @@ type Reconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// Definitions to manage status conditions
-const (
-	// typeAvailable represents the status of the Deployment reconciliation
-	typeAvailable = "Available"
-	// typeDegraded represents the status used when the custom resource is deleted and the finalizer operations are yet to occur.
-	// typeDegraded = "Degraded"
-)
-
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=endpoints,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=core,resources=services,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=httproutes,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=endpoints/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=core.choreo.dev,resources=endpoints/finalizers,verbs=update
-
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
@@ -77,7 +65,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	// Set status to unknown if conditions are not set
 	if endpoint.Status.Conditions != nil || len(endpoint.Status.Conditions) == 0 {
 		condition := metav1.Condition{
-			Type:    typeAvailable,
+			Type:    controller.TypeAvailable,
 			Status:  metav1.ConditionUnknown,
 			Reason:  "Reconciling",
 			Message: "Starting reconciliation",
@@ -90,10 +78,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			return ctrl.Result{}, err
 		}
 
-		if err := r.Get(ctx, req.NamespacedName, endpoint); err != nil {
-			logger.Error(err, "Failed to re-fetch Endpoint")
-			return ctrl.Result{}, err
-		}
+		return ctrl.Result{}, nil
 	}
 
 	if endpoint.Labels == nil {

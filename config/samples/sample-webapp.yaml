@@ -216,7 +216,6 @@ metadata:
   namespace: default-organization
   annotations:
     core.choreo.dev/display-name: react-nginx
-    core.choreo.dev/description:
   labels:
     core.choreo.dev/organization: default-organization
     core.choreo.dev/project: internal-apps
@@ -244,6 +243,5 @@ metadata:
 spec:
   type: REST
   service:
-    url: ""
     port: 80
     basePath: /

@@ -44,6 +44,7 @@ func GetDeploymentTrackName(obj client.Object) string {
 	return getLabelValueOrEmpty(obj, LabelKeyDeploymentTrackName)
 }
 
+// GetDeploymentName returns the deployment name that the object belongs to.
 func GetDeploymentName(obj client.Object) string {
 	return getLabelValueOrEmpty(obj, LabelKeyDeploymentName)
 }
