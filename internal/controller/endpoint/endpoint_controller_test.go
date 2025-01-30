@@ -51,7 +51,13 @@ var _ = Describe("Endpoint Controller", func() {
 						Name:      resourceName,
 						Namespace: "default",
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: corev1.EndpointSpec{
+						Type: "HTTP",
+						Service: corev1.EndpointServiceSpec{
+							BasePath: "/",
+							Port:     80,
+						},
+					},
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}
