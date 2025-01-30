@@ -82,7 +82,7 @@ Make sure you have installed kind : https://kind.sigs.k8s.io/docs/user/quick-sta
 6. Deploy Choreo Sample Application:
 
     ```sh
-    kubectl apply -k config/samples/sample-scheduled-task.yaml
+    kubectl apply -f samples/time-logger-scheduled-task/time-logger.yaml
     ```
 7. Check Created Resources:
 

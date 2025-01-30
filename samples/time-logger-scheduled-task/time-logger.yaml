@@ -2,28 +2,27 @@
 apiVersion: core.choreo.dev/v1
 kind: Organization
 metadata:
+  name: default-org
   annotations:
     core.choreo.dev/display-name: Default Organization
-    core.choreo.dev/description: This is the default organization for this setup
+    core.choreo.dev/description: Getting started with your first organization
   labels:
-    core.choreo.dev/name: default-organization
-  name: default-organization
+    core.choreo.dev/name: default-org
 spec:
-
 ---
 
 ## Sample DataPlane kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: DataPlane
 metadata:
-  name: dp-local
-  namespace: default-organization
+  name: default-dataplane
+  namespace: default-org
   annotations:
-    core.choreo.dev/display-name: Local Data Plane
-    core.choreo.dev/description: Data plane in KinD cluster
+    core.choreo.dev/display-name: Default Data Plane
+    core.choreo.dev/description: Local development data plane
   labels:
-    core.choreo.dev/organization: default-organization
-    core.choreo.dev/name: dp-local
+    core.choreo.dev/organization: default-org
+    core.choreo.dev/name: default-dataplane
 spec:
   kubernetesCluster:
     name: kind-cluster-1
@@ -36,18 +35,19 @@ spec:
     publicVirtualHost: choreoapis.local
     organizationVirtualHost: internal.choreoapis.local
 ---
+
 ## Sample DeploymentPipeline kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: DeploymentPipeline
 metadata:
-  name: default-deployment-pipeline
-  namespace: default-organization
+  name: default-pipeline
+  namespace: default-org
   annotations:
-    core.choreo.dev/display-name: Default Deployment Pipeline
-    core.choreo.dev/description: Allows promoting from dev to production
+    core.choreo.dev/display-name: Default Pipeline
+    core.choreo.dev/description: Standard deployment pipeline with dev, staging, and prod environments
   labels:
-    core.choreo.dev/organization: default-organization
-    core.choreo.dev/name: default-deployment-pipeline
+    core.choreo.dev/organization: default-org
+    core.choreo.dev/name: default-pipeline
 spec:
   promotionPaths:
     - sourceEnvironmentRef: development
@@ -61,50 +61,53 @@ spec:
         - name: production
           requiresApproval: true
 ---
+
 ## Sample Environment kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: Environment
 metadata:
   name: development
-  namespace: default-organization
+  namespace: default-org
   annotations:
     core.choreo.dev/display-name: Development Environment
-    core.choreo.dev/description: The environment where you can play around
+    core.choreo.dev/description: Development environment for testing
   labels:
-    core.choreo.dev/organization: default-organization
+    core.choreo.dev/organization: default-org
     core.choreo.dev/name: development
 spec:
-  dataPlaneRef: dp-local #TODO: Name or label selector?
+  dataPlaneRef: default-dataplane 
   isProduction: false
   dnsPrefix: local-dev
 ---
+
 ## Sample Project kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: Project
 metadata:
-  name: internal-apps
-  namespace: default-organization
+  name: default-project
+  namespace: default-org
   annotations:
-    core.choreo.dev/display-name: Internal Applications
-    core.choreo.dev/description: This project contains components that are used by WSO2 internal applications
+    core.choreo.dev/display-name: Default Project
+    core.choreo.dev/description: Your first project to get started
   labels:
-    core.choreo.dev/organization: default-organization
-    core.choreo.dev/name: internal-apps
+    core.choreo.dev/organization: default-org
+    core.choreo.dev/name: default-project
 spec:
-  deploymentPipelineRef: default-deployment-pipeline
+  deploymentPipelineRef: default-pipeline
 ---
+
 ## Sample Component kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: Component
 metadata:
   name: time-logger
-  namespace: default-organization
+  namespace: default-org
   annotations:
-    core.choreo.dev/display-name: Time Logger
-    core.choreo.dev/description: This component will print the time
+    core.choreo.dev/display-name: Time Logger Component
+    core.choreo.dev/description: This component logs the time periodically
   labels:
-    core.choreo.dev/organization: default-organization
-    core.choreo.dev/project: internal-apps
+    core.choreo.dev/organization: default-org
+    core.choreo.dev/project: default-project
     core.choreo.dev/name: time-logger
 spec:
   type: ScheduledTask
@@ -114,20 +117,21 @@ spec:
     authentication:
       secretRef: choreo-bot-git-pat
 ---
+
 ## Sample DeploymentTrack kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: DeploymentTrack
 metadata:
-  name: time-logger-dt
-  namespace: default-organization
+  name: time-logger-main
+  namespace: default-org
   annotations:
     core.choreo.dev/display-name: Deployment Track
-    core.choreo.dev/description: This deployment track will print time
+    core.choreo.dev/description: Main deployment track
   labels:
-    core.choreo.dev/organization: default-organization
-    core.choreo.dev/project: internal-apps
+    core.choreo.dev/organization: default-org
+    core.choreo.dev/project: default-project
     core.choreo.dev/component: time-logger
-    core.choreo.dev/name: time-logger-dt
+    core.choreo.dev/name: time-logger-main
 spec:
   buildTemplateSpec:
     branch: main
@@ -136,21 +140,22 @@ spec:
       buildpack:
         name: Go
 ---
+
 ## Sample Build kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: Build
 metadata:
-  name: time-logger-01
-  namespace: default-organization
+  name: time-logger-build-01
+  namespace: default-org
   annotations:
-    core.choreo.dev/display-name: Build 1
-    core.choreo.dev/description: Build 01
+    core.choreo.dev/display-name: Default Build
+    core.choreo.dev/description: Initial build configuration
   labels:
-    core.choreo.dev/organization: default-organization
-    core.choreo.dev/project: internal-apps
+    core.choreo.dev/organization: default-org
+    core.choreo.dev/project: default-project
     core.choreo.dev/component: time-logger
-    core.choreo.dev/deployment-track: time-logger-dt
-    core.choreo.dev/name: time-logger-01
+    core.choreo.dev/deployment-track: time-logger-main
+    core.choreo.dev/name: time-logger-build-01
 spec:
   branch: main
   path: docker-time-logger-schedule
@@ -161,26 +166,26 @@ spec:
     buildpack:
       name: Go
 #      version: "1.22"
-
 ---
+
 #### Sample Deployment kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: Deployment
 metadata:
-  name: time-logger-01-deployment-development
-  namespace: default-organization
+  name: time-logger-development-deployment
+  namespace: default-org
   annotations:
     core.choreo.dev/display-name: Deployment of Time Logger
-    core.choreo.dev/description: This deployment will print the time
+    core.choreo.dev/description: Initial deployment configuration
   labels:
-    core.choreo.dev/organization: default-organization
-    core.choreo.dev/project: internal-apps
+    core.choreo.dev/organization: default-org
+    core.choreo.dev/project: default-project
     core.choreo.dev/environment: development
     core.choreo.dev/component: time-logger
-    core.choreo.dev/deployment-track: time-logger-dt
-    core.choreo.dev/name: development
+    core.choreo.dev/deployment-track: time-logger-main
+    core.choreo.dev/name: time-logger-development-deployment
 spec:
-  deploymentArtifactRef: time-logger-01
+  deploymentArtifactRef: time-logger-build-01
 
 ---
 ### Sample DeployableArtifact kind (Namespaced)
@@ -188,7 +193,7 @@ spec:
 #kind: DeployableArtifact
 #metadata:
 #  name: github-issue-reporter-daily-deployable-artifact-2024-12-10-1
-#  namespace: default-organization
+#  namespace: default-org
 #  annotations:
 #    core.choreo.dev/display-name: Daily Deployable Artifact
 #    core.choreo.dev/description: Generated artifact from Build 2024-12-10 1
