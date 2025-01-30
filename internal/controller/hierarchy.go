@@ -131,7 +131,6 @@ func GetEnvironment(ctx context.Context, c client.Client, obj client.Object) (*c
 	}
 
 	return nil, fmt.Errorf("cannot find an environment with the name %s", GetEnvironmentName(obj))
-
 }
 
 func GetDeployment(ctx context.Context, c client.Client, obj client.Object) (*choreov1.Deployment, error) {

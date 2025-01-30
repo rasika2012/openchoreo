@@ -45,7 +45,7 @@ const (
 	// typeAvailable represents the status of the Deployment reconciliation
 	typeAvailable = "Available"
 	// typeDegraded represents the status used when the custom resource is deleted and the finalizer operations are yet to occur.
-	typeDegraded = "Degraded"
+	// typeDegraded = "Degraded"
 )
 
 // +kubebuilder:rbac:groups=core.choreo.dev,resources=endpoints,verbs=get;list;watch;create;update;patch;delete

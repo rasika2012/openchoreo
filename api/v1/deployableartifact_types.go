@@ -91,9 +91,9 @@ type FromImageRef struct {
 // EndpointTemplate represents an endpoint derived from a component descriptor.
 type EndpointTemplate struct {
 	// Specification of the endpoint
-	//+required
+	// +required
 	metav1.ObjectMeta `json:"metadata"`
-	//+required
+	// +required
 	Spec EndpointSpec `json:"spec"`
 }
 

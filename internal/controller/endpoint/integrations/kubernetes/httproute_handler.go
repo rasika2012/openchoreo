@@ -130,7 +130,6 @@ func makeHTTPRouteName(endpointCtx *dataplane.EndpointContext) string {
 }
 
 func makeHTTPRouteSpec(endpointCtx *dataplane.EndpointContext) gatewayv1.HTTPRouteSpec {
-
 	pathType := gatewayv1.PathMatchPathPrefix
 	hostname := gatewayv1.Hostname(endpointCtx.Component.Name + "-" + endpointCtx.Environment.Name + ".choreo.local")
 	port := gatewayv1.PortNumber(endpointCtx.Endpoint.Spec.Service.Port)
