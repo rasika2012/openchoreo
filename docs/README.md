@@ -577,9 +577,14 @@ metadata:
     core.choreo.dev/organization: test-org
 spec:
   # Branch of the git repository to build the component.
+  # The branch field takes priority over gitRevision when both are specified.
   #
-  # +optional (default: main)
+  # +optional (default: main, gitRevision: latest)
   branch: main
+  # Specific git revision in the git repository to build the component.
+  #
+  # +optional (default: latest)
+  gitRevision: 5c56ad8e34821bb76082a28aaa6dfd1ebb260b7a
   # Path of the source code within the git repository.
   #
   # +optional (default: /)

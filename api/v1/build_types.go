@@ -76,6 +76,7 @@ type BuildConfiguration struct {
 // BuildSpec defines the desired state of Build.
 type BuildSpec struct {
 	Branch             string             `json:"branch,omitempty"`
+	GitRevision        string             `json:"gitRevision,omitempty"`
 	Path               string             `json:"path,omitempty"`
 	AutoBuild          bool               `json:"autoBuild,omitempty"`
 	BuildConfiguration BuildConfiguration `json:"buildConfiguration"`
