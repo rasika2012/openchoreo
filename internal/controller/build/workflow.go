@@ -292,12 +292,12 @@ echo -n "$COMMIT_SHA" > /tmp/git-revision.txt`, branch, repo),
 	}
 	return []string{
 		fmt.Sprintf(`set -e
-git clone --single-branch --branch %s --depth 1 %s /mnt/vol/source
+git clone --no-checkout --depth 1 %s /mnt/vol/source
 cd /mnt/vol/source
 git config --global advice.detachedHead false
 git fetch --depth 1 origin %s
 git checkout %s
-echo -n "%s" > /tmp/git-revision.txt`, branch, repo, gitRevision, gitRevision, gitRevision),
+echo -n "%s" > /tmp/git-revision.txt`, repo, gitRevision, gitRevision, gitRevision),
 	}
 }
 
