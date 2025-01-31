@@ -31,24 +31,17 @@ import (
 )
 
 func makeArgoWorkflow(build *choreov1.Build, repo string, buildNamespace string) *argo.Workflow {
-	var branch string
-	if build.Spec.Branch != "" {
-		branch = build.Spec.Branch
-	} else {
-		branch = "main"
-	}
-
 	workflow := argo.Workflow{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      build.ObjectMeta.Name,
 			Namespace: buildNamespace,
 		},
-		Spec: makeWorkflowSpec(build, branch, repo),
+		Spec: makeWorkflowSpec(build, repo),
 	}
 	return &workflow
 }
 
-func makeWorkflowSpec(build *choreov1.Build, branch string, repo string) argo.WorkflowSpec {
+func makeWorkflowSpec(build *choreov1.Build, repo string) argo.WorkflowSpec {
 	hostPathType := corev1.HostPathDirectoryOrCreate
 	return argo.WorkflowSpec{
 		ServiceAccountName: "argo-workflow-sa",
@@ -64,17 +57,39 @@ func makeWorkflowSpec(build *choreov1.Build, branch string, repo string) argo.Wo
 					},
 					{
 						Steps: []argo.WorkflowStep{
-							{Name: string(BuildStep), Template: string(BuildStep)},
+							{
+								Name:     string(BuildStep),
+								Template: string(BuildStep),
+								Arguments: argo.Arguments{
+									Parameters: []argo.Parameter{
+										{
+											Name:  "git-revision",
+											Value: ptr.String("{{steps.clone-step.outputs.parameters.git-revision}}"),
+										},
+									},
+								},
+							},
 						},
 					},
 					{
 						Steps: []argo.WorkflowStep{
-							{Name: string(PushStep), Template: string(PushStep)},
+							{
+								Name:     string(PushStep),
+								Template: string(PushStep),
+								Arguments: argo.Arguments{
+									Parameters: []argo.Parameter{
+										{
+											Name:  "git-revision",
+											Value: ptr.String("{{steps.clone-step.outputs.parameters.git-revision}}"),
+										},
+									},
+								},
+							},
 						},
 					},
 				},
 			},
-			makeCloneStep(branch, repo),
+			makeCloneStep(build, repo),
 			makeBuildStep(build),
 			makePushStep(build),
 		},
@@ -98,18 +113,34 @@ func makeWorkflowSpec(build *choreov1.Build, branch string, repo string) argo.Wo
 	}
 }
 
-func makeCloneStep(branch string, repo string) argo.Template {
+func makeCloneStep(build *choreov1.Build, repo string) argo.Template {
+	branch := ""
+	gitRevision := ""
+	if build.Spec.Branch != "" {
+		branch = build.Spec.Branch
+	} else if build.Spec.GitRevision != "" {
+		gitRevision = build.Spec.GitRevision
+	} else {
+		branch = "main"
+	}
 	return argo.Template{
 		Name: string(CloneStep),
 		Container: &corev1.Container{
 			Image:   "alpine/git",
 			Command: []string{"sh", "-c"},
-			Args: []string{
-				fmt.Sprintf(`set -e
-git clone --single-branch --branch %s %s /mnt/vol/source`, branch, repo),
-			},
+			Args:    generateCloneArgs(repo, branch, gitRevision),
 			VolumeMounts: []corev1.VolumeMount{
 				{Name: "workspace", MountPath: "/mnt/vol"},
+			},
+		},
+		Outputs: argo.Outputs{
+			Parameters: []argo.Parameter{
+				{
+					Name: "git-revision",
+					ValueFrom: &argo.ValueFrom{
+						Path: "/tmp/git-revision.txt",
+					},
+				},
 			},
 		},
 	}
@@ -118,6 +149,13 @@ git clone --single-branch --branch %s %s /mnt/vol/source`, branch, repo),
 func makeBuildStep(build *choreov1.Build) argo.Template {
 	return argo.Template{
 		Name: string(BuildStep),
+		Inputs: argo.Inputs{
+			Parameters: []argo.Parameter{
+				{
+					Name: "git-revision",
+				},
+			},
+		},
 		Container: &corev1.Container{
 			Image: "chalindukodikara/podman:v1.0",
 			SecurityContext: &corev1.SecurityContext{
@@ -136,6 +174,13 @@ func makeBuildStep(build *choreov1.Build) argo.Template {
 func makePushStep(build *choreov1.Build) argo.Template {
 	return argo.Template{
 		Name: string(PushStep),
+		Inputs: argo.Inputs{
+			Parameters: []argo.Parameter{
+				{
+					Name: "git-revision",
+				},
+			},
+		},
 		Container: &corev1.Container{
 			Image: "chalindukodikara/podman:v1.0",
 			SecurityContext: &corev1.SecurityContext{
@@ -148,6 +193,16 @@ func makePushStep(build *choreov1.Build) argo.Template {
 			VolumeMounts: []corev1.VolumeMount{
 				{Name: "workspace", MountPath: "/mnt/vol"},
 				{Name: "podman-cache", MountPath: "/shared/podman/cache"},
+			},
+		},
+		Outputs: argo.Outputs{
+			Parameters: []argo.Parameter{
+				{
+					Name: "image",
+					ValueFrom: &argo.ValueFrom{
+						Path: "/tmp/image.txt",
+					},
+				},
 			},
 		},
 	}
@@ -225,6 +280,27 @@ func getLanguageVersion(build *choreov1.Build) string {
 	return fmt.Sprintf("--env GOOGLE_RUNTIME_VERSION=%s", build.Spec.BuildConfiguration.Buildpack.Version)
 }
 
+func generateCloneArgs(repo string, branch string, gitRevision string) []string {
+	if branch != "" {
+		return []string{
+			fmt.Sprintf(`set -e
+git clone --single-branch --branch %s --depth 1 %s /mnt/vol/source
+cd /mnt/vol/source
+COMMIT_SHA=$(git rev-parse HEAD)
+echo -n "$COMMIT_SHA" > /tmp/git-revision.txt`, branch, repo),
+		}
+	}
+	return []string{
+		fmt.Sprintf(`set -e
+git clone --single-branch --branch %s --depth 1 %s /mnt/vol/source
+cd /mnt/vol/source
+git config --global advice.detachedHead false
+git fetch --depth 1 origin %s
+git checkout %s
+echo -n "%s" > /tmp/git-revision.txt`, branch, repo, gitRevision, gitRevision, gitRevision),
+	}
+}
+
 func generateBuildArgs(build *choreov1.Build, imageName string) []string {
 	baseScript := `set -e
 
@@ -244,16 +320,15 @@ podman system service --time=0 &`
 
 	if build.Spec.BuildConfiguration.Buildpack != nil && build.Spec.BuildConfiguration.Buildpack.Name != "" {
 		buildScript = fmt.Sprintf(`
-echo "Building image using Buildpack..."
-/usr/local/bin/pack build %s --builder=gcr.io/buildpacks/builder:google-22 --docker-host=inherit \
-  --path=/mnt/vol/source%s --pull-policy if-not-present %s
+/usr/local/bin/pack build %s-{{inputs.parameters.git-revision}} --builder=gcr.io/buildpacks/builder:google-22 \
+--docker-host=inherit --path=/mnt/vol/source%s --pull-policy if-not-present %s
 
-podman save -o /mnt/vol/app-image.tar %s
+podman save -o /mnt/vol/app-image.tar %s-{{inputs.parameters.git-revision}}
 podman volume prune --force`, imageName, build.Spec.Path, getLanguageVersion(build), imageName)
 	} else {
 		buildScript = fmt.Sprintf(`
-podman build -t %s -f /mnt/vol/source%s /mnt/vol/source%s
-podman save -o /mnt/vol/app-image.tar %s`, imageName, getDockerfilePath(build), getDockerContext(build), imageName)
+podman build -t %s-{{inputs.parameters.git-revision}} -f %s /mnt/vol/source%s
+podman save -o /mnt/vol/app-image.tar %s--{{inputs.parameters.git-revision}}`, imageName, getDockerfilePath(build), getDockerContext(build), imageName)
 	}
 
 	return []string{baseScript + buildScript}
@@ -261,7 +336,7 @@ podman save -o /mnt/vol/app-image.tar %s`, imageName, getDockerfilePath(build), 
 
 func generatePushImageScript(imageName string) string {
 	return fmt.Sprintf(`set -e
-
+GIT_REVISION={{inputs.parameters.git-revision}}
 mkdir -p /etc/containers
 cat <<EOF > /etc/containers/storage.conf
 [storage]
@@ -273,9 +348,10 @@ mount_program = "/usr/bin/fuse-overlayfs"
 EOF
 
 podman load -i /mnt/vol/app-image.tar
-podman tag %s registry.choreo-system-dp:5000/%s
-podman push --tls-verify=false registry.choreo-system-dp:5000/%s
+podman tag %s-$GIT_REVISION registry.choreo-system-dp:5000/%s-$GIT_REVISION
+podman push --tls-verify=false registry.choreo-system-dp:5000/%s-$GIT_REVISION
 
-podman rmi %s -f
-podman volume prune --force`, imageName, imageName, imageName, imageName)
+podman rmi %s-$GIT_REVISION -f
+podman volume prune --force
+echo -n "%s-$GIT_REVISION" > /tmp/image.txt`, imageName, imageName, imageName, imageName, imageName)
 }
