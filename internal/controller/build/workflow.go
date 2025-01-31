@@ -318,7 +318,7 @@ podman system service --time=0 &`
 
 	var buildScript string
 
-	if build.Spec.BuildConfiguration.Buildpack != nil && build.Spec.BuildConfiguration.Buildpack.Name != "" {
+	if build.Spec.BuildConfiguration.Buildpack != nil {
 		buildScript = fmt.Sprintf(`
 /usr/local/bin/pack build %s-{{inputs.parameters.git-revision}} --builder=gcr.io/buildpacks/builder:google-22 \
 --docker-host=inherit --path=/mnt/vol/source%s --pull-policy if-not-present %s
