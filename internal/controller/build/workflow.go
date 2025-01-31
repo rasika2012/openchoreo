@@ -327,7 +327,7 @@ podman save -o /mnt/vol/app-image.tar %s-{{inputs.parameters.git-revision}}
 podman volume prune --force`, imageName, build.Spec.Path, getLanguageVersion(build), imageName)
 	} else {
 		buildScript = fmt.Sprintf(`
-podman build -t %s-{{inputs.parameters.git-revision}} -f %s /mnt/vol/source%s
+podman build -t %s-{{inputs.parameters.git-revision}} -f /mnt/vol/source%s /mnt/vol/source%s
 podman save -o /mnt/vol/app-image.tar %s--{{inputs.parameters.git-revision}}`, imageName, getDockerfilePath(build), getDockerContext(build), imageName)
 	}
 
