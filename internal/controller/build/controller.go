@@ -116,6 +116,11 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	if meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, string(Completed), metav1.ConditionTrue) {
+		workflow := argo.Workflow{}
+		err = r.Get(ctx, client.ObjectKey{Name: build.ObjectMeta.Name, Namespace: buildNamespace}, &workflow)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
 		err := r.createDeployableArtifact(ctx, build, logger)
 		if err != nil {
 			return ctrl.Result{}, err
@@ -342,9 +347,13 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 				Message:            "Build completed successfully.",
 			}
 			changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			imageName := constructImageNameWithTag(build)
-			if build.Status.ImageStatus.Image != imageName {
-				build.Status.ImageStatus.Image = imageName
+			image := getImageNameFromWorkflow(*stepInfo.Outputs)
+			if image == "" {
+				newCondition.Status = metav1.ConditionFalse
+				newCondition.Reason = "BuildFailed"
+				newCondition.Message = "Image name is not found."
+			} else if build.Status.ImageStatus.Image != image {
+				build.Status.ImageStatus.Image = image
 			}
 			if changed {
 				logger.Info("Updating Build status", "Build.Name", build.Name)
@@ -453,26 +462,29 @@ func (r *Reconciler) markStepAsFailed(ctx context.Context, build *choreov1.Build
 	return false, nil
 }
 
+func getImageNameFromWorkflow(output argo.Outputs) string {
+	for _, param := range output.Parameters {
+		if param.Name == "image" {
+			return *param.Value
+		}
+	}
+	return ""
+}
+
+// This doesn't include git revision. It is added from the workflow.
 func constructImageNameWithTag(build *choreov1.Build) string {
-	// Extract necessary fields
 	componentName := build.ObjectMeta.Labels["core.choreo.dev/component"]
 	orgName := build.ObjectMeta.Labels["core.choreo.dev/organization"]
 	projName := build.ObjectMeta.Labels["core.choreo.dev/project"]
+	dtName := build.ObjectMeta.Labels["core.choreo.dev/deployment-track"]
 
-	// Create the hash input
 	hashInput := fmt.Sprintf("%s-%s", orgName, projName)
-
-	// Generate SHA256 hash
 	hash := sha256.Sum256([]byte(hashInput))
-
-	// Convert hash to hex string
 	hashString := hex.EncodeToString(hash[:])
 
-	// Generate the final string
-	return fmt.Sprintf("%s-%s:%s-latest", hashString, componentName, build.ObjectMeta.Labels["core.choreo.dev/deployment-track"])
+	return fmt.Sprintf("%s-%s:%s", hashString, componentName, dtName)
 }
 
-// NewDeployableArtifact creates a DeployableArtifact instance.
 func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreov1.Build, logger logr.Logger) error {
 	deployableArtifact := &choreov1.DeployableArtifact{
 		TypeMeta: metav1.TypeMeta{
@@ -528,7 +540,7 @@ func addComponentSpecificConfigs(componentType choreov1.ComponentType, deployabl
 				Task: &choreov1.TaskConfig{
 					Disabled: false,
 					Schedule: &choreov1.TaskSchedule{
-						Cron:     "* * * * *",
+						Cron:     "*/5 * * * *",
 						Timezone: "Asia/Colombo",
 					},
 				},
