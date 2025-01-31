@@ -158,10 +158,10 @@ metadata:
     core.choreo.dev/name: time-logger-build-01
 spec:
   branch: main
-  path: docker-time-logger-schedule
+  path: /docker-time-logger-schedule
   buildConfiguration:
     #    docker:
-    #      context: docker-time-logger-schedule
+    #      context: /docker-time-logger-schedule
     #      dockerfilePath: /docker-time-logger-schedule/Dockerfile
     buildpack:
       name: Go
