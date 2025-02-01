@@ -42,53 +42,111 @@ These abstractions simplify the development and deployment process, allowing dev
 
 For more details about the abstractions, refer to [Choreo Resource Kinds](docs/README.md).
 
-## Getting Started
+## Quick Start Guide
 This guide will help users set up the necessary prerequisites, download and install the Choreo Helm chart, verify their setup and deploy the sample application.
-#### Prerequisites
-- Helm version v3.16+
+### _Prerequisites_
+- [Helm](https://helm.sh/docs/intro/install/) version v3.15+
+- [Cilium](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-cilium) installed kubernetes cluster
+    - Cilium version v1.15.10
+    - kubernetes version v1.22.0+
 
-#### Install from Scratch Using Kind Cluster
+### Install Choreo using Helm Chart
+You can directly install Choreo using the Helm chart provided in our registry.
 
-This section guides you through setting up a Kind cluster and installing Choreo from scratch.
+```shell
+helm install choreo-dp oci://choreov3testacr.azurecr.io/choreo-v3/choreo-opensource-dp \
+--version 0.1.0 --namespace "choreo-system" --create-namespace --timeout 30m
+```
 
+### Install from Scratch Using Kind Cluster
 
-1. Install Kind:
+This section guides you through setting up a Kind cluster and installing Cilium and Choreo from the scratch.
+
+#### 1. Install Kind
+
 Make sure you have installed kind : https://kind.sigs.k8s.io/docs/user/quick-start/#installation
 
-2. Create a Kind cluster:
+To verify the installation
+    
+```shell
+kind version
+```
 
-    ```sh
-    kind create cluster --config=install/kind/kind-config.yaml
-    ```
+#### 2. Create a Kind cluster
 
-3. Install Cilium:
+```shell
+kind create cluster --config=install/kind/kind-config.yaml
+```
 
-    ```sh
-    helm upgrade --install cilium-cni oci://choreov3testacr.azurecr.io/choreo-v3/cilium-cni  --version 0.1.0 --namespace "choreo-system-dp" --create-namespace --timeout 30m
-    ```
+#### 3. Install Cilium
 
-4. Install Choreo Helm Chart:
+The following helm chart provided by us installs Cilium with minimal configurations required for Choreo.
 
-    ```sh
-    helm upgrade --install choreo-dp oci://choreov3testacr.azurecr.io/choreo-v3/choreo-opensource-dp  --version 0.2.0 --namespace "choreo-system-dp" --create-namespace --timeout 30m
-    ```
+```shell
+helm install cilium-cni oci://choreov3testacr.azurecr.io/choreo-v3/cilium-cni  --version 0.1.0 --namespace "choreo-system" --create-namespace --timeout 30m
+```
 
-5. Verify Installations:
+#### 4. Install Choreo Helm Chart
 
-    ```sh
-    sh install/check-status.sh
-    ```
+```shell
+helm install choreo-dp oci://choreov3testacr.azurecr.io/choreo-v3/choreo-opensource-dp  --version 0.2.0 --namespace "choreo-system" --create-namespace --timeout 30m
+```
 
-6. Deploy Choreo Sample Application:
+#### 5. Verify installation status
 
-    ```sh
-    kubectl apply -f samples/time-logger-scheduled-task/time-logger.yaml
-    ```
-7. Check Created Resources:
+```shell
+sh install/check-status.sh
+```
 
-    ```sh
-    kubectl get orgs,projects,components,dataplanes,deploymentpipelines,deploymenttracks,environments,deployments.core.choreo.dev -A 
-    ```
+### Deploy your first component in choreo
+
+This section guides you through deploying a sample WebApp and invoking it. Go through the following steps to deploy the 
+sample WebApp component in Choreo. 
+
+#### 1. Create the sample WebApp component
+
+For this, you will be using the samples we provided in the repository. 
+Apply the sample WebApp component using the following command.
+
+```shell
+kubectl apply -k config/samples/sample-scheduled-task.yaml
+```
+
+> Note: This may take some time to get the source code, build and deploy it
+
+#### 2. Check Created Resources
+
+You can see the resources created by the sample using the following command.
+    
+```shell
+kubectl get orgs,projects,components,dataplanes,deploymentpipelines,deploymenttracks,environments,deployments.core.choreo.dev -A 
+```
+
+#### 3. Test the deployed WebApp
+
+You can test the deployed WebApp by port-forwarding the service to your host machine. Refer the following steps to do so.
+
+Use the following command to find the service name for the external gateway.
+
+```shell
+kubectl get svc -n choreo-system | grep gateway-external
+```
+
+Then port-forward the service to your host machine using the following command.
+
+```shell
+kubectl port-forward svc/<name> -n choreo-system 443:443
+```
+
+Then add the following entry to your /etc/hosts file.
+
+```
+127.0.0.1 webapp1-dev.choreo.local
+```
+
+Now you can access the WebApp using the following URL.
+
+https://webapp1-dev.choreo.local
 
 ## Contributor Guide
 
