@@ -5,9 +5,11 @@ Choreo is an internal developer platform that simplifies the build, deployment, 
 ## Table of Contents
 - [Introduction](#introduction)
   - [Choreo Abstractions](#choreo-abstractions)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
+- [Quick Start Guide](#quick-start-guide)
+  - [Prerequisites](#_prerequisites_)
+  - [Generic guide to Install Choreo using Helm Chart](#generic-guide-to-install-choreo-using-helm-chart)
   - [Install from Scratch Using Kind Cluster](#install-from-scratch-using-kind-cluster)
+  - [Deploy your first component in choreo](#deploy-your-first-component-in-choreo)
 - [Contributor Guide](#contributor-guide)
   - [Prerequisites for Contributors](#prerequisites-for-contributors)
   - [Build and Use Binaries](#build-and-use-binaries)
@@ -43,14 +45,16 @@ These abstractions simplify the development and deployment process, allowing dev
 For more details about the abstractions, refer to [Choreo Resource Kinds](docs/README.md).
 
 ## Quick Start Guide
-This guide will help users set up the necessary prerequisites, download and install the Choreo Helm chart, verify their setup and deploy the sample application.
+This guide will help users set up the necessary prerequisites, download and install the Choreo Helm chart, verify the setup and deploy the sample application.
 ### _Prerequisites_
 - [Helm](https://helm.sh/docs/intro/install/) version v3.15+
+  > Choreo use the Helm as the package manager to install the required artifacts into the kubernetes cluster.
 - [Cilium](https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-cilium) installed kubernetes cluster
     - Cilium version v1.15.10
     - kubernetes version v1.22.0+
+  > Cilium is a dependency for choreo to operate. It uses the Cilium CNI plugin to manage the network policies and security for the pods in the cluster.
 
-### Install Choreo using Helm Chart
+### Generic guide to Install Choreo using Helm Chart
 You can directly install Choreo using the Helm chart provided in our registry.
 
 ```shell
@@ -60,13 +64,15 @@ helm install choreo-dp oci://choreov3testacr.azurecr.io/choreo-v3/choreo-opensou
 
 ### Install from Scratch Using Kind Cluster
 
-This section guides you through setting up a Kind cluster and installing Cilium and Choreo from the scratch.
+This section guides you through setting up a Kind cluster and installing Cilium and Choreo from scratch.
 
 #### 1. Install Kind
 
-Make sure you have installed kind : https://kind.sigs.k8s.io/docs/user/quick-start/#installation
+Make sure you have installed [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation), version v0.25.0+.
 
-To verify the installation
+> We use Kind to quickly create a Kubernetes cluster, primarily for testing purposes. 
+
+To verify the installation:
     
 ```shell
 kind version
@@ -86,16 +92,30 @@ The following helm chart provided by us installs Cilium with minimal configurati
 helm install cilium-cni oci://choreov3testacr.azurecr.io/choreo-v3/cilium-cni  --version 0.1.0 --namespace "choreo-system" --create-namespace --timeout 30m
 ```
 
-#### 4. Install Choreo Helm Chart
+#### 4. Install Choreo
 
 ```shell
-helm install choreo-dp oci://choreov3testacr.azurecr.io/choreo-v3/choreo-opensource-dp  --version 0.2.0 --namespace "choreo-system" --create-namespace --timeout 30m
+helm install choreo-dp oci://choreov3testacr.azurecr.io/choreo-v3/choreo-opensource-dp  --version 0.1.0 --namespace "choreo-system" --create-namespace --timeout 30m
 ```
 
 #### 5. Verify installation status
 
 ```shell
 sh install/check-status.sh
+```
+
+You should see the following output if the installation is successful.
+```text
+Installation status:
+✅ cilium-agent : ready 
+✅ cilium-operator : ready 
+✅ vault : ready 
+✅ vault-agent-injector : ready 
+✅ argo-workflows-server : ready 
+✅ argo-workflows-workflow-controller : ready 
+✅ cainjector : ready 
+✅ webhook : ready 
+✅ gateway-helm : ready
 ```
 
 ### Deploy your first component in choreo
@@ -109,10 +129,10 @@ For this, you will be using the samples we provided in the repository.
 Apply the sample WebApp component using the following command.
 
 ```shell
-kubectl apply -k config/samples/sample-scheduled-task.yaml
+kubectl apply -f config/samples/sample-webapp.yaml
 ```
 
-> Note: This may take some time to get the source code, build and deploy it
+> Note: This may take about 5-10 minutes to get the source code, build and deploy it.
 
 #### 2. Check Created Resources
 
