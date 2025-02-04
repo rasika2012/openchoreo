@@ -219,7 +219,7 @@ func makeNodeAffinity() *corev1.Affinity {
 							{
 								Key:      "kubernetes.io/hostname",
 								Operator: corev1.NodeSelectorOpIn,
-								Values:   []string{"kind-worker2"},
+								Values:   []string{"choreo-worker2"},
 							},
 						},
 					},
@@ -348,8 +348,8 @@ mount_program = "/usr/bin/fuse-overlayfs"
 EOF
 
 podman load -i /mnt/vol/app-image.tar
-podman tag %s-$GIT_REVISION registry.choreo-system-dp:5000/%s-$GIT_REVISION
-podman push --tls-verify=false registry.choreo-system-dp:5000/%s-$GIT_REVISION
+podman tag %s-$GIT_REVISION registry.choreo-system:5000/%s-$GIT_REVISION
+podman push --tls-verify=false registry.choreo-system:5000/%s-$GIT_REVISION
 
 podman rmi %s-$GIT_REVISION -f
 podman volume prune --force

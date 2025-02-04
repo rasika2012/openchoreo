@@ -44,12 +44,12 @@ spec:
     - toEndpoints:
        - matchLabels:
           gateway.envoyproxy.io/owning-gateway-name: gateway-internal
-          gateway.envoyproxy.io/owning-gateway-namespace: choreo-system-dp
+          gateway.envoyproxy.io/owning-gateway-namespace: {{ .Release.Namespace }}
   ingress:
     - fromEndpoints:
        - matchLabels:
           gateway.envoyproxy.io/owning-gateway-name: gateway-external
-          gateway.envoyproxy.io/owning-gateway-namespace: choreo-system-dp
+          gateway.envoyproxy.io/owning-gateway-namespace: {{ .Release.Namespace }}
 ---
 apiVersion: cilium.io/v2
 kind: CiliumClusterwideNetworkPolicy
@@ -63,5 +63,5 @@ spec:
   - fromEndpoints:
     - matchLabels:
         gateway.envoyproxy.io/owning-gateway-name: gateway-external
-        gateway.envoyproxy.io/owning-gateway-namespace: choreo-system-dp
+        gateway.envoyproxy.io/owning-gateway-namespace: {{ .Release.Namespace }}
 

@@ -37,12 +37,12 @@ IMG="choreo-controller:latest" make docker-build
 Load the image to the kind cluster
 
 ```shell
-kind load docker-image choreo-controller:latest --name kind
+kind load docker-image choreo-controller:latest --name choreo
 ```
 
 > Note: If you are using kind for testing, you could speedup the installation process by pre-loading the images required for the installation. You can use the following script to load images to your kind cluster.
 > ```shell
-> $ ./kind/load-images.sh --kind-cluster-name kind
+> $ ./kind/load-images.sh --kind-cluster-name choreo
 > ```
 
 

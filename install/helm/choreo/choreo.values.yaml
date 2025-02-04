@@ -145,7 +145,7 @@ gateway-helm:
         backend:
           type: Redis
           redis:
-            url: redis.choreo-system-dp.svc.cluster.local:6379
+            url: redis.choreo-system.svc.cluster.local:6379
   # -- Resource limits and requests for the gateway
   deployment:
     envoyGateway:

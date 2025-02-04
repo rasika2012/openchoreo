@@ -7,7 +7,7 @@ DARK_YELLOW="\033[0;33m"
 RESET="\033[0m"
 
 # Namespace where all dependencies are installed
-NAMESPACE="choreo-system-dp"
+NAMESPACE="choreo-system"
 
 # List of dependencies
 dependencies=("cilium-agent" "cilium-operator" "vault" "vault-agent-injector" "argo-workflows-server" "argo-workflows-workflow-controller" "cert-manager" "cainjector" "webhook" "choreo-controllers" "gateway-helm" )

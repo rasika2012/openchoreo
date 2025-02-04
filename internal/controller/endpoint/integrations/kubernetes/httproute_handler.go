@@ -142,7 +142,7 @@ func makeHTTPRouteSpec(endpointCtx *dataplane.EndpointContext) gatewayv1.HTTPRou
 			ParentRefs: []gatewayv1.ParentReference{
 				{
 					Name:      gatewayv1.ObjectName(gatewayExternal),
-					Namespace: (*gatewayv1.Namespace)(ptr.String("choreo-system-dp")), // Change NS based on where envoy gateway is deployed
+					Namespace: (*gatewayv1.Namespace)(ptr.String("choreo-system")), // Change NS based on where envoy gateway is deployed
 				},
 			},
 		},

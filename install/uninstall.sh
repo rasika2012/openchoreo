@@ -14,8 +14,13 @@ uninstall_helm_release() {
   }
 }
 
-uninstall_helm_release "choreo-dp" "choreo-system-dp"
+uninstall_helm_release "choreo-dp" "choreo-system"
 
-uninstall_helm_release "cilium-cni" "choreo-system-dp"
+uninstall_helm_release "cilium-cni" "choreo-system"
 
 echo "Both Helm releases have been uninstalled successfully!"
+
+# Clean up the choreo-system namespace
+kubectl delete namespace choreo-system
+
+echo "Namespace choreo-system has been deleted successfully!"
