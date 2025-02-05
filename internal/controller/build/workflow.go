@@ -125,6 +125,12 @@ func makeCloneStep(build *choreov1.Build, repo string) argo.Template {
 	}
 	return argo.Template{
 		Name: string(CloneStep),
+		Metadata: argo.Metadata{
+			Labels: map[string]string{
+				"step":     string(CloneStep),
+				"workflow": build.ObjectMeta.Name,
+			},
+		},
 		Container: &corev1.Container{
 			Image:   "alpine/git",
 			Command: []string{"sh", "-c"},
@@ -156,6 +162,12 @@ func makeBuildStep(build *choreov1.Build) argo.Template {
 				},
 			},
 		},
+		Metadata: argo.Metadata{
+			Labels: map[string]string{
+				"step":     string(BuildStep),
+				"workflow": build.ObjectMeta.Name,
+			},
+		},
 		Container: &corev1.Container{
 			Image: "chalindukodikara/podman:v1.0",
 			SecurityContext: &corev1.SecurityContext{
@@ -179,6 +191,12 @@ func makePushStep(build *choreov1.Build) argo.Template {
 				{
 					Name: "git-revision",
 				},
+			},
+		},
+		Metadata: argo.Metadata{
+			Labels: map[string]string{
+				"step":     string(PushStep),
+				"workflow": build.ObjectMeta.Name,
 			},
 		},
 		Container: &corev1.Container{
