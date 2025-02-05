@@ -128,6 +128,7 @@ type EndpointStatus struct {
 // Endpoint is the Schema for the endpoints API
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="url",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].message"
 type Endpoint struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

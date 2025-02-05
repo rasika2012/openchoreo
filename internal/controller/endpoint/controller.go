@@ -99,7 +99,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		controller.TypeReady,
 		metav1.ConditionTrue,
 		"EndpointReady",
-		"Endpoint is ready",
+		fmt.Sprintf("https://%s%s", kubernetes.MakeHostname(endpointCtx), endpointCtx.Endpoint.Spec.Service.BasePath),
 	); err != nil {
 		return ctrl.Result{}, err
 	}

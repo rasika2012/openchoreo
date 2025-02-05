@@ -14,7 +14,11 @@ spec:
     singular: endpoint
   scope: Namespaced
   versions:
-  - name: v1
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Ready')].message
+      name: url
+      type: string
+    name: v1
     schema:
       openAPIV3Schema:
         description: Endpoint is the Schema for the endpoints API

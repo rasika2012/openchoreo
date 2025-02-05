@@ -21,7 +21,6 @@ package kubernetes
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -135,7 +134,7 @@ func makeHTTPRouteName(endpointCtx *dataplane.EndpointContext) string {
 
 func makeHTTPRouteSpec(endpointCtx *dataplane.EndpointContext) gatewayv1.HTTPRouteSpec {
 	pathType := gatewayv1.PathMatchPathPrefix
-	hostname := gatewayv1.Hostname(fmt.Sprintf("%s-%s.choreo.local", endpointCtx.Component.Name, endpointCtx.Environment.Name))
+	hostname := MakeHostname(endpointCtx)
 	port := gatewayv1.PortNumber(endpointCtx.Endpoint.Spec.Service.Port)
 	return gatewayv1.HTTPRouteSpec{
 		CommonRouteSpec: gatewayv1.CommonRouteSpec{
