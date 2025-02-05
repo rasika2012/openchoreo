@@ -22,7 +22,6 @@ import (
 	"context"
 	"fmt"
 
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -62,23 +61,18 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 	// Implement Finalizer for route deletion
 
-	// Set status to unknown if conditions are not set
-	if endpoint.Status.Conditions != nil || len(endpoint.Status.Conditions) == 0 {
-		condition := metav1.Condition{
-			Type:    controller.TypeAvailable,
-			Status:  metav1.ConditionUnknown,
-			Reason:  "Reconciling",
-			Message: "Starting reconciliation",
-		}
+	if err := controller.UpdateCondition(ctx, r.Status(), endpoint, &endpoint.Status.Conditions,
+		controller.TypeAvailable,
+		metav1.ConditionUnknown,
+		"Reconciling",
+		"Starting reconciliation",
+	); err != nil {
+		logger.Error(err, "Failed to update Endpoint status")
+		return ctrl.Result{}, err
+	}
 
-		meta.SetStatusCondition(&endpoint.Status.Conditions, condition)
-
-		if err := r.Status().Update(ctx, endpoint); err != nil {
-			logger.Error(err, "Failed to update Endpoint status")
-			return ctrl.Result{}, err
-		}
-
-		return ctrl.Result{}, nil
+	if err := r.Get(ctx, req.NamespacedName, endpoint); err != nil {
+		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
 	if endpoint.Labels == nil {

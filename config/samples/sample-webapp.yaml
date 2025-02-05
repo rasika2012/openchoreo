@@ -158,40 +158,6 @@ spec:
     docker:
       context: /react-nginx
       dockerfilePath: /react-nginx/Dockerfile
-
----
-## Sample DeployableArtifact kind (Namespaced)
-apiVersion: core.choreo.dev/v1
-kind: DeployableArtifact
-metadata:
-  name: react-nginx-main-artifact-2024-12-10-1
-  namespace: default-organization
-  annotations:
-    core.choreo.dev/display-name: Daily Deployable Artifact
-    core.choreo.dev/description: Generated artifact from Build 2024-12-10 1
-  labels:
-    core.choreo.dev/organization: default-organization
-    core.choreo.dev/project: internal-apps
-    core.choreo.dev/component: react-nginx
-    core.choreo.dev/deployment-track: main
-    core.choreo.dev/name: react-nginx
-spec:
-  targetArtifact:
-    fromBuildRef:
-      name: react-nginx
-  configuration:
-    application:
-      env:
-        - key: REACT_APP_BACKEND_URL
-          value: http://sample-rest-endpoint
-    endpointTemplates:
-      - metadata: {}
-        spec:
-          type: HTTP
-          service:
-            url: ""
-            port: 80
-            basePath: /
 ---
 ## Sample Deployment kind (Namespaced)
 apiVersion: core.choreo.dev/v1
