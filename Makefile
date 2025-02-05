@@ -263,3 +263,17 @@ code.gen-check: code.gen
       echo "There are new changes after the code generation. Please run 'make code.gen' and commit the changes"; \
       exit 1; \
     fi
+
+#-----------------------------------------------------------------------------
+# Choreoctl targets
+#-----------------------------------------------------------------------------
+
+# Build choreoctl binary
+.PHONY: choreoctl
+choreoctl:
+	go build -o choreoctl ./cmd/choreoctl
+
+# Build and install choreoctl binary to $GOBIN
+.PHONY: install-choreoctl
+install-choreoctl: choreoctl
+	go install ./cmd/choreoctl
