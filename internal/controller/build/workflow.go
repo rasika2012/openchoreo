@@ -169,7 +169,7 @@ func makeBuildStep(build *choreov1.Build) argo.Template {
 			},
 		},
 		Container: &corev1.Container{
-			Image: "chalindukodikara/podman:v1.0",
+			Image: "chalindukodikara/podman-runner:1.0",
 			SecurityContext: &corev1.SecurityContext{
 				Privileged: ptr.Bool(true),
 			},
@@ -200,7 +200,7 @@ func makePushStep(build *choreov1.Build) argo.Template {
 			},
 		},
 		Container: &corev1.Container{
-			Image: "chalindukodikara/podman:v1.0",
+			Image: "chalindukodikara/podman-runner:1.0",
 			SecurityContext: &corev1.SecurityContext{
 				Privileged: ptr.Bool(true),
 			},
