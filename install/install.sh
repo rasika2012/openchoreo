@@ -3,6 +3,8 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
 # Function to install a Helm chart and wait for its readiness
 install_helm_chart() {
   local chart_dir=$1
@@ -15,9 +17,9 @@ install_helm_chart() {
 }
 
 # Install helm chart for cilium-cni
-install_helm_chart "helm/cilium-cni" "cilium-cni" "choreo-system"
+install_helm_chart "$SCRIPT_DIR/helm/cilium-cni" "cilium-cni" "choreo-system"
 
 # Install choreo-opensource-dp
-install_helm_chart "helm/choreo" "choreo-dp" "choreo-system"
+install_helm_chart "$SCRIPT_DIR/helm/choreo" "choreo-dp" "choreo-system"
 
 echo "Both Helm charts have been installed successfully! Please note that completing the full installation process may take some time."
