@@ -29,6 +29,7 @@ type Command struct {
 	Aliases []string
 	Short   string
 	Long    string
+	Example string
 }
 
 var (
@@ -114,7 +115,7 @@ Examples:
 
 	CreateOrganization = Command{
 		Use:     "organization",
-		Aliases: []string{"org", "orgs"},
+		Aliases: []string{"org", "orgs", "organizations"},
 		Short:   "Create an organization",
 		Long: fmt.Sprintf(`Create a new organization in Choreo.
 
@@ -129,7 +130,7 @@ Examples:
 
 	ListOrganization = Command{
 		Use:     "organization",
-		Aliases: []string{"org", "orgs"},
+		Aliases: []string{"org", "orgs", "organizations"},
 		Short:   "List organizations",
 		Long: fmt.Sprintf(`List all organizations or get details of a specific organization.
 
@@ -194,8 +195,67 @@ Examples:
 	}
 
 	Logs = Command{
-		Use:   "logs",
-		Short: "Get logs from a pod",
-		Long:  "Get logs from a pod in the current namespace.",
+		Use:     "logs",
+		Aliases: []string{"log"},
+		Short:   "Get logs from a pod",
+		Long: `Get logs from a pod in the current namespace.
+
+This command allows you to view the logs of a specific pod. You can:
+- Stream logs in real-time
+- Get logs from a specific container
+- View logs since a specific time
+- Follow log output`,
+		Example: `  # Get logs from a specific pod
+  choreoctl logs pod-name
+
+  # Stream logs from a pod
+  choreoctl logs -f pod-name
+
+  # Get logs from a specific container in a pod
+  choreoctl logs pod-name -c container-name
+
+  # Get logs since 1 hour
+  choreoctl logs pod-name --since=1h`,
+	}
+
+	CreateBuild = Command{
+		Use:     "build",
+		Aliases: []string{"builds"},
+		Short:   "Build a component",
+		Long: `Build a component in the current project.
+
+This command creates a new build for a component. You can:
+- Create Docker builds
+- Create Buildpack builds
+- Specify build context and Dockerfile
+- Set build arguments`,
+		Example: `  # Create a build interactively
+  choreoctl create build
+
+  # Create a Docker build
+  choreoctl create build --type docker --context . --dockerfile Dockerfile
+
+  # Create a Buildpack build
+  choreoctl create build --type buildpack --buildpack java
+
+  # Create a build with specific name
+  choreoctl create build my-build --type docker`,
+	}
+
+	ListBuild = Command{
+		Use:     "build",
+		Aliases: []string{"builds"},
+		Short:   "List builds",
+		Long: `List all builds in the current project or organization.
+`,
+		Example: `  # List all builds
+  choreoctl list builds
+
+  # List builds for a specific component
+  choreoctl list builds  --organization myorg --project myproject --component my-component
+
+  # List builds in yaml format
+  choreoctl list builds -o yaml
+`,
 	}
 )

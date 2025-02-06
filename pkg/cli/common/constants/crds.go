@@ -22,6 +22,24 @@ const (
 	ChoreoGroup = "core.choreo.dev"
 )
 
+const (
+	Docker    = "docker"
+	Buildpack = "buildpack"
+)
+
+const (
+	LabelOrganization = "core.choreo.dev/organization"
+	LabelProject      = "core.choreo.dev/project"
+	LabelComponent    = "core.choreo.dev/component"
+	LabelBuild        = "core.choreo.dev/build"
+	LabelName         = "core.choreo.dev/name"
+	LabelType         = "core.choreo.dev/type"
+)
+const (
+	AnnotationDescription = "core.choreo.dev/description"
+	AnnotationDisplayName = "core.choreo.dev/display-name"
+)
+
 type APIVersion string
 
 const (
@@ -56,5 +74,10 @@ var (
 		Group:   ChoreoGroup,
 		Version: V1,
 		Kind:    ComponentKind,
+	}
+	BuildV1Config = CRDConfig{
+		Group:   ChoreoGroup,
+		Version: V1,
+		Kind:    "Build",
 	}
 )

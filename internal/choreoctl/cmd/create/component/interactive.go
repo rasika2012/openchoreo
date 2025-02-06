@@ -79,7 +79,7 @@ func (m componentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			if len(projects) == 0 {
 				m.errorMsg = fmt.Sprintf("no projects found in organization '%s'", m.organizations[m.orgCursor])
-				return m, nil
+				return m, tea.Quit
 			}
 			m.projects = projects
 			m.state = stateProjSelect
@@ -144,6 +144,9 @@ func (m componentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m componentModel) View() string {
+	if m.errorMsg != "" {
+		return m.errorMsg + "\n"
+	}
 	switch m.state {
 	case stateOrgSelect:
 		return interactive.RenderListPrompt(

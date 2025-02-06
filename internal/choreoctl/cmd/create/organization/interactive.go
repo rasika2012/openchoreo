@@ -90,6 +90,9 @@ func (m organizationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m organizationModel) View() string {
+	if m.errorMsg != "" {
+		return m.errorMsg + "\n"
+	}
 	switch m.state {
 	case stateNameInput:
 		return interactive.RenderInputPrompt(

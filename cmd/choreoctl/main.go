@@ -33,6 +33,7 @@ func main() {
 
 	rootCmd := root.BuildRootCmd(cfg, commandImpl)
 	rootCmd.PersistentPreRunE = auth.CheckLoginStatus(commandImpl)
+	rootCmd.SilenceUsage = true
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)

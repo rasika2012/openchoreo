@@ -30,8 +30,10 @@ import (
 // NewCreateCmd returns "create" + its resource subcommands ("project", "component").
 func NewCreateCmd(impl api.CommandImplementationInterface) *cobra.Command {
 	createCmd := &cobra.Command{
-		Use:   constants.Create.Use,
-		Short: constants.Create.Short,
+		Use:     constants.Create.Use,
+		Short:   constants.Create.Short,
+		Aliases: constants.Create.Aliases,
+		Long:    constants.Create.Long,
 	}
 
 	// Subcommand: create organization
@@ -102,6 +104,42 @@ func NewCreateCmd(impl api.CommandImplementationInterface) *cobra.Command {
 	flags.AddFlags(componentCmd, flags.Organization, flags.Project, flags.Name, flags.GitRepositoryURL,
 		flags.ComponentType, flags.DisplayName)
 	createCmd.AddCommand(componentCmd)
+
+	// Subcommand: create build
+	buildCmd := &cobra.Command{
+		Use:     constants.CreateBuild.Use,
+		Aliases: constants.CreateBuild.Aliases,
+		Short:   constants.CreateBuild.Short,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			org, _ := cmd.Flags().GetString(flags.Organization.Name)
+			project, _ := cmd.Flags().GetString(flags.Project.Name)
+			component, _ := cmd.Flags().GetString(flags.Component.Name)
+			name, _ := cmd.Flags().GetString(flags.Name.Name)
+			dockerContext, _ := cmd.Flags().GetString(flags.DockerContext.Name)
+			dockerfilePath, _ := cmd.Flags().GetString(flags.DockerfilePath.Name)
+			buildpackName, _ := cmd.Flags().GetString(flags.BuildpackName.Name)
+			buildpackVersion, _ := cmd.Flags().GetString(flags.BuildpackVersion.Name)
+			return impl.CreateBuild(api.CreateBuildParams{
+				// Basic metadata
+				Name:         name,
+				Organization: org,
+				Project:      project,
+				Component:    component,
+				// Build configuration
+
+				Docker: &v1api.DockerConfiguration{
+					Context:        dockerContext,
+					DockerfilePath: dockerfilePath,
+				},
+				Buildpack: &v1api.BuildpackConfiguration{
+					Name:    v1api.BuildpackName(buildpackName),
+					Version: buildpackVersion,
+				},
+			})
+		},
+	}
+	flags.AddFlags(buildCmd, flags.Organization, flags.Project, flags.Component, flags.Name)
+	createCmd.AddCommand(buildCmd)
 
 	return createCmd
 }

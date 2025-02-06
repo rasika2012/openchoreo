@@ -28,8 +28,10 @@ import (
 
 func NewListCmd(impl api.CommandImplementationInterface) *cobra.Command {
 	listCmd := &cobra.Command{
-		Use:   constants.List.Use,
-		Short: constants.List.Short,
+		Use:     constants.List.Use,
+		Short:   constants.List.Short,
+		Long:    constants.List.Long,
+		Aliases: constants.List.Aliases,
 	}
 
 	// Subcommand: list organization
@@ -37,8 +39,7 @@ func NewListCmd(impl api.CommandImplementationInterface) *cobra.Command {
 		Use:     constants.ListOrganization.Use,
 		Aliases: constants.ListOrganization.Aliases,
 		Short:   constants.ListOrganization.Short,
-		// ValidArgsFunction: impl.ValidateListOrgArgs,
-
+		Long:    constants.ListOrganization.Long,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			outputFormat, _ := cmd.Flags().GetString(flags.Output.Name)
 
@@ -62,7 +63,7 @@ func NewListCmd(impl api.CommandImplementationInterface) *cobra.Command {
 		Use:     constants.ListProject.Use,
 		Aliases: constants.ListProject.Aliases,
 		Short:   constants.ListProject.Short,
-		// ValidArgsFunction: impl.ValidateListProjectArgs,
+		Long:    constants.ListProject.Long,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			org, _ := cmd.Flags().GetString(flags.Organization.Name)
 			outputFormat, _ := cmd.Flags().GetString(flags.Output.Name)
@@ -86,7 +87,7 @@ func NewListCmd(impl api.CommandImplementationInterface) *cobra.Command {
 		Use:     constants.ListComponent.Use,
 		Aliases: constants.ListComponent.Aliases,
 		Short:   constants.ListComponent.Short,
-		// ValidArgsFunction: impl.ValidateListComponentArgs,
+		Long:    constants.ListComponent.Long,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			org, _ := cmd.Flags().GetString(flags.Organization.Name)
 			project, _ := cmd.Flags().GetString(flags.Project.Name)
@@ -106,6 +107,34 @@ func NewListCmd(impl api.CommandImplementationInterface) *cobra.Command {
 	}
 	flags.AddFlags(componentCmd, flags.Organization, flags.Project, flags.Output)
 	listCmd.AddCommand(componentCmd)
+
+	// Subcommand: list build
+	buildCmd := &cobra.Command{
+		Use:     constants.ListBuild.Use,
+		Aliases: constants.ListBuild.Aliases,
+		Short:   constants.ListBuild.Short,
+		Long:    constants.ListBuild.Long,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			org, _ := cmd.Flags().GetString(flags.Organization.Name)
+			project, _ := cmd.Flags().GetString(flags.Project.Name)
+			component, _ := cmd.Flags().GetString(flags.Component.Name)
+			outputFormat, _ := cmd.Flags().GetString(flags.Output.Name)
+			// Get project name from args if provided
+			var buildName string
+			if len(args) > 0 {
+				buildName = args[0]
+			}
+			return impl.ListBuild(api.ListBuildParams{
+				Organization: org,
+				Project:      project,
+				Component:    component,
+				OutputFormat: outputFormat,
+				Name:         buildName,
+			})
+		},
+	}
+	flags.AddFlags(buildCmd, flags.Organization, flags.Project, flags.Component, flags.Output)
+	listCmd.AddCommand(buildCmd)
 
 	return listCmd
 }

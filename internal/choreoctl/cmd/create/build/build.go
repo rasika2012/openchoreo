@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package component
+package build
 
 import (
 	"context"
@@ -31,81 +31,69 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
 
-type CreateCompImpl struct {
+type CreateBuildImpl struct {
 	config constants.CRDConfig
 }
 
-func NewCreateCompImpl(config constants.CRDConfig) *CreateCompImpl {
-	return &CreateCompImpl{
+func NewCreateBuildImpl(config constants.CRDConfig) *CreateBuildImpl {
+	return &CreateBuildImpl{
 		config: config,
 	}
 }
 
-func (i *CreateCompImpl) CreateComponent(params api.CreateComponentParams) error {
-	if params.Organization == "" || params.Project == "" || params.Type == "" ||
-		params.Name == "" || params.GitRepositoryURL == "" {
-		return createComponentInteractive()
+func (i *CreateBuildImpl) CreateBuild(params api.CreateBuildParams) error {
+	if params.Organization == "" || params.Project == "" || params.Component == "" || params.Name == "" {
+		return createBuildInteractive()
 	}
 
-	if err := util.ValidateComponent(params.Name); err != nil {
-		return err
-	}
-
-	if err := util.ValidateURL(params.GitRepositoryURL); err != nil {
-		return err
-	}
-
-	return createComponent(params)
+	return createBuild(params)
 }
 
-func createComponent(params api.CreateComponentParams) error {
+func createBuild(params api.CreateBuildParams) error {
 	k8sClient, err := util.GetKubernetesClient()
 	if err != nil {
 		return err
 	}
 
-	// Base component metadata
-	component := &corev1.Component{
+	build := &corev1.Build{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      params.Name,
 			Namespace: params.Organization,
-			Annotations: map[string]string{
-				constants.AnnotationDisplayName: params.DisplayName,
-			},
 			Labels: map[string]string{
 				constants.LabelName:         params.Name,
 				constants.LabelOrganization: params.Organization,
 				constants.LabelProject:      params.Project,
-				constants.LabelType:         string(params.Type),
+				constants.LabelComponent:    params.Component,
 			},
 		},
-		Spec: corev1.ComponentSpec{
-			Type: params.Type,
+		Spec: corev1.BuildSpec{
+			BuildConfiguration: corev1.BuildConfiguration{},
 		},
 	}
-	if err := validateGitParams(params); err != nil {
-		return err
+
+	// Add docker configuration if provided
+	if params.Docker != nil {
+		build.Spec.BuildConfiguration.Docker = &corev1.DockerConfiguration{
+			Context:        params.Docker.Context,
+			DockerfilePath: params.Docker.DockerfilePath,
+		}
 	}
-	component.Spec.Source = corev1.ComponentSource{
-		GitRepository: corev1.GitRepository{
-			URL: params.GitRepositoryURL,
-		},
+
+	// Add buildpack configuration if provided
+	if params.Buildpack != nil {
+		build.Spec.BuildConfiguration.Buildpack = &corev1.BuildpackConfiguration{
+			Name:    params.Buildpack.Name,
+			Version: params.Buildpack.Version,
+		}
 	}
 
 	ctx := context.Background()
-	if err := k8sClient.Create(ctx, component); err != nil {
-		return err
+	if err := k8sClient.Create(ctx, build); err != nil {
+		return errors.NewError("Failed to create build '%s' in organization '%s': %v",
+			params.Name, params.Organization, err)
 	}
 
-	fmt.Printf("Component '%s' created successfully in project '%s' of organization '%s'\n",
+	fmt.Printf("Build '%s' created successfully in project '%s' of organization '%s'\n",
 		params.Name, params.Project, params.Organization)
-	return nil
-}
-
-func validateGitParams(params api.CreateComponentParams) error {
-	if params.GitRepositoryURL == "" {
-		return errors.NewError("git repository URL is required")
-	}
-
 	return nil
 }

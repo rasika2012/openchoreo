@@ -61,11 +61,11 @@ func createOrganization(params api.CreateOrganizationParams) error {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: params.Name,
 			Annotations: map[string]string{
-				"core.choreo.dev/display-name": params.DisplayName,
-				"core.choreo.dev/description":  params.Description,
+				constants.AnnotationDisplayName: params.DisplayName,
+				constants.AnnotationDescription: params.Description,
 			},
 			Labels: map[string]string{
-				"core.choreo.dev/name": params.Name,
+				constants.LabelName: params.Name,
 			},
 		},
 	}

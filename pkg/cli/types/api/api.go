@@ -27,6 +27,7 @@ type CommandImplementationInterface interface {
 	LoginAPI
 	LogoutAPI
 	LogAPI
+	BuildAPI
 }
 
 // OrganizationAPI defines organization-related operations
@@ -45,6 +46,12 @@ type ProjectAPI interface {
 type ComponentAPI interface {
 	CreateComponent(params CreateComponentParams) error
 	ListComponent(params ListComponentParams) error
+}
+
+// BuildAPI defines methods for building configurations
+type BuildAPI interface {
+	CreateBuild(params CreateBuildParams) error
+	ListBuild(params ListBuildParams) error
 }
 
 // ApplyAPI defines methods for applying configurations

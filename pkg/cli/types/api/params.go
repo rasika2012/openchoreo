@@ -98,3 +98,25 @@ type LogParams struct {
 	Follow       bool
 	TailLines    int64
 }
+
+// CreateBuildParams contains parameters for build creation
+type CreateBuildParams struct {
+	// Basic metadata
+	Name         string
+	Organization string
+	Project      string
+	Component    string
+
+	// Build configuration
+	Docker    *choreov1.DockerConfiguration
+	Buildpack *choreov1.BuildpackConfiguration
+}
+
+// ListBuildParams defines parameters for listing builds
+type ListBuildParams struct {
+	Organization string
+	Project      string
+	Component    string
+	OutputFormat string
+	Name         string
+}

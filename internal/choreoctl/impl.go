@@ -20,9 +20,11 @@ package choreoctl
 
 import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/cmd/apply"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/cmd/create/build"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/cmd/create/component"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/cmd/create/organization"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/cmd/create/project"
+	listbuild "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/cmd/list/build"
 	listcomp "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/cmd/list/component"
 	listorg "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/cmd/list/organization"
 	listproj "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/cmd/list/project"
@@ -58,6 +60,11 @@ func (c *CommandImplementation) ListComponent(params api.ListComponentParams) er
 	return compImpl.ListComponent(params)
 }
 
+func (c *CommandImplementation) ListBuild(params api.ListBuildParams) error {
+	buildImpl := listbuild.NewListBuildImpl(constants.BuildV1Config)
+	return buildImpl.ListBuild(params)
+}
+
 // Create Operations
 
 func (c *CommandImplementation) CreateOrganization(params api.CreateOrganizationParams) error {
@@ -73,6 +80,11 @@ func (c *CommandImplementation) CreateProject(params api.CreateProjectParams) er
 func (c *CommandImplementation) CreateComponent(params api.CreateComponentParams) error {
 	compImpl := component.NewCreateCompImpl(constants.ComponentV1Config)
 	return compImpl.CreateComponent(params)
+}
+
+func (c *CommandImplementation) CreateBuild(params api.CreateBuildParams) error {
+	buildImpl := build.NewCreateBuildImpl(constants.ComponentV1Config)
+	return buildImpl.CreateBuild(params)
 }
 
 // Authentication Operations

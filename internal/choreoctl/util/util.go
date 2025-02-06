@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"time"
 
@@ -42,6 +43,7 @@ import (
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 )
 
 var (
@@ -77,13 +79,18 @@ func SaveLoginConfig(kubeconfigPath, context string) error {
 	if err != nil {
 		return err
 	}
+
+	if err := os.MkdirAll(filepath.Dir(configPath), os.ModePerm); err != nil {
+		return errors.NewError("failed to create config directory %v", err)
+	}
+
 	viper.SetConfigFile(configPath)
 	viper.SetConfigType("yaml")
 	viper.Set("kubeconfig", kubeconfigPath)
 	viper.Set("context", context)
 
 	if err := viper.WriteConfigAs(configPath); err != nil {
-		return errors.NewError(fmt.Sprintf("failed to write login config: %v", err), nil)
+		return errors.NewError("failed to write login config %v", err)
 	}
 	return nil
 }
@@ -252,15 +259,9 @@ func GetOrganizationNames() ([]string, error) {
 
 // GetProjectNames retrieves a sorted list of project names in an organization
 func GetProjectNames(organization string) ([]string, error) {
-	k8sClient, err := GetKubernetesClient()
+	projectList, err := GetProjects(organization)
 	if err != nil {
 		return nil, err
-	}
-
-	projectList := &choreov1.ProjectList{}
-	if err := k8sClient.List(context.Background(), projectList,
-		client.InNamespace(organization)); err != nil {
-		return nil, errors.NewError("failed to list projects %v", err)
 	}
 
 	names := make([]string, 0, len(projectList.Items))
@@ -314,7 +315,6 @@ func GetK8sObjectYAMLFromCRD(group, version, kind, name, namespace string) (stri
 }
 
 // GetDefaultKubeconfigPath returns the default kubeconfig path
-// First checks KUBECONFIG env var, then falls back to $HOME/.kube/config
 func GetDefaultKubeconfigPath() (string, error) {
 	if kubeconfigPath := os.Getenv("KUBECONFIG"); kubeconfigPath != "" {
 		return filepath.Abs(kubeconfigPath)
@@ -326,6 +326,128 @@ func GetDefaultKubeconfigPath() (string, error) {
 	}
 
 	return filepath.Abs(filepath.Join(homeDir, ".kube", "config"))
+}
+
+type GenericResource interface {
+	metav1.Object
+	runtime.Object
+}
+
+type GenericList interface {
+	runtime.Object
+	GetItems() []runtime.Object
+}
+
+// newPtrTypeOf returns a fresh pointer of type L.
+// If L == *choreov1.BuildList, it returns &choreov1.BuildList{}.
+func newPtrTypeOf[L any]() L {
+	t := reflect.TypeOf((*L)(nil)).Elem() // e.g. *choreov1.BuildList
+	if t.Kind() != reflect.Pointer {
+		panic("L must be a pointer type, e.g. *BuildList")
+	}
+	elem := t.Elem() // e.g. choreov1.BuildList
+	v := reflect.New(elem).Interface()
+	return v.(L)
+}
+
+// GetResource fetches exactly one resource matching the given labels.
+// T is a non-pointer struct (e.g. choreov1.Build).
+// L is a pointer-to-list type (e.g. *choreov1.BuildList).
+func GetResource[T any, L client.ObjectList](namespace string, labels map[string]string) (*T, error) {
+	k8sClient, err := GetKubernetesClient()
+	if err != nil {
+		return nil, err
+	}
+
+	// Instantiate something like &choreov1.BuildList{}
+	list := newPtrTypeOf[L]()
+	if err := k8sClient.List(context.Background(), list,
+		client.InNamespace(namespace),
+		client.MatchingLabels(labels),
+	); err != nil {
+		return nil, errors.NewError("failed to list resource: %v", err)
+	}
+
+	// Reflect the .Items field
+	itemsVal := reflect.ValueOf(list).Elem().FieldByName("Items")
+	if !itemsVal.IsValid() || itemsVal.Len() == 0 {
+		return nil, errors.NewError("resource not found")
+	}
+	if itemsVal.Len() > 1 {
+		return nil, errors.NewError("multiple resources found")
+	}
+
+	// The single item is a struct T, so .Addr() is *T.
+	item := itemsVal.Index(0).Addr().Interface().(*T)
+	return item, nil
+}
+
+// GetResources fetches all resources matching the given labels.
+// T is a non-pointer struct (e.g. choreov1.Build).
+// L is a pointer-to-list type (e.g. *choreov1.BuildList).
+func GetResources[T any, L client.ObjectList](namespace string, labels map[string]string) (L, error) {
+	k8sClient, err := GetKubernetesClient()
+	if err != nil {
+		return newPtrTypeOf[L](), err
+	}
+
+	// e.g. &choreov1.BuildList{}
+	list := newPtrTypeOf[L]()
+	if err := k8sClient.List(
+		context.Background(),
+		list,
+		client.InNamespace(namespace),
+		client.MatchingLabels(labels),
+	); err != nil {
+		return newPtrTypeOf[L](), fmt.Errorf("failed to list resources: %w", err)
+	}
+	return list, nil
+}
+
+func CreateChoreoLabels(org, project, component, name string) map[string]string {
+	labels := map[string]string{
+		constants.LabelOrganization: org,
+	}
+	if project != "" {
+		labels[constants.LabelProject] = project
+	}
+	if component != "" {
+		labels[constants.LabelComponent] = component
+	}
+	if name != "" {
+		labels[constants.LabelName] = name
+	}
+	return labels
+}
+
+func GetBuild(orgName, projectName, componentName, buildName string) (*choreov1.Build, error) {
+	labels := CreateChoreoLabels(orgName, projectName, componentName, buildName)
+	return GetResource[choreov1.Build, *choreov1.BuildList](orgName, labels)
+}
+
+func GetAllBuilds(orgName, projectName, componentName string) (*choreov1.BuildList, error) {
+	labels := CreateChoreoLabels(orgName, projectName, componentName, "")
+	return GetResources[choreov1.Build, *choreov1.BuildList](orgName, labels)
+}
+
+func GetProject(orgName, projectName string) (*choreov1.Project, error) {
+	labels := CreateChoreoLabels(orgName, "", "", projectName)
+	return GetResource[choreov1.Project, *choreov1.ProjectList](orgName, labels)
+}
+
+func GetProjects(orgName string) (*choreov1.ProjectList, error) {
+	labels := CreateChoreoLabels(orgName, "", "", "")
+	return GetResources[choreov1.Project, *choreov1.ProjectList](orgName, labels)
+}
+
+func GetComponent(orgName, projectName, componentName string) (*choreov1.Component, error) {
+	labels := CreateChoreoLabels(orgName, projectName, "", componentName)
+	return GetResource[choreov1.Component, *choreov1.ComponentList](orgName, labels)
+}
+
+func GetAllComponents(orgName, projectName string) (*choreov1.ComponentList, error) {
+	labels := CreateChoreoLabels(orgName, projectName, "", "")
+	return GetResources[choreov1.Component, *choreov1.ComponentList](orgName, labels)
 }
 
 func GetOrganization(name string) (*choreov1.Organization, error) {
@@ -357,96 +479,18 @@ func GetOrganizations() (*choreov1.OrganizationList, error) {
 	}
 	return orgList, nil
 }
-func GetProjects(orgName string) (*choreov1.ProjectList, error) {
-	k8sClient, err := GetKubernetesClient()
+
+func GetComponentNames(orgName, projectName string) ([]string, error) {
+	componentList, err := GetAllComponents(orgName, projectName)
 	if err != nil {
 		return nil, err
 	}
 
-	projectList := &choreov1.ProjectList{}
-	labels := client.MatchingLabels{
-		"core.choreo.dev/organization": orgName,
+	names := make([]string, 0, len(componentList.Items))
+	for _, comp := range componentList.Items {
+		names = append(names, comp.Name)
 	}
 
-	if err := k8sClient.List(context.Background(), projectList,
-		client.InNamespace(orgName),
-		labels); err != nil {
-		return nil, errors.NewError("failed to list projects for organization %s: %v", orgName, err)
-	}
-
-	return projectList, nil
-}
-
-func GetAllComponents(orgName, projectName string) (*choreov1.ComponentList, error) {
-	k8sClient, err := GetKubernetesClient()
-	if err != nil {
-		return nil, err
-	}
-
-	componentList := &choreov1.ComponentList{}
-	labels := client.MatchingLabels{
-		"core.choreo.dev/project":      projectName,
-		"core.choreo.dev/organization": orgName,
-	}
-
-	if err := k8sClient.List(context.Background(), componentList,
-		client.InNamespace(orgName),
-		labels); err != nil {
-		return nil, errors.NewError("failed to list components for organization %s and project %s: %v", orgName, projectName, err)
-	}
-
-	return componentList, nil
-}
-func GetComponent(orgName, projectName, componentName string) (*choreov1.Component, error) {
-	k8sClient, err := GetKubernetesClient()
-	if err != nil {
-		return nil, err
-	}
-
-	componentList := &choreov1.ComponentList{}
-	labels := client.MatchingLabels{
-		"core.choreo.dev/project":      projectName,
-		"core.choreo.dev/name":         componentName,
-		"core.choreo.dev/organization": orgName,
-	}
-
-	if err := k8sClient.List(context.Background(), componentList,
-		client.InNamespace(orgName),
-		labels); err != nil {
-		return nil, errors.NewError("failed to list components for organization %s and project %s: %v", orgName, projectName, err)
-	}
-
-	if len(componentList.Items) == 0 {
-		return nil, errors.NewError("component not found for organization %s, project %s, and component %s", orgName, projectName, componentName)
-	}
-	if len(componentList.Items) > 1 {
-		return nil, errors.NewError("multiple components found for organization %s, project %s, and component %s", orgName, projectName, componentName)
-	}
-
-	return &componentList.Items[0], nil
-}
-
-func GetProject(orgName, projectName string) (*choreov1.Project, error) {
-	k8sClient, err := GetKubernetesClient()
-	if err != nil {
-		return nil, err
-	}
-
-	projectList := &choreov1.ProjectList{}
-	labels := client.MatchingLabels{
-		"core.choreo.dev/organization": orgName,
-		"core.choreo.dev/name":         projectName,
-	}
-
-	if err := k8sClient.List(context.Background(), projectList,
-		client.InNamespace(orgName),
-		labels); err != nil {
-		return nil, errors.NewError("failed to list project for organization %s and project %s: %v", orgName, projectName, err)
-	}
-
-	if len(projectList.Items) == 0 {
-		return nil, errors.NewError("project not found for organization %s and project %s", orgName, projectName)
-	}
-
-	return &projectList.Items[0], nil
+	sort.Strings(names)
+	return names, nil
 }

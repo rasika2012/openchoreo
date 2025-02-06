@@ -119,6 +119,27 @@ var (
 		Name:  "follow",
 		Usage: messages.FlagFollowDesc,
 	}
+	BuildTypeName = Flag{
+		Name:  "type",
+		Usage: messages.FlagBuildTypeDesc,
+	}
+
+	DockerContext = Flag{
+		Name:  "docker-context",
+		Usage: messages.FlagDockerContext,
+	}
+	DockerfilePath = Flag{
+		Name:  "dockerfile-path",
+		Usage: messages.FlagDockerfilePath,
+	}
+	BuildpackName = Flag{
+		Name:  "buildpack-name",
+		Usage: messages.FlagBuildpackName,
+	}
+	BuildpackVersion = Flag{
+		Name:  "buildpack-version",
+		Usage: messages.FlagBuildpackVersion,
+	}
 )
 
 // AddFlags adds the specified flags to the given command.
