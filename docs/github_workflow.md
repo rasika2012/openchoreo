@@ -108,7 +108,7 @@ Open a pull request on GitHub targeting `v3-on-k8s` in the upstream repository.
 After a review, ensure your PR is ready by squashing unnecessary commits. The commits remaining in your branch should reflect meaningful milestones.
 Though this is not a strict requirement, it is recommended to keep the commit history clean and consistent.
 
-Examples of meaningful unnecessary commits:
+Examples of unnecessary commits:
 - Multiple review feedbacks
 - Minor typo corrections
 - Merge and rebase commits
