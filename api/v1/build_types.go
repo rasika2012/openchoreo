@@ -42,16 +42,23 @@ type BuildEnvironment struct {
 type BuildpackName string
 
 const (
-	BuildpackBallerina  BuildpackName = "Ballerina"
-	BuildpackGo         BuildpackName = "Go"
-	BuildpackJava       BuildpackName = "Java"
-	BuildpackNodeJS     BuildpackName = "NodeJS"
-	BuildpackPython     BuildpackName = "Python"
-	BuildpackRuby       BuildpackName = "Ruby"
-	BuildpackPHP        BuildpackName = "PHP"
-	BuildpackDotNET     BuildpackName = ".NET"
-	BuildpackSpringBoot BuildpackName = "SpringBoot"
+	BuildpackGo     BuildpackName = "Go"
+	BuildpackJava   BuildpackName = "Java"
+	BuildpackNodeJS BuildpackName = "Node.js"
+	BuildpackPython BuildpackName = "Python"
+	BuildpackRuby   BuildpackName = "Ruby"
+	BuildpackPHP    BuildpackName = "PHP"
 )
+
+// Refer (builder:google-22): https://cloud.google.com/docs/buildpacks/builders
+var supportedVersions = map[BuildpackName][]string{
+	BuildpackGo:     {"1.x"},
+	BuildpackJava:   {"8", "11", "17", "18", "21"},
+	BuildpackNodeJS: {"12.x.x", "14.x.x", "16.x.x", "18.x.x", "20.x.x", "22.x.x"},
+	BuildpackPython: {"3.10.x", "3.11.x", "3.12.x"},
+	BuildpackRuby:   {"3.1.x", "3.2.x", "3.3.x"},
+	BuildpackPHP:    {"8.1.x", "8.2.x", "8.3.x"},
+}
 
 type DockerConfiguration struct {
 	// Context specifies the build context path
