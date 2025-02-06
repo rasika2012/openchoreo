@@ -50,8 +50,9 @@ const (
 	BuildpackPHP    BuildpackName = "PHP"
 )
 
+// SupportedVersions maps each buildpack to its supported versions.
 // Refer (builder:google-22): https://cloud.google.com/docs/buildpacks/builders
-var supportedVersions = map[BuildpackName][]string{
+var SupportedVersions = map[BuildpackName][]string{
 	BuildpackGo:     {"1.x"},
 	BuildpackJava:   {"8", "11", "17", "18", "21"},
 	BuildpackNodeJS: {"12.x.x", "14.x.x", "16.x.x", "18.x.x", "20.x.x", "22.x.x"},
