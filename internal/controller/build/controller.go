@@ -260,7 +260,6 @@ func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, 
 			workflow := makeArgoWorkflow(build, component.Spec.Source.GitRepository.URL, buildNamespace)
 
 			if err := r.Create(ctx, workflow); err != nil {
-
 				return nil, err
 			}
 
@@ -299,10 +298,10 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 		case Running:
 			return true, nil
 		case Succeeded:
-			err := r.markStepAsSucceeded(ctx, build, steps[0].conditionType, logger)
+			err := r.markStepAsSucceeded(ctx, build, steps[0].conditionType)
 			return true, err
 		case Failed:
-			return r.markStepAsFailed(ctx, build, steps[0].conditionType, logger)
+			return r.markStepAsFailed(ctx, build, steps[0].conditionType)
 		}
 	}
 
@@ -312,10 +311,10 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 		case Running:
 			return true, nil
 		case Succeeded:
-			err := r.markStepAsSucceeded(ctx, build, steps[1].conditionType, logger)
+			err := r.markStepAsSucceeded(ctx, build, steps[1].conditionType)
 			return true, err
 		case Failed:
-			return r.markStepAsFailed(ctx, build, steps[1].conditionType, logger)
+			return r.markStepAsFailed(ctx, build, steps[1].conditionType)
 		}
 	}
 
@@ -325,13 +324,13 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 		case Running:
 			return true, nil
 		case Succeeded:
-			err := r.markStepAsSucceeded(ctx, build, steps[0].conditionType, logger)
+			err := r.markStepAsSucceeded(ctx, build, steps[0].conditionType)
 			if err != nil {
 				return true, err
 			}
 			return r.markWorkflowCompleted(ctx, build, stepInfo.Outputs, logger)
 		case Failed:
-			return r.markStepAsFailed(ctx, build, steps[2].conditionType, logger)
+			return r.markStepAsFailed(ctx, build, steps[2].conditionType)
 		}
 	}
 	return true, nil
@@ -365,7 +364,7 @@ func (r *Reconciler) markWorkflowCompleted(ctx context.Context, build *choreov1.
 	return false, nil
 }
 
-func (r *Reconciler) markStepAsSucceeded(ctx context.Context, build *choreov1.Build, conditionType ConditionType, logger logr.Logger) error {
+func (r *Reconciler) markStepAsSucceeded(ctx context.Context, build *choreov1.Build, conditionType ConditionType) error {
 	successDescriptiors := map[ConditionType]struct {
 		Reason  string
 		Message string
@@ -399,7 +398,7 @@ func (r *Reconciler) markStepAsSucceeded(ctx context.Context, build *choreov1.Bu
 	return nil
 }
 
-func (r *Reconciler) markStepAsFailed(ctx context.Context, build *choreov1.Build, conditionType ConditionType, logger logr.Logger) (bool, error) {
+func (r *Reconciler) markStepAsFailed(ctx context.Context, build *choreov1.Build, conditionType ConditionType) (bool, error) {
 	failureDescriptors := map[ConditionType]struct {
 		Reason  string
 		Message string
