@@ -62,9 +62,9 @@ helm install choreo-dp oci://choreov3testacr.azurecr.io/choreo-v3/choreo-opensou
 --version 0.1.0 --namespace "choreo-system" --create-namespace --timeout 30m
 ```
 
-### Install from Scratch Using Kind Cluster
+### Install from Scratch Using a kind(k8s in docker) Cluster
 
-This section guides you through setting up a Kind cluster and installing Cilium and Choreo from scratch.
+This section guides you through setting up a [kind](https://kind.sigs.k8s.io/) cluster and installing Cilium and Choreo from scratch.
 
 #### 1. Install Kind
 
@@ -120,8 +120,8 @@ Installation status:
 
 ### Deploy your first component in choreo
 
-This section guides you through deploying a sample WebApp and invoking it. Go through the following steps to deploy the 
-sample WebApp component in Choreo. 
+This section guides you through deploying a sample Web Application and invoking it. Go through the following steps to deploy the 
+sample Web Application component in Choreo. 
 
 #### 1. Create the sample WebApp component
 
@@ -129,7 +129,7 @@ For this, you will be using the samples we provided in the repository.
 Apply the sample WebApp component using the following command.
 
 ```shell
-kubectl apply -f config/samples/sample-webapp.yaml
+kubectl apply -f samples/sample-webapp.yaml
 ```
 
 > Note: This may take about 5-10 minutes to get the source code, build and deploy it.
@@ -144,7 +144,7 @@ kubectl get orgs,projects,components,dataplanes,deploymentpipelines,deploymenttr
 
 #### 3. Test the deployed WebApp
 
-You can test the deployed WebApp by port-forwarding the service to your host machine. Refer the following steps to do so.
+You can test the deployed WebApp by port-forwarding from your host machine to the external gateway service. Refer the following steps.
 
 Use the following command to find the service name for the external gateway.
 
@@ -155,18 +155,19 @@ kubectl get svc -n choreo-system | grep gateway-external
 Then port-forward the service to your host machine using the following command.
 
 ```shell
+# <name> should be replaces with the service name found in the previous step.
 kubectl port-forward svc/<name> -n choreo-system 443:443
 ```
 
 Then add the following entry to your /etc/hosts file.
 
 ```
-127.0.0.1 webapp1-dev.choreo.local
+127.0.0.1 react-starter-development.choreo.local
 ```
 
 Now you can access the WebApp using the following URL.
 
-https://webapp1-dev.choreo.local
+https://react-starter-development.choreo.local
 
 ## Contributor Guide
 
