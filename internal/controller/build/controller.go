@@ -96,6 +96,8 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	if err != nil {
 		logger.Error(err, "Failed to ensure workflow")
 		return ctrl.Result{}, err
+	} else if existingWorkflow == nil {
+		return ctrl.Result{Requeue: true}, nil
 	}
 
 	requeue, err := r.handleBuildSteps(ctx, build, existingWorkflow.Status.Nodes, logger)
@@ -116,30 +118,22 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	if meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, string(Completed), metav1.ConditionTrue) {
-		workflow := argo.Workflow{}
-		err = r.Get(ctx, client.ObjectKey{Name: build.ObjectMeta.Name, Namespace: buildNamespace}, &workflow)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
 		err := r.createDeployableArtifact(ctx, build, logger)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		newCondition := metav1.Condition{
-			Type:               string(DeployableArtifactCreated),
-			Status:             metav1.ConditionTrue,
-			LastTransitionTime: metav1.Now(),
-			Reason:             "ArtifactCreationSuccessful",
-			Message:            "Successfully created a deployable artifact referencing the associated build.",
-		}
-		changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-		if changed {
-			logger.Info("Updating Build status", "Build.Name", build.Name)
-			if err := r.Status().Update(ctx, build); err != nil {
-				logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-				return ctrl.Result{}, err
-			}
-			logger.Info("Updated Build status", "Build.Name", build.Name)
+
+		if err := controller.UpdateCondition(
+			ctx,
+			r.Status(),
+			build,
+			&build.Status.Conditions,
+			string(DeployableArtifactCreated),
+			metav1.ConditionTrue,
+			"ArtifactCreationSuccessful",
+			"Successfully created a deployable artifact for the build",
+		); err != nil {
+			return ctrl.Result{}, err
 		}
 	}
 	return ctrl.Result{}, nil
@@ -266,26 +260,23 @@ func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, 
 			workflow := makeArgoWorkflow(build, component.Spec.Source.GitRepository.URL, buildNamespace)
 
 			if err := r.Create(ctx, workflow); err != nil {
+
 				return nil, err
 			}
 
-			newCondition := metav1.Condition{
-				Type:               string(Initialized),
-				Status:             metav1.ConditionTrue,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "WorkflowCreated",
-				Message:            "Workflow was created in the cluster.",
+			if err := controller.UpdateCondition(
+				ctx,
+				r.Status(),
+				build,
+				&build.Status.Conditions,
+				string(Initialized),
+				metav1.ConditionTrue,
+				"WorkflowCreated",
+				"Workflow was created in the cluster",
+			); err != nil {
+				return nil, err
 			}
-			changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name, "Build.Status", build.Status)
-					return nil, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			return nil, err
+			return nil, nil
 		}
 		return nil, err
 	}
@@ -338,37 +329,40 @@ func (r *Reconciler) handleBuildSteps(ctx context.Context, build *choreov1.Build
 			if err != nil {
 				return true, err
 			}
-
-			newCondition := metav1.Condition{
-				Type:               string(Completed),
-				Status:             metav1.ConditionTrue,
-				LastTransitionTime: metav1.Now(),
-				Reason:             "BuildCompleted",
-				Message:            "Build completed successfully.",
-			}
-			changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-			image := getImageNameFromWorkflow(*stepInfo.Outputs)
-			if image == "" {
-				newCondition.Status = metav1.ConditionFalse
-				newCondition.Reason = "BuildFailed"
-				newCondition.Message = "Image name is not found."
-			} else if build.Status.ImageStatus.Image != image {
-				build.Status.ImageStatus.Image = image
-			}
-			if changed {
-				logger.Info("Updating Build status", "Build.Name", build.Name)
-				if err := r.Status().Update(ctx, build); err != nil {
-					logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-					return true, err
-				}
-				logger.Info("Updated Build status", "Build.Name", build.Name)
-			}
-			return false, nil
+			return r.markWorkflowCompleted(ctx, build, stepInfo.Outputs, logger)
 		case Failed:
 			return r.markStepAsFailed(ctx, build, steps[2].conditionType, logger)
 		}
 	}
 	return true, nil
+}
+
+func (r *Reconciler) markWorkflowCompleted(ctx context.Context, build *choreov1.Build, argoPushStepOutput *argo.Outputs, logger logr.Logger) (bool, error) {
+	newCondition := metav1.Condition{
+		Type:               string(Completed),
+		Status:             metav1.ConditionTrue,
+		LastTransitionTime: metav1.Now(),
+		Reason:             "BuildCompleted",
+		Message:            "Build completed successfully.",
+	}
+	image := getImageNameFromWorkflow(*argoPushStepOutput)
+	if image == "" {
+		newCondition.Status = metav1.ConditionFalse
+		newCondition.Reason = "BuildFailed"
+		newCondition.Message = "Image name is not found in the workflow"
+	} else {
+		build.Status.ImageStatus.Image = image
+	}
+	changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
+	if changed {
+		logger.Info("Updating Build status", "Build.Name", build.Name)
+		if err := r.Status().Update(ctx, build); err != nil {
+			logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
+			return true, err
+		}
+		logger.Info("Updated Build status", "Build.Name", build.Name)
+	}
+	return false, nil
 }
 
 func (r *Reconciler) markStepAsSucceeded(ctx context.Context, build *choreov1.Build, conditionType ConditionType, logger logr.Logger) error {
@@ -390,21 +384,17 @@ func (r *Reconciler) markStepAsSucceeded(ctx context.Context, build *choreov1.Bu
 		},
 	}
 
-	newCondition := metav1.Condition{
-		Type:               string(conditionType),
-		Status:             metav1.ConditionTrue,
-		LastTransitionTime: metav1.Now(),
-		Reason:             successDescriptiors[conditionType].Reason,
-		Message:            successDescriptiors[conditionType].Message,
-	}
-	changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-	if changed {
-		logger.Info("Updating Build status", "Build.Name", build.Name)
-		if err := r.Status().Update(ctx, build); err != nil {
-			logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-			return err
-		}
-		logger.Info("Updated Build status", "Build.Name", build.Name)
+	if err := controller.UpdateCondition(
+		ctx,
+		r.Status(),
+		build,
+		&build.Status.Conditions,
+		string(conditionType),
+		metav1.ConditionTrue,
+		successDescriptiors[conditionType].Reason,
+		successDescriptiors[conditionType].Message,
+	); err != nil {
+		return err
 	}
 	return nil
 }
@@ -427,38 +417,33 @@ func (r *Reconciler) markStepAsFailed(ctx context.Context, build *choreov1.Build
 			Message: "Pushing the built image to the registry failed.",
 		},
 	}
-	newCondition := metav1.Condition{
-		Type:               string(conditionType),
-		Status:             metav1.ConditionFalse,
-		LastTransitionTime: metav1.Now(),
-		Reason:             failureDescriptors[conditionType].Reason,
-		Message:            failureDescriptors[conditionType].Message,
+
+	if err := controller.UpdateCondition(
+		ctx,
+		r.Status(),
+		build,
+		&build.Status.Conditions,
+		string(conditionType),
+		metav1.ConditionFalse,
+		failureDescriptors[conditionType].Reason,
+		failureDescriptors[conditionType].Message,
+	); err != nil {
+		return true, err
 	}
-	changed := meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-	if changed {
-		logger.Info("Updating Build status", "Build.Name", build.Name)
-		if err := r.Status().Update(ctx, build); err != nil {
-			logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-			return true, err
-		}
-		logger.Info("Updated Build status", "Build.Name", build.Name)
+
+	if err := controller.UpdateCondition(
+		ctx,
+		r.Status(),
+		build,
+		&build.Status.Conditions,
+		string(Completed),
+		metav1.ConditionFalse,
+		"BuildFailed",
+		"Build completed with a failure status",
+	); err != nil {
+		return true, err
 	}
-	newCondition = metav1.Condition{
-		Type:               "Completed",
-		Status:             metav1.ConditionFalse,
-		LastTransitionTime: metav1.Now(),
-		Reason:             "BuildFailed",
-		Message:            "Build completed with a failure status.",
-	}
-	changed = meta.SetStatusCondition(&build.Status.Conditions, newCondition)
-	if changed {
-		logger.Info("Updating Build status", "Build.Name", build.Name)
-		if err := r.Status().Update(ctx, build); err != nil {
-			logger.Error(err, "Failed to update Build status", "Build.Name", build.Name)
-			return true, err
-		}
-		logger.Info("Updated Build status", "Build.Name", build.Name)
-	}
+
 	return false, nil
 }
 
