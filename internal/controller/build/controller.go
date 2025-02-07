@@ -86,9 +86,9 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	// Check if the build namespace exists, and create it if not
-	buildNamespace := "argo-build"
+	buildNamespace := "choreo-ci-" + build.Labels[controller.LabelKeyOrganizationName]
 	if err := r.ensureNamespaceResources(ctx, buildNamespace, logger); err != nil {
-		logger.Error(err, "Failed to ensure namespace resources")
+		logger.Error(err, "Failed to ensure choreo ci namespace resources")
 		return ctrl.Result{}, err
 	}
 
@@ -162,7 +162,7 @@ func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName
 		},
 	}
 	if err := r.Client.Create(ctx, namespace); err != nil && !apierrors.IsAlreadyExists(err) {
-		logger.Error(err, "Failed to create namespace", "Namespace", namespaceName)
+		logger.Error(err, "Failed to create choreo ci namespace", "Namespace", namespaceName)
 		return err
 	}
 
@@ -200,7 +200,7 @@ func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName
 	// Step 4: Create RoleBinding if it doesn't exist
 	roleBinding := &rbacv1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "argo-workflow-binding",
+			Name:      "argo-workflow-role-binding",
 			Namespace: namespaceName,
 		},
 		Subjects: []rbacv1.Subject{
