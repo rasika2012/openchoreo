@@ -88,7 +88,7 @@ apiVersion: core.choreo.dev/v1
 kind: Endpoint
 metadata:
   namespace: default-org
-  name: react-nginx-sample-endpoint
+  name: react-starter-sample-endpoint
   labels:
     core.choreo.dev/organization: default-org
     core.choreo.dev/project: default-project

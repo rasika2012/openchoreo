@@ -144,9 +144,54 @@ kubectl get orgs,projects,components,dataplanes,deploymentpipelines,deploymenttr
 
 #### 3. Test the deployed WebApp
 
-You can test the deployed WebApp by port-forwarding from your host machine to the external gateway service. Refer the following steps.
+You have two options to test your WebApp component.
 
-Use the following command to find the service name for the external gateway.
+1. Option 1: Access the WebApp by exposing the external-gateway as a LoadBalancer to your host machine.
+2. Option 2: port-forward from your host machine to external-gateway service.
+
+##### Option 1: Expose the external-gateway as a LoadBalancer
+
+The following steps will guide you through exposing the external-gateway service as a LoadBalancer to your host machine.
+In this you will be using the [cloud-provider-kind](https://github.com/kubernetes-sigs/cloud-provider-kind/tree/main) to 
+expose the LoadBalancer service(external-gateway) to your host machine.
+
+First, [install](https://github.com/kubernetes-sigs/cloud-provider-kind/tree/main?tab=readme-ov-file#install) the cloud-provider-kind tool to your host machine.
+
+Then, run this tool in sudo mode, and it will automatically assign LoadBalancer IP to your external-gateway service.
+
+```shell
+# run this command in a separate terminal and keep it running.
+$ sudo $(which cloud-provider-kind)
+```
+
+Then you could find the load balancer IP for your external-gateway service as follows.
+
+```shell
+# to find the external-gateway service name
+$ kubectl get svc -n choreo-system | grep gateway-external
+```
+
+```shell
+# to find the LoadBalancer-IP
+# <name> should be replaced with the service name found in the previous step.
+$ kubectl get svc/<name> -n choreo-system -o=jsonpath='{.status.loadBalancer.ingress[0].ip}'
+```
+
+Then add this IP to your /etc/hosts file as follows.
+
+```text
+<LoadBalancer-IP> react-starter-development.choreo.local
+```
+
+Now you can access the WebApp using following URL.
+
+https://react-starter-development.choreo.local
+
+##### Option 2: Port-forward the external-gateway service
+
+The following steps will guide you through port-forwarding from your host machine to the external-gateway service.
+
+First, find the external-gateway service using the following command.
 
 ```shell
 kubectl get svc -n choreo-system | grep gateway-external
