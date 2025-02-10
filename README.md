@@ -95,7 +95,7 @@ helm install cilium-cni oci://choreov3testacr.azurecr.io/choreo-v3/cilium-cni  -
 #### 4. Install Choreo
 
 ```shell
-helm install choreo-dp oci://choreov3testacr.azurecr.io/choreo-v3/choreo-opensource-dp  --version 0.1.0 --namespace "choreo-system" --create-namespace --timeout 30m
+helm install choreo-dp oci://choreov3testacr.azurecr.io/choreo-v3/choreo  --version 0.1.0 --namespace "choreo-system" --create-namespace --timeout 30m
 ```
 
 #### 5. Verify installation status
