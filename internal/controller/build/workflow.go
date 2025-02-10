@@ -330,14 +330,17 @@ runroot = "/run/containers/storage"
 graphroot = "/shared/podman/cache"
 [storage.options.overlay]
 mount_program = "/usr/bin/fuse-overlayfs"
-EOF
-
-podman system service --time=0 &`
+EOF`
 
 	var buildScript string
 
 	if build.Spec.BuildConfiguration.Buildpack != nil {
 		buildScript = fmt.Sprintf(`
+podman system service --time=0 &
+until podman info --format '{{.Host.RemoteSocket.Exists}}' 2>/dev/null | grep -q "true"; do
+  sleep 1
+done
+
 /usr/local/bin/pack build %s-{{inputs.parameters.git-revision}} --builder=gcr.io/buildpacks/builder:google-22 \
 --docker-host=inherit --path=/mnt/vol/source%s --pull-policy if-not-present %s
 
