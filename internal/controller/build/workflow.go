@@ -237,7 +237,7 @@ func makeNodeAffinity() *corev1.Affinity {
 							{
 								Key:      "kubernetes.io/hostname",
 								Operator: corev1.NodeSelectorOpIn,
-								Values:   []string{"choreo-worker2"},
+								Values:   []string{"choreo-worker"},
 							},
 						},
 					},
