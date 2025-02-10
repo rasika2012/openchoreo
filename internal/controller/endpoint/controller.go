@@ -21,8 +21,9 @@ package endpoint
 import (
 	"context"
 	"fmt"
+	"path"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -61,24 +62,12 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 	// Implement Finalizer for route deletion
 
-	if err := controller.UpdateCondition(ctx, r.Status(), endpoint, &endpoint.Status.Conditions,
-		controller.TypeAvailable,
-		metav1.ConditionUnknown,
-		"Reconciling",
-		"Starting reconciliation",
-	); err != nil {
-		logger.Error(err, "Failed to update Endpoint status")
-		return ctrl.Result{}, err
-	}
-
-	if err := r.Get(ctx, req.NamespacedName, endpoint); err != nil {
-		return ctrl.Result{}, client.IgnoreNotFound(err)
-	}
-
 	if endpoint.Labels == nil {
 		logger.Info("Endpoint labels not set.")
 		return ctrl.Result{}, nil
 	}
+
+	old := endpoint.DeepCopy()
 
 	endpointCtx, err := r.makeEndpointContext(ctx, endpoint)
 	if err != nil {
@@ -91,17 +80,22 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	}
 
-	if err := controller.UpdateCondition(
-		ctx,
-		r.Status(),
-		endpoint,
-		&endpoint.Status.Conditions,
-		controller.TypeReady,
-		metav1.ConditionTrue,
-		"EndpointReady",
-		fmt.Sprintf("https://%s%s", kubernetes.MakeHostname(endpointCtx), endpointCtx.Endpoint.Spec.Service.BasePath),
-	); err != nil {
-		return ctrl.Result{}, err
+	// TODO Add update all status fields function
+	if changed := meta.SetStatusCondition(&endpoint.Status.Conditions, NewEndpointReadyCondition(endpoint.Generation)); changed {
+		if err := controller.UpdateStatusConditions(ctx, r.Client, old, endpoint); err != nil {
+			return ctrl.Result{}, err
+		}
+		// Requeue to update URL after status conditions are updated
+		return ctrl.Result{Requeue: true}, nil
+	}
+
+	url := path.Clean(fmt.Sprintf("https://%s/%s", kubernetes.MakeHostname(endpointCtx), endpointCtx.Endpoint.Spec.Service.BasePath))
+	if endpoint.Status.URL != url {
+		endpoint.Status.URL = url
+		if err := r.Status().Update(ctx, endpoint); err != nil {
+			logger.Error(err, "Failed to update Endpoint status")
+			return ctrl.Result{}, err
+		}
 	}
 
 	return ctrl.Result{}, nil

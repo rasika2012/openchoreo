@@ -138,21 +138,29 @@ type EndpointSpec struct {
 
 // EndpointStatus defines the observed state of Endpoint
 type EndpointStatus struct {
-	ObservedGeneration int64              `json:"observedGeneration,omitempty"`
-	Conditions         []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"`
+	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"`
+	URL        string             `json:"url,omitempty"`
 }
 
 // Endpoint is the Schema for the endpoints API
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-// +kubebuilder:printcolumn:name="url",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].message"
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
+// +kubebuilder:printcolumn:name="url",type="string",JSONPath=".status.url"
 type Endpoint struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	Spec   EndpointSpec   `json:"spec,omitempty"`
 	Status EndpointStatus `json:"status,omitempty"`
+}
+
+func (e *Endpoint) GetConditions() []metav1.Condition {
+	return e.Status.Conditions
+}
+
+func (e *Endpoint) SetConditions(conditions []metav1.Condition) {
+	e.Status.Conditions = conditions
 }
 
 // EndpointList contains a list of Endpoint
