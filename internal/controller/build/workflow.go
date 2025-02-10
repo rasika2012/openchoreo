@@ -210,7 +210,6 @@ func makePushStep(build *choreov1.Build) argo.Template {
 			},
 			VolumeMounts: []corev1.VolumeMount{
 				{Name: "workspace", MountPath: "/mnt/vol"},
-				{Name: "podman-cache", MountPath: "/shared/podman/cache"},
 			},
 		},
 		Outputs: argo.Outputs{
@@ -327,7 +326,7 @@ cat <<EOF > /etc/containers/storage.conf
 [storage]
 driver = "overlay"
 runroot = "/run/containers/storage"
-graphroot = "/shared/podman/cache"
+graphroot = "/var/lib/containers/storage"
 [storage.options.overlay]
 mount_program = "/usr/bin/fuse-overlayfs"
 EOF`
@@ -340,6 +339,30 @@ podman system service --time=0 &
 until podman info --format '{{.Host.RemoteSocket.Exists}}' 2>/dev/null | grep -q "true"; do
   sleep 1
 done
+
+if [[ ! -f "/shared/podman/cache/google-builder.tar" ]]; then
+  podman pull gcr.io/buildpacks/builder:google-22
+  podman save -o /shared/podman/cache/google-builder.tar gcr.io/buildpacks/builder:google-22
+else
+  if podman load -i /shared/podman/cache/google-builder.tar; then
+	true
+  else
+	podman pull gcr.io/buildpacks/builder:google-22
+	podman save -o /shared/podman/cache/google-builder.tar gcr.io/buildpacks/builder:google-22
+  fi
+fi
+
+if [[ ! -f "/shared/podman/cache/google-run.tar" ]]; then
+  podman pull gcr.io/buildpacks/google-22/run:latest
+  podman save -o /shared/podman/cache/google-run.tar gcr.io/buildpacks/google-22/run:latest
+else
+  if podman load -i /shared/podman/cache/google-run.tar; then
+	true
+  else
+	podman pull gcr.io/buildpacks/google-22/run:latest
+	podman save -o /shared/podman/cache/google-run.tar gcr.io/buildpacks/google-22/run:latest
+  fi
+fi
 
 /usr/local/bin/pack build %s-{{inputs.parameters.git-revision}} --builder=gcr.io/buildpacks/builder:google-22 \
 --docker-host=inherit --path=/mnt/vol/source%s --pull-policy if-not-present %s
@@ -363,7 +386,7 @@ cat <<EOF > /etc/containers/storage.conf
 [storage]
 driver = "overlay"
 runroot = "/run/containers/storage"
-graphroot = "/shared/podman/cache"
+graphroot = "/var/lib/containers/storage"
 [storage.options.overlay]
 mount_program = "/usr/bin/fuse-overlayfs"
 EOF
