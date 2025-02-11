@@ -54,6 +54,7 @@ func UpdateCondition(
 		Reason:             reason,
 		Message:            message,
 		LastTransitionTime: metav1.Now(),
+		ObservedGeneration: resource.GetGeneration(),
 	}
 
 	changed := meta.SetStatusCondition(conditions, condition)
