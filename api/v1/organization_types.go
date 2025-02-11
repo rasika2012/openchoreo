@@ -39,6 +39,9 @@ type OrganizationStatus struct {
 	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
 	// Conditions represent the latest available observations of an object's current state.
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
+
+	// NamespaceStatus NamespaceStatus `json:"namespaceStatus,omitempty"`
+	Namespace string `json:"namespace,omitempty"`
 }
 
 // +kubebuilder:object:root=true

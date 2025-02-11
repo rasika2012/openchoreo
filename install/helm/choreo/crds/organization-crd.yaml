@@ -103,6 +103,9 @@ spec:
                   - type
                   type: object
                 type: array
+              namespace:
+                description: NamespaceStatus NamespaceStatus `json:"namespaceStatus,omitempty"`
+                type: string
               observedGeneration:
                 format: int64
                 type: integer
