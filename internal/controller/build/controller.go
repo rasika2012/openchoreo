@@ -39,6 +39,7 @@ import (
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes/types/argoproj.io/workflow/v1alpha1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 )
 
 // Reconciler reconciles a Build object
@@ -77,7 +78,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	// Check if the build namespace exists, and create it if not
-	buildNamespace := "choreo-ci-" + build.Labels[controller.LabelKeyOrganizationName]
+	buildNamespace := "choreo-ci-" + build.Labels[labels.LabelKeyOrganizationName]
 	if err := r.ensureNamespaceResources(ctx, buildNamespace, logger); err != nil {
 		logger.Error(err, "Failed to ensure choreo ci namespace resources")
 		return ctrl.Result{}, err
@@ -213,8 +214,8 @@ func (r *Reconciler) getComponent(ctx context.Context, build *choreov1.Build) (*
 	listOpts := []client.ListOption{
 		client.InNamespace(build.Namespace),
 		client.MatchingLabels{
-			controller.LabelKeyOrganizationName: build.Labels[controller.LabelKeyOrganizationName],
-			controller.LabelKeyProjectName:      build.Labels[controller.LabelKeyProjectName],
+			labels.LabelKeyOrganizationName: build.Labels[labels.LabelKeyOrganizationName],
+			labels.LabelKeyProjectName:      build.Labels[labels.LabelKeyProjectName],
 		},
 	}
 	if err := r.Client.List(ctx, componentList, listOpts...); err != nil {
@@ -226,11 +227,11 @@ func (r *Reconciler) getComponent(ctx context.Context, build *choreov1.Build) (*
 			// Ideally, this should not happen as the component should have the organization and project labels
 			continue
 		}
-		if component.Labels[controller.LabelKeyName] == build.Labels[controller.LabelKeyComponentName] {
+		if component.Labels[labels.LabelKeyName] == build.Labels[labels.LabelKeyComponentName] {
 			return &component, nil
 		}
 	}
-	return nil, apierrors.NewNotFound(schema.GroupResource{Group: "core.choreo.dev", Resource: "Component"}, build.Labels[controller.LabelKeyComponentName])
+	return nil, apierrors.NewNotFound(schema.GroupResource{Group: "core.choreo.dev", Resource: "Component"}, build.Labels[labels.LabelKeyComponentName])
 }
 
 func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, buildNamespace string, logger logr.Logger) (*argo.Workflow, error) {

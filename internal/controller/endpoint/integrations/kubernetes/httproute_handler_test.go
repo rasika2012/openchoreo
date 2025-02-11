@@ -27,8 +27,8 @@ import (
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/ptr"
 )
 
@@ -92,7 +92,7 @@ func createTestEndpointContext(basePath string, port int32, componentName, envNa
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "test-endpoint",
 				Labels: map[string]string{
-					controller.LabelKeyName: "test-endpoint",
+					labels.LabelKeyName: "test-endpoint",
 				},
 			},
 			Spec: corev1.EndpointSpec{
@@ -107,7 +107,7 @@ func createTestEndpointContext(basePath string, port int32, componentName, envNa
 			ObjectMeta: metav1.ObjectMeta{
 				Name: componentName,
 				Labels: map[string]string{
-					controller.LabelKeyName: componentName,
+					labels.LabelKeyName: componentName,
 				},
 			},
 			Spec: corev1.ComponentSpec{
@@ -118,7 +118,7 @@ func createTestEndpointContext(basePath string, port int32, componentName, envNa
 			ObjectMeta: metav1.ObjectMeta{
 				Name: envName,
 				Labels: map[string]string{
-					controller.LabelKeyName: envName,
+					labels.LabelKeyName: envName,
 				},
 				UID: "test-env-id",
 			},
@@ -127,7 +127,7 @@ func createTestEndpointContext(basePath string, port int32, componentName, envNa
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "test-project",
 				Labels: map[string]string{
-					controller.LabelKeyName: "test-project",
+					labels.LabelKeyName: "test-project",
 				},
 			},
 		},
@@ -135,7 +135,7 @@ func createTestEndpointContext(basePath string, port int32, componentName, envNa
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "test-track",
 				Labels: map[string]string{
-					controller.LabelKeyName: "test-track",
+					labels.LabelKeyName: "test-track",
 				},
 			},
 		},
@@ -143,7 +143,7 @@ func createTestEndpointContext(basePath string, port int32, componentName, envNa
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "test-deployment",
 				Labels: map[string]string{
-					controller.LabelKeyName: "test-deployment",
+					labels.LabelKeyName: "test-deployment",
 				},
 			},
 		},

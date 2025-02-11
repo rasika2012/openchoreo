@@ -36,6 +36,7 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 	k8sintegrations "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment/integrations/kubernetes"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 )
 
 // Reconciler reconciles a Deployment object
@@ -162,10 +163,10 @@ func (r *Reconciler) findDeployableArtifact(ctx context.Context, deployment *cho
 func makeHierarchyLabelsForDeploymentTrack(objMeta metav1.ObjectMeta) map[string]string {
 	// Hierarchical labels to be used for DeploymentTrack
 	keys := []string{
-		controller.LabelKeyOrganizationName,
-		controller.LabelKeyProjectName,
-		controller.LabelKeyComponentName,
-		controller.LabelKeyDeploymentTrackName,
+		labels.LabelKeyOrganizationName,
+		labels.LabelKeyProjectName,
+		labels.LabelKeyComponentName,
+		labels.LabelKeyDeploymentTrackName,
 	}
 
 	// Prepare a new map to hold the extracted labels.

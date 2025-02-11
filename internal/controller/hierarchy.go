@@ -25,6 +25,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 )
 
 // This file contains the helper functions to get the Choreo specific parent objects from the Kubernetes objects.
@@ -34,7 +35,7 @@ func GetProject(ctx context.Context, c client.Client, obj client.Object) (*chore
 	listOpts := []client.ListOption{
 		client.InNamespace(obj.GetNamespace()),
 		client.MatchingLabels{
-			LabelKeyOrganizationName: GetOrganizationName(obj),
+			labels.LabelKeyOrganizationName: GetOrganizationName(obj),
 		},
 	}
 	// TODO: possible to use the index to get the project directly instead of listing all projects
@@ -60,8 +61,8 @@ func GetComponent(ctx context.Context, c client.Client, obj client.Object) (*cho
 	listOpts := []client.ListOption{
 		client.InNamespace(obj.GetNamespace()),
 		client.MatchingLabels{
-			LabelKeyOrganizationName: GetOrganizationName(obj),
-			LabelKeyProjectName:      GetProjectName(obj),
+			labels.LabelKeyOrganizationName: GetOrganizationName(obj),
+			labels.LabelKeyProjectName:      GetProjectName(obj),
 		},
 	}
 	if err := c.List(ctx, componentList, listOpts...); err != nil {
@@ -86,9 +87,9 @@ func GetDeploymentTrack(ctx context.Context, c client.Client, obj client.Object)
 	listOpts := []client.ListOption{
 		client.InNamespace(obj.GetNamespace()),
 		client.MatchingLabels{
-			LabelKeyOrganizationName: GetOrganizationName(obj),
-			LabelKeyProjectName:      GetProjectName(obj),
-			LabelKeyComponentName:    GetComponentName(obj),
+			labels.LabelKeyOrganizationName: GetOrganizationName(obj),
+			labels.LabelKeyProjectName:      GetProjectName(obj),
+			labels.LabelKeyComponentName:    GetComponentName(obj),
 		},
 	}
 	if err := c.List(ctx, deploymentTrackList, listOpts...); err != nil {
@@ -113,7 +114,7 @@ func GetEnvironment(ctx context.Context, c client.Client, obj client.Object) (*c
 	listOpts := []client.ListOption{
 		client.InNamespace(obj.GetNamespace()),
 		client.MatchingLabels{
-			LabelKeyOrganizationName: GetOrganizationName(obj),
+			labels.LabelKeyOrganizationName: GetOrganizationName(obj),
 		},
 	}
 	if err := c.List(ctx, environmentList, listOpts...); err != nil {
@@ -138,10 +139,10 @@ func GetDeployment(ctx context.Context, c client.Client, obj client.Object) (*ch
 	listOpts := []client.ListOption{
 		client.InNamespace(obj.GetNamespace()),
 		client.MatchingLabels{
-			LabelKeyOrganizationName:    GetOrganizationName(obj),
-			LabelKeyProjectName:         GetProjectName(obj),
-			LabelKeyComponentName:       GetComponentName(obj),
-			LabelKeyDeploymentTrackName: GetDeploymentTrackName(obj),
+			labels.LabelKeyOrganizationName:    GetOrganizationName(obj),
+			labels.LabelKeyProjectName:         GetProjectName(obj),
+			labels.LabelKeyComponentName:       GetComponentName(obj),
+			labels.LabelKeyDeploymentTrackName: GetDeploymentTrackName(obj),
 		},
 	}
 	if err := c.List(ctx, deploymentList, listOpts...); err != nil {
@@ -166,10 +167,10 @@ func GetDeployableArtifact(ctx context.Context, c client.Client, obj client.Obje
 	listOpts := []client.ListOption{
 		client.InNamespace(obj.GetNamespace()),
 		client.MatchingLabels{
-			LabelKeyOrganizationName:    GetOrganizationName(obj),
-			LabelKeyProjectName:         GetProjectName(obj),
-			LabelKeyComponentName:       GetComponentName(obj),
-			LabelKeyDeploymentTrackName: GetDeploymentTrackName(obj),
+			labels.LabelKeyOrganizationName:    GetOrganizationName(obj),
+			labels.LabelKeyProjectName:         GetProjectName(obj),
+			labels.LabelKeyComponentName:       GetComponentName(obj),
+			labels.LabelKeyDeploymentTrackName: GetDeploymentTrackName(obj),
 		},
 	}
 	if err := c.List(ctx, deployableArtifactList, listOpts...); err != nil {

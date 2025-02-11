@@ -33,7 +33,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	apiv1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/ptr"
 )
 
@@ -86,9 +86,9 @@ var _ = Context("Organization Controller", func() {
 
 			By("verifying the namespace has the expected attributes")
 			Expect(namespace.Name).To(Equal(orgName))
-			Expect(namespace.Labels).To(HaveKeyWithValue(controller.LabelKeyManagedBy, controller.LabelValueManagedBy))
-			Expect(namespace.Labels).To(HaveKeyWithValue(controller.LabelKeyOrganizationName, orgName))
-			Expect(namespace.Labels).To(HaveKeyWithValue(controller.LabelKeyName, orgName))
+			Expect(namespace.Labels).To(HaveKeyWithValue(labels.LabelKeyManagedBy, labels.LabelValueManagedBy))
+			Expect(namespace.Labels).To(HaveKeyWithValue(labels.LabelKeyOrganizationName, orgName))
+			Expect(namespace.Labels).To(HaveKeyWithValue(labels.LabelKeyName, orgName))
 		})
 
 		It("should not return an error for non-existing organization", func() {
@@ -119,9 +119,9 @@ var _ = Context("Organization Controller", func() {
 
 				By("Updating the organization's namespace resource labels")
 				orgNamespace.ObjectMeta.Labels = map[string]string{
-					controller.LabelKeyManagedBy:        controller.LabelValueManagedBy,
-					controller.LabelKeyOrganizationName: "new-org-name",
-					controller.LabelKeyName:             "new-org-name",
+					labels.LabelKeyManagedBy:        labels.LabelValueManagedBy,
+					labels.LabelKeyOrganizationName: "new-org-name",
+					labels.LabelKeyName:             "new-org-name",
 				}
 				err = k8sClient.Update(ctx, orgNamespace)
 				Expect(err).NotTo(HaveOccurred())
@@ -150,9 +150,9 @@ var _ = Context("Organization Controller", func() {
 
 				By("verifying the namespace has the updated labels")
 				Expect(namespace.Name).To(Equal(orgName))
-				Expect(namespace.Labels).To(HaveKeyWithValue(controller.LabelKeyManagedBy, controller.LabelValueManagedBy))
-				Expect(namespace.Labels).To(HaveKeyWithValue(controller.LabelKeyOrganizationName, orgName))
-				Expect(namespace.Labels).To(HaveKeyWithValue(controller.LabelKeyName, orgName))
+				Expect(namespace.Labels).To(HaveKeyWithValue(labels.LabelKeyManagedBy, labels.LabelValueManagedBy))
+				Expect(namespace.Labels).To(HaveKeyWithValue(labels.LabelKeyOrganizationName, orgName))
+				Expect(namespace.Labels).To(HaveKeyWithValue(labels.LabelKeyName, orgName))
 			})
 		})
 	})

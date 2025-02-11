@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package controller
+package labels
 
 // This file contains the all the labels that are used to store Choreo specific the metadata in the Kubernetes objects.
 

@@ -33,6 +33,7 @@ import (
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 )
 
 // Reconciler reconciles a Organization object
@@ -75,9 +76,13 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 	previousCondition := meta.FindStatusCondition(organization.Status.Conditions, controller.TypeReady)
 
+	// TODO Shouldn't we add a prefix or suffix to the namespace name to avoid conflicts
+	//  and identify that it is created by this controller?
+	namespaceName := organization.Name
+
 	// Check if the Namespace already exists, if not create a new one
 	namespace := &corev1.Namespace{}
-	err := r.Get(ctx, client.ObjectKey{Name: organization.Name}, namespace)
+	err := r.Get(ctx, client.ObjectKey{Name: namespaceName}, namespace)
 	if apierrors.IsNotFound(err) {
 		newNamespace := makeOrganizationNamespace(organization)
 		// Set Organization instance as the owner and controller
@@ -119,6 +124,8 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		logger.Info("Updated Namespace", "Namespace.Name", namespace.Name)
 	}
 
+	// Record the created Namespace in the Organization status
+	organization.Status.Namespace = namespaceName
 	organization.Status.ObservedGeneration = organization.Generation
 	if err := controller.UpdateCondition(
 		ctx,
@@ -166,8 +173,8 @@ func makeOrganizationNamespace(organization *choreov1.Organization) *corev1.Name
 
 func makeOrganizationNamespaceLabels(organization *choreov1.Organization) map[string]string {
 	return map[string]string{
-		controller.LabelKeyManagedBy:        controller.LabelValueManagedBy,
-		controller.LabelKeyOrganizationName: organization.Name,
-		controller.LabelKeyName:             organization.Name,
+		labels.LabelKeyManagedBy:        labels.LabelValueManagedBy,
+		labels.LabelKeyOrganizationName: organization.Name,
+		labels.LabelKeyName:             organization.Name,
 	}
 }
