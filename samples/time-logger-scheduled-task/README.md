@@ -9,7 +9,7 @@ kubectl apply  -f samples/time-logger-scheduled-task/time-logger.yaml
 ```
 
 ## Checking the Argo Workflow Status
-Argo workflow will create three tasks. You can 
+Argo workflow will create three tasks.
 
 ```
 NAMESPACE            NAME 
