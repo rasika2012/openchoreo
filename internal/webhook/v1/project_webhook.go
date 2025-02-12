@@ -21,6 +21,7 @@ package v1
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -29,6 +30,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
 	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 )
 
 // nolint:unused
@@ -96,7 +98,9 @@ func (v *ProjectCustomValidator) ValidateCreate(ctx context.Context, obj runtime
 	}
 	projectlog.Info("Validation for Project upon creation", "name", project.GetName())
 
-	// TODO(user): fill in your validation logic upon object creation.
+	if err := validateProjectLabels(project); err != nil {
+		return nil, err
+	}
 
 	return nil, nil
 }
@@ -109,7 +113,9 @@ func (v *ProjectCustomValidator) ValidateUpdate(ctx context.Context, oldObj, new
 	}
 	projectlog.Info("Validation for Project upon update", "name", project.GetName())
 
-	// TODO(user): fill in your validation logic upon object update.
+	if err := validateProjectLabels(project); err != nil {
+		return nil, err
+	}
 
 	return nil, nil
 }
@@ -125,4 +131,24 @@ func (v *ProjectCustomValidator) ValidateDelete(ctx context.Context, obj runtime
 	// TODO(user): fill in your validation logic upon object deletion.
 
 	return nil, nil
+}
+
+func validateProjectLabels(project *corev1.Project) error {
+	requiredLabels := []string{
+		labels.LabelKeyOrganizationName,
+		labels.LabelKeyName,
+	}
+
+	var missingLabels []string
+	for _, label := range requiredLabels {
+		if _, exists := project.Labels[label]; !exists {
+			missingLabels = append(missingLabels, label)
+		}
+	}
+
+	if len(missingLabels) > 0 {
+		return fmt.Errorf("required labels missing: %s", strings.Join(missingLabels, ", "))
+	}
+
+	return nil
 }
