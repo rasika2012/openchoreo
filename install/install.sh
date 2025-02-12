@@ -16,10 +16,10 @@ install_helm_chart() {
   helm upgrade --install "$release_name" "$chart_dir" --namespace "$namespace" --create-namespace --timeout 30m
 }
 
-# Install helm chart for cilium-cni
-install_helm_chart "$SCRIPT_DIR/helm/cilium-cni" "cilium-cni" "choreo-system"
+# Install helm chart for cilium
+install_helm_chart "$SCRIPT_DIR/helm/cilium" "cilium" "choreo-system"
 
 # Install choreo-opensource-dp
-install_helm_chart "$SCRIPT_DIR/helm/choreo" "choreo-dp" "choreo-system"
+install_helm_chart "$SCRIPT_DIR/helm/choreo" "choreo" "choreo-system"
 
 echo "Both Helm charts have been installed successfully! Please note that completing the full installation process may take some time."

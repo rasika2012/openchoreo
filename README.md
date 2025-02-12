@@ -58,7 +58,7 @@ This guide will help users set up the necessary prerequisites, download and inst
 You can directly install Choreo using the Helm chart provided in our registry.
 
 ```shell
-helm install choreo-dp oci://choreov3testacr.azurecr.io/choreo-v3/choreo-opensource-dp \
+helm install choreo oci://choreov3testacr.azurecr.io/choreo-v3/choreo \
 --version 0.1.0 --namespace "choreo-system" --create-namespace --timeout 30m
 ```
 
@@ -89,13 +89,13 @@ kind create cluster --config=install/kind/kind-config.yaml
 The following helm chart provided by us installs Cilium with minimal configurations required for Choreo.
 
 ```shell
-helm install cilium-cni oci://choreov3testacr.azurecr.io/choreo-v3/cilium-cni  --version 0.1.0 --namespace "choreo-system" --create-namespace --timeout 30m
+helm install cilium oci://choreov3testacr.azurecr.io/choreo-v3/cilium  --version 0.1.0 --namespace "choreo-system" --create-namespace --timeout 30m
 ```
 
 #### 4. Install Choreo
 
 ```shell
-helm install choreo-dp oci://choreov3testacr.azurecr.io/choreo-v3/choreo  --version 0.1.0 --namespace "choreo-system" --create-namespace --timeout 30m
+helm install choreo oci://choreov3testacr.azurecr.io/choreo-v3/choreo  --version 0.1.0 --namespace "choreo-system" --create-namespace --timeout 30m
 ```
 
 #### 5. Verify installation status

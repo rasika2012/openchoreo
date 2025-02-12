@@ -1,4 +1,4 @@
-# Default values for cilium-cni.
+# Default values for cilium.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
