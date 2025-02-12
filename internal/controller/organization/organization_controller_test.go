@@ -67,7 +67,7 @@ var _ = Context("Organization Controller", func() {
 			controllerReconciler := &Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
-				recorder: record.NewFakeRecorder(100),
+				Recorder: record.NewFakeRecorder(100),
 			}
 
 			result, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
@@ -98,7 +98,7 @@ var _ = Context("Organization Controller", func() {
 			controllerReconciler := &Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
-				recorder: record.NewFakeRecorder(100),
+				Recorder: record.NewFakeRecorder(100),
 			}
 
 			result, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
@@ -132,7 +132,7 @@ var _ = Context("Organization Controller", func() {
 				controllerReconciler := &Reconciler{
 					Client:   k8sClient,
 					Scheme:   k8sClient.Scheme(),
-					recorder: record.NewFakeRecorder(100),
+					Recorder: record.NewFakeRecorder(100),
 				}
 
 				result, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
@@ -173,7 +173,7 @@ var _ = Context("Organization Controller", func() {
 			controllerReconciler := &Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
-				recorder: record.NewFakeRecorder(100),
+				Recorder: record.NewFakeRecorder(100),
 			}
 
 			result, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
