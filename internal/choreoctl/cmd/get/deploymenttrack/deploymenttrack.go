@@ -41,9 +41,14 @@ func NewListDeploymentTrackImpl(config constants.CRDConfig) *ListDeploymentTrack
 }
 
 func (i *ListDeploymentTrackImpl) ListDeploymentTrack(params api.ListDeploymentTrackParams) error {
-	if params.Organization == "" || params.Project == "" || params.Component == "" {
+	if params.Interactive {
 		return listDeploymentTrackInteractive(i.config)
 	}
+
+	if params.Organization == "" || params.Project == "" || params.Component == "" {
+		return errors.NewError("organization, project and component are required")
+	}
+
 	return listDeploymentTracks(params, i.config)
 }
 
@@ -65,7 +70,9 @@ func listDeploymentTracks(params api.ListDeploymentTrackParams, config constants
 	}
 
 	if len(tracks) == 0 {
-		return errors.NewError("No deployment tracks found")
+		fmt.Printf("No deployment tracks found for organization: %s, project: %s, component: %s\n",
+			params.Organization, params.Project, params.Component)
+		return nil
 	}
 
 	if params.OutputFormat == constants.OutputFormatYAML {

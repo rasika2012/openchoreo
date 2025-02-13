@@ -41,8 +41,12 @@ func NewListProjImpl(config constants.CRDConfig) *ListProjImpl {
 }
 
 func (i *ListProjImpl) ListProject(params api.ListProjectParams) error {
-	if params.Organization == "" {
+	if params.Interactive {
 		return listProjectsInteractive(i.config)
+	}
+
+	if params.Organization == "" {
+		return errors.NewError("organization is required")
 	}
 
 	return listProjects(params, i.config)
@@ -66,7 +70,8 @@ func listProjects(params api.ListProjectParams, config constants.CRDConfig) erro
 	}
 
 	if len(projects) == 0 {
-		return errors.NewError("No projects found for organization: %s, project: %s", params.Organization, params.Name)
+		fmt.Printf("No projects found for organization: %s\n", params.Organization)
+		return nil
 	}
 
 	if params.OutputFormat == constants.OutputFormatYAML {

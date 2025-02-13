@@ -32,6 +32,7 @@ type ListParams struct {
 type ListProjectParams struct {
 	Organization string
 	OutputFormat string
+	Interactive  bool
 	Name         string
 }
 
@@ -41,6 +42,7 @@ type ListComponentParams struct {
 	Project      string
 	OutputFormat string
 	Name         string
+	Interactive  bool // Add this field
 }
 
 // CreateOrganizationParams defines parameters for creating organizations
@@ -118,6 +120,7 @@ type ListBuildParams struct {
 	Project      string
 	Component    string
 	OutputFormat string
+	Interactive  bool
 	Name         string
 }
 
@@ -154,6 +157,7 @@ type ListDeployableArtifactParams struct {
 	// Optional filters
 	GitRevision  string
 	DisabledOnly bool
+	Interactive  bool
 }
 
 // ListDeploymentParams defines parameters for listing deployments
@@ -171,6 +175,7 @@ type ListDeploymentParams struct {
 	// Display options
 	OutputFormat string
 	Name         string
+	Interactive  bool
 }
 
 // CreateDeploymentParams defines parameters for creating a deployment
@@ -204,6 +209,7 @@ type ListDeploymentTrackParams struct {
 	Project      string
 	Component    string
 	OutputFormat string
+	Interactive  bool
 	Name         string
 }
 
@@ -222,6 +228,7 @@ type CreateEnvironmentParams struct {
 type ListEnvironmentParams struct {
 	Organization string
 	OutputFormat string
+	Interactive  bool
 	Name         string
 }
 
@@ -244,6 +251,7 @@ type CreateDataPlaneParams struct {
 type ListDataPlaneParams struct {
 	Organization string
 	OutputFormat string
+	Interactive  bool
 	Name         string
 }
 
@@ -254,6 +262,7 @@ type ListEndpointParams struct {
 	Component    string
 	Environment  string
 	OutputFormat string
+	Interactive  bool
 	Name         string
 }
 

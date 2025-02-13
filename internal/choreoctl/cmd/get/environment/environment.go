@@ -41,9 +41,14 @@ func NewListEnvironmentImpl(config constants.CRDConfig) *ListEnvironmentImpl {
 }
 
 func (i *ListEnvironmentImpl) ListEnvironment(params api.ListEnvironmentParams) error {
-	if params.Organization == "" {
+	if params.Interactive {
 		return listEnvironmentInteractive(i.config)
 	}
+
+	if params.Organization == "" {
+		return errors.NewError("organization is required")
+	}
+
 	return listEnvironments(params, i.config)
 }
 
@@ -65,7 +70,8 @@ func listEnvironments(params api.ListEnvironmentParams, config constants.CRDConf
 	}
 
 	if len(environments) == 0 {
-		return errors.NewError("no environments found")
+		fmt.Printf("No environments found for organization: %s\n", params.Organization)
+		return nil
 	}
 
 	if params.OutputFormat == constants.OutputFormatYAML {
@@ -93,18 +99,13 @@ func printEnvironmentYAML(environments []corev1.Environment, orgName string, con
 
 func printEnvironmentTable(environments []corev1.Environment, orgName string) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-	fmt.Fprintln(w, "NAME\tDISPLAY NAME\tDATA PLANE\tPRODUCTION\tDNS PREFIX\tAGE")
+	fmt.Fprintln(w, "NAME\tDATA PLANE\tPRODUCTION\tDNS PREFIX\tAGE\tORGANIZATION")
 
 	for _, env := range environments {
-		displayName := env.Annotations["core.choreo.dev/display-name"]
 		age := util.FormatAge(env.CreationTimestamp.Time)
 
-		fmt.Fprintf(w, "%s\t%s\t%s\t%v\t%s\t%s\t%s\n",
-			env.Name,
-			displayName,
-			env.Spec.DataPlaneRef,
-			env.Spec.IsProduction,
-			env.Spec.DNSPrefix,
+		fmt.Fprintf(w, "%s\t%s\t%t\t%v\t%s\t%s\n",
+			env.Name, env.Spec.DataPlaneRef, env.Spec.IsProduction, env.Spec.DNSPrefix,
 			age, orgName)
 	}
 

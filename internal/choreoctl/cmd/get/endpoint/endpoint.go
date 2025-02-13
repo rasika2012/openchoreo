@@ -41,9 +41,14 @@ func NewListEndpointImpl(config constants.CRDConfig) *ListEndpointImpl {
 }
 
 func (i *ListEndpointImpl) ListEndpoint(params api.ListEndpointParams) error {
-	if params.Organization == "" || params.Project == "" || params.Component == "" {
+	if params.Interactive {
 		return listEndpointInteractive(i.config)
 	}
+
+	if params.Organization == "" || params.Project == "" || params.Component == "" {
+		return errors.NewError("organization, project and component are required")
+	}
+
 	return listEndpoints(params, i.config)
 }
 
@@ -78,8 +83,9 @@ func listEndpoints(params api.ListEndpointParams, config constants.CRDConfig) er
 	}
 
 	if len(endpoints) == 0 {
-		return errors.NewError("no endpoints found for organization: %s, project: %s, component: %s",
+		fmt.Printf("No endpoints found for organization: %s, project: %s, component: %s\n",
 			params.Organization, params.Project, params.Component)
+		return nil
 	}
 
 	if params.OutputFormat == constants.OutputFormatYAML {

@@ -41,9 +41,14 @@ func NewListDeployableArtifactImpl(config constants.CRDConfig) *ListDeployableAr
 }
 
 func (i *ListDeployableArtifactImpl) ListDeployableArtifact(params api.ListDeployableArtifactParams) error {
-	if params.Organization == "" || params.Project == "" || params.Component == "" {
+	if params.Interactive {
 		return listDeployableArtifactInteractive(i.config)
 	}
+
+	if params.Organization == "" || params.Project == "" || params.Component == "" {
+		return errors.NewError("organization, project and component are required")
+	}
+
 	return listDeployableArtifacts(params, i.config)
 }
 
@@ -67,8 +72,9 @@ func listDeployableArtifacts(params api.ListDeployableArtifactParams, config con
 	}
 
 	if len(artifacts) == 0 {
-		return errors.NewError("No deployable artifacts found for organization: %s, project: %s, component: %s",
+		fmt.Printf("No deployable artifacts found for organization: %s, project: %s, component: %s\n",
 			params.Organization, params.Project, params.Component)
+		return nil
 	}
 
 	if params.OutputFormat == constants.OutputFormatYAML {

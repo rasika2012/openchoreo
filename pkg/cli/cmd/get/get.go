@@ -28,9 +28,11 @@ import (
 )
 
 func NewListCmd(impl api.CommandImplementationInterface) *cobra.Command {
-	listCmd := (&builder.CommandBuilder{
-		Command: constants.List,
-	}).Build()
+	listCmd := &cobra.Command{
+		Use:   constants.List.Use,
+		Short: constants.List.Short,
+		Long:  constants.List.Long,
+	}
 
 	// Organization command
 	orgCmd := (&builder.CommandBuilder{

@@ -41,9 +41,14 @@ func NewListDataPlaneImpl(config constants.CRDConfig) *ListDataPlaneImpl {
 }
 
 func (i *ListDataPlaneImpl) ListDataPlane(params api.ListDataPlaneParams) error {
-	if params.Organization == "" {
+	if params.Interactive {
 		return listDataPlaneInteractive(i.config)
 	}
+
+	if params.Organization == "" {
+		return errors.NewError("organization is required")
+	}
+
 	return listDataPlanes(params, i.config)
 }
 
@@ -65,7 +70,8 @@ func listDataPlanes(params api.ListDataPlaneParams, config constants.CRDConfig) 
 	}
 
 	if len(dataPlanes) == 0 {
-		return errors.NewError("no data planes found")
+		fmt.Printf("No data planes found for organization: %s\n", params.Organization)
+		return nil
 	}
 
 	if params.OutputFormat == constants.OutputFormatYAML {
@@ -76,17 +82,12 @@ func listDataPlanes(params api.ListDataPlaneParams, config constants.CRDConfig) 
 
 func printDataPlaneTable(dataPlanes []corev1.DataPlane, orgName string) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-	fmt.Fprintln(w, "NAME\tCLUSTER\tGATEWAY TYPE\tCILIUM\tS2Z\tAGE")
+	fmt.Fprintln(w, "NAME\tCLUSTER\tORGANIZATION\tAGE")
 
 	for _, dp := range dataPlanes {
 		age := util.FormatAge(dp.CreationTimestamp.Time)
-		fmt.Fprintf(w, "%s\t%s\t%s\t%v\t%v\t%s\t%s\n",
-			dp.Name,
-			dp.Spec.KubernetesCluster.Name,
-			dp.Spec.KubernetesCluster.FeatureFlags.GatewayType,
-			dp.Spec.KubernetesCluster.FeatureFlags.Cilium,
-			dp.Spec.KubernetesCluster.FeatureFlags.ScaleToZero,
-			age, orgName)
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
+			dp.Name, dp.Spec.KubernetesCluster.Name, orgName, age)
 	}
 
 	return w.Flush()

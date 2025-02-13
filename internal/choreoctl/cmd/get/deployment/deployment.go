@@ -41,9 +41,14 @@ func NewListDeploymentImpl(config constants.CRDConfig) *ListDeploymentImpl {
 }
 
 func (i *ListDeploymentImpl) ListDeployment(params api.ListDeploymentParams) error {
-	if params.Organization == "" || params.Project == "" || params.Component == "" {
+	if params.Interactive {
 		return listDeploymentInteractive(i.config)
 	}
+
+	if params.Organization == "" || params.Project == "" || params.Component == "" {
+		return errors.NewError("organization, project and component are required")
+	}
+
 	return listDeployments(params, i.config)
 }
 
@@ -67,8 +72,9 @@ func listDeployments(params api.ListDeploymentParams, config constants.CRDConfig
 	}
 
 	if len(deployments) == 0 {
-		return errors.NewError("No deployments found for organization: %s, project: %s, component: %s",
+		fmt.Printf("No deployments found for organization: %s, project: %s, component: %s\n",
 			params.Organization, params.Project, params.Component)
+		return nil
 	}
 
 	if params.OutputFormat == constants.OutputFormatYAML {

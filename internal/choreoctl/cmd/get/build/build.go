@@ -41,9 +41,14 @@ func NewListBuildImpl(config constants.CRDConfig) *ListBuildImpl {
 }
 
 func (i *ListBuildImpl) ListBuild(params api.ListBuildParams) error {
-	if params.Organization == "" || params.Project == "" || params.Component == "" {
+	if params.Interactive {
 		return listBuildInteractive(i.config)
 	}
+
+	if params.Organization == "" || params.Project == "" || params.Component == "" {
+		return errors.NewError("organization, project and component are required")
+	}
+
 	return listBuilds(params, i.config)
 }
 
@@ -67,8 +72,9 @@ func listBuilds(params api.ListBuildParams, config constants.CRDConfig) error {
 	}
 
 	if len(builds) == 0 {
-		return errors.NewError("No builds found for organization: %s, project: %s, component: %s",
+		fmt.Printf("No builds found for organization: %s, project: %s, component: %s\n",
 			params.Organization, params.Project, params.Component)
+		return nil
 	}
 
 	// Output format handling

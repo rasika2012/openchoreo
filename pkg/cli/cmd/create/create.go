@@ -29,9 +29,11 @@ import (
 )
 
 func NewCreateCmd(impl api.CommandImplementationInterface) *cobra.Command {
-	createCmd := (&builder.CommandBuilder{
-		Command: constants.Create,
-	}).Build()
+	createCmd := &cobra.Command{
+		Use:   constants.Create.Use,
+		Short: constants.Create.Short,
+		Long:  constants.Create.Long,
+	}
 
 	createCmd.AddCommand(
 		newCreateOrganizationCmd(impl),

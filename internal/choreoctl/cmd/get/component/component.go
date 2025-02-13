@@ -41,11 +41,17 @@ func NewListCompImpl(config constants.CRDConfig) *ListCompImpl {
 }
 
 func (i *ListCompImpl) ListComponent(params api.ListComponentParams) error {
-	if params.Organization == "" || params.Project == "" {
+	if params.Interactive {
 		return listComponentInteractive(i.config)
 	}
+
+	if params.Organization == "" || params.Project == "" {
+		return errors.NewError("organization and project are required")
+	}
+
 	return listComponents(params, i.config)
 }
+
 func listComponents(params api.ListComponentParams, config constants.CRDConfig) error {
 	var components []corev1.Component
 
@@ -64,7 +70,8 @@ func listComponents(params api.ListComponentParams, config constants.CRDConfig) 
 	}
 
 	if len(components) == 0 {
-		return errors.NewError("No components found for organization: %s, project: %s", params.Organization, params.Project)
+		fmt.Printf("No components found for organization: %s, project: %s\n", params.Organization, params.Project)
+		return nil
 	}
 
 	if params.OutputFormat == constants.OutputFormatYAML {
