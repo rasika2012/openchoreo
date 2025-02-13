@@ -45,6 +45,7 @@ type Reconciler struct {
 // +kubebuilder:rbac:groups=core.choreo.dev,resources=dataplanes,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=core.choreo.dev,resources=dataplanes/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=core.choreo.dev,resources=dataplanes/finalizers,verbs=update
+// +kubebuilder:rbac:groups="",resources=events,verbs=create;patchß
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

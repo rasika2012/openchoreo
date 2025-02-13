@@ -8,6 +8,14 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - events
+  verbs:
+  - create
+  - patch
+  - patchß
+- apiGroups:
+  - ""
+  resources:
   - namespaces
   - serviceaccounts
   - services
