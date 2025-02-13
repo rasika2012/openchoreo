@@ -42,9 +42,14 @@ func NewCreateDeployableArtifactImpl(config constants.CRDConfig) *CreateDeployab
 }
 
 func (i *CreateDeployableArtifactImpl) CreateDeployableArtifact(params api.CreateDeployableArtifactParams) error {
-	if params.Organization == "" || params.Project == "" || params.Component == "" {
+	if params.Interactive {
 		return createDeployableArtifactInteractive()
 	}
+
+	if err := util.ValidateParams(util.CmdCreate, util.ResourceDeployableArtifact, params); err != nil {
+		return err
+	}
+
 	return createDeployableArtifact(params)
 }
 

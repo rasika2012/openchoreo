@@ -24,7 +24,6 @@ import (
 	"text/tabwriter"
 
 	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
@@ -45,8 +44,8 @@ func (i *ListDeployableArtifactImpl) ListDeployableArtifact(params api.ListDeplo
 		return listDeployableArtifactInteractive(i.config)
 	}
 
-	if params.Organization == "" || params.Project == "" || params.Component == "" {
-		return errors.NewError("organization, project and component are required")
+	if err := util.ValidateParams(util.CmdGet, util.ResourceDeployableArtifact, params); err != nil {
+		return err
 	}
 
 	return listDeployableArtifacts(params, i.config)

@@ -42,8 +42,12 @@ func NewCreateProjImpl(config constants.CRDConfig) *CreateProjImpl {
 }
 
 func (i *CreateProjImpl) CreateProject(params api.CreateProjectParams) error {
-	if params.Organization == "" || params.Name == "" {
+	if params.Interactive {
 		return createProjectInteractive()
+	}
+
+	if err := util.ValidateParams(util.CmdCreate, util.ResourceProject, params); err != nil {
+		return err
 	}
 
 	if err := util.ValidateProject(params.Name); err != nil {

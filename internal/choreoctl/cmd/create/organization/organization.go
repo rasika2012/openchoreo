@@ -42,12 +42,18 @@ func NewCreateOrgImpl(config constants.CRDConfig) *CreateOrgImpl {
 }
 
 func (i *CreateOrgImpl) CreateOrganization(params api.CreateOrganizationParams) error {
-	if params.Name == "" || params.DisplayName == "" {
+	if params.Interactive {
 		return createOrganizationInteractive()
 	}
+
+	if err := util.ValidateParams(util.CmdCreate, util.ResourceOrganization, params); err != nil {
+		return err
+	}
+
 	if err := util.ValidateOrganization(params.Name); err != nil {
 		return err
 	}
+
 	return createOrganization(params)
 }
 

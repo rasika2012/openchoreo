@@ -42,8 +42,12 @@ func NewCreateBuildImpl(config constants.CRDConfig) *CreateBuildImpl {
 }
 
 func (i *CreateBuildImpl) CreateBuild(params api.CreateBuildParams) error {
-	if params.Organization == "" || params.Project == "" || params.Component == "" || params.Name == "" {
+	if params.Interactive {
 		return createBuildInteractive()
+	}
+
+	if err := util.ValidateParams(util.CmdCreate, util.ResourceBuild, params); err != nil {
+		return err
 	}
 
 	return createBuild(params)

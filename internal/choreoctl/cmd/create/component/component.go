@@ -42,16 +42,11 @@ func NewCreateCompImpl(config constants.CRDConfig) *CreateCompImpl {
 }
 
 func (i *CreateCompImpl) CreateComponent(params api.CreateComponentParams) error {
-	if params.Organization == "" || params.Project == "" || params.Type == "" ||
-		params.Name == "" || params.GitRepositoryURL == "" {
+	if params.Interactive {
 		return createComponentInteractive()
 	}
 
-	if err := util.ValidateComponent(params.Name); err != nil {
-		return err
-	}
-
-	if err := util.ValidateURL(params.GitRepositoryURL); err != nil {
+	if err := util.ValidateParams(util.CmdCreate, util.ResourceComponent, params); err != nil {
 		return err
 	}
 

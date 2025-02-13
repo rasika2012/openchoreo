@@ -50,6 +50,7 @@ type CreateOrganizationParams struct {
 	Name        string
 	DisplayName string
 	Description string
+	Interactive bool
 }
 
 // CreateProjectParams defines parameters for creating projects
@@ -58,6 +59,7 @@ type CreateProjectParams struct {
 	Name         string
 	DisplayName  string
 	Description  string
+	Interactive  bool
 }
 
 // CreateComponentParams contains parameters for component creation
@@ -77,6 +79,7 @@ type CreateComponentParams struct {
 	Tag              string
 	Port             int
 	Endpoint         string
+	Interactive      bool
 }
 
 // ApplyParams defines parameters for applying configuration files
@@ -108,7 +111,7 @@ type CreateBuildParams struct {
 	Organization string
 	Project      string
 	Component    string
-
+	Interactive  bool
 	// Build configuration
 	Docker    *choreov1.DockerConfiguration
 	Buildpack *choreov1.BuildpackConfiguration
@@ -136,6 +139,7 @@ type CreateDeployableArtifactParams struct {
 	FromBuildRef    *choreov1.FromBuildRef
 	FromImageRef    *choreov1.FromImageRef
 	Configuration   *choreov1.Configuration
+	Interactive     bool
 }
 
 // ListDeployableArtifactParams defines parameters for listing deployable artifacts
@@ -188,6 +192,7 @@ type CreateDeploymentParams struct {
 	DeploymentTrack    string
 	DeployableArtifact string
 	ConfigOverrides    *choreov1.ConfigurationOverrides
+	Interactive        bool
 }
 
 // CreateDeploymentTrackParams defines parameters for creating a deployment track
@@ -201,6 +206,7 @@ type CreateDeploymentTrackParams struct {
 	APIVersion        string
 	AutoDeploy        bool
 	BuildTemplateSpec *choreov1.BuildTemplateSpec
+	Interactive       bool
 }
 
 // ListDeploymentTrackParams defines parameters for listing deployment tracks
@@ -222,6 +228,7 @@ type CreateEnvironmentParams struct {
 	DataPlaneRef string
 	IsProduction bool
 	DNSPrefix    string
+	Interactive  bool
 }
 
 // ListEnvironmentParams defines parameters for listing environments
@@ -245,6 +252,7 @@ type CreateDataPlaneParams struct {
 	GatewayType             string
 	PublicVirtualHost       string
 	OrganizationVirtualHost string
+	Interactive             bool
 }
 
 // ListDataPlaneParams defines parameters for listing data planes

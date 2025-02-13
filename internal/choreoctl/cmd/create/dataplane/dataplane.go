@@ -42,9 +42,14 @@ func NewCreateDataPlaneImpl(config constants.CRDConfig) *CreateDataPlaneImpl {
 }
 
 func (i *CreateDataPlaneImpl) CreateDataPlane(params api.CreateDataPlaneParams) error {
-	if params.Organization == "" {
+	if params.Interactive {
 		return createDataPlaneInteractive()
 	}
+
+	if err := util.ValidateParams(util.CmdCreate, util.ResourceDataPlane, params); err != nil {
+		return err
+	}
+
 	return createDataPlane(params)
 }
 

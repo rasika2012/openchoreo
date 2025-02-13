@@ -42,9 +42,14 @@ func NewCreateDeploymentTrackImpl(config constants.CRDConfig) *CreateDeploymentT
 }
 
 func (i *CreateDeploymentTrackImpl) CreateDeploymentTrack(params api.CreateDeploymentTrackParams) error {
-	if params.Organization == "" || params.Project == "" || params.Component == "" {
+	if params.Interactive {
 		return createDeploymentTrackInteractive()
 	}
+
+	if err := util.ValidateParams(util.CmdCreate, util.ResourceDeploymentTrack, params); err != nil {
+		return err
+	}
+
 	return createDeploymentTrack(params)
 }
 

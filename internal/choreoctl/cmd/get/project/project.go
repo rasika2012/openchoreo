@@ -24,7 +24,6 @@ import (
 	"text/tabwriter"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
@@ -45,8 +44,8 @@ func (i *ListProjImpl) ListProject(params api.ListProjectParams) error {
 		return listProjectsInteractive(i.config)
 	}
 
-	if params.Organization == "" {
-		return errors.NewError("organization is required")
+	if err := util.ValidateParams(util.CmdGet, util.ResourceProject, params); err != nil {
+		return err
 	}
 
 	return listProjects(params, i.config)

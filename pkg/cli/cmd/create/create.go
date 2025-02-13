@@ -53,12 +53,13 @@ func NewCreateCmd(impl api.CommandImplementationInterface) *cobra.Command {
 func newCreateOrganizationCmd(impl api.CommandImplementationInterface) *cobra.Command {
 	return (&builder.CommandBuilder{
 		Command: constants.CreateOrganization,
-		Flags:   []flags.Flag{flags.Name, flags.DisplayName, flags.Description},
+		Flags:   []flags.Flag{flags.Name, flags.DisplayName, flags.Description, flags.Interactive},
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateOrganization(api.CreateOrganizationParams{
 				Name:        fg.GetString(flags.Name),
 				DisplayName: fg.GetString(flags.DisplayName),
 				Description: fg.GetString(flags.Description),
+				Interactive: fg.GetBool(flags.Interactive),
 			})
 		},
 	}).Build()
@@ -67,13 +68,14 @@ func newCreateOrganizationCmd(impl api.CommandImplementationInterface) *cobra.Co
 func newCreateProjectCmd(impl api.CommandImplementationInterface) *cobra.Command {
 	return (&builder.CommandBuilder{
 		Command: constants.CreateProject,
-		Flags:   []flags.Flag{flags.Organization, flags.Name, flags.DisplayName, flags.Description},
+		Flags:   []flags.Flag{flags.Organization, flags.Name, flags.DisplayName, flags.Description, flags.Interactive},
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateProject(api.CreateProjectParams{
 				Organization: fg.GetString(flags.Organization),
 				Name:         fg.GetString(flags.Name),
 				DisplayName:  fg.GetString(flags.DisplayName),
 				Description:  fg.GetString(flags.Description),
+				Interactive:  fg.GetBool(flags.Interactive),
 			})
 		},
 	}).Build()
@@ -83,12 +85,8 @@ func newCreateComponentCmd(impl api.CommandImplementationInterface) *cobra.Comma
 	return (&builder.CommandBuilder{
 		Command: constants.CreateComponent,
 		Flags: []flags.Flag{
-			flags.Organization,
-			flags.Project,
-			flags.Name,
-			flags.GitRepositoryURL,
-			flags.ComponentType,
-			flags.DisplayName,
+			flags.Organization, flags.Project, flags.Name, flags.GitRepositoryURL, flags.ComponentType,
+			flags.DisplayName, flags.Interactive,
 		},
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateComponent(api.CreateComponentParams{
@@ -98,6 +96,7 @@ func newCreateComponentCmd(impl api.CommandImplementationInterface) *cobra.Comma
 				DisplayName:      fg.GetString(flags.DisplayName),
 				GitRepositoryURL: fg.GetString(flags.GitRepositoryURL),
 				Type:             v1api.ComponentType(fg.GetString(flags.ComponentType)),
+				Interactive:      fg.GetBool(flags.Interactive),
 			})
 		},
 	}).Build()
@@ -107,14 +106,8 @@ func newCreateBuildCmd(impl api.CommandImplementationInterface) *cobra.Command {
 	return (&builder.CommandBuilder{
 		Command: constants.CreateBuild,
 		Flags: []flags.Flag{
-			flags.Organization,
-			flags.Project,
-			flags.Component,
-			flags.Name,
-			flags.DockerContext,
-			flags.DockerfilePath,
-			flags.BuildpackName,
-			flags.BuildpackVersion,
+			flags.Organization, flags.Project, flags.Component, flags.Interactive, flags.Name,
+			flags.DockerContext, flags.DockerfilePath, flags.BuildpackName, flags.BuildpackVersion,
 		},
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateBuild(api.CreateBuildParams{
@@ -122,6 +115,7 @@ func newCreateBuildCmd(impl api.CommandImplementationInterface) *cobra.Command {
 				Organization: fg.GetString(flags.Organization),
 				Project:      fg.GetString(flags.Project),
 				Component:    fg.GetString(flags.Component),
+				Interactive:  fg.GetBool(flags.Interactive),
 				Docker: &v1api.DockerConfiguration{
 					Context:        fg.GetString(flags.DockerContext),
 					DockerfilePath: fg.GetString(flags.DockerfilePath),
@@ -139,13 +133,8 @@ func newCreateDeploymentCmd(impl api.CommandImplementationInterface) *cobra.Comm
 	return (&builder.CommandBuilder{
 		Command: constants.CreateDeployment,
 		Flags: []flags.Flag{
-			flags.Organization,
-			flags.Project,
-			flags.Component,
-			flags.Name,
-			flags.Environment,
-			flags.DeployableArtifact,
-			flags.DeploymentTrack,
+			flags.Organization, flags.Project, flags.Component, flags.Name, flags.Environment,
+			flags.DeploymentTrack, flags.Interactive, flags.DeployableArtifact,
 		},
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateDeployment(api.CreateDeploymentParams{
@@ -154,6 +143,7 @@ func newCreateDeploymentCmd(impl api.CommandImplementationInterface) *cobra.Comm
 				Project:            fg.GetString(flags.Project),
 				Component:          fg.GetString(flags.Component),
 				Environment:        fg.GetString(flags.Environment),
+				Interactive:        fg.GetBool(flags.Interactive),
 				DeployableArtifact: fg.GetString(flags.DeployableArtifact),
 				DeploymentTrack:    fg.GetString(flags.DeploymentTrack),
 			})
@@ -165,15 +155,8 @@ func newCreateDataPlaneCmd(impl api.CommandImplementationInterface) *cobra.Comma
 	return (&builder.CommandBuilder{
 		Command: constants.CreateDataPlane,
 		Flags: []flags.Flag{
-			flags.Organization,
-			flags.Name,
-			flags.KubernetesClusterName,
-			flags.ConnectionConfigRef,
-			flags.EnableCilium,
-			flags.EnableScaleToZero,
-			flags.GatewayType,
-			flags.PublicVirtualHost,
-			flags.OrgVirtualHost,
+			flags.Organization, flags.Name, flags.KubernetesClusterName, flags.Interactive, flags.ConnectionConfigRef,
+			flags.EnableCilium, flags.EnableScaleToZero, flags.GatewayType, flags.PublicVirtualHost, flags.OrgVirtualHost,
 		},
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateDataPlane(api.CreateDataPlaneParams{
@@ -186,6 +169,7 @@ func newCreateDataPlaneCmd(impl api.CommandImplementationInterface) *cobra.Comma
 				GatewayType:             fg.GetString(flags.GatewayType),
 				PublicVirtualHost:       fg.GetString(flags.PublicVirtualHost),
 				OrganizationVirtualHost: fg.GetString(flags.OrgVirtualHost),
+				Interactive:             fg.GetBool(flags.Interactive),
 			})
 		},
 	}).Build()
@@ -195,12 +179,8 @@ func newCreateDeploymentTrackCmd(impl api.CommandImplementationInterface) *cobra
 	return (&builder.CommandBuilder{
 		Command: constants.CreateDeploymentTrack,
 		Flags: []flags.Flag{
-			flags.Organization,
-			flags.Project,
-			flags.Component,
-			flags.Name,
-			flags.APIVersion,
-			flags.AutoDeploy,
+			flags.Organization, flags.Project, flags.Component, flags.Name, flags.APIVersion,
+			flags.AutoDeploy, flags.Interactive,
 		},
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateDeploymentTrack(api.CreateDeploymentTrackParams{
@@ -210,6 +190,7 @@ func newCreateDeploymentTrackCmd(impl api.CommandImplementationInterface) *cobra
 				Component:    fg.GetString(flags.Component),
 				APIVersion:   fg.GetString(flags.APIVersion),
 				AutoDeploy:   fg.GetBool(flags.AutoDeploy),
+				Interactive:  fg.GetBool(flags.Interactive),
 			})
 		},
 	}).Build()
@@ -219,19 +200,15 @@ func newCreateEnvironmentCmd(impl api.CommandImplementationInterface) *cobra.Com
 	return (&builder.CommandBuilder{
 		Command: constants.CreateEnvironment,
 		Flags: []flags.Flag{
-			flags.Organization,
-			flags.Name,
-			flags.DisplayName,
-			flags.Description,
-			flags.DataPlaneRef,
-			flags.IsProduction,
-			flags.DNSPrefix,
+			flags.Organization, flags.Name, flags.DisplayName, flags.Description, flags.Interactive,
+			flags.IsProduction, flags.DNSPrefix, flags.DataPlaneRef,
 		},
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateEnvironment(api.CreateEnvironmentParams{
 				Name:         fg.GetString(flags.Name),
 				Organization: fg.GetString(flags.Organization),
 				DisplayName:  fg.GetString(flags.DisplayName),
+				Interactive:  fg.GetBool(flags.Interactive),
 				Description:  fg.GetString(flags.Description),
 				DataPlaneRef: fg.GetString(flags.DataPlaneRef),
 				IsProduction: fg.GetBool(flags.IsProduction),
@@ -245,12 +222,8 @@ func newCreateDeployableArtifactCmd(impl api.CommandImplementationInterface) *co
 	return (&builder.CommandBuilder{
 		Command: constants.CreateDeployableArtifact,
 		Flags: []flags.Flag{
-			flags.Organization,
-			flags.Project,
-			flags.Component,
-			flags.Name,
-			flags.DeploymentTrack,
-			flags.BuildRef,
+			flags.Organization, flags.Project, flags.Component, flags.Name,
+			flags.DeploymentTrack, flags.BuildRef, flags.Interactive,
 		},
 		RunE: func(fg *builder.FlagGetter) error {
 			var fromBuildRef *v1api.FromBuildRef
@@ -264,6 +237,7 @@ func newCreateDeployableArtifactCmd(impl api.CommandImplementationInterface) *co
 				Component:       fg.GetString(flags.Component),
 				DeploymentTrack: fg.GetString(flags.DeploymentTrack),
 				FromBuildRef:    fromBuildRef,
+				Interactive:     fg.GetBool(flags.Interactive),
 			})
 		},
 	}).Build()

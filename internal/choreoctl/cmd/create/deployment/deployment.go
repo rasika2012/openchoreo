@@ -42,10 +42,14 @@ func NewCreateDeploymentImpl(config constants.CRDConfig) *CreateDeploymentImpl {
 }
 
 func (i *CreateDeploymentImpl) CreateDeployment(params api.CreateDeploymentParams) error {
-	if params.Organization == "" || params.Project == "" || params.Component == "" ||
-		params.Environment == "" || params.DeployableArtifact == "" {
+	if params.Interactive {
 		return createDeploymentInteractive()
 	}
+
+	if err := util.ValidateParams(util.CmdCreate, util.ResourceDeployment, params); err != nil {
+		return err
+	}
+
 	return createDeployment(params)
 }
 
