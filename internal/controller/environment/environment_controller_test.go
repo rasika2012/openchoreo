@@ -19,7 +19,7 @@
 package environment
 
 import (
-	"context"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -29,59 +29,95 @@ import (
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	apiv1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/testutil"
 )
 
 var _ = Describe("Environment Controller", func() {
-	Context("When reconciling a resource", func() {
-		const resourceName = "test-resource"
+	BeforeEach(func() {
+		testutil.CreateTestOrganization(ctx, k8sClient)
+		testutil.CreateTestDataPlane(ctx, k8sClient)
+	})
 
-		ctx := context.Background()
+	AfterEach(func() {
+		testutil.DeleteTestOrganization(ctx, k8sClient)
+	})
+	It("should successfully create and reconcile environment resource", func() {
+		const envName = "test-env"
 
-		typeNamespacedName := types.NamespacedName{
-			Name:      resourceName,
-			Namespace: "default", // TODO(user):Modify as needed
+		envNamespacedName := types.NamespacedName{
+			Namespace: testutil.TestOrganizationNamespace,
+			Name:      envName,
 		}
-		environment := &corev1.Environment{}
-
-		BeforeEach(func() {
-			By("creating the custom resource for the Kind Environment")
-			err := k8sClient.Get(ctx, typeNamespacedName, environment)
+		environment := &apiv1.Environment{}
+		By("Creating the environment resource", func() {
+			err := k8sClient.Get(ctx, envNamespacedName, environment)
 			if err != nil && errors.IsNotFound(err) {
-				resource := &corev1.Environment{
+				dp := &apiv1.Environment{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      resourceName,
-						Namespace: "default",
+						Name:      envName,
+						Namespace: testutil.TestOrganizationNamespace,
+						Labels: map[string]string{
+							controller.LabelKeyOrganizationName: testutil.TestOrganizationName,
+							controller.LabelKeyName:             envName,
+						},
+						Annotations: map[string]string{
+							controller.AnnotationKeyDisplayName: "Test Environment",
+							controller.AnnotationKeyDescription: "Test Environment Description",
+						},
 					},
-					// TODO(user): Specify other spec details if needed.
 				}
-				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
+				Expect(k8sClient.Create(ctx, dp)).To(Succeed())
 			}
 		})
 
-		AfterEach(func() {
-			// TODO(user): Cleanup logic after each test, like removing the resource instance.
-			resource := &corev1.Environment{}
-			err := k8sClient.Get(ctx, typeNamespacedName, resource)
-			Expect(err).NotTo(HaveOccurred())
-
-			By("Cleanup the specific resource instance Environment")
-			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
-		})
-		It("should successfully reconcile the resource", func() {
-			By("Reconciling the created resource")
-			controllerReconciler := &Reconciler{
+		By("Reconciling the environment resource", func() {
+			envReconciler := &Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
 				recorder: record.NewFakeRecorder(100),
 			}
-
-			_, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
-				NamespacedName: typeNamespacedName,
+			result, err := envReconciler.Reconcile(ctx, reconcile.Request{
+				NamespacedName: envNamespacedName,
 			})
 			Expect(err).NotTo(HaveOccurred())
-			// TODO(user): Add more specific assertions depending on your controller's reconciliation logic.
-			// Example: If you expect a certain status condition after reconciliation, verify it here.
+			Expect(result.Requeue).To(BeFalse())
+		})
+
+		By("Checking the environment resource", func() {
+			environment := &apiv1.Environment{}
+			Eventually(func() error {
+				return k8sClient.Get(ctx, envNamespacedName, environment)
+			}, time.Second*10, time.Millisecond*500).Should(Succeed())
+			Expect(environment.Name).To(Equal(envName))
+			Expect(environment.Namespace).To(Equal(testutil.TestOrganizationNamespace))
+			Expect(environment.Spec).NotTo(BeNil())
+		})
+
+		By("Deleting the environment resource", func() {
+			err := k8sClient.Get(ctx, envNamespacedName, environment)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(k8sClient.Delete(ctx, environment)).To(Succeed())
+		})
+
+		By("Checking the environment resource deletion", func() {
+			Eventually(func() error {
+				return k8sClient.Get(ctx, envNamespacedName, environment)
+			}, time.Second*10, time.Millisecond*500).ShouldNot(Succeed())
+		})
+
+		By("Reconciling the environment resource after deletion", func() {
+			dpReconciler := &Reconciler{
+				Client:   k8sClient,
+				Scheme:   k8sClient.Scheme(),
+				recorder: record.NewFakeRecorder(100),
+			}
+			result, err := dpReconciler.Reconcile(ctx, reconcile.Request{
+				NamespacedName: envNamespacedName,
+			})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.Requeue).To(BeFalse())
 		})
 	})
 })

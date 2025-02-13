@@ -117,7 +117,7 @@ var _ = Describe("DataPlane Controller", func() {
 				dpReconciler := &Reconciler{
 					Client:   k8sClient,
 					Scheme:   k8sClient.Scheme(),
-					recorder: record.NewFakeRecorder(100),
+					Recorder: record.NewFakeRecorder(100),
 				}
 				result, err := dpReconciler.Reconcile(ctx, reconcile.Request{
 					NamespacedName: dpNamespacedName,
@@ -152,7 +152,7 @@ var _ = Describe("DataPlane Controller", func() {
 				dpReconciler := &Reconciler{
 					Client:   k8sClient,
 					Scheme:   k8sClient.Scheme(),
-					recorder: record.NewFakeRecorder(100),
+					Recorder: record.NewFakeRecorder(100),
 				}
 				result, err := dpReconciler.Reconcile(ctx, reconcile.Request{
 					NamespacedName: dpNamespacedName,
