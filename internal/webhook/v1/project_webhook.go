@@ -147,7 +147,7 @@ func validateProjectLabels(project *corev1.Project) error {
 	}
 
 	if len(missingLabels) > 0 {
-		return fmt.Errorf("required labels missing: %s", strings.Join(missingLabels, ", "))
+		return fmt.Errorf("required labels missing for the project '%s': %s", project.Name, strings.Join(missingLabels, ", "))
 	}
 
 	return nil
