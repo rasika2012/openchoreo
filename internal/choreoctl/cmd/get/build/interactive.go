@@ -34,18 +34,18 @@ const (
 	stateOrgSelect = iota
 	stateProjSelect
 	stateCompSelect
+	stateBuildSelect
 )
 
 type buildListModel struct {
-	state         int
-	organizations []string
-	projects      []string
-	components    []string
-	orgCursor     int
-	projCursor    int
-	compCursor    int
-	selected      bool
-	errorMsg      string
+	interactive.BaseModel // Reuses Organizations, Projects, Components, and their cursors.
+	state                 int
+	selected              bool
+	errorMsg              string
+
+	// Build-specific fields.
+	builds      []string
+	buildCursor int
 }
 
 func (m buildListModel) Init() tea.Cmd {
@@ -66,65 +66,77 @@ func (m buildListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
 	case stateOrgSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			projects, err := util.GetProjectNames(m.organizations[m.orgCursor])
+			projects, err := m.FetchProjects() // Reusable function from BaseModel.
 			if err != nil {
 				m.errorMsg = err.Error()
 				return m, nil
 			}
-			m.projects = projects
+			m.Projects = projects
 			m.state = stateProjSelect
 			m.errorMsg = ""
 			return m, nil
 		}
-		m.orgCursor = interactive.ProcessListCursor(keyMsg, m.orgCursor, len(m.organizations))
+		m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
 
 	case stateProjSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			components, err := util.GetComponentNames(m.organizations[m.orgCursor], m.projects[m.projCursor])
+			components, err := m.FetchComponents() // Reusable function from BaseModel.
 			if err != nil {
-				fmt.Print(err)
 				m.errorMsg = err.Error()
 				return m, nil
 			}
-			m.components = components
+			m.Components = components
 			m.state = stateCompSelect
 			m.errorMsg = ""
 			return m, nil
 		}
-		m.projCursor = interactive.ProcessListCursor(keyMsg, m.projCursor, len(m.projects))
+		m.ProjCursor = interactive.ProcessListCursor(keyMsg, m.ProjCursor, len(m.Projects))
 
 	case stateCompSelect:
+		if interactive.IsEnterKey(keyMsg) {
+			builds, err := m.FetchBuildNames() // Reusable function from BaseModel.
+			if err != nil {
+				m.errorMsg = err.Error()
+				return m, nil
+			}
+			if len(builds) == 0 {
+				m.errorMsg = fmt.Sprintf("No builds found for component: %s", m.Components[m.CompCursor])
+				m.selected = true
+				return m, tea.Quit
+			}
+			m.builds = builds
+			m.state = stateBuildSelect
+			m.errorMsg = ""
+			return m, nil
+		}
+		m.CompCursor = interactive.ProcessListCursor(keyMsg, m.CompCursor, len(m.Components))
+
+	case stateBuildSelect:
 		if interactive.IsEnterKey(keyMsg) {
 			m.selected = true
 			return m, tea.Quit
 		}
-		m.compCursor = interactive.ProcessListCursor(keyMsg, m.compCursor, len(m.components))
+		m.buildCursor = interactive.ProcessListCursor(keyMsg, m.buildCursor, len(m.builds))
 	}
 
 	return m, nil
 }
 
 func (m buildListModel) View() string {
+	var view string
 	switch m.state {
 	case stateOrgSelect:
-		return interactive.RenderListPrompt(
-			"Select organization:",
-			m.organizations,
-			m.orgCursor,
-		)
+		view = m.RenderOrgSelection()
 	case stateProjSelect:
-		return interactive.RenderListPrompt(
-			"Select project:",
-			m.projects,
-			m.projCursor,
-		)
+		view = m.RenderProjSelection()
+	case stateCompSelect:
+		view = m.RenderComponentSelection()
+	case stateBuildSelect:
+		view = interactive.RenderListPrompt("Select build:", m.builds, m.buildCursor)
 	default:
-		return interactive.RenderListPrompt(
-			"Select component:",
-			m.components,
-			m.compCursor,
-		)
+		view = ""
 	}
+	return m.RenderProgress() + view
 }
 
 func listBuildInteractive(config constants.CRDConfig) error {
@@ -132,13 +144,15 @@ func listBuildInteractive(config constants.CRDConfig) error {
 	if err != nil {
 		return errors.NewError("failed to get organizations: %v", err)
 	}
-
 	if len(orgs) == 0 {
 		return errors.NewError("no organizations found")
 	}
 
 	model := buildListModel{
-		organizations: orgs,
+		BaseModel: interactive.BaseModel{
+			Organizations: orgs,
+		},
+		state: stateOrgSelect,
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -152,8 +166,8 @@ func listBuildInteractive(config constants.CRDConfig) error {
 	}
 
 	return listBuilds(api.ListBuildParams{
-		Organization: m.organizations[m.orgCursor],
-		Project:      m.projects[m.projCursor],
-		Component:    m.components[m.compCursor],
+		Organization: m.Organizations[m.OrgCursor],
+		Project:      m.Projects[m.ProjCursor],
+		Component:    m.Components[m.CompCursor],
 	}, config)
 }

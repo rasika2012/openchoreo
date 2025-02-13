@@ -36,13 +36,10 @@ const (
 )
 
 type componentListModel struct {
-	state         int
-	organizations []string
-	projects      []string
-	orgCursor     int
-	projCursor    int
-	selected      bool
-	errorMsg      string
+	interactive.BaseModel // Reuses Organizations, Projects, OrgCursor, and ProjCursor.
+	state                 int
+	selected              bool
+	errorMsg              string
 }
 
 func (m componentListModel) Init() tea.Cmd {
@@ -63,48 +60,50 @@ func (m componentListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
 	case stateOrgSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			projects, err := util.GetProjectNames(m.organizations[m.orgCursor])
+			projects, err := m.FetchProjects() // Reusable function from BaseModel.
 			if err != nil {
 				m.errorMsg = err.Error()
 				return m, nil
 			}
 			if len(projects) == 0 {
-				m.errorMsg = fmt.Sprintf("No projects found for organization: %s", m.organizations[m.orgCursor])
+				m.errorMsg = fmt.Sprintf("No projects found for organization: %s", m.Organizations[m.OrgCursor])
 				return m, nil
 			}
-			m.projects = projects
+			m.Projects = projects
 			m.state = stateProjSelect
 			m.errorMsg = ""
 			return m, nil
 		}
-		m.orgCursor = interactive.ProcessListCursor(keyMsg, m.orgCursor, len(m.organizations))
+		m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
 
 	case stateProjSelect:
 		if interactive.IsEnterKey(keyMsg) {
 			m.selected = true
 			return m, tea.Quit
 		}
-		m.projCursor = interactive.ProcessListCursor(keyMsg, m.projCursor, len(m.projects))
+		m.ProjCursor = interactive.ProcessListCursor(keyMsg, m.ProjCursor, len(m.Projects))
 	}
 
 	return m, nil
 }
 
 func (m componentListModel) View() string {
+	var view string
+
 	switch m.state {
 	case stateOrgSelect:
-		return interactive.RenderListPrompt(
-			"Select organization:",
-			m.organizations,
-			m.orgCursor,
-		)
+		view = m.RenderOrgSelection()
+	case stateProjSelect:
+		view = m.RenderProjSelection()
 	default:
-		return interactive.RenderListPrompt(
-			"Select project:",
-			m.projects,
-			m.projCursor,
-		)
+		view = ""
 	}
+
+	if m.errorMsg != "" {
+		view += "\nError: " + m.errorMsg
+	}
+
+	return view
 }
 
 func listComponentInteractive(config constants.CRDConfig) error {
@@ -119,8 +118,10 @@ func listComponentInteractive(config constants.CRDConfig) error {
 	}
 
 	model := componentListModel{
-		state:         stateOrgSelect,
-		organizations: orgs,
+		state: stateOrgSelect,
+		BaseModel: interactive.BaseModel{
+			Organizations: orgs,
+		},
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -134,8 +135,9 @@ func listComponentInteractive(config constants.CRDConfig) error {
 	}
 
 	params := api.ListComponentParams{
-		Organization: m.organizations[m.orgCursor],
-		Project:      m.projects[m.projCursor],
+		Organization: m.Organizations[m.OrgCursor],
+		Project:      m.Projects[m.ProjCursor],
 	}
+
 	return listComponents(params, config)
 }

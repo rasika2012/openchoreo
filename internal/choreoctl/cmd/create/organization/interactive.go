@@ -34,12 +34,13 @@ const (
 )
 
 type organizationModel struct {
-	state       int
-	name        string
-	displayName string
-	description string
-	selected    bool
-	errorMsg    string
+	interactive.BaseModel // Embeds common interactive helpers.
+	state                 int
+	name                  string
+	displayName           string
+	description           string
+	selected              bool
+	errorMsg              string
 }
 
 func (m organizationModel) Init() tea.Cmd {
@@ -69,18 +70,17 @@ func (m organizationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		m.name, _ = interactive.EditTextInputField(keyMsg, m.name, len(m.name))
-
 	case stateDisplayNameInput:
 		if interactive.IsEnterKey(keyMsg) {
 			m.state = stateDescriptionInput
 			m.errorMsg = ""
 			return m, nil
 		}
-		m.displayName, _ = interactive.EditTextInputField(keyMsg, m.displayName, len(m.displayName))
-
+		m.displayName, _ = interactive.EditTextInputField(keyMsg, m.displayName, 256)
 	case stateDescriptionInput:
 		if interactive.IsEnterKey(keyMsg) {
 			m.selected = true
+			m.errorMsg = ""
 			return m, tea.Quit
 		}
 		m.description, _ = interactive.EditTextInputField(keyMsg, m.description, len(m.description))
@@ -90,33 +90,20 @@ func (m organizationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m organizationModel) View() string {
-	if m.errorMsg != "" {
-		return m.errorMsg + "\n"
-	}
+	var view string
+
 	switch m.state {
 	case stateNameInput:
-		return interactive.RenderInputPrompt(
-			"Enter organization name:",
-			"",
-			m.name,
-			m.errorMsg,
-		) + "\n" + "Name must consist of lowercase letters, numbers, or hyphens (e.g., my-org)"
-
+		view = interactive.RenderInputPrompt("Enter organization name:", "", m.name, m.errorMsg)
 	case stateDisplayNameInput:
-		return interactive.RenderInputPrompt(
-			"Enter display name for the organization:",
-			"",
-			m.displayName,
-			m.errorMsg,
-		) + "\n" + "A human-friendly name (e.g., My Organization)"
+		view = interactive.RenderInputPrompt("Enter display name:", "", m.displayName, m.errorMsg)
+	case stateDescriptionInput:
+		view = interactive.RenderInputPrompt("Enter organization description:", "", m.description, m.errorMsg)
 	default:
-		return interactive.RenderInputPrompt(
-			"Enter description (optional):",
-			"",
-			m.description,
-			m.errorMsg,
-		) + "\n"
+		view = ""
 	}
+
+	return view
 }
 
 func createOrganizationInteractive() error {

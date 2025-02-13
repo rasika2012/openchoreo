@@ -19,8 +19,6 @@
 package build
 
 import (
-	"fmt"
-
 	tea "github.com/charmbracelet/bubbletea"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
@@ -44,25 +42,30 @@ const (
 )
 
 type buildModel struct {
-	state           int
-	organizations   []string
-	projects        []string
-	components      []string
-	buildTypes      []string
-	buildpacks      []string
-	orgCursor       int
-	projCursor      int
-	compCursor      int
+	interactive.BaseModel // Embeds common fields:
+	// Organizations, OrgCursor, Projects, ProjCursor, Components, CompCursor
+
+	// Build-specific fields.
+	buildTypes        []string
+	buildpacks        []string
+	buildpackVersions []string
+
+	// Cursors for selections.
 	buildCursor     int
 	buildpackCursor int
-	name            string
-	buildType       string
-	dockerContext   string
-	dockerFile      string
-	buildpackName   string
-	buildpackVer    string
-	selected        bool
-	errorMsg        string
+	versionCursor   int
+
+	// Build details.
+	name          string
+	buildType     string
+	dockerContext string
+	dockerFile    string
+	buildpackName string
+	buildpackVer  string
+
+	selected bool
+	errorMsg string
+	state    int
 }
 
 func (m buildModel) Init() tea.Cmd {
@@ -79,53 +82,41 @@ func (m buildModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.selected = false
 		return m, tea.Quit
 	}
+
 	switch m.state {
 	case stateOrgSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			projects, err := util.GetProjectNames(m.organizations[m.orgCursor])
-			if err != nil {
-				m.errorMsg = err.Error()
-				return m, tea.Quit
-			}
-			if len(projects) == 0 {
-				m.errorMsg = fmt.Sprintf("No projects found in organization '%s'. Please create a project first using 'choreoctl create project'",
-					m.organizations[m.orgCursor])
-				return m, tea.Quit
-			}
-			m.projects = projects
+			// Delegate organization selection to BaseModel helper.
+			cmd := m.UpdateOrgSelect(keyMsg)
+
+			// Transition to project selection.
 			m.state = stateProjSelect
 			m.errorMsg = ""
-			return m, nil
+			return m, cmd
 		}
-		m.orgCursor = interactive.ProcessListCursor(keyMsg, m.orgCursor, len(m.organizations))
+		m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
 
 	case stateProjSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			components, err := util.GetComponentNames(
-				m.organizations[m.orgCursor],
-				m.projects[m.projCursor],
+			comps, err := util.GetComponentNames(
+				m.Organizations[m.OrgCursor],
+				m.Projects[m.ProjCursor],
 			)
 			if err != nil {
-				m.errorMsg = err.Error()
-				return m, tea.Quit
+				m.errorMsg = "Failed to fetch components: " + err.Error()
+				return m, nil
 			}
-
-			if len(components) == 0 {
-				m.errorMsg = fmt.Sprintf(
-					"No components found in project '%s'. Please create a component first using 'choreoctl create component'",
-					m.projects[m.projCursor],
-				)
-				return m, tea.Quit
+			if len(comps) == 0 {
+				m.errorMsg = "No components found in this project"
+				return m, nil
 			}
-
-			m.components = components
+			// Store the components in the BaseModel field and move to component selection.
+			m.Components = comps
 			m.state = stateCompSelect
-			m.errorMsg = ""
 			return m, nil
 		}
-
-		// Simple cursor movement like component creation
-		m.projCursor = interactive.ProcessListCursor(keyMsg, m.projCursor, len(m.projects))
+		// Move the cursor if Up/Down arrow is pressed.
+		m.ProjCursor = interactive.ProcessListCursor(keyMsg, m.ProjCursor, len(m.Projects))
 
 	case stateCompSelect:
 		if interactive.IsEnterKey(keyMsg) {
@@ -133,10 +124,14 @@ func (m buildModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.errorMsg = ""
 			return m, nil
 		}
-		m.compCursor = interactive.ProcessListCursor(keyMsg, m.compCursor, len(m.components))
+		m.CompCursor = interactive.ProcessListCursor(keyMsg, m.CompCursor, len(m.Components))
 
 	case stateNameInput:
 		if interactive.IsEnterKey(keyMsg) {
+			if err := util.ValidateResourceName("build", m.name); err != nil {
+				m.errorMsg = err.Error()
+				return m, nil
+			}
 			m.state = stateBuildTypeSelect
 			m.errorMsg = ""
 			return m, nil
@@ -174,6 +169,12 @@ func (m buildModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case stateBuildpackNameInput:
 		if interactive.IsEnterKey(keyMsg) {
 			m.buildpackName = m.buildpacks[m.buildpackCursor]
+			// Fetch available versions for the selected buildpack.
+			m.buildpackVersions = choreov1.SupportedVersions[choreov1.BuildpackName(m.buildpackName)]
+			if len(m.buildpackVersions) == 0 {
+				m.errorMsg = "No versions available for selected buildpack"
+				return m, nil
+			}
 			m.state = stateBuildpackVersionInput
 			m.errorMsg = ""
 			return m, nil
@@ -182,122 +183,39 @@ func (m buildModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case stateBuildpackVersionInput:
 		if interactive.IsEnterKey(keyMsg) {
+			m.buildpackVer = m.buildpackVersions[m.versionCursor]
 			m.selected = true
 			return m, tea.Quit
 		}
-		m.buildpackVer, _ = interactive.EditTextInputField(keyMsg, m.buildpackVer, len(m.buildpackVer))
+		m.versionCursor = interactive.ProcessListCursor(keyMsg, m.versionCursor, len(m.buildpackVersions))
 	}
 
 	return m, nil
 }
 
 func (m buildModel) View() string {
-	if m.errorMsg != "" {
-		return m.errorMsg + "\n"
-	}
-	progress := ""
-	if m.state > stateOrgSelect && m.orgCursor < len(m.organizations) {
-		progress += fmt.Sprintf("Organization: %s\n", m.organizations[m.orgCursor])
-	}
-	if m.state > stateProjSelect && m.projCursor < len(m.projects) {
-		progress += fmt.Sprintf("Project: %s\n", m.projects[m.projCursor])
-	}
-	if m.state > stateCompSelect && m.compCursor < len(m.components) {
-		progress += fmt.Sprintf("Component: %s\n", m.components[m.compCursor])
-	}
-	if m.state > stateNameInput && m.name != "" {
-		progress += fmt.Sprintf("Build Name: %s\n", m.name)
-	}
-	if m.state > stateBuildTypeSelect && m.buildType != "" {
-		progress += fmt.Sprintf("Build Type: %s\n", m.buildType)
-
-		if m.buildType == constants.Docker {
-			if m.state > stateDockerContextInput && m.dockerContext != "" {
-				progress += fmt.Sprintf("Docker Context: %s\n", m.dockerContext)
-			}
-			if m.state > stateDockerfilePathInput && m.dockerFile != "" {
-				progress += fmt.Sprintf("Dockerfile Path: %s\n", m.dockerFile)
-			}
-		} else {
-			if m.state > stateBuildpackNameInput && m.buildpackName != "" {
-				progress += fmt.Sprintf("Buildpack: %s\n", m.buildpackName)
-			}
-			if m.state > stateBuildpackVersionInput && m.buildpackVer != "" {
-				progress += fmt.Sprintf("Version: %s\n", m.buildpackVer)
-			}
-		}
-	}
-	progress += "\n"
-
+	progress := m.RenderProgress()
 	switch m.state {
 	case stateOrgSelect:
-		return progress + interactive.RenderListPrompt(
-			"Select organization:",
-			m.organizations,
-			m.orgCursor,
-		)
-
+		return progress + m.RenderOrgSelection()
 	case stateProjSelect:
-		return progress + interactive.RenderListPrompt(
-			"Select project:",
-			m.projects,
-			m.projCursor,
-		)
-
+		return progress + m.RenderProjSelection()
 	case stateCompSelect:
-		return progress + interactive.RenderListPrompt(
-			"Select component:",
-			m.components,
-			m.compCursor,
-		)
-
+		return progress + m.RenderComponentSelection()
 	case stateNameInput:
-		return progress + interactive.RenderInputPrompt(
-			"Enter build name:",
-			"",
-			m.name,
-			m.errorMsg,
-		)
-
+		return progress + interactive.RenderInputPrompt("Enter build name:", "", m.name, m.errorMsg)
 	case stateBuildTypeSelect:
-		return progress + interactive.RenderListPrompt(
-			"Select build type:",
-			m.buildTypes,
-			m.buildCursor,
-		)
-
+		return progress + interactive.RenderListPrompt("Select build type:", m.buildTypes, m.buildCursor)
 	case stateDockerContextInput:
-		return progress + interactive.RenderInputPrompt(
-			"Enter Docker context path:",
-			"/",
-			m.dockerContext,
-			m.errorMsg,
-		)
-
+		return progress + interactive.RenderInputPrompt("Enter Docker context path:", "/", m.dockerContext, m.errorMsg)
 	case stateDockerfilePathInput:
-		return progress + interactive.RenderInputPrompt(
-			"Enter Dockerfile path:",
-			"Dockerfile",
-			m.dockerFile,
-			m.errorMsg,
-		)
-
+		return progress + interactive.RenderInputPrompt("Enter Dockerfile path:", "Dockerfile", m.dockerFile, m.errorMsg)
 	case stateBuildpackNameInput:
-		return progress + interactive.RenderListPrompt(
-			"Select buildpack type:",
-			m.buildpacks,
-			m.buildpackCursor,
-		)
-
+		return progress + interactive.RenderListPrompt("Select buildpack type:", m.buildpacks, m.buildpackCursor)
 	case stateBuildpackVersionInput:
-		return progress + interactive.RenderInputPrompt(
-			"Enter buildpack version:",
-			"",
-			m.buildpackVer,
-			m.errorMsg,
-		)
+		return progress + interactive.RenderListPrompt("Select buildpack version:", m.buildpackVersions, m.versionCursor)
 	}
-	return ""
+	return progress
 }
 
 func createBuildInteractive() error {
@@ -305,15 +223,15 @@ func createBuildInteractive() error {
 	if err != nil {
 		return err
 	}
-
 	if len(orgs) == 0 {
 		return errors.NewError("no organizations found")
 	}
-
 	model := buildModel{
-		state:         stateOrgSelect,
-		organizations: orgs,
-		buildTypes:    []string{constants.Docker, constants.Buildpack},
+		BaseModel: interactive.BaseModel{
+			Organizations: orgs,
+		},
+		state:      stateOrgSelect,
+		buildTypes: []string{constants.Docker, constants.Buildpack},
 		buildpacks: func() []string {
 			keys := make([]string, 0, len(choreov1.SupportedVersions))
 			for k := range choreov1.SupportedVersions {
@@ -322,24 +240,21 @@ func createBuildInteractive() error {
 			return keys
 		}(),
 	}
-
 	finalModel, err := interactive.RunInteractiveModel(model)
 	if err != nil {
 		return errors.NewError("interactive mode failed: %v", err)
 	}
-
 	m, ok := finalModel.(buildModel)
 	if !ok || !m.selected {
 		return errors.NewError("build creation cancelled")
 	}
 
 	params := api.CreateBuildParams{
-		Organization: m.organizations[m.orgCursor],
-		Project:      m.projects[m.projCursor],
-		Component:    m.components[m.compCursor],
+		Organization: m.Organizations[m.OrgCursor],
+		Project:      m.Projects[m.ProjCursor],
+		Component:    m.Components[m.CompCursor],
 		Name:         m.name,
 	}
-
 	if m.buildType == constants.Docker {
 		params.Docker = &choreov1.DockerConfiguration{
 			Context:        m.dockerContext,
@@ -351,6 +266,5 @@ func createBuildInteractive() error {
 			Version: m.buildpackVer,
 		}
 	}
-
 	return createBuild(params)
 }

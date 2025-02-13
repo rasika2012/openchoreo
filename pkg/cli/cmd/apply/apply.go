@@ -21,25 +21,20 @@ package apply
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/builder"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/flags"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
 
 func NewApplyCmd(impl api.CommandImplementationInterface) *cobra.Command {
-	applyCmd := &cobra.Command{
-		Use:   constants.Apply.Use,
-		Short: constants.Apply.Short,
-		Long:  constants.Apply.Long,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			filePath, _ := cmd.Flags().GetString(flags.ApplyFileFlag.Name)
-
+	return (&builder.CommandBuilder{
+		Command: constants.Apply,
+		Flags:   []flags.Flag{flags.ApplyFileFlag},
+		RunE: func(fg *builder.FlagGetter) error {
 			return impl.Apply(api.ApplyParams{
-				FilePath: filePath,
+				FilePath: fg.GetString(flags.ApplyFileFlag),
 			})
 		},
-	}
-	flags.AddFlags(applyCmd, flags.ApplyFileFlag)
-
-	return applyCmd
+	}).Build()
 }

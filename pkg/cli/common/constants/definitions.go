@@ -62,22 +62,23 @@ Examples:
 	}
 
 	List = Command{
-		Use:   "list",
-		Short: "List resources like organizations, projects, components, etc.",
-		Long: fmt.Sprintf(`List Choreo resources like organizations, projects, and components.
+		Use:     "get",
+		Short:   "Get resources like organizations, projects, components, etc.",
+		Aliases: []string{"list"},
+		Long: fmt.Sprintf(`Get Choreo resources like organizations, projects, and components.
 
 Examples:
-  # List all organizations
-  %[1]s list org
+  # Get all organizations
+  %[1]s get org
 
-  # List projects in an organization
-  %[1]s list project --organization myorg
+  # Get projects in an organization
+  %[1]s get project --organization myorg
 
-  # List components in a project
-  %[1]s list component --organization myorg --project myproject
+  # Get components in a project
+  %[1]s get component --organization myorg --project myproject
 
   # Get YAML output
-  %[1]s list org -o yaml`,
+  %[1]s get org -o yaml`,
 			messages.DefaultCLIName),
 	}
 
@@ -131,66 +132,66 @@ Examples:
 	ListOrganization = Command{
 		Use:     "organization",
 		Aliases: []string{"org", "orgs", "organizations"},
-		Short:   "List organizations",
-		Long: fmt.Sprintf(`List all organizations or get details of a specific organization.
+		Short:   "Get organizations",
+		Long: fmt.Sprintf(`Get all organizations or get details of a specific organization.
 
 Examples:
-  # List all organizations
-  %[1]s list org
+  # Get all organizations
+  %[1]s get org
 
-  # List a specific organization
-  %[1]s list org myorg
+  # Get a specific organization
+  %[1]s get org myorg
 
   # Output organization details in YAML format
-  %[1]s list org -o yaml
+  %[1]s get org -o yaml
 
   # Output specific organization in YAML format
-  %[1]s list org myorg -o yaml`,
+  %[1]s get org myorg -o yaml`,
 			messages.DefaultCLIName),
 	}
 
 	ListProject = Command{
 		Use:     "project",
 		Aliases: []string{"proj", "projects"},
-		Short:   "List projects",
-		Long: fmt.Sprintf(`List all projects in an organization or get details of a specific project.
+		Short:   "Get projects",
+		Long: fmt.Sprintf(`Get all projects in an organization or get details of a specific project.
 
 Examples:
-  # List all projects in the current organization
-  %[1]s list project
+  # Get all projects in the current organization
+  %[1]s get project
 
-  # List all projects in a specific organization
-  %[1]s list project --organization myorg
+  # Get all projects in a specific organization
+  %[1]s get project --organization myorg
 
-  # List a specific project
-  %[1]s list project myproject --organization myorg
+  # Get a specific project
+  %[1]s get project myproject --organization myorg
 
   # Output project details in YAML format
-  %[1]s list project -o yaml --organization myorg
+  %[1]s get project -o yaml --organization myorg
 
   # Output specific project in YAML format
-  %[1]s list project myproject -o yaml --organization myorg`,
+  %[1]s get project myproject -o yaml --organization myorg`,
 			messages.DefaultCLIName),
 	}
 
 	ListComponent = Command{
 		Use:     "component",
 		Aliases: []string{"comp", "components"},
-		Short:   "List components",
-		Long: fmt.Sprintf(`List all components in a project or get details of a specific component.
+		Short:   "Get components",
+		Long: fmt.Sprintf(`Get all components in a project or get details of a specific component.
 
 Examples:
-  # List all components in the current project
-  %[1]s list component --organization myorg --project myproject
+  # Get all components in the current project
+  %[1]s get component --organization myorg --project myproject
 
-  # List a specific component
-  %[1]s list component mycomponent --organization myorg --project myproject
+  # Get a specific component
+  %[1]s get component mycomponent --organization myorg --project myproject
 
   # Output component details in YAML format
-  %[1]s list component -o yaml --organization myorg --project myproject
+  %[1]s get component -o yaml --organization myorg --project myproject
 
   # Output specific component in YAML format
-  %[1]s list component mycomponent -o yaml --organization myorg --project myproject`,
+  %[1]s get component mycomponent -o yaml --organization myorg --project myproject`,
 			messages.DefaultCLIName),
 	}
 
@@ -245,17 +246,278 @@ This command creates a new build for a component. You can:
 	ListBuild = Command{
 		Use:     "build",
 		Aliases: []string{"builds"},
-		Short:   "List builds",
-		Long: `List all builds in the current project or organization.
+		Short:   "Get builds",
+		Long: `Get all builds in the current project or organization.
 `,
-		Example: `  # List all builds
-  choreoctl list builds
+		Example: `  # Get all builds
+  choreoctl get builds
 
-  # List builds for a specific component
-  choreoctl list builds  --organization myorg --project myproject --component my-component
+  # Get builds for a specific component
+  choreoctl get builds  --organization myorg --project myproject --component my-component
 
-  # List builds in yaml format
-  choreoctl list builds -o yaml
+  # Get builds in yaml format
+  choreoctl get builds -o yaml
 `,
 	}
+	ListDeployableArtifact = Command{
+		Use:     "deployableartifact",
+		Aliases: []string{"deployableartifacts"},
+		Short:   "Get deployable artifacts",
+		Long: `Get all deployable artifacts in the current project or organization.
+`,
+		Example: `  # Get all deployable artifacts
+		  choreoctl get deployableartifacts
+
+		  # Get deployable artifacts for a specific component
+		  choreoctl get deployableartifacts  --organization myorg --project myproject --component my-component
+
+		  # Get deployable artifacts in yaml format
+		  choreoctl get deployableartifacts --organization myorg --project myproject --component my-component -o yaml
+`,
+	}
+	ListDeployment = Command{
+		Use:     "deployment",
+		Aliases: []string{"deployments", "deploy"},
+		Short:   "Get deployments",
+		Long: `Get all deployments in the current project or organization.
+
+This command allows you to:
+- Get all deployments
+- Filter by organization, project, and component
+- Filter by environment and deployment track
+- View deployments in different output formats`,
+		Example: `  # Get all deployments
+  choreoctl get deployments
+
+  # Get deployments for a specific component
+  choreoctl get deployments --organization myorg --project myproject --component mycomp
+
+  # Get deployments for a specific environment
+  choreoctl get deployments --organization myorg --project myproject --component mycomp --environment dev
+
+  # Get deployments for a specific deployment track
+  choreoctl get deployments --organization myorg --project myproject --component mycomp --deployment-track main
+
+  # Get deployments in yaml format
+  choreoctl get deployments -o yaml --organization myorg --project mycomp
+
+  # Get details of a specific deployment
+  choreoctl get deployment mydeployment --organization myorg --project myproject --component mycomp`,
+	}
+
+	CreateDeployment = Command{
+		Use:     "deployment",
+		Aliases: []string{"deployments", "deploy"},
+		Short:   "Create a deployment",
+		Long:    `Create a deployment in the specified organization, project and component.`,
+		Example: `  # Create a deployment interactively
+  choreoctl create deployment
+
+  # Create a deployment with specific parameters
+  choreoctl create deployment --name mydeployment --organization myorg --project myproj --component mycomp
+  --environment dev --deployableartifact myartifact`,
+	}
+
+	CreateDeploymentTrack = Command{
+		Use:     "deploymenttrack",
+		Aliases: []string{"deptrack", "deptracks"},
+		Short:   "Create a deployment track",
+		Long:    `Create a deployment track in the specified organization, project and component.`,
+		Example: `  # Create a deployment track interactively
+  choreoctl create deploymenttrack
+
+  # Create a deployment track with specific parameters
+  choreoctl create deploymenttrack --name mytrack --org myorg --project myproj --component mycomp`,
+	}
+
+	ListDeploymentTrack = Command{
+		Use:     "deploymenttrack [name]",
+		Aliases: []string{"deptrack", "deptracks"},
+		Short:   "Get deployment tracks",
+		Long:    `Get deployment tracks in an organization, project and component.`,
+		Example: `  # Get all deployment tracks
+  choreoctl get deploymenttrack --org myorg --project myproj --component mycomp
+
+  # Get specific deployment track
+  choreoctl get deploymenttrack mytrack --org myorg --project myproj --component mycomp
+
+  # Get in YAML format
+  choreoctl get deploymenttrack -o yaml`,
+	}
+
+	ListEnvironment = Command{
+		Use:     "environment [name]",
+		Aliases: []string{"env", "environments", "envs"},
+		Short:   "Get environments",
+		Long: `Get all environments or a specific environment in an organization.
+If no organization is specified, you will be prompted to select one interactively.`,
+		Example: `  # Get all environments in an organization
+  choreoctl get environment --organization myorg
+
+  # Get a specific environment
+  choreoctl get environment myenv --organization myorg
+
+  # Get  environments in YAML format
+  choreoctl get environment --organization myorg -o yaml
+
+  # get environments interactively
+  choreoctl get environment`,
+	}
+
+	CreateDataPlane = Command{
+		Use:     "dataplane",
+		Aliases: []string{"dp", "dataplanes"},
+		Short:   "Create a data plane",
+		Long:    `Create a data plane in the specified organization.`,
+		Example: `  # Create a data plane interactively
+  choreoctl create dataplane
+
+  # Create a data plane with specific parameters
+  choreoctl create dataplane --name mydp --organization myorg --cluster-name mycluster`,
+	}
+
+	ListDataPlane = Command{
+		Use:     "dataplane [name]",
+		Aliases: []string{"dp", "dataplanes"},
+		Short:   "Get data planes",
+		Long:    `Get all data planes or a specific data plane in an organization.`,
+		Example: `  # Get all data planes
+  choreoctl get dataplane --organization myorg
+
+  # Get a specific data plane
+  choreoctl get dataplane mydp --organization myorg
+
+  # Get in YAML format
+  choreoctl get dataplane --organization myorg -o yaml`,
+	}
+
+	ListEndpoint = Command{
+		Use:     "endpoint [name]",
+		Aliases: []string{"ep", "endpoints"},
+		Short:   "Get endpoints",
+		Long:    `Get all endpoints in an organization, project, component, and environment.`,
+		Example: `  # Get all endpoints
+  choreoctl get endpoint --org myorg --project myproj --component mycomp --environment dev
+
+  # Get a specific endpoint
+  choreoctl get endpoint myendpoint --org myorg --project myproj --component mycomp --environment dev
+
+  # Get in YAML format
+  choreoctl get endpoint --org myorg --project myproj --component mycomp --environment dev -o yaml`,
+	}
+
+	CreateEnvironment = Command{
+		Use:     "environment",
+		Aliases: []string{"env", "environments"},
+		Short:   "Create an environment",
+		Long:    `Create an environment in the specified organization.`,
+		Example: `  # Create an environment interactively
+  choreoctl create environment
+
+  # Create an environment with specific parameters
+  choreoctl create environment --name dev --organization myorg --dataplane-ref dp1 --dns-prefix dev`,
+	}
+
+	CreateDeployableArtifact = Command{
+		Use:     "deployableartifact",
+		Aliases: []string{"da", "artifact"},
+		Short:   "Create a deployable artifact",
+		Long:    `Create a deployable artifact in the specified organization, project and component.`,
+		Example: `  # Create a deployable artifact interactively
+  choreoctl create deployableartifact
+
+  # Create a deployable artifact from a build
+  choreoctl create deployableartifact --name myartifact --org myorg --project myproj --component mycomp`,
+	}
+
+	// ------------------------------------------------------------------------
+	// Config Command Definitions
+	// ------------------------------------------------------------------------
+
+	// ConfigRoot holds usage and help texts for "config" command.
+	ConfigRoot = Command{
+		Use:   "config",
+		Short: "Manage choreoctl configuration contexts.",
+		Long: "Manage configuration contexts that store default values (e.g., organization, project, component) " +
+			"for choreoctl commands.",
+		Example: fmt.Sprintf(`  # Get  all available contexts
+  %[1]s config get-contexts
+
+  # Set or update a context
+  %[1]s config set-context --name myctx --org myorg
+
+  # Use a context
+  %[1]s config use-context --name myctx
+
+  # Show the current context's details
+  %[1]s config current-context`, messages.DefaultCLIName),
+	}
+
+	// ConfigGetContexts holds usage and help texts for "config get-contexts" command.
+	ConfigGetContexts = Command{
+		Use:   "get-contexts",
+		Short: "Get  all available contexts",
+		Long:  "Get  all stored contexts along with an asterisk marking the current context.",
+		Example: fmt.Sprintf(`  # Show all contexts
+  %[1]s config get-contexts`, messages.DefaultCLIName),
+	}
+
+	// ConfigSetContext holds usage and help texts for "config set-context" command.
+	ConfigSetContext = Command{
+		Use:   "set-context",
+		Short: "Create or update a context",
+		Long:  "Set a context by specifying values for organization, project, component, build, environment, etc.",
+		Example: fmt.Sprintf(`  # Set a context named myctx
+  %[1]s config set-context myctx --org myorg --project myproj --environment dev`, messages.DefaultCLIName),
+	}
+
+	// ConfigUseContext holds usage and help texts for "config use-context" command.
+	ConfigUseContext = Command{
+		Use:   "use-context",
+		Short: "Switch to a specified context",
+		Long: "Set the active context so that subsequent commands will automatically use its " +
+			"stored values for flags if omitted.",
+		Example: fmt.Sprintf(`  # Switch to context myctx
+  %[1]s config use-context --name myctx`, messages.DefaultCLIName),
+	}
+
+	// ConfigCurrentContext holds usage and help texts for "config current-context" command.
+	ConfigCurrentContext = Command{
+		Use:   "current-context",
+		Short: "Display the current context",
+		Long:  "Show which context is currently active, along with any stored configuration values.",
+		Example: fmt.Sprintf(`  # Display the current context
+  %[1]s config current-context`, messages.DefaultCLIName),
+	}
+
+	// ------------------------------------------------------------------------
+	// Flag Descriptions (Used in config commands)
+	// ------------------------------------------------------------------------
+
+	// FlagContextNameDesc is used for the --name flag.
+	FlagContextNameDesc = "Name of the context to create, update, or use"
+
+	// FlagOrgDesc is used for the --org flag.
+	FlagOrgDesc = "Organization name stored in this context"
+
+	// FlagProjDesc is used for the --project flag.
+	FlagProjDesc = "Project name stored in this context"
+
+	// FlagComponentDesc is used for the --component flag.
+	FlagComponentDesc = "Component name stored in this context"
+
+	// FlagBuildDesc is used for the --build flag.
+	FlagBuildDesc = "Build identifier stored in this context"
+
+	// FlagDeploymentTrackDesc is used for the --deploymenttrack flag.
+	FlagDeploymentTrackDesc = "Deployment track name stored in this context"
+
+	// FlagEnvDesc is used for the --environment flag.
+	FlagEnvDesc = "Environment name stored in this context"
+
+	// FlagDataplaneDesc is used for the --dataplane flag.
+	FlagDataplaneDesc = "Data plane reference stored in this context"
+
+	// FlagDeployableArtifactDesc is used for the --deployableartifact flag.
+	FlagDeployableArtifactDesc = "Deployable artifact name stored in this context"
 )

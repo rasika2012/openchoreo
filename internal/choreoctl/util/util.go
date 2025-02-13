@@ -43,6 +43,7 @@ import (
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/config"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 )
 
@@ -71,7 +72,7 @@ func GetLoginConfigFilePath() (string, error) {
 	if err != nil {
 		return "", errors.NewError("failed to get home directory %v", err)
 	}
-	return filepath.Join(homeDir, ".choreo", "config"), nil
+	return filepath.Join(homeDir, ".choreoctl", "config"), nil
 }
 
 func SaveLoginConfig(kubeconfigPath, context string) error {
@@ -139,13 +140,42 @@ func loadConfig(configPath string) error {
 }
 
 func getStoredKubeConfigValues() (string, string, error) {
-	kubeconfig := viper.GetString("kubeconfig")
-	kubeContext := viper.GetString("context")
-
-	if kubeconfig == "" || kubeContext == "" {
-		return "", "", errors.NewError("kubeconfig or context not found in login config")
+	// Load stored choreoctl config
+	cfg, err := LoadStoredConfig()
+	if err != nil {
+		return "", "", fmt.Errorf("failed to load config: %w", err)
 	}
-	return kubeconfig, kubeContext, nil
+
+	// Check for current context
+	if cfg.CurrentContext == "" {
+		return "", "", fmt.Errorf("no current context set")
+	}
+
+	// Find current context
+	var currentContext *config.Context
+	for _, ctx := range cfg.Contexts {
+		if ctx.Name == cfg.CurrentContext {
+			currentContext = &ctx
+			break
+		}
+	}
+	if currentContext == nil {
+		return "", "", fmt.Errorf("current context %q not found", cfg.CurrentContext)
+	}
+
+	// Find referenced cluster
+	if currentContext.ClusterRef == "" {
+		return "", "", fmt.Errorf("no cluster reference in context %q", cfg.CurrentContext)
+	}
+
+	// Get cluster config
+	for _, cluster := range cfg.Clusters {
+		if cluster.Name == currentContext.ClusterRef {
+			return cluster.Kubeconfig, cluster.Context, nil
+		}
+	}
+
+	return "", "", fmt.Errorf("referenced cluster %q not found", currentContext.ClusterRef)
 }
 
 func buildKubeConfig(kubeconfigPath, context string) (*rest.Config, error) {
@@ -450,6 +480,46 @@ func GetAllComponents(orgName, projectName string) (*choreov1.ComponentList, err
 	return GetResources[choreov1.Component, *choreov1.ComponentList](orgName, labels)
 }
 
+func GetDeployableArtifact(orgName, projectName, componentName, deployableArtifactName string) (*choreov1.DeployableArtifact, error) {
+	labels := CreateChoreoLabels(orgName, projectName, componentName, deployableArtifactName)
+	return GetResource[choreov1.DeployableArtifact, *choreov1.DeployableArtifactList](orgName, labels)
+}
+
+func GetAllDeployableArtifacts(orgName, projectName, componentName string) (*choreov1.DeployableArtifactList, error) {
+	labels := CreateChoreoLabels(orgName, projectName, componentName, "")
+	return GetResources[choreov1.DeployableArtifact, *choreov1.DeployableArtifactList](orgName, labels)
+}
+
+func GetDeployableArtifactNames(orgName, projectName, componentName string) ([]string, error) {
+	deployableArtifactList, err := GetAllDeployableArtifacts(orgName, projectName, componentName)
+	if err != nil {
+		return nil, err
+	}
+
+	names := make([]string, 0, len(deployableArtifactList.Items))
+	for _, artifact := range deployableArtifactList.Items {
+		names = append(names, artifact.Name)
+	}
+
+	sort.Strings(names)
+	return names, nil
+}
+
+func GetBuildNames(orgName, projectName, componentName string) ([]string, error) {
+	buildList, err := GetAllBuilds(orgName, projectName, componentName)
+	if err != nil {
+		return nil, err
+	}
+
+	names := make([]string, 0, len(buildList.Items))
+	for _, build := range buildList.Items {
+		names = append(names, build.Name)
+	}
+
+	sort.Strings(names)
+	return names, nil
+}
+
 func GetOrganization(name string) (*choreov1.Organization, error) {
 	k8sClient, err := GetKubernetesClient()
 	if err != nil {
@@ -493,4 +563,144 @@ func GetComponentNames(orgName, projectName string) ([]string, error) {
 
 	sort.Strings(names)
 	return names, nil
+}
+
+func GetDeployment(orgName, projectName, componentName, deploymentName string) (*choreov1.Deployment, error) {
+	labels := CreateChoreoLabels(orgName, projectName, componentName, deploymentName)
+	return GetResource[choreov1.Deployment, *choreov1.DeploymentList](orgName, labels)
+}
+
+func GetAllDeployments(orgName, projectName, componentName string) (*choreov1.DeploymentList, error) {
+	labels := CreateChoreoLabels(orgName, projectName, componentName, "")
+	return GetResources[choreov1.Deployment, *choreov1.DeploymentList](orgName, labels)
+}
+
+func GetEnvironmentNames(orgName string) ([]string, error) {
+	fmt.Println("list of environments" + orgName)
+	envList, err := GetAllEnvironments(orgName)
+	if err != nil {
+		return nil, err
+	}
+
+	names := make([]string, 0, len(envList.Items))
+	for _, env := range envList.Items {
+		names = append(names, env.Name)
+	}
+
+	sort.Strings(names)
+	return names, nil
+}
+
+func GetEnvironment(orgName, envName string) (*choreov1.Environment, error) {
+	labels := CreateChoreoLabels(orgName, "", "", envName)
+	return GetResource[choreov1.Environment, *choreov1.EnvironmentList](orgName, labels)
+}
+
+func GetAllEnvironments(orgName string) (*choreov1.EnvironmentList, error) {
+	labels := CreateChoreoLabels(orgName, "", "", "")
+	return GetResources[choreov1.Environment, *choreov1.EnvironmentList](orgName, labels)
+}
+
+func GetDataPlane(orgName, dataPlaneName string) (*choreov1.DataPlane, error) {
+	labels := CreateChoreoLabels(orgName, "", "", dataPlaneName)
+	return GetResource[choreov1.DataPlane, *choreov1.DataPlaneList](orgName, labels)
+}
+
+func GetDataPlanes(orgName string) (*choreov1.DataPlaneList, error) {
+	labels := CreateChoreoLabels(orgName, "", "", "")
+	return GetResources[choreov1.DataPlane, *choreov1.DataPlaneList](orgName, labels)
+}
+
+func GetDataPlaneNames(orgName string) ([]string, error) {
+	dataPlaneList, err := GetDataPlanes(orgName)
+	if err != nil {
+		return nil, err
+	}
+
+	names := make([]string, 0, len(dataPlaneList.Items))
+	for _, dataPlane := range dataPlaneList.Items {
+		names = append(names, dataPlane.Name)
+	}
+
+	sort.Strings(names)
+	return names, nil
+}
+
+func GetDeploymentTrack(orgName, projectName, componentName, trackName string) (*choreov1.DeploymentTrack, error) {
+	labels := CreateChoreoLabels(orgName, projectName, componentName, trackName)
+	return GetResource[choreov1.DeploymentTrack, *choreov1.DeploymentTrackList](orgName, labels)
+}
+
+func GetAllDeploymentTracks(orgName, projectName, componentName string) (*choreov1.DeploymentTrackList, error) {
+	labels := CreateChoreoLabels(orgName, projectName, componentName, "")
+	return GetResources[choreov1.DeploymentTrack, *choreov1.DeploymentTrackList](orgName, labels)
+}
+
+func GetEndpoint(orgName, projectName, componentName, envName, endpointName string) (*choreov1.Endpoint, error) {
+	labels := CreateChoreoLabels(orgName, projectName, componentName, endpointName)
+	labels["core.choreo.dev/environment"] = envName
+	return GetResource[choreov1.Endpoint, *choreov1.EndpointList](orgName, labels)
+}
+
+func GetAllEndpoints(orgName, projectName, componentName, envName string) (*choreov1.EndpointList, error) {
+	labels := CreateChoreoLabels(orgName, projectName, componentName, "")
+	labels["core.choreo.dev/environment"] = envName
+	return GetResources[choreov1.Endpoint, *choreov1.EndpointList](orgName, labels)
+}
+
+func GetDeploymentTrackNames(orgName, projectName, componentName string) ([]string, error) {
+	deploymentTrackList, err := GetAllDeploymentTracks(orgName, projectName, componentName)
+	if err != nil {
+		return nil, err
+	}
+
+	names := make([]string, 0, len(deploymentTrackList.Items))
+	for _, track := range deploymentTrackList.Items {
+		names = append(names, track.Name)
+	}
+
+	sort.Strings(names)
+	return names, nil
+}
+
+// SaveStoredConfig writes the StoredConfig data to the config file
+func SaveStoredConfig(cfg *config.StoredConfig) error {
+	configPath, err := GetLoginConfigFilePath()
+	if err != nil {
+		return err
+	}
+
+	data, err := yaml.Marshal(cfg)
+	if err != nil {
+		return errors.NewError("failed to marshal config: %v", err)
+	}
+
+	// Ensure directory exists
+	if err := os.MkdirAll(filepath.Dir(configPath), 0755); err != nil {
+		return errors.NewError("failed to create config directory: %v", err)
+	}
+
+	return os.WriteFile(configPath, data, 0600)
+}
+
+// LoadStoredConfig reads the config file and unmarshals it into StoredConfig
+func LoadStoredConfig() (*config.StoredConfig, error) {
+	configPath, err := GetLoginConfigFilePath()
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := os.ReadFile(configPath)
+	if os.IsNotExist(err) {
+		return &config.StoredConfig{}, nil
+	} else if err != nil {
+		return nil, errors.NewError("failed to read config file: %v", err)
+	}
+
+	var cfg config.StoredConfig
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		return nil, errors.NewError("failed to parse config: %v", err)
+	}
+
+	return &cfg, nil
 }

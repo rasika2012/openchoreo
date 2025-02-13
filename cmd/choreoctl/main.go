@@ -21,8 +21,10 @@ package main
 import (
 	"os"
 
+	"github.com/spf13/cobra"
+
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/auth"
+	configContext "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/cmd/config"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/config"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/core/root"
 )
@@ -32,8 +34,18 @@ func main() {
 	commandImpl := choreoctl.NewCommandImplementation()
 
 	rootCmd := root.BuildRootCmd(cfg, commandImpl)
-	rootCmd.PersistentPreRunE = auth.CheckLoginStatus(commandImpl)
 	rootCmd.SilenceUsage = true
+
+	// Initialize choreoctl execution environment
+	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		// Initialize default context if none exists
+		if err := configContext.InitializeDefaultContext(); err != nil {
+			return err
+		}
+
+		// Apply context defaults to command flags
+		return configContext.ApplyContextDefaults(cmd)
+	}
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)

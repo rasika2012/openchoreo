@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package project
+package dataplane
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
@@ -28,17 +28,22 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
 
-type projectListModel struct {
-	organizations []string
-	cursor        int
-	selected      bool
+// stateOrgSelect is used for organization selection.
+// const (
+// 	stateOrgSelect = iota
+// )
+
+type dataPlaneListModel struct {
+	interactive.BaseModel // Reuses Organizations and OrgCursor.
+	selected              bool
+	errorMsg              string
 }
 
-func (m projectListModel) Init() tea.Cmd {
+func (m dataPlaneListModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m projectListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m dataPlaneListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	keyMsg, ok := msg.(tea.KeyMsg)
 	if !ok {
 		return m, nil
@@ -54,19 +59,21 @@ func (m projectListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	}
 
-	m.cursor = interactive.ProcessListCursor(keyMsg, m.cursor, len(m.organizations))
+	// Process organization cursor updates.
+	m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
 	return m, nil
 }
 
-func (m projectListModel) View() string {
-	return interactive.RenderListPrompt(
-		"Select organization:",
-		m.organizations,
-		m.cursor,
-	)
+func (m dataPlaneListModel) View() string {
+	view := ""
+	if m.errorMsg != "" {
+		view += m.errorMsg + "\n"
+	}
+	view += interactive.RenderListPrompt("Select organization:", m.Organizations, m.OrgCursor)
+	return view
 }
 
-func listProjectsInteractive(config constants.CRDConfig) error {
+func listDataPlaneInteractive(config constants.CRDConfig) error {
 	orgs, err := util.GetOrganizationNames()
 	if err != nil {
 		return errors.NewError("failed to get organizations: %v", err)
@@ -76,8 +83,10 @@ func listProjectsInteractive(config constants.CRDConfig) error {
 		return errors.NewError("no organizations found")
 	}
 
-	model := projectListModel{
-		organizations: orgs,
+	model := dataPlaneListModel{
+		BaseModel: interactive.BaseModel{
+			Organizations: orgs,
+		},
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -85,12 +94,12 @@ func listProjectsInteractive(config constants.CRDConfig) error {
 		return errors.NewError("interactive mode failed: %v", err)
 	}
 
-	m, ok := finalModel.(projectListModel)
+	m, ok := finalModel.(dataPlaneListModel)
 	if !ok || !m.selected {
-		return errors.NewError("project listing cancelled")
+		return errors.NewError("data plane listing cancelled")
 	}
 
-	return listProjects(api.ListProjectParams{
-		Organization: m.organizations[m.cursor],
+	return listDataPlanes(api.ListDataPlaneParams{
+		Organization: m.Organizations[m.OrgCursor],
 	}, config)
 }

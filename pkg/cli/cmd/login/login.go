@@ -21,6 +21,7 @@ package login
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/builder"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/flags"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
@@ -28,23 +29,17 @@ import (
 
 // NewLoginCmd creates the login command.
 func NewLoginCmd(impl api.CommandImplementationInterface) *cobra.Command {
-	var params api.LoginParams
-
-	cmd := &cobra.Command{
-		Use:          constants.Login.Use,
-		Short:        constants.Login.Short,
-		Long:         constants.Login.Long,
-		SilenceUsage: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			kc, _ := cmd.Flags().GetString("kubeconfig")
-			ctx, _ := cmd.Flags().GetString("context")
-			params.KubeconfigPath = kc
-			params.Kubecontext = ctx
-
-			return impl.Login(params)
+	return (&builder.CommandBuilder{
+		Command: constants.Login,
+		Flags: []flags.Flag{
+			flags.Kubeconfig,
+			flags.KubeContext,
 		},
-	}
-
-	flags.AddFlags(cmd, flags.Kubeconfig, flags.Kubecontext)
-	return cmd
+		RunE: func(fg *builder.FlagGetter) error {
+			return impl.Login(api.LoginParams{
+				KubeconfigPath: fg.GetString(flags.Kubeconfig),
+				Kubecontext:    fg.GetString(flags.KubeContext),
+			})
+		},
+	}).Build()
 }

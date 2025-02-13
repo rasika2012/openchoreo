@@ -22,124 +22,247 @@ import (
 	"github.com/spf13/cobra"
 
 	v1api "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/builder"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/flags"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
 
-// NewCreateCmd returns "create" + its resource subcommands ("project", "component").
 func NewCreateCmd(impl api.CommandImplementationInterface) *cobra.Command {
-	createCmd := &cobra.Command{
-		Use:     constants.Create.Use,
-		Short:   constants.Create.Short,
-		Aliases: constants.Create.Aliases,
-		Long:    constants.Create.Long,
-	}
+	createCmd := (&builder.CommandBuilder{
+		Command: constants.Create,
+	}).Build()
 
-	// Subcommand: create organization
-	orgCmd := &cobra.Command{
-		Use:     constants.CreateOrganization.Use,
-		Aliases: constants.CreateOrganization.Aliases,
-		Short:   constants.CreateOrganization.Short,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			name, _ := cmd.Flags().GetString(flags.Name.Name)
-			displayName, _ := cmd.Flags().GetString(flags.DisplayName.Name)
-			description, _ := cmd.Flags().GetString(flags.Description.Name)
-
-			return impl.CreateOrganization(api.CreateOrganizationParams{
-				Name:        name,
-				DisplayName: displayName,
-				Description: description,
-			})
-		},
-	}
-	flags.AddFlags(orgCmd, flags.Name, flags.DisplayName, flags.Description)
-	createCmd.AddCommand(orgCmd)
-
-	// Subcommand: create project
-	projectCmd := &cobra.Command{
-		Use:     constants.CreateProject.Use,
-		Aliases: constants.CreateProject.Aliases,
-		Short:   constants.CreateProject.Short,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			org, _ := cmd.Flags().GetString(flags.Organization.Name)
-			name, _ := cmd.Flags().GetString(flags.Name.Name)
-			displayName, _ := cmd.Flags().GetString(flags.DisplayName.Name)
-			description, _ := cmd.Flags().GetString(flags.Description.Name)
-
-			return impl.CreateProject(api.CreateProjectParams{
-				Organization: org,
-				Name:         name,
-				DisplayName:  displayName,
-				Description:  description,
-			})
-		},
-	}
-	flags.AddFlags(projectCmd, flags.Organization, flags.Name, flags.DisplayName, flags.Description)
-	createCmd.AddCommand(projectCmd)
-
-	// Subcommand: create component
-	componentCmd := &cobra.Command{
-		Use:     constants.CreateComponent.Use,
-		Aliases: constants.CreateComponent.Aliases,
-		Short:   constants.CreateComponent.Short,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			org, _ := cmd.Flags().GetString(flags.Organization.Name)
-			project, _ := cmd.Flags().GetString(flags.Project.Name)
-			name, _ := cmd.Flags().GetString(flags.Name.Name)
-			displayName, _ := cmd.Flags().GetString(flags.DisplayName.Name)
-			componentType, _ := cmd.Flags().GetString(flags.ComponentType.Name)
-			url, _ := cmd.Flags().GetString(flags.GitRepositoryURL.Name)
-
-			return impl.CreateComponent(api.CreateComponentParams{
-				Organization:     org,
-				Project:          project,
-				Name:             name,
-				DisplayName:      displayName,
-				GitRepositoryURL: url,
-				Type:             v1api.ComponentType(componentType),
-			})
-		},
-	}
-	flags.AddFlags(componentCmd, flags.Organization, flags.Project, flags.Name, flags.GitRepositoryURL,
-		flags.ComponentType, flags.DisplayName)
-	createCmd.AddCommand(componentCmd)
-
-	// Subcommand: create build
-	buildCmd := &cobra.Command{
-		Use:     constants.CreateBuild.Use,
-		Aliases: constants.CreateBuild.Aliases,
-		Short:   constants.CreateBuild.Short,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			org, _ := cmd.Flags().GetString(flags.Organization.Name)
-			project, _ := cmd.Flags().GetString(flags.Project.Name)
-			component, _ := cmd.Flags().GetString(flags.Component.Name)
-			name, _ := cmd.Flags().GetString(flags.Name.Name)
-			dockerContext, _ := cmd.Flags().GetString(flags.DockerContext.Name)
-			dockerfilePath, _ := cmd.Flags().GetString(flags.DockerfilePath.Name)
-			buildpackName, _ := cmd.Flags().GetString(flags.BuildpackName.Name)
-			buildpackVersion, _ := cmd.Flags().GetString(flags.BuildpackVersion.Name)
-			return impl.CreateBuild(api.CreateBuildParams{
-				// Basic metadata
-				Name:         name,
-				Organization: org,
-				Project:      project,
-				Component:    component,
-				// Build configuration
-
-				Docker: &v1api.DockerConfiguration{
-					Context:        dockerContext,
-					DockerfilePath: dockerfilePath,
-				},
-				Buildpack: &v1api.BuildpackConfiguration{
-					Name:    v1api.BuildpackName(buildpackName),
-					Version: buildpackVersion,
-				},
-			})
-		},
-	}
-	flags.AddFlags(buildCmd, flags.Organization, flags.Project, flags.Component, flags.Name)
-	createCmd.AddCommand(buildCmd)
+	createCmd.AddCommand(
+		newCreateOrganizationCmd(impl),
+		newCreateProjectCmd(impl),
+		newCreateComponentCmd(impl),
+		newCreateBuildCmd(impl),
+		newCreateDeploymentCmd(impl),
+		newCreateDataPlaneCmd(impl),
+		newCreateDeploymentTrackCmd(impl),
+		newCreateEnvironmentCmd(impl),
+		newCreateDeployableArtifactCmd(impl),
+	)
 
 	return createCmd
+}
+
+func newCreateOrganizationCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	return (&builder.CommandBuilder{
+		Command: constants.CreateOrganization,
+		Flags:   []flags.Flag{flags.Name, flags.DisplayName, flags.Description},
+		RunE: func(fg *builder.FlagGetter) error {
+			return impl.CreateOrganization(api.CreateOrganizationParams{
+				Name:        fg.GetString(flags.Name),
+				DisplayName: fg.GetString(flags.DisplayName),
+				Description: fg.GetString(flags.Description),
+			})
+		},
+	}).Build()
+}
+
+func newCreateProjectCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	return (&builder.CommandBuilder{
+		Command: constants.CreateProject,
+		Flags:   []flags.Flag{flags.Organization, flags.Name, flags.DisplayName, flags.Description},
+		RunE: func(fg *builder.FlagGetter) error {
+			return impl.CreateProject(api.CreateProjectParams{
+				Organization: fg.GetString(flags.Organization),
+				Name:         fg.GetString(flags.Name),
+				DisplayName:  fg.GetString(flags.DisplayName),
+				Description:  fg.GetString(flags.Description),
+			})
+		},
+	}).Build()
+}
+
+func newCreateComponentCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	return (&builder.CommandBuilder{
+		Command: constants.CreateComponent,
+		Flags: []flags.Flag{
+			flags.Organization,
+			flags.Project,
+			flags.Name,
+			flags.GitRepositoryURL,
+			flags.ComponentType,
+			flags.DisplayName,
+		},
+		RunE: func(fg *builder.FlagGetter) error {
+			return impl.CreateComponent(api.CreateComponentParams{
+				Organization:     fg.GetString(flags.Organization),
+				Project:          fg.GetString(flags.Project),
+				Name:             fg.GetString(flags.Name),
+				DisplayName:      fg.GetString(flags.DisplayName),
+				GitRepositoryURL: fg.GetString(flags.GitRepositoryURL),
+				Type:             v1api.ComponentType(fg.GetString(flags.ComponentType)),
+			})
+		},
+	}).Build()
+}
+
+func newCreateBuildCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	return (&builder.CommandBuilder{
+		Command: constants.CreateBuild,
+		Flags: []flags.Flag{
+			flags.Organization,
+			flags.Project,
+			flags.Component,
+			flags.Name,
+			flags.DockerContext,
+			flags.DockerfilePath,
+			flags.BuildpackName,
+			flags.BuildpackVersion,
+		},
+		RunE: func(fg *builder.FlagGetter) error {
+			return impl.CreateBuild(api.CreateBuildParams{
+				Name:         fg.GetString(flags.Name),
+				Organization: fg.GetString(flags.Organization),
+				Project:      fg.GetString(flags.Project),
+				Component:    fg.GetString(flags.Component),
+				Docker: &v1api.DockerConfiguration{
+					Context:        fg.GetString(flags.DockerContext),
+					DockerfilePath: fg.GetString(flags.DockerfilePath),
+				},
+				Buildpack: &v1api.BuildpackConfiguration{
+					Name:    v1api.BuildpackName(fg.GetString(flags.BuildpackName)),
+					Version: fg.GetString(flags.BuildpackVersion),
+				},
+			})
+		},
+	}).Build()
+}
+
+func newCreateDeploymentCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	return (&builder.CommandBuilder{
+		Command: constants.CreateDeployment,
+		Flags: []flags.Flag{
+			flags.Organization,
+			flags.Project,
+			flags.Component,
+			flags.Name,
+			flags.Environment,
+			flags.DeployableArtifact,
+			flags.DeploymentTrack,
+		},
+		RunE: func(fg *builder.FlagGetter) error {
+			return impl.CreateDeployment(api.CreateDeploymentParams{
+				Name:               fg.GetString(flags.Name),
+				Organization:       fg.GetString(flags.Organization),
+				Project:            fg.GetString(flags.Project),
+				Component:          fg.GetString(flags.Component),
+				Environment:        fg.GetString(flags.Environment),
+				DeployableArtifact: fg.GetString(flags.DeployableArtifact),
+				DeploymentTrack:    fg.GetString(flags.DeploymentTrack),
+			})
+		},
+	}).Build()
+}
+
+func newCreateDataPlaneCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	return (&builder.CommandBuilder{
+		Command: constants.CreateDataPlane,
+		Flags: []flags.Flag{
+			flags.Organization,
+			flags.Name,
+			flags.KubernetesClusterName,
+			flags.ConnectionConfigRef,
+			flags.EnableCilium,
+			flags.EnableScaleToZero,
+			flags.GatewayType,
+			flags.PublicVirtualHost,
+			flags.OrgVirtualHost,
+		},
+		RunE: func(fg *builder.FlagGetter) error {
+			return impl.CreateDataPlane(api.CreateDataPlaneParams{
+				Name:                    fg.GetString(flags.Name),
+				Organization:            fg.GetString(flags.Organization),
+				KubernetesClusterName:   fg.GetString(flags.KubernetesClusterName),
+				ConnectionConfigRef:     fg.GetString(flags.ConnectionConfigRef),
+				EnableCilium:            fg.GetBool(flags.EnableCilium),
+				EnableScaleToZero:       fg.GetBool(flags.EnableScaleToZero),
+				GatewayType:             fg.GetString(flags.GatewayType),
+				PublicVirtualHost:       fg.GetString(flags.PublicVirtualHost),
+				OrganizationVirtualHost: fg.GetString(flags.OrgVirtualHost),
+			})
+		},
+	}).Build()
+}
+
+func newCreateDeploymentTrackCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	return (&builder.CommandBuilder{
+		Command: constants.CreateDeploymentTrack,
+		Flags: []flags.Flag{
+			flags.Organization,
+			flags.Project,
+			flags.Component,
+			flags.Name,
+			flags.APIVersion,
+			flags.AutoDeploy,
+		},
+		RunE: func(fg *builder.FlagGetter) error {
+			return impl.CreateDeploymentTrack(api.CreateDeploymentTrackParams{
+				Name:         fg.GetString(flags.Name),
+				Organization: fg.GetString(flags.Organization),
+				Project:      fg.GetString(flags.Project),
+				Component:    fg.GetString(flags.Component),
+				APIVersion:   fg.GetString(flags.APIVersion),
+				AutoDeploy:   fg.GetBool(flags.AutoDeploy),
+			})
+		},
+	}).Build()
+}
+
+func newCreateEnvironmentCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	return (&builder.CommandBuilder{
+		Command: constants.CreateEnvironment,
+		Flags: []flags.Flag{
+			flags.Organization,
+			flags.Name,
+			flags.DisplayName,
+			flags.Description,
+			flags.DataPlaneRef,
+			flags.IsProduction,
+			flags.DNSPrefix,
+		},
+		RunE: func(fg *builder.FlagGetter) error {
+			return impl.CreateEnvironment(api.CreateEnvironmentParams{
+				Name:         fg.GetString(flags.Name),
+				Organization: fg.GetString(flags.Organization),
+				DisplayName:  fg.GetString(flags.DisplayName),
+				Description:  fg.GetString(flags.Description),
+				DataPlaneRef: fg.GetString(flags.DataPlaneRef),
+				IsProduction: fg.GetBool(flags.IsProduction),
+				DNSPrefix:    fg.GetString(flags.DNSPrefix),
+			})
+		},
+	}).Build()
+}
+
+func newCreateDeployableArtifactCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	return (&builder.CommandBuilder{
+		Command: constants.CreateDeployableArtifact,
+		Flags: []flags.Flag{
+			flags.Organization,
+			flags.Project,
+			flags.Component,
+			flags.Name,
+			flags.DeploymentTrack,
+			flags.BuildRef,
+		},
+		RunE: func(fg *builder.FlagGetter) error {
+			var fromBuildRef *v1api.FromBuildRef
+			if buildRef := fg.GetString(flags.BuildRef); buildRef != "" {
+				fromBuildRef = &v1api.FromBuildRef{Name: buildRef}
+			}
+			return impl.CreateDeployableArtifact(api.CreateDeployableArtifactParams{
+				Name:            fg.GetString(flags.Name),
+				Organization:    fg.GetString(flags.Organization),
+				Project:         fg.GetString(flags.Project),
+				Component:       fg.GetString(flags.Component),
+				DeploymentTrack: fg.GetString(flags.DeploymentTrack),
+				FromBuildRef:    fromBuildRef,
+			})
+		},
+	}).Build()
 }

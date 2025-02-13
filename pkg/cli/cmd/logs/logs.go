@@ -21,36 +21,35 @@ package logs
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/builder"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/flags"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
 
+// NewLogsCmd creates the logs command
 func NewLogsCmd(impl api.CommandImplementationInterface) *cobra.Command {
-	logsCmd := &cobra.Command{
-		Use:   constants.Logs.Use,
-		Short: constants.Logs.Short,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			logType, _ := cmd.Flags().GetString(flags.LogType.Name)
-			organization, _ := cmd.Flags().GetString(flags.Organization.Name)
-			project, _ := cmd.Flags().GetString(flags.Project.Name)
-			component, _ := cmd.Flags().GetString(flags.Component.Name)
-			build, _ := cmd.Flags().GetString(flags.Build.Name)
-			follow, _ := cmd.Flags().GetBool(flags.Follow.Name)
-			tail, _ := cmd.Flags().GetInt64(flags.Tail.Name)
-
+	return (&builder.CommandBuilder{
+		Command: constants.Logs,
+		Flags: []flags.Flag{
+			flags.Organization,
+			flags.Project,
+			flags.Component,
+			flags.Build,
+			flags.LogType,
+			flags.Follow,
+			flags.Tail,
+		},
+		RunE: func(fg *builder.FlagGetter) error {
 			return impl.GetLogs(api.LogParams{
-				Type:         logType,
-				Organization: organization,
-				Project:      project,
-				Component:    component,
-				Build:        build,
-				Follow:       follow,
-				TailLines:    tail,
+				Type:         fg.GetString(flags.LogType),
+				Organization: fg.GetString(flags.Organization),
+				Project:      fg.GetString(flags.Project),
+				Component:    fg.GetString(flags.Component),
+				Build:        fg.GetString(flags.Build),
+				Follow:       fg.GetBool(flags.Follow),
+				TailLines:    int64(fg.GetInt(flags.Tail)),
 			})
 		},
-	}
-	flags.AddFlags(logsCmd, flags.Organization, flags.Project, flags.Component, flags.Build,
-		flags.LogType, flags.Follow, flags.Tail)
-	return logsCmd
+	}).Build()
 }

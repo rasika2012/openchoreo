@@ -28,12 +28,17 @@ const (
 )
 
 const (
-	LabelOrganization = "core.choreo.dev/organization"
-	LabelProject      = "core.choreo.dev/project"
-	LabelComponent    = "core.choreo.dev/component"
-	LabelBuild        = "core.choreo.dev/build"
-	LabelName         = "core.choreo.dev/name"
-	LabelType         = "core.choreo.dev/type"
+	LabelOrganization    = "core.choreo.dev/organization"
+	LabelProject         = "core.choreo.dev/project"
+	LabelComponent       = "core.choreo.dev/component"
+	LabelBuild           = "core.choreo.dev/build"
+	LabelName            = "core.choreo.dev/name"
+	LabelType            = "core.choreo.dev/type"
+	LabelVersion         = "core.choreo.dev/version"
+	LabelArtifact        = "core.choreo.dev/deployment-artifact"
+	LabelDeployment      = "core.choreo.dev/deployment"
+	LabelEnvironment     = "core.choreo.dev/environment"
+	LabelDeploymentTrack = "core.choreo.dev/deployment-track"
 )
 const (
 	AnnotationDescription = "core.choreo.dev/description"
@@ -79,5 +84,35 @@ var (
 		Group:   ChoreoGroup,
 		Version: V1,
 		Kind:    "Build",
+	}
+	DeployableArtifactV1Config = CRDConfig{
+		Group:   ChoreoGroup,
+		Version: V1,
+		Kind:    "DeployableArtifact",
+	}
+	DeploymentV1Config = CRDConfig{
+		Group:   ChoreoGroup,
+		Version: V1,
+		Kind:    "Deployment",
+	}
+	DataPlaneV1Config = CRDConfig{
+		Group:   ChoreoGroup,
+		Version: V1,
+		Kind:    "DataPlane",
+	}
+	DeploymentTrackV1Config = CRDConfig{
+		Group:   ChoreoGroup,
+		Version: V1,
+		Kind:    "DeploymentTrack",
+	}
+	EndpointV1Config = CRDConfig{
+		Group:   ChoreoGroup,
+		Version: V1,
+		Kind:    "Endpoint",
+	}
+	EnvironmentV1Config = CRDConfig{
+		Group:   ChoreoGroup,
+		Version: V1,
+		Kind:    "Environment",
 	}
 )

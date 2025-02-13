@@ -22,10 +22,9 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/apply"
+	configContext "github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/config"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/create"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/list"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/login"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/logout"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/get"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/logs"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/config"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
@@ -43,10 +42,11 @@ func BuildRootCmd(config *config.CLIConfig, impl api.CommandImplementationInterf
 	rootCmd.AddCommand(
 		apply.NewApplyCmd(impl),
 		create.NewCreateCmd(impl),
-		list.NewListCmd(impl),
-		login.NewLoginCmd(impl),
-		logout.NewLogoutCmd(impl),
+		get.NewListCmd(impl),
+		// login.NewLoginCmd(impl), // Removed login and logout until we finalize the user experience
+		// logout.NewLogoutCmd(impl),
 		logs.NewLogsCmd(impl),
+		configContext.NewConfigCmd(impl),
 	)
 
 	return rootCmd

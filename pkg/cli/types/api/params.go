@@ -120,3 +120,155 @@ type ListBuildParams struct {
 	OutputFormat string
 	Name         string
 }
+
+// CreateDeployableArtifactParams defines parameters for creating a deployable artifact
+type CreateDeployableArtifactParams struct {
+	Name            string
+	Organization    string
+	Project         string
+	Component       string
+	DeploymentTrack string
+	DisplayName     string
+	Description     string
+	FromBuildRef    *choreov1.FromBuildRef
+	FromImageRef    *choreov1.FromImageRef
+	Configuration   *choreov1.Configuration
+}
+
+// ListDeployableArtifactParams defines parameters for listing deployable artifacts
+type ListDeployableArtifactParams struct {
+	// Standard resource filters
+	Organization string
+	Project      string
+	Component    string
+
+	// Artifact-specific filters
+	DeploymentTrack string
+	Build           string
+	DockerImage     string
+
+	// Display options
+	OutputFormat string
+	Name         string
+
+	// Optional filters
+	GitRevision  string
+	DisabledOnly bool
+}
+
+// ListDeploymentParams defines parameters for listing deployments
+type ListDeploymentParams struct {
+	// Standard resource filters
+	Organization string
+	Project      string
+	Component    string
+
+	// Deployment specific filters
+	Environment     string
+	DeploymentTrack string
+	ArtifactRef     string
+
+	// Display options
+	OutputFormat string
+	Name         string
+}
+
+// CreateDeploymentParams defines parameters for creating a deployment
+type CreateDeploymentParams struct {
+	Name               string
+	Organization       string
+	Project            string
+	Component          string
+	Environment        string
+	DeploymentTrack    string
+	DeployableArtifact string
+	ConfigOverrides    *choreov1.ConfigurationOverrides
+}
+
+// CreateDeploymentTrackParams defines parameters for creating a deployment track
+type CreateDeploymentTrackParams struct {
+	Name              string
+	Organization      string
+	Project           string
+	Component         string
+	DisplayName       string
+	Description       string
+	APIVersion        string
+	AutoDeploy        bool
+	BuildTemplateSpec *choreov1.BuildTemplateSpec
+}
+
+// ListDeploymentTrackParams defines parameters for listing deployment tracks
+type ListDeploymentTrackParams struct {
+	Organization string
+	Project      string
+	Component    string
+	OutputFormat string
+	Name         string
+}
+
+// CreateEnvironmentParams defines parameters for creating an environment
+type CreateEnvironmentParams struct {
+	Name         string
+	Organization string
+	DisplayName  string
+	Description  string
+	DataPlaneRef string
+	IsProduction bool
+	DNSPrefix    string
+}
+
+// ListEnvironmentParams defines parameters for listing environments
+type ListEnvironmentParams struct {
+	Organization string
+	OutputFormat string
+	Name         string
+}
+
+// CreateDataPlaneParams defines parameters for creating a data plane
+type CreateDataPlaneParams struct {
+	Name                    string
+	Organization            string
+	DisplayName             string
+	Description             string
+	KubernetesClusterName   string
+	ConnectionConfigRef     string
+	EnableCilium            bool
+	EnableScaleToZero       bool
+	GatewayType             string
+	PublicVirtualHost       string
+	OrganizationVirtualHost string
+}
+
+// ListDataPlaneParams defines parameters for listing data planes
+type ListDataPlaneParams struct {
+	Organization string
+	OutputFormat string
+	Name         string
+}
+
+// ListEndpointParams defines parameters for listing endpoints
+type ListEndpointParams struct {
+	Organization string
+	Project      string
+	Component    string
+	Environment  string
+	OutputFormat string
+	Name         string
+}
+
+type SetContextParams struct {
+	Name           string
+	Organization   string
+	Project        string
+	Component      string
+	Environment    string
+	DataPlane      string
+	ClusterRef     string
+	KubeconfigPath string
+	KubeContext    string
+}
+
+type UseContextParams struct {
+	Name string
+}

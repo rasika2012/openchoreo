@@ -23,11 +23,18 @@ type CommandImplementationInterface interface {
 	OrganizationAPI
 	ProjectAPI
 	ComponentAPI
+	BuildAPI
+	DeployableArtifactAPI
+	DeploymentAPI
 	ApplyAPI
 	LoginAPI
 	LogoutAPI
 	LogAPI
-	BuildAPI
+	EnvironmentAPI
+	DataPlaneAPI
+	DeploymentTrackAPI
+	EndpointAPI
+	ConfigContextAPI
 }
 
 // OrganizationAPI defines organization-related operations
@@ -54,6 +61,16 @@ type BuildAPI interface {
 	ListBuild(params ListBuildParams) error
 }
 
+type DeployableArtifactAPI interface {
+	CreateDeployableArtifact(params CreateDeployableArtifactParams) error
+	ListDeployableArtifact(params ListDeployableArtifactParams) error
+}
+
+type DeploymentAPI interface {
+	CreateDeployment(params CreateDeploymentParams) error
+	ListDeployment(params ListDeploymentParams) error
+}
+
 // ApplyAPI defines methods for applying configurations
 type ApplyAPI interface {
 	Apply(params ApplyParams) error
@@ -73,4 +90,30 @@ type LogoutAPI interface {
 
 type LogAPI interface {
 	GetLogs(params LogParams) error
+}
+
+type EnvironmentAPI interface {
+	CreateEnvironment(params CreateEnvironmentParams) error
+	ListEnvironment(params ListEnvironmentParams) error
+}
+
+type DataPlaneAPI interface {
+	CreateDataPlane(params CreateDataPlaneParams) error
+	ListDataPlane(params ListDataPlaneParams) error
+}
+
+type DeploymentTrackAPI interface {
+	CreateDeploymentTrack(params CreateDeploymentTrackParams) error
+	ListDeploymentTrack(params ListDeploymentTrackParams) error
+}
+
+type EndpointAPI interface {
+	ListEndpoint(params ListEndpointParams) error
+}
+
+type ConfigContextAPI interface {
+	GetContexts() error
+	GetCurrentContext() error
+	UseContext(params UseContextParams) error
+	SetContext(params SetContextParams) error
 }

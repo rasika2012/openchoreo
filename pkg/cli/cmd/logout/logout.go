@@ -21,18 +21,17 @@ package logout
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/builder"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
 
+// NewLogoutCmd creates the logout command.
 func NewLogoutCmd(impl api.CommandImplementationInterface) *cobra.Command {
-	logoutCmd := &cobra.Command{
-		Use:   constants.Logout.Use,
-		Short: constants.Logout.Short,
-		RunE: func(cmd *cobra.Command, args []string) error {
+	return (&builder.CommandBuilder{
+		Command: constants.Logout,
+		RunE: func(fg *builder.FlagGetter) error {
 			return impl.Logout()
 		},
-	}
-
-	return logoutCmd
+	}).Build()
 }

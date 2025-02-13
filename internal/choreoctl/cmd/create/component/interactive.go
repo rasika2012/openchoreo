@@ -19,8 +19,6 @@
 package component
 
 import (
-	"fmt"
-
 	tea "github.com/charmbracelet/bubbletea"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
@@ -34,24 +32,22 @@ const (
 	stateOrgSelect = iota
 	stateProjSelect
 	stateNameInput
-	stateDisplayNameInput
+	stateDisplayNameInput // Remove
 	stateTypeSelect
 	stateURLInput
 )
 
 type componentModel struct {
-	state         int
-	organizations []string
-	projects      []string
-	types         []choreov1.ComponentType
-	orgCursor     int
-	projCursor    int
-	typeCursor    int
-	name          string
-	displayName   string
-	url           string
-	selected      bool
-	errorMsg      string
+	interactive.BaseModel // Reuses common organization/project selection logic
+	types                 []choreov1.ComponentType
+	typeCursor            int
+
+	name        string
+	displayName string
+	url         string
+	selected    bool
+	errorMsg    string
+	state       int
 }
 
 func (m componentModel) Init() tea.Cmd {
@@ -72,29 +68,29 @@ func (m componentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
 	case stateOrgSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			projects, err := util.GetProjectNames(m.organizations[m.orgCursor])
-			if err != nil {
-				m.errorMsg = err.Error()
-				return m, nil
+			// Use BaseModel helper to update organization selection.
+			cmd := m.UpdateOrgSelect(keyMsg)
+			if m.State == interactive.StateProjSelect {
+				m.state = stateProjSelect
 			}
-			if len(projects) == 0 {
-				m.errorMsg = fmt.Sprintf("no projects found in organization '%s'", m.organizations[m.orgCursor])
-				return m, tea.Quit
-			}
-			m.projects = projects
-			m.state = stateProjSelect
 			m.errorMsg = ""
-			return m, nil
+			return m, cmd
 		}
-		m.orgCursor = interactive.ProcessListCursor(keyMsg, m.orgCursor, len(m.organizations))
+		m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
 
 	case stateProjSelect:
 		if interactive.IsEnterKey(keyMsg) {
+			// Delegate project selection to BaseModel helper.
+			cmd, err := m.UpdateProjSelect(keyMsg)
+			if err != nil {
+				m.errorMsg = err.Error()
+				return m, tea.Quit
+			}
 			m.state = stateNameInput
 			m.errorMsg = ""
-			return m, nil
+			return m, cmd
 		}
-		m.projCursor = interactive.ProcessListCursor(keyMsg, m.projCursor, len(m.projects))
+		m.ProjCursor = interactive.ProcessListCursor(keyMsg, m.ProjCursor, len(m.Projects))
 
 	case stateNameInput:
 		if interactive.IsEnterKey(keyMsg) {
@@ -111,10 +107,6 @@ func (m componentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case stateDisplayNameInput:
 		if interactive.IsEnterKey(keyMsg) {
 			m.state = stateTypeSelect
-			m.types = []choreov1.ComponentType{
-				choreov1.ComponentTypeWebApplication,
-				choreov1.ComponentTypeScheduledTask,
-			}
 			m.errorMsg = ""
 			return m, nil
 		}
@@ -122,6 +114,11 @@ func (m componentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case stateTypeSelect:
 		if interactive.IsEnterKey(keyMsg) {
+			// Validate that a component type is selected.
+			if m.typeCursor < 0 || m.typeCursor >= len(m.types) {
+				m.errorMsg = "Invalid component type selected"
+				return m, nil
+			}
 			m.state = stateURLInput
 			m.errorMsg = ""
 			return m, nil
@@ -136,6 +133,7 @@ func (m componentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 			m.selected = true
+			m.errorMsg = ""
 			return m, tea.Quit
 		}
 	}
@@ -144,66 +142,29 @@ func (m componentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m componentModel) View() string {
-	if m.errorMsg != "" {
-		return m.errorMsg + "\n"
-	}
+	progress := m.RenderProgress()
+	var view string
 	switch m.state {
 	case stateOrgSelect:
-		return interactive.RenderListPrompt(
-			"Select an organization:",
-			m.organizations,
-			m.orgCursor,
-		)
-
+		view = m.RenderOrgSelection()
 	case stateProjSelect:
-		return interactive.RenderListPrompt(
-			"Select project:",
-			m.projects,
-			m.projCursor,
-		)
-
+		view = m.RenderProjSelection()
 	case stateNameInput:
-		return interactive.RenderInputPrompt(
-			"Enter component name:",
-			"",
-			m.name,
-			m.errorMsg,
-		) + "\n" + "Name must consist of lowercase letters, numbers, or hyphens (e.g., my-service)"
-
+		view = interactive.RenderInputPrompt("Enter component name:", "", m.name, m.errorMsg)
 	case stateDisplayNameInput:
-		return interactive.RenderInputPrompt(
-			"Enter display name (optional):",
-			"",
-			m.displayName,
-			m.errorMsg,
-		)
-
+		view = interactive.RenderInputPrompt("Enter display name (optional):", "", m.displayName, m.errorMsg)
 	case stateTypeSelect:
-		return interactive.RenderListPrompt(
-			"Select component type:",
-			formatComponentTypes(m.types),
-			m.typeCursor,
-		)
-
+		typeOptions := make([]string, len(m.types))
+		for i, t := range m.types {
+			typeOptions[i] = string(t)
+		}
+		view = interactive.RenderListPrompt("Select component type:", typeOptions, m.typeCursor)
 	case stateURLInput:
-		return interactive.RenderInputPrompt(
-			"Enter git repository URL:",
-			"",
-			m.url,
-			m.errorMsg,
-		)
-
+		view = interactive.RenderInputPrompt("Enter git repository URL:", "", m.url, m.errorMsg)
 	default:
-		return ""
+		view = ""
 	}
-}
-
-func formatComponentTypes(types []choreov1.ComponentType) []string {
-	formatted := make([]string, len(types))
-	for i, t := range types {
-		formatted[i] = string(t)
-	}
-	return formatted
+	return progress + view
 }
 
 func createComponentInteractive() error {
@@ -211,14 +172,17 @@ func createComponentInteractive() error {
 	if err != nil {
 		return err
 	}
-
 	if len(orgs) == 0 {
 		return errors.NewError("no organizations found")
 	}
 
 	model := componentModel{
-		state:         stateOrgSelect,
-		organizations: orgs,
+		state:     stateOrgSelect,
+		BaseModel: interactive.BaseModel{Organizations: orgs},
+		types: []choreov1.ComponentType{
+			choreov1.ComponentTypeWebApplication,
+			choreov1.ComponentTypeScheduledTask,
+		},
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -231,12 +195,13 @@ func createComponentInteractive() error {
 		return errors.NewError("component creation cancelled")
 	}
 
-	return createComponent(api.CreateComponentParams{
-		Organization:     m.organizations[m.orgCursor],
-		Project:          m.projects[m.projCursor],
+	params := api.CreateComponentParams{
+		Organization:     m.Organizations[m.OrgCursor],
+		Project:          m.Projects[m.ProjCursor],
 		Name:             m.name,
 		DisplayName:      m.displayName,
 		Type:             m.types[m.typeCursor],
 		GitRepositoryURL: m.url,
-	})
+	}
+	return createComponent(params)
 }

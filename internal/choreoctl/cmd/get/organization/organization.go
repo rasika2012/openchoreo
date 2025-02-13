@@ -44,12 +44,14 @@ func (i *ListOrgImpl) ListOrganization(params api.ListParams) error {
 	var organizations []corev1.Organization
 
 	if params.Name != "" {
+		// If name is specified, get only that specific organization
 		org, err := util.GetOrganization(params.Name)
 		if err != nil {
-			return err
+			return errors.NewError("organization %q not found", params.Name)
 		}
 		organizations = []corev1.Organization{*org}
 	} else {
+		// Otherwise get all organizations
 		orgList, err := util.GetOrganizations()
 		if err != nil {
 			return err
@@ -58,7 +60,7 @@ func (i *ListOrgImpl) ListOrganization(params api.ListParams) error {
 	}
 
 	if len(organizations) == 0 {
-		return errors.NewError("No organizations found")
+		return errors.NewError("no organizations found")
 	}
 
 	if params.OutputFormat == constants.OutputFormatYAML {
