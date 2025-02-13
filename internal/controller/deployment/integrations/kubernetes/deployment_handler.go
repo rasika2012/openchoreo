@@ -55,7 +55,8 @@ func (h *deploymentHandler) Name() string {
 // If this returns false, the controller will attempt to delete the resource.
 func (h *deploymentHandler) IsRequired(deployCtx *dataplane.DeploymentContext) bool {
 	// Kubernetes Deployments are required for Web Applications and Services
-	return deployCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication
+	return deployCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication ||
+		deployCtx.Component.Spec.Type == choreov1.ComponentTypeService
 }
 
 // GetCurrentState returns the current state of the external resource.
@@ -75,7 +76,10 @@ func (h *deploymentHandler) GetCurrentState(ctx context.Context, deployCtx *data
 
 // Create creates the external resource.
 func (h *deploymentHandler) Create(ctx context.Context, deployCtx *dataplane.DeploymentContext) error {
-	deployment := makeDeployment(deployCtx)
+	deployment, err := makeDeployment(deployCtx)
+	if err != nil {
+		return err
+	}
 	return h.kubernetesClient.Create(ctx, deployment)
 }
 
@@ -87,9 +91,10 @@ func (h *deploymentHandler) Update(ctx context.Context, deployCtx *dataplane.Dep
 	if !ok {
 		return errors.New("failed to cast current state to CronJob")
 	}
-
-	newDeployment := makeDeployment(deployCtx)
-
+	newDeployment, err := makeDeployment(deployCtx)
+	if err != nil {
+		return err
+	}
 	if h.shouldUpdate(currentDeployment, newDeployment) {
 		newDeployment.ResourceVersion = currentDeployment.ResourceVersion
 		return h.kubernetesClient.Update(ctx, newDeployment)
@@ -101,8 +106,11 @@ func (h *deploymentHandler) Update(ctx context.Context, deployCtx *dataplane.Dep
 // Delete deletes the external resource.
 // The implementation should handle the case where the resource does not exist and return nil.
 func (h *deploymentHandler) Delete(ctx context.Context, deployCtx *dataplane.DeploymentContext) error {
-	deployment := makeDeployment(deployCtx)
-	err := h.kubernetesClient.Delete(ctx, deployment)
+	deployment, err := makeDeployment(deployCtx)
+	if err != nil {
+		return err
+	}
+	err = h.kubernetesClient.Delete(ctx, deployment)
 	if apierrors.IsNotFound(err) {
 		return nil
 	}
@@ -116,15 +124,16 @@ func makeDeploymentName(deployCtx *dataplane.DeploymentContext) string {
 	return dpkubernetes.GenerateK8sName(componentName, deploymentTrackName)
 }
 
-func makeDeployment(deployCtx *dataplane.DeploymentContext) *appsv1.Deployment {
+func makeDeployment(deployCtx *dataplane.DeploymentContext) (*appsv1.Deployment, error) {
+	deploymentSpec := makeDeploymentSpec(deployCtx)
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      makeDeploymentName(deployCtx),
 			Namespace: makeNamespaceName(deployCtx),
 			Labels:    makeWorkloadLabels(deployCtx),
 		},
-		Spec: makeDeploymentSpec(deployCtx),
-	}
+		Spec: deploymentSpec,
+	}, nil
 }
 
 func makeDeploymentSpec(deployCtx *dataplane.DeploymentContext) appsv1.DeploymentSpec {

@@ -23,9 +23,13 @@ import (
 
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
+	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
 )
 
 func MakeHostname(endpointCtx *dataplane.EndpointContext) gatewayv1.Hostname {
-	return gatewayv1.Hostname(fmt.Sprintf("%s-%s.choreo.local", endpointCtx.Component.Name, endpointCtx.Environment.Name))
+	if endpointCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication {
+		return gatewayv1.Hostname(fmt.Sprintf("%s-%s.choreo.local", endpointCtx.Component.Name, endpointCtx.Environment.Name))
+	}
+	return gatewayv1.Hostname(fmt.Sprintf("%s.apis.choreo.local", endpointCtx.Environment.Name))
 }

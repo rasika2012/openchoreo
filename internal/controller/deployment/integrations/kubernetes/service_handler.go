@@ -52,7 +52,8 @@ func (h *serviceHandler) Name() string {
 
 func (h *serviceHandler) IsRequired(deployCtx *dataplane.DeploymentContext) bool {
 	// Services are required for Web Applications
-	return deployCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication
+	return deployCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication ||
+		deployCtx.Component.Spec.Type == choreov1.ComponentTypeService
 }
 
 func (h *serviceHandler) GetCurrentState(ctx context.Context, deployCtx *dataplane.DeploymentContext) (interface{}, error) {

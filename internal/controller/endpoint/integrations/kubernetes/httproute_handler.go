@@ -60,7 +60,8 @@ func (h *httpRouteHandler) Name() string {
 
 func (h *httpRouteHandler) IsRequired(deployCtx *dataplane.EndpointContext) bool {
 	// HTTPRoutes are required for Web Applications
-	return deployCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication
+	return deployCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication ||
+		deployCtx.Component.Spec.Type == choreov1.ComponentTypeService
 }
 
 func (h *httpRouteHandler) GetCurrentState(ctx context.Context, deployCtx *dataplane.EndpointContext) (interface{}, error) {

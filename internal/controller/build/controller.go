@@ -545,5 +545,18 @@ func addComponentSpecificConfigs(componentType choreov1.ComponentType, deployabl
 				},
 			},
 		}
+	} else if componentType == choreov1.ComponentTypeService {
+		deployableArtifact.Spec.Configuration = &choreov1.Configuration{
+			EndpointTemplates: []choreov1.EndpointTemplate{
+				{
+					Spec: choreov1.EndpointSpec{
+						Type: "HTTP",
+						Service: choreov1.EndpointServiceSpec{
+							Port: 9090,
+						},
+					},
+				},
+			},
+		}
 	}
 }
