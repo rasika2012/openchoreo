@@ -28,6 +28,39 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
 
+// Helper functions for common flag sets
+func getBasicFlags() []flags.Flag {
+	return []flags.Flag{
+		flags.Name,
+		flags.Interactive,
+	}
+}
+
+func getOrgScopedFlags() []flags.Flag {
+	return append(getBasicFlags(),
+		flags.Organization,
+	)
+}
+
+func getProjectLevelFlags() []flags.Flag {
+	return append(getOrgScopedFlags(),
+		flags.Project,
+	)
+}
+
+func getComponentLevelFlags() []flags.Flag {
+	return append(getProjectLevelFlags(),
+		flags.Component,
+	)
+}
+
+func getMetadataFlags() []flags.Flag {
+	return append(getBasicFlags(),
+		flags.DisplayName,
+		flags.Description,
+	)
+}
+
 func NewCreateCmd(impl api.CommandImplementationInterface) *cobra.Command {
 	createCmd := &cobra.Command{
 		Use:   constants.Create.Use,
@@ -53,7 +86,7 @@ func NewCreateCmd(impl api.CommandImplementationInterface) *cobra.Command {
 func newCreateOrganizationCmd(impl api.CommandImplementationInterface) *cobra.Command {
 	return (&builder.CommandBuilder{
 		Command: constants.CreateOrganization,
-		Flags:   []flags.Flag{flags.Name, flags.DisplayName, flags.Description, flags.Interactive},
+		Flags:   getMetadataFlags(),
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateOrganization(api.CreateOrganizationParams{
 				Name:        fg.GetString(flags.Name),
@@ -66,13 +99,17 @@ func newCreateOrganizationCmd(impl api.CommandImplementationInterface) *cobra.Co
 }
 
 func newCreateProjectCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	projectFlags := append(getOrgScopedFlags(),
+		flags.DisplayName,
+		flags.Description,
+	)
 	return (&builder.CommandBuilder{
 		Command: constants.CreateProject,
-		Flags:   []flags.Flag{flags.Organization, flags.Name, flags.DisplayName, flags.Description, flags.Interactive},
+		Flags:   projectFlags,
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateProject(api.CreateProjectParams{
-				Organization: fg.GetString(flags.Organization),
 				Name:         fg.GetString(flags.Name),
+				Organization: fg.GetString(flags.Organization),
 				DisplayName:  fg.GetString(flags.DisplayName),
 				Description:  fg.GetString(flags.Description),
 				Interactive:  fg.GetBool(flags.Interactive),
@@ -82,17 +119,19 @@ func newCreateProjectCmd(impl api.CommandImplementationInterface) *cobra.Command
 }
 
 func newCreateComponentCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	componentFlags := append(getProjectLevelFlags(),
+		flags.DisplayName,
+		flags.GitRepositoryURL,
+		flags.ComponentType,
+	)
 	return (&builder.CommandBuilder{
 		Command: constants.CreateComponent,
-		Flags: []flags.Flag{
-			flags.Organization, flags.Project, flags.Name, flags.GitRepositoryURL, flags.ComponentType,
-			flags.DisplayName, flags.Interactive,
-		},
+		Flags:   componentFlags,
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateComponent(api.CreateComponentParams{
+				Name:             fg.GetString(flags.Name),
 				Organization:     fg.GetString(flags.Organization),
 				Project:          fg.GetString(flags.Project),
-				Name:             fg.GetString(flags.Name),
 				DisplayName:      fg.GetString(flags.DisplayName),
 				GitRepositoryURL: fg.GetString(flags.GitRepositoryURL),
 				Type:             v1api.ComponentType(fg.GetString(flags.ComponentType)),
@@ -103,12 +142,15 @@ func newCreateComponentCmd(impl api.CommandImplementationInterface) *cobra.Comma
 }
 
 func newCreateBuildCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	buildFlags := append(getComponentLevelFlags(),
+		flags.DockerContext,
+		flags.DockerfilePath,
+		flags.BuildpackName,
+		flags.BuildpackVersion,
+	)
 	return (&builder.CommandBuilder{
 		Command: constants.CreateBuild,
-		Flags: []flags.Flag{
-			flags.Organization, flags.Project, flags.Component, flags.Interactive, flags.Name,
-			flags.DockerContext, flags.DockerfilePath, flags.BuildpackName, flags.BuildpackVersion,
-		},
+		Flags:   buildFlags,
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateBuild(api.CreateBuildParams{
 				Name:         fg.GetString(flags.Name),
@@ -130,12 +172,14 @@ func newCreateBuildCmd(impl api.CommandImplementationInterface) *cobra.Command {
 }
 
 func newCreateDeploymentCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	deployFlags := append(getComponentLevelFlags(),
+		flags.Environment,
+		flags.DeploymentTrack,
+		flags.DeployableArtifact,
+	)
 	return (&builder.CommandBuilder{
 		Command: constants.CreateDeployment,
-		Flags: []flags.Flag{
-			flags.Organization, flags.Project, flags.Component, flags.Name, flags.Environment,
-			flags.DeploymentTrack, flags.Interactive, flags.DeployableArtifact,
-		},
+		Flags:   deployFlags,
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateDeployment(api.CreateDeploymentParams{
 				Name:               fg.GetString(flags.Name),
@@ -143,21 +187,27 @@ func newCreateDeploymentCmd(impl api.CommandImplementationInterface) *cobra.Comm
 				Project:            fg.GetString(flags.Project),
 				Component:          fg.GetString(flags.Component),
 				Environment:        fg.GetString(flags.Environment),
-				Interactive:        fg.GetBool(flags.Interactive),
-				DeployableArtifact: fg.GetString(flags.DeployableArtifact),
 				DeploymentTrack:    fg.GetString(flags.DeploymentTrack),
+				DeployableArtifact: fg.GetString(flags.DeployableArtifact),
+				Interactive:        fg.GetBool(flags.Interactive),
 			})
 		},
 	}).Build()
 }
 
 func newCreateDataPlaneCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	dpFlags := append(getMetadataFlags(),
+		flags.KubernetesClusterName,
+		flags.ConnectionConfigRef,
+		flags.EnableCilium,
+		flags.EnableScaleToZero,
+		flags.GatewayType,
+		flags.PublicVirtualHost,
+		flags.OrgVirtualHost,
+	)
 	return (&builder.CommandBuilder{
 		Command: constants.CreateDataPlane,
-		Flags: []flags.Flag{
-			flags.Organization, flags.Name, flags.KubernetesClusterName, flags.Interactive, flags.ConnectionConfigRef,
-			flags.EnableCilium, flags.EnableScaleToZero, flags.GatewayType, flags.PublicVirtualHost, flags.OrgVirtualHost,
-		},
+		Flags:   dpFlags,
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateDataPlane(api.CreateDataPlaneParams{
 				Name:                    fg.GetString(flags.Name),
@@ -176,12 +226,13 @@ func newCreateDataPlaneCmd(impl api.CommandImplementationInterface) *cobra.Comma
 }
 
 func newCreateDeploymentTrackCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	trackFlags := append(getComponentLevelFlags(),
+		flags.APIVersion,
+		flags.AutoDeploy,
+	)
 	return (&builder.CommandBuilder{
 		Command: constants.CreateDeploymentTrack,
-		Flags: []flags.Flag{
-			flags.Organization, flags.Project, flags.Component, flags.Name, flags.APIVersion,
-			flags.AutoDeploy, flags.Interactive,
-		},
+		Flags:   trackFlags,
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateDeploymentTrack(api.CreateDeploymentTrackParams{
 				Name:         fg.GetString(flags.Name),
@@ -197,19 +248,23 @@ func newCreateDeploymentTrackCmd(impl api.CommandImplementationInterface) *cobra
 }
 
 func newCreateEnvironmentCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	envFlags := append(getOrgScopedFlags(),
+		flags.DisplayName,
+		flags.Description,
+		flags.IsProduction,
+		flags.DNSPrefix,
+		flags.DataPlaneRef,
+	)
 	return (&builder.CommandBuilder{
 		Command: constants.CreateEnvironment,
-		Flags: []flags.Flag{
-			flags.Organization, flags.Name, flags.DisplayName, flags.Description, flags.Interactive,
-			flags.IsProduction, flags.DNSPrefix, flags.DataPlaneRef,
-		},
+		Flags:   envFlags,
 		RunE: func(fg *builder.FlagGetter) error {
 			return impl.CreateEnvironment(api.CreateEnvironmentParams{
 				Name:         fg.GetString(flags.Name),
 				Organization: fg.GetString(flags.Organization),
 				DisplayName:  fg.GetString(flags.DisplayName),
-				Interactive:  fg.GetBool(flags.Interactive),
 				Description:  fg.GetString(flags.Description),
+				Interactive:  fg.GetBool(flags.Interactive),
 				DataPlaneRef: fg.GetString(flags.DataPlaneRef),
 				IsProduction: fg.GetBool(flags.IsProduction),
 				DNSPrefix:    fg.GetString(flags.DNSPrefix),
@@ -219,24 +274,20 @@ func newCreateEnvironmentCmd(impl api.CommandImplementationInterface) *cobra.Com
 }
 
 func newCreateDeployableArtifactCmd(impl api.CommandImplementationInterface) *cobra.Command {
+	artifactFlags := append(getComponentLevelFlags(),
+		flags.DeploymentTrack,
+		flags.BuildRef,
+	)
 	return (&builder.CommandBuilder{
 		Command: constants.CreateDeployableArtifact,
-		Flags: []flags.Flag{
-			flags.Organization, flags.Project, flags.Component, flags.Name,
-			flags.DeploymentTrack, flags.BuildRef, flags.Interactive,
-		},
+		Flags:   artifactFlags,
 		RunE: func(fg *builder.FlagGetter) error {
-			var fromBuildRef *v1api.FromBuildRef
-			if buildRef := fg.GetString(flags.BuildRef); buildRef != "" {
-				fromBuildRef = &v1api.FromBuildRef{Name: buildRef}
-			}
 			return impl.CreateDeployableArtifact(api.CreateDeployableArtifactParams{
 				Name:            fg.GetString(flags.Name),
 				Organization:    fg.GetString(flags.Organization),
 				Project:         fg.GetString(flags.Project),
 				Component:       fg.GetString(flags.Component),
 				DeploymentTrack: fg.GetString(flags.DeploymentTrack),
-				FromBuildRef:    fromBuildRef,
 				Interactive:     fg.GetBool(flags.Interactive),
 			})
 		},
