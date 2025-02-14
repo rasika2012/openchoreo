@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package environment
+package environment_test
 
 import (
 	"time"
@@ -31,7 +31,9 @@ import (
 
 	apiv1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
+	env "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/environment"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/testutil"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 )
 
 var _ = Describe("Environment Controller", func() {
@@ -59,8 +61,8 @@ var _ = Describe("Environment Controller", func() {
 						Name:      envName,
 						Namespace: testutil.TestOrganizationNamespace,
 						Labels: map[string]string{
-							controller.LabelKeyOrganizationName: testutil.TestOrganizationName,
-							controller.LabelKeyName:             envName,
+							labels.LabelKeyOrganizationName: testutil.TestOrganizationName,
+							labels.LabelKeyName:             envName,
 						},
 						Annotations: map[string]string{
 							controller.AnnotationKeyDisplayName: "Test Environment",
@@ -73,10 +75,10 @@ var _ = Describe("Environment Controller", func() {
 		})
 
 		By("Reconciling the environment resource", func() {
-			envReconciler := &Reconciler{
+			envReconciler := &env.Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
-				recorder: record.NewFakeRecorder(100),
+				Recorder: record.NewFakeRecorder(100),
 			}
 			result, err := envReconciler.Reconcile(ctx, reconcile.Request{
 				NamespacedName: envNamespacedName,
@@ -108,10 +110,10 @@ var _ = Describe("Environment Controller", func() {
 		})
 
 		By("Reconciling the environment resource after deletion", func() {
-			dpReconciler := &Reconciler{
+			dpReconciler := &env.Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
-				recorder: record.NewFakeRecorder(100),
+				Recorder: record.NewFakeRecorder(100),
 			}
 			result, err := dpReconciler.Reconcile(ctx, reconcile.Request{
 				NamespacedName: envNamespacedName,

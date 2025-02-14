@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package organization
+package organization_test
 
 import (
 	"context"
@@ -33,6 +33,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	apiv1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	orgs "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/organization"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/ptr"
 )
@@ -64,7 +65,7 @@ var _ = Context("Organization Controller", func() {
 		})
 
 		It("should successfully reconcile the organization resource", func() {
-			controllerReconciler := &Reconciler{
+			controllerReconciler := &orgs.Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
 				Recorder: record.NewFakeRecorder(100),
@@ -95,7 +96,7 @@ var _ = Context("Organization Controller", func() {
 			By("Reconciling the non-existing organization resource")
 			const nonExistOrgName = "non-existing-organization"
 
-			controllerReconciler := &Reconciler{
+			controllerReconciler := &orgs.Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
 				Recorder: record.NewFakeRecorder(100),
@@ -129,7 +130,7 @@ var _ = Context("Organization Controller", func() {
 
 			It("should successfully reconcile the organization resource", func() {
 				By("Reconciling the organization resource with updated namespace labels")
-				controllerReconciler := &Reconciler{
+				controllerReconciler := &orgs.Reconciler{
 					Client:   k8sClient,
 					Scheme:   k8sClient.Scheme(),
 					Recorder: record.NewFakeRecorder(100),
@@ -170,7 +171,7 @@ var _ = Context("Organization Controller", func() {
 		})
 
 		It("should successfully reconcile the organization resource even after deletion", func() {
-			controllerReconciler := &Reconciler{
+			controllerReconciler := &orgs.Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
 				Recorder: record.NewFakeRecorder(100),

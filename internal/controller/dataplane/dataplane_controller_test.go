@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package dataplane
+package dataplane_test
 
 import (
 	"context"
@@ -33,6 +33,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	apiv1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	dp "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/dataplane"
 	org "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/organization"
 )
 
@@ -114,7 +115,7 @@ var _ = Describe("DataPlane Controller", func() {
 			})
 
 			By("Reconciling the dataplane resource", func() {
-				dpReconciler := &Reconciler{
+				dpReconciler := &dp.Reconciler{
 					Client:   k8sClient,
 					Scheme:   k8sClient.Scheme(),
 					Recorder: record.NewFakeRecorder(100),
@@ -149,7 +150,7 @@ var _ = Describe("DataPlane Controller", func() {
 			})
 
 			By("Reconciling the dataplane resource after deletion", func() {
-				dpReconciler := &Reconciler{
+				dpReconciler := &dp.Reconciler{
 					Client:   k8sClient,
 					Scheme:   k8sClient.Scheme(),
 					Recorder: record.NewFakeRecorder(100),

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package dataplane
+package dataplane_test
 
 import (
 	"context"

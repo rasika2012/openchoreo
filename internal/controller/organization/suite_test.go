@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package organization
+package organization_test
 
 import (
 	"context"
