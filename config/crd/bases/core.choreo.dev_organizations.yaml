@@ -104,7 +104,8 @@ spec:
                   type: object
                 type: array
               namespace:
-                description: NamespaceStatus NamespaceStatus `json:"namespaceStatus,omitempty"`
+                description: Namespace indicates the namespace name provisioned for
+                  the organization.
                 type: string
               observedGeneration:
                 format: int64

@@ -99,6 +99,11 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	}
 
+	if err := r.reconcileChoreoEndpoints(ctx, deploymentCtx); err != nil {
+		logger.Error(err, "Error reconciling endpoints")
+		return ctrl.Result{}, err
+	}
+
 	// TODO: Update the status of the deployment and emit events
 
 	// Mark the deployment as ready. Reaching this point means the deployment is successfully reconciled.
@@ -130,6 +135,7 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 			&choreov1.DeployableArtifact{},
 			handler.EnqueueRequestsFromMapFunc(r.listDeploymentsForDeployableArtifact),
 		).
+		Owns(&choreov1.Endpoint{}).
 		Complete(r)
 }
 

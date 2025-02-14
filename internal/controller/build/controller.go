@@ -493,6 +493,11 @@ func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreo
 	}
 	componentType := r.getComponentType(ctx, build, logger)
 	addComponentSpecificConfigs(componentType, deployableArtifact)
+
+	if err := ctrl.SetControllerReference(build, deployableArtifact, r.Scheme); err != nil {
+		return err
+	}
+
 	if err := r.Client.Create(ctx, deployableArtifact); err != nil && !apierrors.IsAlreadyExists(err) {
 		logger.Error(err, "Failed to create deployable artifact", "Build.Name", build.ObjectMeta.Name)
 		return err
@@ -526,10 +531,15 @@ func addComponentSpecificConfigs(componentType choreov1.ComponentType, deployabl
 		deployableArtifact.Spec.Configuration = &choreov1.Configuration{
 			EndpointTemplates: []choreov1.EndpointTemplate{
 				{
+					// TODO: This should come from the component descriptor in source code.
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "webapp",
+					},
 					Spec: choreov1.EndpointSpec{
 						Type: "HTTP",
 						Service: choreov1.EndpointServiceSpec{
-							Port: 80,
+							BasePath: "/",
+							Port:     80,
 						},
 					},
 				},

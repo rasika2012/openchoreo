@@ -119,18 +119,9 @@ func makeService(deployCtx *dataplane.DeploymentContext) *corev1.Service {
 }
 
 func makeServiceSpec(deployCtx *dataplane.DeploymentContext) corev1.ServiceSpec {
-	ports := []corev1.ServicePort{}
-
-	for _, v := range deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates {
-		ports = append(ports, corev1.ServicePort{
-			Port:     v.Spec.Service.Port,
-			Protocol: corev1.ProtocolTCP,
-		})
-	}
-
 	return corev1.ServiceSpec{
 		Selector: makeWorkloadLabels(deployCtx),
-		Ports:    ports,
+		Ports:    makeServicePortsFromEndpointTemplates(deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates),
 		Type:     corev1.ServiceTypeClusterIP,
 	}
 }

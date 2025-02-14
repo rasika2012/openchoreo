@@ -82,6 +82,7 @@ type DeploymentStatus struct {
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Artifact",type="string",JSONPath=".spec.deploymentArtifactRef"
 // +kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
 // Deployment is the Schema for the deployments API.
 type Deployment struct {

@@ -128,14 +128,6 @@ func makeDeployment(deployCtx *dataplane.DeploymentContext) *appsv1.Deployment {
 }
 
 func makeDeploymentSpec(deployCtx *dataplane.DeploymentContext) appsv1.DeploymentSpec {
-	ports := []corev1.ContainerPort{}
-
-	for _, v := range deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates {
-		ports = append(ports, corev1.ContainerPort{
-			ContainerPort: v.Spec.Service.Port,
-		})
-	}
-
 	deploymentSpec := appsv1.DeploymentSpec{
 		Selector: &metav1.LabelSelector{
 			MatchLabels: makeWorkloadLabels(deployCtx),
@@ -149,7 +141,7 @@ func makeDeploymentSpec(deployCtx *dataplane.DeploymentContext) appsv1.Deploymen
 					{
 						Name:  "main",
 						Image: "localhost:30003/" + deployCtx.ContainerImage,
-						Ports: ports,
+						Ports: makeContainerPortsFromEndpointTemplates(deployCtx.DeployableArtifact.Spec.Configuration.EndpointTemplates),
 					},
 				},
 			},

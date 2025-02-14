@@ -135,19 +135,13 @@ func (r *Reconciler) makeEndpointContext(ctx context.Context, endpoint *choreov1
 		return nil, fmt.Errorf("cannot retrieve the deployment: %w", err)
 	}
 
-	targetDeployableArtifact, err := controller.GetDeployableArtifact(ctx, r.Client, endpoint)
-	if err != nil {
-		return nil, fmt.Errorf("cannot retrieve the deployable artifact: %w", err)
-	}
-
 	return &dataplane.EndpointContext{
-		Project:            project,
-		Component:          component,
-		DeploymentTrack:    deploymentTrack,
-		DeployableArtifact: targetDeployableArtifact,
-		Deployment:         deployment,
-		Environment:        environment,
-		Endpoint:           endpoint,
+		Project:         project,
+		Component:       component,
+		DeploymentTrack: deploymentTrack,
+		Deployment:      deployment,
+		Environment:     environment,
+		Endpoint:        endpoint,
 	}, nil
 }
 

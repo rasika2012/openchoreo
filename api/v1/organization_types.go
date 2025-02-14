@@ -40,7 +40,7 @@ type OrganizationStatus struct {
 	// Conditions represent the latest available observations of an object's current state.
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 
-	// NamespaceStatus NamespaceStatus `json:"namespaceStatus,omitempty"`
+	// Namespace indicates the namespace name provisioned for the organization.
 	Namespace string `json:"namespace,omitempty"`
 }
 

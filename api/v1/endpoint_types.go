@@ -92,11 +92,28 @@ type RateLimitConfig struct {
 	Tier string `json:"tier"`
 }
 
+// EndpointType defines the different API technologies supported by the endpoint
+type EndpointType string
+
+const (
+	EndpointTypeHTTP      EndpointType = "HTTP"
+	EndpointTypeREST      EndpointType = "REST"
+	EndpointTypeGraphQL   EndpointType = "GraphQL"
+	EndpointTypeWebsocket EndpointType = "Websocket"
+	EndpointTypeGRPC      EndpointType = "gRPC"
+	EndpointTypeTCP       EndpointType = "TCP"
+	EndpointTypeUDP       EndpointType = "UDP"
+)
+
+func (e EndpointType) String() string {
+	return string(e)
+}
+
 // EndpointSpec defines the desired state of Endpoint
 type EndpointSpec struct {
 	// Type indicates the protocol of the endpoint
 	// +kubebuilder:validation:Enum=HTTP;REST;gRPC;GraphQL;Websocket;TCP;UDP
-	Type string `json:"type"`
+	Type EndpointType `json:"type"`
 
 	// Configuration of the upstream service
 	// +required
@@ -129,6 +146,7 @@ type EndpointStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="url",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].message"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 type Endpoint struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

@@ -83,23 +83,3 @@ metadata:
     core.choreo.dev/name: react-starter-deployment
 spec:
   deploymentArtifactRef: react-starter-build
----
-apiVersion: core.choreo.dev/v1
-kind: Endpoint
-metadata:
-  namespace: default-org
-  name: react-starter-sample-endpoint
-  labels:
-    core.choreo.dev/organization: default-org
-    core.choreo.dev/project: default-project
-    core.choreo.dev/environment: development
-    core.choreo.dev/component: react-starter
-    core.choreo.dev/deployment-track: main
-    core.choreo.dev/name: react-nginx-sample-endpoint
-    core.choreo.dev/deployable-artifact: react-starter-build
-    core.choreo.dev/deployment: react-starter-deployment
-spec:
-  type: REST
-  service:
-    port: 80
-    basePath: /
