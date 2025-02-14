@@ -19,6 +19,8 @@
 package project
 
 import (
+	"fmt"
+
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
@@ -30,16 +32,14 @@ import (
 const (
 	stateOrgSelect = iota
 	stateNameInput
-	stateDisplayNameInput
 )
 
 type projectModel struct {
-	interactive.BaseModel // Embeds common organization selection logic
-	Name                  string
-	DisplayName           string
-	state                 int
-	selected              bool
-	errorMsg              string
+	interactive.BaseModel
+	state    int
+	name     string
+	selected bool
+	errorMsg string
 }
 
 func (m projectModel) Init() tea.Cmd {
@@ -52,7 +52,6 @@ func (m projectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
-	// Quit if needed.
 	if interactive.IsQuitKey(keyMsg) {
 		m.selected = false
 		return m, tea.Quit
@@ -60,80 +59,66 @@ func (m projectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch m.state {
 	case stateOrgSelect:
-		// Delegate organization selection to BaseModel helper.
 		if interactive.IsEnterKey(keyMsg) {
-			cmd := m.UpdateOrgSelect(keyMsg)
-			// Once organization selection is complete, transition to name input.
 			m.state = stateNameInput
-			m.errorMsg = ""
-			return m, cmd
-		}
-		m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
-	case stateNameInput:
-		if interactive.IsEnterKey(keyMsg) {
-			if err := util.ValidateProject(m.Name); err != nil {
-				m.errorMsg = err.Error()
-				return m, nil
-			}
-			m.state = stateDisplayNameInput
 			m.errorMsg = ""
 			return m, nil
 		}
-		m.Name, _ = interactive.EditTextInputField(keyMsg, m.Name, len(m.Name))
-	case stateDisplayNameInput:
+		m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
+
+	case stateNameInput:
 		if interactive.IsEnterKey(keyMsg) {
+			if err := util.ValidateProject(m.name); err != nil {
+				m.errorMsg = err.Error()
+				return m, nil
+			}
+
+			// Fetch projects for uniqueness check
+			projects, err := m.FetchProjects()
+			if err != nil {
+				m.errorMsg = err.Error()
+				return m, nil
+			}
+
+			// Check for duplicate project name
+			for _, p := range projects {
+				if p == m.name {
+					m.errorMsg = fmt.Sprintf("Project '%s' already exists in organization '%s'",
+						m.name, m.Organizations[m.OrgCursor])
+					return m, nil
+				}
+			}
+
 			m.selected = true
-			m.errorMsg = ""
 			return m, tea.Quit
 		}
-		m.DisplayName, _ = interactive.EditTextInputField(keyMsg, m.DisplayName, len(m.DisplayName))
+		m.errorMsg = ""
+		m.name, _ = interactive.EditTextInputField(keyMsg, m.name, 256)
 	}
 
 	return m, nil
 }
 
 func (m projectModel) View() string {
-	// Render the progress using BaseModel helper.
 	progress := m.RenderProgress()
-	var view string
-
 	switch m.state {
 	case stateOrgSelect:
-		view = m.RenderOrgSelection()
+		return progress + m.RenderOrgSelection()
 	case stateNameInput:
-		view = interactive.RenderInputPrompt(
-			"Enter project name:",
-			"",
-			m.Name,
-			m.errorMsg,
-		)
-	case stateDisplayNameInput:
-		view = interactive.RenderInputPrompt(
-			"Enter project display name (optional):",
-			"",
-			m.DisplayName,
-			m.errorMsg,
-		)
-	default:
-		view = ""
+		return progress + interactive.RenderInputPrompt("Enter project name:", "", m.name, m.errorMsg)
 	}
-	return progress + view
+	return progress
 }
 
 func createProjectInteractive() error {
-	orgs, err := util.GetOrganizationNames()
+	baseModel, err := interactive.NewBaseModel()
 	if err != nil {
-		return errors.NewError("failed to get organizations: %v", err)
-	}
-	if len(orgs) == 0 {
-		return errors.NewError("no organizations found")
+		return err
 	}
 
 	model := projectModel{
-		BaseModel: interactive.BaseModel{
-			Organizations: orgs,
-		},
-		state: stateOrgSelect,
+		BaseModel: *baseModel,
+		state:     stateOrgSelect,
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -146,11 +131,8 @@ func createProjectInteractive() error {
 		return errors.NewError("project creation cancelled")
 	}
 
-	params := api.CreateProjectParams{
+	return createProject(api.CreateProjectParams{
+		Name:         m.name,
 		Organization: m.Organizations[m.OrgCursor],
-		Name:         m.Name,
-		DisplayName:  m.DisplayName,
-	}
-
-	return createProject(params)
+	})
 }

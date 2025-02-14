@@ -204,6 +204,7 @@ func newCreateDataPlaneCmd(impl api.CommandImplementationInterface) *cobra.Comma
 		flags.GatewayType,
 		flags.PublicVirtualHost,
 		flags.OrgVirtualHost,
+		flags.Organization,
 	)
 	return (&builder.CommandBuilder{
 		Command: constants.CreateDataPlane,

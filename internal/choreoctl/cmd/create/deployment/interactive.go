@@ -20,6 +20,7 @@ package deployment
 
 import (
 	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -72,13 +73,22 @@ func (m deploymentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Use BaseModel helper to select the Organization.
 	case stateOrgSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			cmd := m.UpdateOrgSelect(keyMsg)
-			// If BaseModel sets state to project selection, update local state.
-			if m.State == interactive.StateProjSelect {
-				m.state = stateProjSelect
+			projects, err := m.FetchProjects()
+			if err != nil {
+				m.errorMsg = err.Error()
+				m.selected = false
+				return m, tea.Quit
 			}
+			if len(projects) == 0 {
+				m.errorMsg = fmt.Sprintf("No projects found in organization '%s'. Please create a project first using 'choreoctl create project'",
+					m.Organizations[m.OrgCursor])
+				m.selected = false
+				return m, tea.Quit
+			}
+			m.Projects = projects
+			m.state = stateProjSelect
 			m.errorMsg = ""
-			return m, cmd
+			return m, nil
 		}
 		m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
 
@@ -100,23 +110,21 @@ func (m deploymentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Use BaseModel helper to select the Component.
 	case stateCompSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			// After component selection, fetch environments for the organization
-			environments, err := m.FetchEnvironments() // Using BaseModel's FetchEnvironments
+			environments, err := m.FetchEnvironments()
 			if err != nil {
 				m.errorMsg = fmt.Sprintf("Failed to fetch environments: %v", err)
 				return m, nil
 			}
-			// Missing component selection validation before fetching environments
+
 			if m.CompCursor >= len(m.Components) {
 				m.errorMsg = "Invalid component selection"
 				return m, nil
 			}
 			if len(environments) == 0 {
 				m.errorMsg = fmt.Sprintf("No environments found for organization: %s", m.Organizations[m.OrgCursor])
-				return m, nil
+				return m, tea.Quit
 			}
 
-			// Store environments in the model
 			m.environments = environments
 			m.state = stateEnvSelect
 			m.errorMsg = ""
@@ -127,25 +135,16 @@ func (m deploymentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Select the Environment.
 	case stateEnvSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			// Validate environment selection
-			if m.envCursor >= len(m.environments) {
-				m.errorMsg = "Invalid environment selection"
-				return m, nil
-			}
-
-			// When environment is selected, fetch deployable artifacts.
-			artifacts, err := util.GetDeployableArtifactNames(
-				m.Organizations[m.OrgCursor],
-				m.Projects[m.ProjCursor],
-				m.Components[m.CompCursor],
-			)
+			artifacts, err := m.FetchDeployableArtifacts()
 			if err != nil {
 				m.errorMsg = fmt.Sprintf("Failed to fetch deployable artifacts: %v", err)
 				return m, nil
 			}
 			if len(artifacts) == 0 {
-				m.errorMsg = "No deployable artifacts found. Please create one first using 'choreoctl create deployableartifact'"
-				return m, nil
+				m.errorMsg = fmt.Sprintf("No deployable artifacts found in component '%s'. Please create a deployable artifact first using 'choreoctl create deployableartifact'",
+					m.Components[m.CompCursor])
+				m.selected = false
+				return m, tea.Quit
 			}
 			m.deployableArtifacts = artifacts
 			m.state = stateDeployArtifactSelect
@@ -167,13 +166,28 @@ func (m deploymentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		m.artifactCursor = interactive.ProcessListCursor(keyMsg, m.artifactCursor, len(m.deployableArtifacts))
 
-	// Enter the Deployment name.
 	case stateNameInput:
 		if interactive.IsEnterKey(keyMsg) {
 			if err := util.ValidateResourceName("deployment", m.name); err != nil {
 				m.errorMsg = err.Error()
 				return m, nil
 			}
+
+			deployments, err := m.FetchDeployments()
+			if err != nil {
+				m.errorMsg = fmt.Sprintf("Failed to check deployment existence: %v", err)
+				return m, nil
+			}
+
+			// Check uniqueness
+			for _, d := range deployments {
+				if d == m.name {
+					m.errorMsg = fmt.Sprintf("Deployment '%s' already exists in environment '%s'",
+						m.name, m.environments[m.envCursor])
+					return m, nil
+				}
+			}
+
 			m.selected = true
 			return m, tea.Quit
 		}
@@ -197,7 +211,7 @@ func (m deploymentModel) View() string {
 	case stateEnvSelect:
 		view = interactive.RenderListPrompt("Select environment:", m.environments, m.envCursor)
 	case stateDeployArtifactSelect:
-		view = m.RenderDeployableArtifactSelection()
+		view = interactive.RenderListPrompt("Select deployable artifact:", m.deployableArtifacts, m.artifactCursor)
 	case stateNameInput:
 		view = interactive.RenderInputPrompt("Enter deployment name:", "", m.name, m.errorMsg)
 	default:
@@ -211,21 +225,41 @@ func (m deploymentModel) View() string {
 	return progress + view
 }
 
-func createDeploymentInteractive() error {
-	orgs, err := util.GetOrganizationNames()
-	if err != nil {
-		return errors.NewError("failed to get organizations: %v", err)
+func (m deploymentModel) RenderProgress() string {
+	var progress strings.Builder
+	progress.WriteString("Selected resources:\n")
+
+	if len(m.Organizations) > 0 {
+		progress.WriteString(fmt.Sprintf("- organization: %s\n", m.Organizations[m.OrgCursor]))
 	}
-	if len(orgs) == 0 {
-		return errors.NewError("no organizations found")
+	if len(m.Projects) > 0 {
+		progress.WriteString(fmt.Sprintf("- project: %s\n", m.Projects[m.ProjCursor]))
+	}
+	if len(m.Components) > 0 {
+		progress.WriteString(fmt.Sprintf("- component: %s\n", m.Components[m.CompCursor]))
+	}
+	if len(m.environments) > 0 {
+		progress.WriteString(fmt.Sprintf("- environment: %s\n", m.environments[m.envCursor]))
+	}
+	if len(m.deployableArtifacts) > 0 && m.state > stateDeployArtifactSelect {
+		progress.WriteString(fmt.Sprintf("- deployable artifact: %s\n", m.deployableArtifacts[m.artifactCursor]))
+	}
+	if m.name != "" {
+		progress.WriteString(fmt.Sprintf("- name: %s\n", m.name))
 	}
 
-	// Initialize the model with BaseModel.
+	return progress.String()
+}
+
+func createDeploymentInteractive() error {
+	baseModel, err := interactive.NewBaseModel()
+	if err != nil {
+		return err
+	}
+
 	model := deploymentModel{
-		BaseModel: interactive.BaseModel{
-			Organizations: orgs,
-		},
-		state: stateOrgSelect,
+		BaseModel: *baseModel,
+		state:     stateOrgSelect,
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -235,18 +269,18 @@ func createDeploymentInteractive() error {
 
 	m, ok := finalModel.(deploymentModel)
 	if !ok || !m.selected {
+		if m.errorMsg != "" {
+			return fmt.Errorf("%s", m.errorMsg)
+		}
 		return errors.NewError("deployment creation cancelled")
 	}
 
-	// Build the deployment parameters.
-	params := api.CreateDeploymentParams{
+	return createDeployment(api.CreateDeploymentParams{
+		Name:               m.name,
 		Organization:       m.Organizations[m.OrgCursor],
 		Project:            m.Projects[m.ProjCursor],
 		Component:          m.Components[m.CompCursor],
 		Environment:        m.environments[m.envCursor],
 		DeployableArtifact: m.deployableArtifacts[m.artifactCursor],
-		Name:               m.name,
-	}
-
-	return createDeployment(params)
+	})
 }

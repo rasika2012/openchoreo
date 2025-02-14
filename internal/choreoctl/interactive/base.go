@@ -20,6 +20,7 @@ package interactive
 
 import (
 	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -48,6 +49,21 @@ type BaseModel struct {
 	DeployableArtifactCursor int
 	ErrorMsg                 string
 	State                    int
+}
+
+func NewBaseModel() (*BaseModel, error) {
+	orgs, err := util.GetOrganizationNames()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get organizations: %w", err)
+	}
+
+	if len(orgs) == 0 {
+		return nil, fmt.Errorf("no organizations found")
+	}
+
+	return &BaseModel{
+		Organizations: orgs,
+	}, nil
 }
 
 // RunInteractiveModel starts a Bubble Tea program with the given model
@@ -177,7 +193,6 @@ func (b *BaseModel) FetchDeploymentTracks() ([]string, error) {
 		b.CompCursor >= len(b.Components) {
 		return nil, fmt.Errorf("invalid selection indices for deployment tracks")
 	}
-	// This function assumes util.GetDeploymentTracks exists.
 	return util.GetDeploymentTrackNames(
 		b.Organizations[b.OrgCursor],
 		b.Projects[b.ProjCursor],
@@ -215,17 +230,13 @@ func (b *BaseModel) FetchDeployableArtifacts() ([]string, error) {
 
 // RenderProgress renders the selections made so far.
 func (b BaseModel) RenderProgress() string {
-	progress := "Selections so far:\n"
+	var progress strings.Builder
+	progress.WriteString("Selected resources:\n")
+
 	if len(b.Organizations) > 0 {
-		progress += fmt.Sprintf("Organization: %s\n", b.Organizations[b.OrgCursor])
+		progress.WriteString(fmt.Sprintf("- organization: %s\n", b.Organizations[b.OrgCursor]))
 	}
-	if len(b.Projects) > 0 {
-		progress += fmt.Sprintf("Project: %s\n", b.Projects[b.ProjCursor])
-	}
-	if len(b.Components) > 0 {
-		progress += fmt.Sprintf("Component: %s\n", b.Components[b.CompCursor])
-	}
-	return progress + "\n"
+	return progress.String()
 }
 
 // RenderOrgSelection returns a prompt for organization selection.
@@ -290,4 +301,17 @@ func (b *BaseModel) FetchDataPlanes() ([]string, error) {
 		return nil, fmt.Errorf("invalid organization index")
 	}
 	return util.GetDataPlaneNames(b.Organizations[b.OrgCursor])
+}
+
+func (b *BaseModel) FetchDeployments() ([]string, error) {
+	if b.OrgCursor >= len(b.Organizations) ||
+		b.ProjCursor >= len(b.Projects) ||
+		b.CompCursor >= len(b.Components) {
+		return nil, fmt.Errorf("invalid selection indices for deployments")
+	}
+	return util.GetDeploymentNames(
+		b.Organizations[b.OrgCursor],
+		b.Projects[b.ProjCursor],
+		b.Components[b.CompCursor],
+	)
 }

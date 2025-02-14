@@ -20,12 +20,12 @@ package deployableartifact
 
 import (
 	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
@@ -38,12 +38,12 @@ const (
 )
 
 type deployableArtifactListModel struct {
-	interactive.BaseModel // Reuses Organizations, Projects, Components, and their cursors.
-	selected              bool
-	state                 int
-	errorMsg              string
-	builds                []string
-	buildCursor           int
+	interactive.BaseModel
+	builds      []string
+	buildCursor int
+	selected    bool
+	errorMsg    string
+	state       int
 }
 
 func (m deployableArtifactListModel) Init() tea.Cmd {
@@ -64,14 +64,17 @@ func (m deployableArtifactListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
 	case stateOrgSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			projects, err := m.FetchProjects() // Reusable function from BaseModel.
+			projects, err := m.FetchProjects()
 			if err != nil {
 				m.errorMsg = err.Error()
-				return m, nil
+				m.selected = false
+				return m, tea.Quit
 			}
 			if len(projects) == 0 {
-				m.errorMsg = fmt.Sprintf("No projects found for organization: %s", m.Organizations[m.OrgCursor])
-				return m, nil
+				m.errorMsg = fmt.Sprintf("No projects found in organization '%s'. Please create a project first using 'choreoctl create project'",
+					m.Organizations[m.OrgCursor])
+				m.selected = false
+				return m, tea.Quit
 			}
 			m.Projects = projects
 			m.state = stateProjSelect
@@ -85,11 +88,14 @@ func (m deployableArtifactListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			components, err := m.FetchComponents()
 			if err != nil {
 				m.errorMsg = err.Error()
-				return m, nil
+				m.selected = false
+				return m, tea.Quit
 			}
 			if len(components) == 0 {
-				m.errorMsg = fmt.Sprintf("No components found for project: %s", m.Projects[m.ProjCursor])
-				return m, nil
+				m.errorMsg = fmt.Sprintf("No components found in project '%s'. Please create a component first using 'choreoctl create component'",
+					m.Projects[m.ProjCursor])
+				m.selected = false
+				return m, tea.Quit
 			}
 			m.Components = components
 			m.state = stateCompSelect
@@ -100,30 +106,11 @@ func (m deployableArtifactListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case stateCompSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			builds, err := m.FetchBuildNames()
-			if err != nil {
-				m.errorMsg = err.Error()
-				return m, nil
-			}
-			if len(builds) == 0 {
-				m.errorMsg = fmt.Sprintf("No builds found for component: %s", m.Components[m.CompCursor])
-				return m, nil
-			}
-			m.builds = builds
-			m.state = stateBuildSelect
-			m.errorMsg = ""
-			return m, nil
-		}
-		m.CompCursor = interactive.ProcessListCursor(keyMsg, m.CompCursor, len(m.Components))
-
-	case stateBuildSelect:
-		if interactive.IsEnterKey(keyMsg) {
 			m.selected = true
 			return m, tea.Quit
 		}
-		m.buildCursor = interactive.ProcessListCursor(keyMsg, m.buildCursor, len(m.builds))
+		m.CompCursor = interactive.ProcessListCursor(keyMsg, m.CompCursor, len(m.Components))
 	}
-
 	return m, nil
 }
 
@@ -151,20 +138,31 @@ func (m deployableArtifactListModel) View() string {
 	return progress + view
 }
 
-func listDeployableArtifactInteractive(config constants.CRDConfig) error {
-	orgs, err := util.GetOrganizationNames()
-	if err != nil {
-		return errors.NewError("failed to get organizations: %v", err)
+func (m deployableArtifactListModel) RenderProgress() string {
+	var progress strings.Builder
+	progress.WriteString("Selected resources:\n")
+
+	if len(m.Organizations) > 0 {
+		progress.WriteString(fmt.Sprintf("- organization: %s\n", m.Organizations[m.OrgCursor]))
 	}
-	if len(orgs) == 0 {
-		return errors.NewError("no organizations found")
+	if len(m.Projects) > 0 {
+		progress.WriteString(fmt.Sprintf("- project: %s\n", m.Projects[m.ProjCursor]))
+	}
+	if len(m.Components) > 0 {
+		progress.WriteString(fmt.Sprintf("- component: %s\n", m.Components[m.CompCursor]))
+	}
+	return progress.String()
+}
+
+func listDeployableArtifactInteractive(config constants.CRDConfig) error {
+	baseModel, err := interactive.NewBaseModel()
+	if err != nil {
+		return err
 	}
 
 	model := deployableArtifactListModel{
-		BaseModel: interactive.BaseModel{
-			Organizations: orgs,
-		},
-		state: stateOrgSelect,
+		BaseModel: *baseModel,
+		state:     stateOrgSelect,
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -174,6 +172,9 @@ func listDeployableArtifactInteractive(config constants.CRDConfig) error {
 
 	m, ok := finalModel.(deployableArtifactListModel)
 	if !ok || !m.selected {
+		if m.errorMsg != "" {
+			return fmt.Errorf("%s", m.errorMsg)
+		}
 		return errors.NewError("deployable artifact listing cancelled")
 	}
 
@@ -181,9 +182,6 @@ func listDeployableArtifactInteractive(config constants.CRDConfig) error {
 		Organization: m.Organizations[m.OrgCursor],
 		Project:      m.Projects[m.ProjCursor],
 		Component:    m.Components[m.CompCursor],
-	}
-	if len(m.builds) > 0 {
-		params.Build = m.builds[m.buildCursor]
 	}
 
 	return listDeployableArtifacts(params, config)

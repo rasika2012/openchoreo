@@ -254,6 +254,54 @@ func validateDeployableArtifactParams(cmdType CommandType, params interface{}) e
 	return nil
 }
 
+func validateDataplaneParams(cmdType CommandType, params interface{}) error {
+	switch cmdType {
+	case CmdGet:
+		if p, ok := params.(api.ListDataPlaneParams); ok {
+			if p.Organization == "" {
+				return generateHelpError(cmdType, ResourceDataPlane)
+			}
+		}
+	case CmdCreate:
+		if p, ok := params.(api.CreateDataPlaneParams); ok {
+			if !checkRequiredFields(map[string]string{
+				"organization": p.Organization,
+			}) {
+				return generateHelpError(cmdType, ResourceDataPlane)
+			}
+		}
+	}
+	return nil
+}
+
+func ValidateOrganizationParams(cmdType CommandType, params interface{}) error {
+	if cmdType == CmdCreate {
+		if p, ok := params.(api.CreateOrganizationParams); ok {
+			if !checkRequiredFields(map[string]string{
+				"name": p.Name,
+			}) {
+				return generateHelpError(cmdType, ResourceOrganization)
+			}
+		}
+	}
+	return nil
+}
+
+func validateEndpointParams(cmdType CommandType, params interface{}) error {
+	if cmdType == CmdGet {
+		if p, ok := params.(api.ListEndpointParams); ok {
+			if !checkRequiredFields(map[string]string{
+				"organization": p.Organization,
+				"project":      p.Project,
+				"component":    p.Component,
+			}) {
+				return generateHelpError(cmdType, ResourceEndpoint)
+			}
+		}
+	}
+	return nil
+}
+
 func ValidateParams(cmdType CommandType, resource ResourceType, params interface{}) error {
 	switch resource {
 	case ResourceProject:
@@ -270,6 +318,12 @@ func ValidateParams(cmdType CommandType, resource ResourceType, params interface
 		return validateEnvironmentParams(cmdType, params)
 	case ResourceDeployableArtifact:
 		return validateDeployableArtifactParams(cmdType, params)
+	case ResourceDataPlane:
+		return validateDataplaneParams(cmdType, params)
+	case ResourceOrganization:
+		return ValidateOrganizationParams(cmdType, params)
+	case ResourceEndpoint:
+		return validateEndpointParams(cmdType, params)
 	default:
 		return errors.NewError("unknown resource type: %s", resource)
 	}

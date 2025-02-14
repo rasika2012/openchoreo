@@ -20,6 +20,7 @@ package dataplane
 
 import (
 	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -32,8 +33,6 @@ import (
 const (
 	dpStateOrgSelect = iota
 	dpStateNameInput
-	dpStateDisplayNameInput
-	dpStateDescriptionInput
 	dpStateKubeClusterInput
 	dpStateConnConfigInput
 	dpStateCiliumInput
@@ -48,8 +47,6 @@ type dataPlaneModel struct {
 
 	// DataPlane-specific fields.
 	name                  string
-	displayName           string
-	description           string
 	kubernetesClusterName string
 	connectionConfigRef   string
 	enableCilium          bool
@@ -73,7 +70,6 @@ func (m dataPlaneModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
-	// Allow quitting at any state.
 	if interactive.IsQuitKey(keyMsg) {
 		m.selected = false
 		return m, tea.Quit
@@ -81,91 +77,94 @@ func (m dataPlaneModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch m.state {
 	case dpStateOrgSelect:
-		// Use BaseModel's Org selection helper.
 		if interactive.IsEnterKey(keyMsg) {
-			cmd := m.UpdateOrgSelect(keyMsg)
-			// When BaseModel sets state to project selection,
-			// for dataplane we transition to the name input.
-			if m.State == interactive.StateProjSelect {
-				m.state = dpStateNameInput
+			if m.OrgCursor >= len(m.Organizations) {
+				m.errorMsg = "Invalid organization selection"
+				return m, nil
 			}
+			m.state = dpStateNameInput
 			m.errorMsg = ""
-			return m, cmd
+			return m, nil
 		}
+		m.errorMsg = ""
 		m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
 
 	case dpStateNameInput:
 		if interactive.IsEnterKey(keyMsg) {
-			// (Validation can be added here.)
-			m.state = dpStateDisplayNameInput
-			m.errorMsg = ""
-			return m, nil
-		}
-		m.name, _ = interactive.EditTextInputField(keyMsg, m.name, len(m.name))
-
-	case dpStateDisplayNameInput:
-		if interactive.IsEnterKey(keyMsg) {
-			m.state = dpStateDescriptionInput
-			m.errorMsg = ""
-			return m, nil
-		}
-		m.displayName, _ = interactive.EditTextInputField(keyMsg, m.displayName, len(m.displayName))
-
-	case dpStateDescriptionInput:
-		if interactive.IsEnterKey(keyMsg) {
+			if err := util.ValidateResourceName("dataplane", m.name); err != nil {
+				m.errorMsg = err.Error()
+				return m, nil
+			}
 			m.state = dpStateKubeClusterInput
 			m.errorMsg = ""
 			return m, nil
 		}
-		m.description, _ = interactive.EditTextInputField(keyMsg, m.description, len(m.description))
+		m.errorMsg = ""
+		m.name, _ = interactive.EditTextInputField(keyMsg, m.name, len(m.name))
 
 	case dpStateKubeClusterInput:
 		if interactive.IsEnterKey(keyMsg) {
-			// Optionally validate Kubernetes cluster name.
+			if m.kubernetesClusterName == "" {
+				m.errorMsg = "Kubernetes cluster name cannot be empty"
+				return m, nil
+			}
 			m.state = dpStateConnConfigInput
 			m.errorMsg = ""
 			return m, nil
 		}
+		m.errorMsg = ""
 		m.kubernetesClusterName, _ = interactive.EditTextInputField(keyMsg, m.kubernetesClusterName, len(m.kubernetesClusterName))
 
 	case dpStateConnConfigInput:
 		if interactive.IsEnterKey(keyMsg) {
+			if m.connectionConfigRef == "" {
+				m.errorMsg = "Connection config reference cannot be empty"
+				return m, nil
+			}
 			m.state = dpStateCiliumInput
 			m.errorMsg = ""
 			return m, nil
 		}
+		m.errorMsg = ""
 		m.connectionConfigRef, _ = interactive.EditTextInputField(keyMsg, m.connectionConfigRef, len(m.connectionConfigRef))
 
 	case dpStateCiliumInput:
-		// Toggle flag with space key.
-		if keyMsg.String() == " " {
-			m.enableCilium = !m.enableCilium
-			return m, nil
-		}
 		if interactive.IsEnterKey(keyMsg) {
 			m.state = dpStateScaleToZeroInput
 			m.errorMsg = ""
 			return m, nil
 		}
+		switch keyMsg.String() {
+		case "y", "Y":
+			m.enableCilium = true
+		case "n", "N":
+			m.enableCilium = false
+		}
 
 	case dpStateScaleToZeroInput:
-		// Toggle flag with space key.
-		if keyMsg.String() == " " {
-			m.enableScaleToZero = !m.enableScaleToZero
-			return m, nil
-		}
 		if interactive.IsEnterKey(keyMsg) {
 			m.state = dpStateGatewayTypeInput
 			m.errorMsg = ""
 			return m, nil
 		}
+		switch keyMsg.String() {
+		case "y", "Y":
+			m.enableScaleToZero = true
+		case "n", "N":
+			m.enableScaleToZero = false
+		}
 
 	case dpStateGatewayTypeInput:
 		if interactive.IsEnterKey(keyMsg) {
+			if m.gatewayType == "" {
+				m.errorMsg = "Gateway type cannot be empty"
+				return m, nil
+			}
 			m.state = dpStatePublicVirtualHostInput
 			m.errorMsg = ""
 			return m, nil
 		}
+		m.errorMsg = ""
 		m.gatewayType, _ = interactive.EditTextInputField(keyMsg, m.gatewayType, len(m.gatewayType))
 
 	case dpStatePublicVirtualHostInput:
@@ -179,7 +178,6 @@ func (m dataPlaneModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case dpStateOrgVirtualHostInput:
 		if interactive.IsEnterKey(keyMsg) {
 			m.selected = true
-			m.errorMsg = ""
 			return m, tea.Quit
 		}
 		m.orgVirtualHost, _ = interactive.EditTextInputField(keyMsg, m.orgVirtualHost, len(m.orgVirtualHost))
@@ -196,18 +194,14 @@ func (m dataPlaneModel) View() string {
 		view = m.RenderOrgSelection()
 	case dpStateNameInput:
 		view = interactive.RenderInputPrompt("Enter data plane name:", "", m.name, m.errorMsg)
-	case dpStateDisplayNameInput:
-		view = interactive.RenderInputPrompt("Enter display name:", "", m.displayName, m.errorMsg)
-	case dpStateDescriptionInput:
-		view = interactive.RenderInputPrompt("Enter description:", "", m.description, m.errorMsg)
 	case dpStateKubeClusterInput:
 		view = interactive.RenderInputPrompt("Enter Kubernetes cluster name:", "", m.kubernetesClusterName, m.errorMsg)
 	case dpStateConnConfigInput:
 		view = interactive.RenderInputPrompt("Enter connection config ref:", "", m.connectionConfigRef, m.errorMsg)
 	case dpStateCiliumInput:
-		view = interactive.RenderInputPrompt("Enable Cilium (press space to toggle):", "", fmt.Sprintf("%v", m.enableCilium), m.errorMsg)
+		view = interactive.RenderInputPrompt("Enable Cilium? (y/n):", "", fmt.Sprintf("%v", m.enableCilium), m.errorMsg)
 	case dpStateScaleToZeroInput:
-		view = interactive.RenderInputPrompt("Enable ScaleToZero (press space to toggle):", "", fmt.Sprintf("%v", m.enableScaleToZero), m.errorMsg)
+		view = interactive.RenderInputPrompt("Enable scale to zero? (y/n):", "", fmt.Sprintf("%v", m.enableScaleToZero), m.errorMsg)
 	case dpStateGatewayTypeInput:
 		view = interactive.RenderInputPrompt("Enter gateway type:", "", m.gatewayType, m.errorMsg)
 	case dpStatePublicVirtualHostInput:
@@ -220,20 +214,52 @@ func (m dataPlaneModel) View() string {
 	return progress + view
 }
 
+func (m dataPlaneModel) RenderProgress() string {
+	var progress strings.Builder
+	progress.WriteString("Selected inputs:\n")
+
+	if len(m.Organizations) > 0 {
+		progress.WriteString(fmt.Sprintf("- organization: %s\n", m.Organizations[m.OrgCursor]))
+	}
+
+	if m.name != "" {
+		progress.WriteString(fmt.Sprintf("- name: %s\n", m.name))
+	}
+
+	if m.kubernetesClusterName != "" {
+		progress.WriteString(fmt.Sprintf("- kubernetes cluster: %s\n", m.kubernetesClusterName))
+	}
+
+	if m.connectionConfigRef != "" {
+		progress.WriteString(fmt.Sprintf("- connection config: %s\n", m.connectionConfigRef))
+	}
+
+	progress.WriteString(fmt.Sprintf("- enable cilium: %v\n", m.enableCilium))
+	progress.WriteString(fmt.Sprintf("- enable scale to zero: %v\n", m.enableScaleToZero))
+
+	if m.gatewayType != "" {
+		progress.WriteString(fmt.Sprintf("- gateway type: %s\n", m.gatewayType))
+	}
+
+	if m.publicVirtualHost != "" {
+		progress.WriteString(fmt.Sprintf("- public virtual host: %s\n", m.publicVirtualHost))
+	}
+	if m.orgVirtualHost != "" {
+		progress.WriteString(fmt.Sprintf("- organization virtual host: %s\n", m.orgVirtualHost))
+	}
+
+	return progress.String()
+}
+
 func createDataPlaneInteractive() error {
-	orgs, err := util.GetOrganizationNames()
+	baseModel, err := interactive.NewBaseModel()
 	if err != nil {
 		return err
 	}
-	if len(orgs) == 0 {
-		return errors.NewError("no organizations found")
-	}
 
 	model := dataPlaneModel{
-		BaseModel: interactive.BaseModel{
-			Organizations: orgs,
-		},
-		state: dpStateOrgSelect,
+		BaseModel: *baseModel,
+		state:     dpStateOrgSelect,
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -243,14 +269,15 @@ func createDataPlaneInteractive() error {
 
 	m, ok := finalModel.(dataPlaneModel)
 	if !ok || !m.selected {
-		return errors.NewError("data plane creation cancelled")
+		if m.errorMsg != "" {
+			return fmt.Errorf("%s", m.errorMsg)
+		}
+		return fmt.Errorf("data plane creation cancelled")
 	}
 
-	params := api.CreateDataPlaneParams{
-		Organization:            m.Organizations[m.OrgCursor],
+	return createDataPlane(api.CreateDataPlaneParams{
 		Name:                    m.name,
-		DisplayName:             m.displayName,
-		Description:             m.description,
+		Organization:            m.Organizations[m.OrgCursor],
 		KubernetesClusterName:   m.kubernetesClusterName,
 		ConnectionConfigRef:     m.connectionConfigRef,
 		EnableCilium:            m.enableCilium,
@@ -258,7 +285,5 @@ func createDataPlaneInteractive() error {
 		GatewayType:             m.gatewayType,
 		PublicVirtualHost:       m.publicVirtualHost,
 		OrganizationVirtualHost: m.orgVirtualHost,
-	}
-
-	return createDataPlane(params)
+	})
 }

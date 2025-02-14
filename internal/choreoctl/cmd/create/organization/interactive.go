@@ -30,7 +30,6 @@ import (
 const (
 	stateNameInput = iota
 	stateDisplayNameInput
-	stateDescriptionInput
 )
 
 type organizationModel struct {
@@ -38,7 +37,6 @@ type organizationModel struct {
 	state                 int
 	name                  string
 	displayName           string
-	description           string
 	selected              bool
 	errorMsg              string
 }
@@ -72,18 +70,11 @@ func (m organizationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.name, _ = interactive.EditTextInputField(keyMsg, m.name, len(m.name))
 	case stateDisplayNameInput:
 		if interactive.IsEnterKey(keyMsg) {
-			m.state = stateDescriptionInput
-			m.errorMsg = ""
-			return m, nil
-		}
-		m.displayName, _ = interactive.EditTextInputField(keyMsg, m.displayName, 256)
-	case stateDescriptionInput:
-		if interactive.IsEnterKey(keyMsg) {
 			m.selected = true
 			m.errorMsg = ""
 			return m, tea.Quit
 		}
-		m.description, _ = interactive.EditTextInputField(keyMsg, m.description, len(m.description))
+		m.displayName, _ = interactive.EditTextInputField(keyMsg, m.displayName, 256)
 	}
 
 	return m, nil
@@ -97,8 +88,6 @@ func (m organizationModel) View() string {
 		view = interactive.RenderInputPrompt("Enter organization name:", "", m.name, m.errorMsg)
 	case stateDisplayNameInput:
 		view = interactive.RenderInputPrompt("Enter display name:", "", m.displayName, m.errorMsg)
-	case stateDescriptionInput:
-		view = interactive.RenderInputPrompt("Enter organization description:", "", m.description, m.errorMsg)
 	default:
 		view = ""
 	}
@@ -124,6 +113,5 @@ func createOrganizationInteractive() error {
 	return createOrganization(api.CreateOrganizationParams{
 		Name:        m.name,
 		DisplayName: m.displayName,
-		Description: m.description,
 	})
 }

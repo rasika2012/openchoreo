@@ -20,6 +20,7 @@ package deploymenttrack
 
 import (
 	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -34,34 +35,18 @@ const (
 	stateProjSelect
 	stateCompSelect
 	stateNameInput
-	stateDisplayNameInput
-	stateDescriptionInput
 	stateAPIVersionInput
 	stateAutoDeployInput
-	stateBuildTemplateInput
 )
 
 type deploymentTrackModel struct {
-	state         int
-	organizations []string
-	projects      []string
-	components    []string
-	orgCursor     int
-	projCursor    int
-	compCursor    int
-	name          string
-	nameCursor    int
-	displayName   string
-	displayCursor int
-	description   string
-	descCursor    int
-	apiVersion    string
-	apiCursor     int
-	autoDeploy    bool
-	buildTemplate string
-	buildCursor   int
-	selected      bool
-	errorMsg      string
+	interactive.BaseModel
+	name       string
+	apiVersion string
+	autoDeploy bool
+	selected   bool
+	errorMsg   string
+	state      int
 }
 
 func (m deploymentTrackModel) Init() tea.Cmd {
@@ -82,39 +67,45 @@ func (m deploymentTrackModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
 	case stateOrgSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			projects, err := util.GetProjectNames(m.organizations[m.orgCursor])
+			projects, err := m.FetchProjects()
 			if err != nil {
 				m.errorMsg = err.Error()
-				return m, nil
+				m.selected = false
+				return m, tea.Quit
 			}
 			if len(projects) == 0 {
-				m.errorMsg = "No projects found. Please create a project first."
-				return m, nil
+				m.errorMsg = fmt.Sprintf("No projects found in organization '%s'. Please create a project first using 'choreoctl create project'",
+					m.Organizations[m.OrgCursor])
+				m.selected = false
+				return m, tea.Quit
 			}
-			m.projects = projects
+			m.Projects = projects
 			m.state = stateProjSelect
 			m.errorMsg = ""
 			return m, nil
 		}
-		m.orgCursor = interactive.ProcessListCursor(keyMsg, m.orgCursor, len(m.organizations))
+		m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
 
 	case stateProjSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			components, err := util.GetComponentNames(m.organizations[m.orgCursor], m.projects[m.projCursor])
+			components, err := m.FetchComponents()
 			if err != nil {
 				m.errorMsg = err.Error()
-				return m, nil
+				m.selected = false
+				return m, tea.Quit
 			}
 			if len(components) == 0 {
-				m.errorMsg = "No components found. Please create a component first."
-				return m, nil
+				m.errorMsg = fmt.Sprintf("No components found in project '%s'. Please create a component first using 'choreoctl create component'",
+					m.Projects[m.ProjCursor])
+				m.selected = false
+				return m, tea.Quit
 			}
-			m.components = components
+			m.Components = components
 			m.state = stateCompSelect
 			m.errorMsg = ""
 			return m, nil
 		}
-		m.projCursor = interactive.ProcessListCursor(keyMsg, m.projCursor, len(m.projects))
+		m.ProjCursor = interactive.ProcessListCursor(keyMsg, m.ProjCursor, len(m.Projects))
 
 	case stateCompSelect:
 		if interactive.IsEnterKey(keyMsg) {
@@ -122,53 +113,52 @@ func (m deploymentTrackModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.errorMsg = ""
 			return m, nil
 		}
-		m.compCursor = interactive.ProcessListCursor(keyMsg, m.compCursor, len(m.components))
+		m.CompCursor = interactive.ProcessListCursor(keyMsg, m.CompCursor, len(m.Components))
 
 	case stateNameInput:
 		if interactive.IsEnterKey(keyMsg) {
-			if err := util.ValidateResourceName("deployment track", m.name); err != nil {
+			// Validate name format
+			if err := util.ValidateResourceName("deploymenttrack", m.name); err != nil {
 				m.errorMsg = err.Error()
 				return m, nil
 			}
-			m.state = stateDisplayNameInput
-			m.errorMsg = ""
-			return m, nil
-		}
-		m.name, m.nameCursor = interactive.EditTextInputField(keyMsg, m.name, m.nameCursor)
 
-	case stateDisplayNameInput:
-		if interactive.IsEnterKey(keyMsg) {
-			m.state = stateDescriptionInput
-			m.errorMsg = ""
-			return m, nil
-		}
-		m.displayName, m.displayCursor = interactive.EditTextInputField(keyMsg, m.displayName, m.displayCursor)
-
-	case stateDescriptionInput:
-		if interactive.IsEnterKey(keyMsg) {
+			// Check uniqueness
+			tracks, err := m.FetchDeploymentTracks()
+			if err != nil {
+				m.errorMsg = fmt.Sprintf("Failed to check deployment track existence: %v", err)
+				return m, nil
+			}
+			for _, t := range tracks {
+				if t == m.name {
+					m.errorMsg = fmt.Sprintf("Deployment track '%s' already exists in component '%s'",
+						m.name, m.Components[m.CompCursor])
+					return m, nil
+				}
+			}
 			m.state = stateAPIVersionInput
 			m.errorMsg = ""
 			return m, nil
 		}
-		m.description, m.descCursor = interactive.EditTextInputField(keyMsg, m.description, m.descCursor)
+		m.errorMsg = ""
+		m.name, _ = interactive.EditTextInputField(keyMsg, m.name, len(m.name))
 
 	case stateAPIVersionInput:
 		if interactive.IsEnterKey(keyMsg) {
 			if m.apiVersion == "" {
-				m.errorMsg = "API version is required"
+				m.errorMsg = "API version cannot be empty"
 				return m, nil
 			}
 			m.state = stateAutoDeployInput
 			m.errorMsg = ""
 			return m, nil
 		}
-		m.apiVersion, m.apiCursor = interactive.EditTextInputField(keyMsg, m.apiVersion, m.apiCursor)
+		m.apiVersion, _ = interactive.EditTextInputField(keyMsg, m.apiVersion, len(m.apiVersion))
 
 	case stateAutoDeployInput:
 		if interactive.IsEnterKey(keyMsg) {
-			m.state = stateBuildTemplateInput
-			m.errorMsg = ""
-			return m, nil
+			m.selected = true
+			return m, tea.Quit
 		}
 		switch keyMsg.String() {
 		case "y", "Y":
@@ -176,84 +166,67 @@ func (m deploymentTrackModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "n", "N":
 			m.autoDeploy = false
 		}
-
-	case stateBuildTemplateInput:
-		if interactive.IsEnterKey(keyMsg) {
-			m.selected = true
-			return m, tea.Quit
-		}
-		m.buildTemplate, m.buildCursor = interactive.EditTextInputField(keyMsg, m.buildTemplate, m.buildCursor)
 	}
-
 	return m, nil
 }
 
 func (m deploymentTrackModel) View() string {
-	if m.errorMsg != "" {
-		return m.errorMsg + "\n"
-	}
-
-	progress := ""
-	if m.state > stateOrgSelect {
-		progress += fmt.Sprintf("Organization: %s\n", m.organizations[m.orgCursor])
-	}
-	if m.state > stateProjSelect {
-		progress += fmt.Sprintf("Project: %s\n", m.projects[m.projCursor])
-	}
-	if m.state > stateCompSelect {
-		progress += fmt.Sprintf("Component: %s\n", m.components[m.compCursor])
-	}
-	if m.state > stateNameInput {
-		progress += fmt.Sprintf("Name: %s\n", m.name)
-	}
-	if m.state > stateDisplayNameInput && m.displayName != "" {
-		progress += fmt.Sprintf("Display Name: %s\n", m.displayName)
-	}
-	if m.state > stateDescriptionInput && m.description != "" {
-		progress += fmt.Sprintf("Description: %s\n", m.description)
-	}
-	if m.state > stateAPIVersionInput {
-		progress += fmt.Sprintf("API Version: %s\n", m.apiVersion)
-	}
-	if m.state > stateAutoDeployInput {
-		progress += fmt.Sprintf("Auto Deploy: %v\n", m.autoDeploy)
-	}
+	progress := m.RenderProgress()
+	var view string
 
 	switch m.state {
 	case stateOrgSelect:
-		return progress + interactive.RenderListPrompt("Select organization:", m.organizations, m.orgCursor)
+		view = m.RenderOrgSelection()
 	case stateProjSelect:
-		return progress + interactive.RenderListPrompt("Select project:", m.projects, m.projCursor)
+		view = m.RenderProjSelection()
 	case stateCompSelect:
-		return progress + interactive.RenderListPrompt("Select component:", m.components, m.compCursor)
+		view = m.RenderComponentSelection()
 	case stateNameInput:
-		return progress + interactive.RenderInputPrompt("Enter deployment track name:", "", m.name, m.errorMsg)
-	case stateDisplayNameInput:
-		return progress + interactive.RenderInputPrompt("Enter display name (optional):", "", m.displayName, m.errorMsg)
-	case stateDescriptionInput:
-		return progress + interactive.RenderInputPrompt("Enter description (optional):", "", m.description, m.errorMsg)
+		view = interactive.RenderInputPrompt("Enter deployment track name:", "", m.name, m.errorMsg)
 	case stateAPIVersionInput:
-		return progress + interactive.RenderInputPrompt("Enter API version:", "v1", m.apiVersion, m.errorMsg)
+		view = interactive.RenderInputPrompt("Enter API version:", "", m.apiVersion, m.errorMsg)
 	case stateAutoDeployInput:
-		return progress + interactive.RenderInputPrompt("Enable auto deploy? (y/n):", "n", "", m.errorMsg)
-	case stateBuildTemplateInput:
-		return progress + interactive.RenderInputPrompt("Enter build template (optional):", "", m.buildTemplate, m.errorMsg)
+		view = interactive.RenderInputPrompt("Enable auto deploy? (y/n):", "", fmt.Sprintf("%v", m.autoDeploy), m.errorMsg)
 	}
-	return ""
+
+	return progress + view
+}
+
+func (m deploymentTrackModel) RenderProgress() string {
+	var progress strings.Builder
+	progress.WriteString("Selected inputs:\n")
+
+	if len(m.Organizations) > 0 {
+		progress.WriteString(fmt.Sprintf("- organization: %s\n", m.Organizations[m.OrgCursor]))
+	}
+	if len(m.Projects) > 0 {
+		progress.WriteString(fmt.Sprintf("- project: %s\n", m.Projects[m.ProjCursor]))
+	}
+	if len(m.Components) > 0 {
+		progress.WriteString(fmt.Sprintf("- component: %s\n", m.Components[m.CompCursor]))
+	}
+	if m.name != "" {
+		progress.WriteString(fmt.Sprintf("- name: %s\n", m.name))
+	}
+	if m.apiVersion != "" {
+		progress.WriteString(fmt.Sprintf("- api version: %s\n", m.apiVersion))
+	}
+	if m.state > stateAPIVersionInput {
+		progress.WriteString(fmt.Sprintf("- auto deploy: %v\n", m.autoDeploy))
+	}
+
+	return progress.String()
 }
 
 func createDeploymentTrackInteractive() error {
-	orgs, err := util.GetOrganizationNames()
+	baseModel, err := interactive.NewBaseModel()
 	if err != nil {
-		return errors.NewError("failed to get organizations: %v", err)
-	}
-
-	if len(orgs) == 0 {
-		return errors.NewError("no organizations found")
+		return err
 	}
 
 	model := deploymentTrackModel{
-		organizations: orgs,
+		BaseModel: *baseModel,
+		state:     stateOrgSelect,
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -263,16 +236,17 @@ func createDeploymentTrackInteractive() error {
 
 	m, ok := finalModel.(deploymentTrackModel)
 	if !ok || !m.selected {
-		return errors.NewError("deployment track creation cancelled")
+		if m.errorMsg != "" {
+			return fmt.Errorf("%s", m.errorMsg)
+		}
+		return fmt.Errorf("deployment track creation cancelled")
 	}
 
 	return createDeploymentTrack(api.CreateDeploymentTrackParams{
 		Name:         m.name,
-		Organization: m.organizations[m.orgCursor],
-		Project:      m.projects[m.projCursor],
-		Component:    m.components[m.compCursor],
-		DisplayName:  m.displayName,
-		Description:  m.description,
+		Organization: m.Organizations[m.OrgCursor],
+		Project:      m.Projects[m.ProjCursor],
+		Component:    m.Components[m.CompCursor],
 		APIVersion:   m.apiVersion,
 		AutoDeploy:   m.autoDeploy,
 	})

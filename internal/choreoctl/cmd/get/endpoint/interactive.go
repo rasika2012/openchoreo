@@ -20,12 +20,12 @@ package endpoint
 
 import (
 	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
@@ -38,10 +38,10 @@ const (
 )
 
 type endpointListModel struct {
-	interactive.BaseModel // Embeds Organizations, Projects, Components, Environments and their cursors.
-	state                 int
-	selected              bool
-	errorMsg              string
+	interactive.BaseModel
+	state    int
+	selected bool
+	errorMsg string
 }
 
 func (m endpointListModel) Init() tea.Cmd {
@@ -65,12 +65,14 @@ func (m endpointListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			projects, err := m.FetchProjects()
 			if err != nil {
 				m.errorMsg = err.Error()
-				return m, nil
+				m.selected = false
+				return m, tea.Quit
 			}
 			if len(projects) == 0 {
 				m.errorMsg = fmt.Sprintf("No projects found in organization '%s'. Please create a project first using 'choreoctl create project'",
 					m.Organizations[m.OrgCursor])
-				return m, nil
+				m.selected = false
+				return m, tea.Quit
 			}
 			m.Projects = projects
 			m.state = stateProjSelect
@@ -84,12 +86,14 @@ func (m endpointListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			components, err := m.FetchComponents()
 			if err != nil {
 				m.errorMsg = err.Error()
-				return m, nil
+				m.selected = false
+				return m, tea.Quit
 			}
 			if len(components) == 0 {
 				m.errorMsg = fmt.Sprintf("No components found in project '%s'. Please create a component first using 'choreoctl create component'",
 					m.Projects[m.ProjCursor])
-				return m, nil
+				m.selected = false
+				return m, tea.Quit
 			}
 			m.Components = components
 			m.state = stateCompSelect
@@ -103,11 +107,10 @@ func (m endpointListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			environments, err := m.FetchEnvironments()
 			if err != nil {
 				m.errorMsg = err.Error()
-				return m, nil
+				m.selected = false
+				return m, tea.Quit
 			}
 			if len(environments) == 0 {
-				m.errorMsg = fmt.Sprintf("No environments found in project '%s'. Please create an environment first", m.Projects[m.ProjCursor])
-				// Optionally, if there are no environments, finish the selection here.
 				m.selected = true
 				return m, tea.Quit
 			}
@@ -161,20 +164,35 @@ func (m endpointListModel) View() string {
 	return progress + view
 }
 
-func listEndpointInteractive(config constants.CRDConfig) error {
-	orgs, err := util.GetOrganizationNames()
-	if err != nil {
-		return errors.NewError("failed to get organizations: %v", err)
+func (m endpointListModel) RenderProgress() string {
+	var progress strings.Builder
+	progress.WriteString("Selected resources:\n")
+
+	if len(m.Organizations) > 0 {
+		progress.WriteString(fmt.Sprintf("- organization: %s\n", m.Organizations[m.OrgCursor]))
 	}
-	if len(orgs) == 0 {
-		return errors.NewError("no organizations found")
+	if len(m.Projects) > 0 {
+		progress.WriteString(fmt.Sprintf("- project: %s\n", m.Projects[m.ProjCursor]))
+	}
+	if len(m.Components) > 0 {
+		progress.WriteString(fmt.Sprintf("- component: %s\n", m.Components[m.CompCursor]))
+	}
+	if len(m.Environments) > 0 {
+		progress.WriteString(fmt.Sprintf("- environment: %s\n", m.Environments[m.EnvCursor]))
+	}
+
+	return progress.String()
+}
+
+func listEndpointInteractive(config constants.CRDConfig) error {
+	baseModel, err := interactive.NewBaseModel()
+	if err != nil {
+		return err
 	}
 
 	model := endpointListModel{
-		BaseModel: interactive.BaseModel{
-			Organizations: orgs,
-		},
-		state: stateOrgSelect,
+		BaseModel: *baseModel,
+		state:     stateOrgSelect,
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -184,6 +202,9 @@ func listEndpointInteractive(config constants.CRDConfig) error {
 
 	m, ok := finalModel.(endpointListModel)
 	if !ok || !m.selected {
+		if m.errorMsg != "" {
+			return fmt.Errorf("%s", m.errorMsg)
+		}
 		return errors.NewError("endpoint listing cancelled")
 	}
 
@@ -192,8 +213,7 @@ func listEndpointInteractive(config constants.CRDConfig) error {
 		Project:      m.Projects[m.ProjCursor],
 		Component:    m.Components[m.CompCursor],
 	}
-	// If environments were loaded and selected, add it to the params.
-	if m.state == stateEnvSelect && len(m.Environments) > 0 {
+	if len(m.Environments) > 0 {
 		params.Environment = m.Environments[m.EnvCursor]
 	}
 

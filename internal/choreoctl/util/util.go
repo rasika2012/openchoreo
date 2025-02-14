@@ -576,7 +576,6 @@ func GetAllDeployments(orgName, projectName, componentName string) (*choreov1.De
 }
 
 func GetEnvironmentNames(orgName string) ([]string, error) {
-	fmt.Println("list of environments" + orgName)
 	envList, err := GetAllEnvironments(orgName)
 	if err != nil {
 		return nil, err
@@ -646,6 +645,21 @@ func GetAllEndpoints(orgName, projectName, componentName, envName string) (*chor
 	labels := CreateChoreoLabels(orgName, projectName, componentName, "")
 	labels["core.choreo.dev/environment"] = envName
 	return GetResources[choreov1.Endpoint, *choreov1.EndpointList](orgName, labels)
+}
+
+func GetDeploymentNames(orgName, projectName, componentName string) ([]string, error) {
+	deploymentList, err := GetAllDeployments(orgName, projectName, componentName)
+	if err != nil {
+		return nil, err
+	}
+
+	names := make([]string, 0, len(deploymentList.Items))
+	for _, deployment := range deploymentList.Items {
+		names = append(names, deployment.Name)
+	}
+
+	sort.Strings(names)
+	return names, nil
 }
 
 func GetDeploymentTrackNames(orgName, projectName, componentName string) ([]string, error) {

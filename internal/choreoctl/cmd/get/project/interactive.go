@@ -19,20 +19,27 @@
 package project
 
 import (
+	"fmt"
+	"strings"
+
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
 
-// projectListModel embeds BaseModel to reuse organization list and cursor.
 type projectListModel struct {
-	interactive.BaseModel // Provides Organizations and OrgCursor.
-	selected              bool
+	interactive.BaseModel
+	selected bool
+	errorMsg string
+	state    int
 }
+
+const (
+	stateOrgSelect = iota
+)
 
 func (m projectListModel) Init() tea.Cmd {
 	return nil
@@ -44,41 +51,56 @@ func (m projectListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
-	// Quit if needed.
 	if interactive.IsQuitKey(keyMsg) {
 		m.selected = false
 		return m, tea.Quit
 	}
 
-	// Confirm selection on Enter.
 	if interactive.IsEnterKey(keyMsg) {
 		m.selected = true
 		return m, tea.Quit
 	}
 
-	// Update the organization cursor.
 	m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
 	return m, nil
 }
 
+func (m projectListModel) RenderProgress() string {
+	var progress strings.Builder
+	progress.WriteString("Selected resources:\n")
+
+	if len(m.Organizations) > 0 {
+		progress.WriteString(fmt.Sprintf("- organization: %s\n", m.Organizations[m.OrgCursor]))
+	}
+
+	return progress.String()
+}
+
 func (m projectListModel) View() string {
-	return interactive.RenderListPrompt("Select organization:", m.Organizations, m.OrgCursor)
+	progress := m.RenderProgress()
+	var view string
+
+	if m.state == stateOrgSelect {
+		view = m.RenderOrgSelection()
+	}
+
+	if m.errorMsg != "" {
+		view += "\nError: " + m.errorMsg
+	}
+
+	return progress + view
 }
 
 func listProjectsInteractive(config constants.CRDConfig) error {
-	orgs, err := util.GetOrganizationNames()
+	baseModel, err := interactive.NewBaseModel()
 	if err != nil {
-		return errors.NewError("failed to get organizations: %v", err)
-	}
-	if len(orgs) == 0 {
-		return errors.NewError("no organizations found")
+		return err
 	}
 
 	model := projectListModel{
-		BaseModel: interactive.BaseModel{
-			Organizations: orgs,
-		},
+		BaseModel: *baseModel,
 	}
+
 	finalModel, err := interactive.RunInteractiveModel(model)
 	if err != nil {
 		return errors.NewError("interactive mode failed: %v", err)
@@ -86,6 +108,9 @@ func listProjectsInteractive(config constants.CRDConfig) error {
 
 	m, ok := finalModel.(projectListModel)
 	if !ok || !m.selected {
+		if m.errorMsg != "" {
+			return fmt.Errorf("%s", m.errorMsg)
+		}
 		return errors.NewError("project listing cancelled")
 	}
 

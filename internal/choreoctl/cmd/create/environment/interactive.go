@@ -20,6 +20,7 @@ package environment
 
 import (
 	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -31,10 +32,8 @@ import (
 
 const (
 	stateOrgSelect = iota
-	stateNameInput
-	stateDisplayNameInput
-	stateDescriptionInput
 	stateDataPlaneSelect
+	stateNameInput
 	stateIsProductionInput
 	stateDNSPrefixInput
 )
@@ -47,8 +46,6 @@ type environmentModel struct {
 	dataPlanes   []string
 	dpCursor     int
 	name         string
-	displayName  string
-	description  string
 	isProduction bool
 	dnsPrefix    string
 	selected     bool
@@ -72,63 +69,60 @@ func (m environmentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch m.state {
 	case stateOrgSelect:
-		// Use BaseModel's organization selection.
 		if interactive.IsEnterKey(keyMsg) {
-			cmd := m.UpdateOrgSelect(keyMsg)
-			// When organization selection is complete, move to name input.
-			if m.State == interactive.StateProjSelect {
-				m.state = stateNameInput
-			}
-			return m, cmd
-		}
-		m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
-
-	case stateNameInput:
-		if interactive.IsEnterKey(keyMsg) {
-			if err := util.ValidateResourceName("environment", m.name); err != nil {
-				m.errorMsg = err.Error()
-				return m, nil
-			}
-			m.state = stateDisplayNameInput
-			m.errorMsg = ""
-			return m, nil
-		}
-		m.name, _ = interactive.EditTextInputField(keyMsg, m.name, len(m.name))
-
-	case stateDisplayNameInput:
-		if interactive.IsEnterKey(keyMsg) {
-			m.state = stateDescriptionInput
-			m.errorMsg = ""
-			return m, nil
-		}
-		m.displayName, _ = interactive.EditTextInputField(keyMsg, m.displayName, len(m.displayName))
-
-	case stateDescriptionInput:
-		if interactive.IsEnterKey(keyMsg) {
-			// Fetch available data planes for the selected organization.
 			dataPlanes, err := util.GetDataPlaneNames(m.Organizations[m.OrgCursor])
 			if err != nil {
-				m.errorMsg = fmt.Sprintf("failed to get data planes: %v", err)
+				m.errorMsg = fmt.Sprintf("Failed to get data planes: %v", err)
 				return m, nil
 			}
 			if len(dataPlanes) == 0 {
-				m.errorMsg = "no data planes found; please create one first"
-				return m, nil
+				m.errorMsg = fmt.Sprintf("No data planes found in organization '%s'. Please create a data plane first using 'choreoctl create dataplane'",
+					m.Organizations[m.OrgCursor])
+				m.selected = false
+				return m, tea.Quit
 			}
 			m.dataPlanes = dataPlanes
 			m.state = stateDataPlaneSelect
 			m.errorMsg = ""
 			return m, nil
 		}
-		m.description, _ = interactive.EditTextInputField(keyMsg, m.description, len(m.description))
+		m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
 
 	case stateDataPlaneSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			m.state = stateIsProductionInput
+			m.state = stateNameInput
 			m.errorMsg = ""
 			return m, nil
 		}
 		m.dpCursor = interactive.ProcessListCursor(keyMsg, m.dpCursor, len(m.dataPlanes))
+
+	case stateNameInput:
+		if interactive.IsEnterKey(keyMsg) {
+			// First validate the environment name format
+			if err := util.ValidateResourceName("environment", m.name); err != nil {
+				m.errorMsg = err.Error()
+				return m, nil
+			}
+			environments, err := m.FetchEnvironments()
+			if err != nil {
+				m.errorMsg = fmt.Sprintf("Failed to check environment existence: %v", err)
+				return m, nil
+			}
+			// check for duplicate environment name
+			for _, e := range environments {
+				if e == m.name {
+					m.errorMsg = fmt.Sprintf("Environment '%s' already exists in organization '%s'",
+						m.name, m.Organizations[m.OrgCursor])
+					return m, nil
+				}
+			}
+
+			m.state = stateIsProductionInput
+			m.errorMsg = ""
+			return m, nil
+		}
+		m.errorMsg = ""
+		m.name, _ = interactive.EditTextInputField(keyMsg, m.name, len(m.name))
 
 	case stateIsProductionInput:
 		if interactive.IsEnterKey(keyMsg) {
@@ -161,14 +155,10 @@ func (m environmentModel) View() string {
 	switch m.state {
 	case stateOrgSelect:
 		return progress + m.RenderOrgSelection()
-	case stateNameInput:
-		return progress + interactive.RenderInputPrompt("Enter environment name:", "", m.name, m.errorMsg)
-	case stateDisplayNameInput:
-		return progress + interactive.RenderInputPrompt("Enter display name (optional):", "", m.displayName, m.errorMsg)
-	case stateDescriptionInput:
-		return progress + interactive.RenderInputPrompt("Enter environment description:", "", m.description, m.errorMsg)
 	case stateDataPlaneSelect:
 		return progress + interactive.RenderListPrompt("Select data plane:", m.dataPlanes, m.dpCursor)
+	case stateNameInput:
+		return progress + interactive.RenderInputPrompt("Enter environment name:", "", m.name, m.errorMsg)
 	case stateIsProductionInput:
 		return progress + interactive.RenderInputPrompt("Is this a production environment? (y/n):", "", fmt.Sprintf("%v", m.isProduction), m.errorMsg)
 	case stateDNSPrefixInput:
@@ -178,21 +168,42 @@ func (m environmentModel) View() string {
 	}
 }
 
-func createEnvironmentInteractive() error {
-	orgs, err := util.GetOrganizationNames()
-	if err != nil {
-		return errors.NewError("failed to get organizations: %v", err)
+func (m environmentModel) RenderProgress() string {
+	var progress strings.Builder
+	progress.WriteString("Selected inputs:\n")
+
+	if len(m.Organizations) > 0 {
+		progress.WriteString(fmt.Sprintf("- organization: %s\n", m.Organizations[m.OrgCursor]))
 	}
 
-	if len(orgs) == 0 {
-		return errors.NewError("no organizations found")
+	if m.state > stateOrgSelect && len(m.dataPlanes) > 0 {
+		progress.WriteString(fmt.Sprintf("- data plane: %s\n", m.dataPlanes[m.dpCursor]))
+	}
+
+	if m.state > stateDataPlaneSelect && m.name != "" {
+		progress.WriteString(fmt.Sprintf("- environment: %s\n", m.name))
+	}
+
+	if m.state > stateNameInput {
+		progress.WriteString(fmt.Sprintf("- production: %v\n", m.isProduction))
+	}
+
+	if m.state > stateIsProductionInput && m.dnsPrefix != "" {
+		progress.WriteString(fmt.Sprintf("- dns prefix: %s\n", m.dnsPrefix))
+	}
+
+	return progress.String()
+}
+
+func createEnvironmentInteractive() error {
+	baseModel, err := interactive.NewBaseModel()
+	if err != nil {
+		return err
 	}
 
 	model := environmentModel{
-		BaseModel: interactive.BaseModel{
-			Organizations: orgs,
-		},
-		state: stateOrgSelect,
+		BaseModel: *baseModel,
+		state:     stateOrgSelect,
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -202,14 +213,15 @@ func createEnvironmentInteractive() error {
 
 	m, ok := finalModel.(environmentModel)
 	if !ok || !m.selected {
-		return errors.NewError("environment creation cancelled")
+		if m.errorMsg != "" {
+			return fmt.Errorf("%s", m.errorMsg)
+		}
+		return fmt.Errorf("environment creation cancelled")
 	}
 
 	return createEnvironment(api.CreateEnvironmentParams{
 		Name:         m.name,
 		Organization: m.Organizations[m.OrgCursor],
-		DisplayName:  m.displayName,
-		Description:  m.description,
 		DataPlaneRef: m.dataPlanes[m.dpCursor],
 		IsProduction: m.isProduction,
 		DNSPrefix:    m.dnsPrefix,

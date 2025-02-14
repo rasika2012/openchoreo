@@ -20,12 +20,12 @@ package deploymenttrack
 
 import (
 	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
@@ -38,10 +38,10 @@ const (
 )
 
 type deploymentTrackListModel struct {
-	interactive.BaseModel // Reuses Organizations, Projects, Components, DeploymentTracks and their cursors.
-	state                 int
-	selected              bool
-	errorMsg              string
+	interactive.BaseModel
+	state    int
+	selected bool
+	errorMsg string
 }
 
 func (m deploymentTrackListModel) Init() tea.Cmd {
@@ -65,11 +65,14 @@ func (m deploymentTrackListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			projects, err := m.FetchProjects()
 			if err != nil {
 				m.errorMsg = err.Error()
-				return m, nil
+				m.selected = false
+				return m, tea.Quit
 			}
 			if len(projects) == 0 {
-				m.errorMsg = fmt.Sprintf("No projects found for organization: %s", m.Organizations[m.OrgCursor])
-				return m, nil
+				m.errorMsg = fmt.Sprintf("No projects found in organization '%s'. Please create a project first using 'choreoctl create project'",
+					m.Organizations[m.OrgCursor])
+				m.selected = false
+				return m, tea.Quit
 			}
 			m.Projects = projects
 			m.state = stateProjSelect
@@ -83,11 +86,14 @@ func (m deploymentTrackListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			components, err := m.FetchComponents()
 			if err != nil {
 				m.errorMsg = err.Error()
-				return m, nil
+				m.selected = false
+				return m, tea.Quit
 			}
 			if len(components) == 0 {
-				m.errorMsg = fmt.Sprintf("No components found for project: %s", m.Projects[m.ProjCursor])
-				return m, nil
+				m.errorMsg = fmt.Sprintf("No components found in project '%s'. Please create a component first using 'choreoctl create component'",
+					m.Projects[m.ProjCursor])
+				m.selected = false
+				return m, tea.Quit
 			}
 			m.Components = components
 			m.state = stateCompSelect
@@ -98,57 +104,42 @@ func (m deploymentTrackListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case stateCompSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			deploymentTracks, err := m.FetchDeploymentTracks()
-			if err != nil {
-				m.errorMsg = err.Error()
-				return m, nil
-			}
-			if len(deploymentTracks) == 0 {
-				m.errorMsg = fmt.Sprintf("No deployment tracks found for component: %s", m.Components[m.CompCursor])
-				return m, nil
-			}
-			m.DeploymentTracks = deploymentTracks
-			m.state = stateDeploymentTrackSelect
-			m.errorMsg = ""
-			return m, nil
-		}
-		m.CompCursor = interactive.ProcessListCursor(keyMsg, m.CompCursor, len(m.Components))
-
-	case stateDeploymentTrackSelect:
-		if interactive.IsEnterKey(keyMsg) {
 			m.selected = true
 			return m, tea.Quit
 		}
-		m.DeploymentTrackCursor = interactive.ProcessListCursor(keyMsg, m.DeploymentTrackCursor, len(m.DeploymentTracks))
+		m.CompCursor = interactive.ProcessListCursor(keyMsg, m.CompCursor, len(m.Components))
 	}
-
 	return m, nil
 }
 
-func (m deploymentTrackListModel) View() string {
-	var progress string
-	if m.state > stateOrgSelect {
-		progress += fmt.Sprintf("Organization: %s\n", m.Organizations[m.OrgCursor])
+func (m deploymentTrackListModel) RenderProgress() string {
+	var progress strings.Builder
+	progress.WriteString("Selected resources:\n")
+
+	if len(m.Organizations) > 0 {
+		progress.WriteString(fmt.Sprintf("- organization: %s\n", m.Organizations[m.OrgCursor]))
 	}
-	if m.state > stateProjSelect {
-		progress += fmt.Sprintf("Project: %s\n", m.Projects[m.ProjCursor])
+	if len(m.Projects) > 0 {
+		progress.WriteString(fmt.Sprintf("- project: %s\n", m.Projects[m.ProjCursor]))
 	}
-	if m.state > stateCompSelect {
-		progress += fmt.Sprintf("Component: %s\n", m.Components[m.CompCursor])
+	if len(m.Components) > 0 {
+		progress.WriteString(fmt.Sprintf("- component: %s\n", m.Components[m.CompCursor]))
 	}
 
+	return progress.String()
+}
+
+func (m deploymentTrackListModel) View() string {
+	progress := m.RenderProgress()
 	var view string
+
 	switch m.state {
 	case stateOrgSelect:
-		view = interactive.RenderListPrompt("Select organization:", m.Organizations, m.OrgCursor)
+		view = m.RenderOrgSelection()
 	case stateProjSelect:
-		view = interactive.RenderListPrompt("Select project:", m.Projects, m.ProjCursor)
+		view = m.RenderProjSelection()
 	case stateCompSelect:
-		view = interactive.RenderListPrompt("Select component:", m.Components, m.CompCursor)
-	case stateDeploymentTrackSelect:
-		view = interactive.RenderListPrompt("Select deployment track:", m.DeploymentTracks, m.DeploymentTrackCursor)
-	default:
-		view = ""
+		view = m.RenderComponentSelection()
 	}
 
 	if m.errorMsg != "" {
@@ -159,19 +150,14 @@ func (m deploymentTrackListModel) View() string {
 }
 
 func listDeploymentTrackInteractive(config constants.CRDConfig) error {
-	orgs, err := util.GetOrganizationNames()
+	baseModel, err := interactive.NewBaseModel()
 	if err != nil {
-		return errors.NewError("failed to get organizations: %v", err)
-	}
-	if len(orgs) == 0 {
-		return errors.NewError("no organizations found")
+		return err
 	}
 
 	model := deploymentTrackListModel{
-		BaseModel: interactive.BaseModel{
-			Organizations: orgs,
-		},
-		state: stateOrgSelect,
+		BaseModel: *baseModel,
+		state:     stateOrgSelect,
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -181,14 +167,15 @@ func listDeploymentTrackInteractive(config constants.CRDConfig) error {
 
 	m, ok := finalModel.(deploymentTrackListModel)
 	if !ok || !m.selected {
+		if m.errorMsg != "" {
+			return fmt.Errorf("%s", m.errorMsg)
+		}
 		return errors.NewError("deployment track listing cancelled")
 	}
 
-	params := api.ListDeploymentTrackParams{
+	return listDeploymentTracks(api.ListDeploymentTrackParams{
 		Organization: m.Organizations[m.OrgCursor],
 		Project:      m.Projects[m.ProjCursor],
 		Component:    m.Components[m.CompCursor],
-	}
-
-	return listDeploymentTracks(params, config)
+	}, config)
 }

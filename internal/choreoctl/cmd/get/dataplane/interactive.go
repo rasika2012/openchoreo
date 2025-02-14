@@ -19,24 +19,21 @@
 package dataplane
 
 import (
+	"fmt"
+	"strings"
+
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
 
-// stateOrgSelect is used for organization selection.
-// const (
-// 	stateOrgSelect = iota
-// )
-
 type dataPlaneListModel struct {
-	interactive.BaseModel // Reuses Organizations and OrgCursor.
-	selected              bool
-	errorMsg              string
+	interactive.BaseModel
+	selected bool
+	errorMsg string
 }
 
 func (m dataPlaneListModel) Init() tea.Cmd {
@@ -59,7 +56,6 @@ func (m dataPlaneListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	}
 
-	// Process organization cursor updates.
 	m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
 	return m, nil
 }
@@ -73,20 +69,25 @@ func (m dataPlaneListModel) View() string {
 	return view
 }
 
-func listDataPlaneInteractive(config constants.CRDConfig) error {
-	orgs, err := util.GetOrganizationNames()
-	if err != nil {
-		return errors.NewError("failed to get organizations: %v", err)
+func (m dataPlaneListModel) RenderProgress() string {
+	var progress strings.Builder
+	progress.WriteString("Selected resources:\n")
+
+	if len(m.Organizations) > 0 {
+		progress.WriteString(fmt.Sprintf("- organization: %s\n", m.Organizations[m.OrgCursor]))
 	}
 
-	if len(orgs) == 0 {
-		return errors.NewError("no organizations found")
+	return progress.String()
+}
+
+func listDataPlaneInteractive(config constants.CRDConfig) error {
+	baseModel, err := interactive.NewBaseModel()
+	if err != nil {
+		return err
 	}
 
 	model := dataPlaneListModel{
-		BaseModel: interactive.BaseModel{
-			Organizations: orgs,
-		},
+		BaseModel: *baseModel,
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -96,6 +97,9 @@ func listDataPlaneInteractive(config constants.CRDConfig) error {
 
 	m, ok := finalModel.(dataPlaneListModel)
 	if !ok || !m.selected {
+		if m.errorMsg != "" {
+			return fmt.Errorf("%s", m.errorMsg)
+		}
 		return errors.NewError("data plane listing cancelled")
 	}
 

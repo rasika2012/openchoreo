@@ -20,9 +20,11 @@ package deployableartifact
 
 import (
 	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
+	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
@@ -33,23 +35,25 @@ const (
 	stateOrgSelect = iota
 	stateProjSelect
 	stateCompSelect
-	stateDeploymentTrackSelect
 	stateNameInput
+	stateArtifactTypeSelect
 	stateBuildRefSelect
+	stateImageTagInput
 )
 
 type deployableArtifactModel struct {
 	interactive.BaseModel // Reuse common organization, project and component selection
 
 	// Artifact-specific fields.
-	tracks      []string
-	builds      []string
-	trackCursor int
-	buildCursor int
-	name        string
-	selected    bool
-	errorMsg    string
-	state       int
+	builds        []string
+	buildCursor   int
+	artifactTypes []string
+	typeCursor    int
+	name          string
+	imageTag      string
+	selected      bool
+	errorMsg      string
+	state         int
 }
 
 func (m deployableArtifactModel) Init() tea.Cmd {
@@ -87,7 +91,6 @@ func (m deployableArtifactModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.errorMsg = err.Error()
 				return m, nil
 			}
-			// Explicitly set state after getting components
 			m.state = stateCompSelect
 			m.errorMsg = ""
 			return m, cmd
@@ -97,60 +100,71 @@ func (m deployableArtifactModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Component selection state
 	case stateCompSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			tracks, err := util.GetDeploymentTrackNames(
-				m.Organizations[m.OrgCursor],
-				m.Projects[m.ProjCursor],
-				m.Components[m.CompCursor],
-			)
-			if err != nil {
-				m.errorMsg = fmt.Sprintf("Failed to fetch deployment tracks: %v", err)
-				return m, nil
-			}
-			if len(tracks) == 0 {
-				m.errorMsg = "No deployment tracks found. Please create a deployment track first using 'choreoctl create deploymenttrack'"
-				// Don't quit - stay on the same screen to show the error
-				return m, nil
-			}
-			m.tracks = tracks
-			m.state = stateDeploymentTrackSelect
+			m.state = stateNameInput
 			m.errorMsg = ""
 			return m, nil
 		}
 		m.CompCursor = interactive.ProcessListCursor(keyMsg, m.CompCursor, len(m.Components))
 
-	// Deployment track selection state
-	case stateDeploymentTrackSelect:
-		if interactive.IsEnterKey(keyMsg) {
-			m.state = stateNameInput
-			m.errorMsg = ""
-			return m, nil
-		}
-		m.trackCursor = interactive.ProcessListCursor(keyMsg, m.trackCursor, len(m.tracks))
-
-	// Enter deployable artifact name.
 	case stateNameInput:
 		if interactive.IsEnterKey(keyMsg) {
 			// Validate the artifact name.
-			// if (err := util.ValidateResourceName("deployableartifact", m.name); err != nil) {
-			// 	m.errorMsg = err.Error()
-			// 	return m, nil
-			// }
-			// Fetch builds using BaseModel helper.
-			builds, err := m.FetchBuildNames()
-			if err != nil {
+			if err := util.ValidateResourceName("deployableartifact", m.name); err != nil {
 				m.errorMsg = err.Error()
 				return m, nil
 			}
-			if len(builds) == 0 {
-				m.errorMsg = "No builds found. Please create a build first."
+			// Check uniqueness
+			artifacts, err := m.FetchDeployableArtifacts()
+			if err != nil {
+				m.errorMsg = fmt.Sprintf("Failed to check deployable artifact existence: %v", err)
 				return m, nil
 			}
-			m.builds = builds
-			m.state = stateBuildRefSelect
+			for _, a := range artifacts {
+				if a == m.name {
+					m.errorMsg = fmt.Sprintf("Deployable artifact '%s' already exists in component '%s'",
+						m.name, m.Components[m.CompCursor])
+					return m, nil
+				}
+			}
+			m.artifactTypes = []string{"build", "image"}
+			m.state = stateArtifactTypeSelect
 			m.errorMsg = ""
 			return m, nil
 		}
 		m.name, _ = interactive.EditTextInputField(keyMsg, m.name, len(m.name))
+
+	case stateArtifactTypeSelect:
+		if interactive.IsEnterKey(keyMsg) {
+			if m.artifactTypes[m.typeCursor] == "build" {
+				builds, err := m.FetchBuildNames()
+				if err != nil {
+					m.errorMsg = err.Error()
+					return m, nil
+				}
+				if len(builds) == 0 {
+					m.errorMsg = "No builds found. Please create a build first."
+					return m, nil
+				}
+				m.builds = builds
+				m.state = stateBuildRefSelect
+			} else {
+				m.state = stateImageTagInput
+			}
+			m.errorMsg = ""
+			return m, nil
+		}
+		m.typeCursor = interactive.ProcessListCursor(keyMsg, m.typeCursor, len(m.artifactTypes))
+
+	case stateImageTagInput:
+		if interactive.IsEnterKey(keyMsg) {
+			if m.imageTag == "" {
+				m.errorMsg = "Image tag cannot be empty"
+				return m, nil
+			}
+			m.selected = true
+			return m, tea.Quit
+		}
+		m.imageTag, _ = interactive.EditTextInputField(keyMsg, m.imageTag, len(m.imageTag))
 
 	// Select build reference.
 	case stateBuildRefSelect:
@@ -167,6 +181,7 @@ func (m deployableArtifactModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m deployableArtifactModel) View() string {
 	progress := m.RenderProgress()
 	var view string
+
 	switch m.state {
 	case stateOrgSelect:
 		view = m.RenderOrgSelection()
@@ -174,33 +189,54 @@ func (m deployableArtifactModel) View() string {
 		view = m.RenderProjSelection()
 	case stateCompSelect:
 		view = m.RenderComponentSelection()
-	case stateDeploymentTrackSelect:
-		view = m.RenderDeploymentTrackSelection()
+	case stateArtifactTypeSelect:
+		view = interactive.RenderListPrompt("Select artifact type:", m.artifactTypes, m.typeCursor)
 	case stateNameInput:
 		view = interactive.RenderInputPrompt("Enter deployable artifact name:", "", m.name, m.errorMsg)
+	case stateImageTagInput:
+		view = interactive.RenderInputPrompt("Enter image tag:", "", m.imageTag, m.errorMsg)
 	case stateBuildRefSelect:
-		view = interactive.RenderListPrompt("Select build reference:", m.builds, m.buildCursor)
-	default:
-		view = ""
+		view = interactive.RenderListPrompt("Select build:", m.builds, m.buildCursor)
 	}
+
 	return progress + view
 }
 
-func createDeployableArtifactInteractive() error {
-	orgs, err := util.GetOrganizationNames()
-	if err != nil {
-		return errors.NewError("failed to get organizations: %v", err)
+func (m deployableArtifactModel) RenderProgress() string {
+	var progress strings.Builder
+	progress.WriteString("Selected resources:\n")
+
+	if len(m.Organizations) > 0 {
+		progress.WriteString(fmt.Sprintf("- organization: %s\n", m.Organizations[m.OrgCursor]))
 	}
-	if len(orgs) == 0 {
-		return errors.NewError("no organizations found")
+	if len(m.Projects) > 0 {
+		progress.WriteString(fmt.Sprintf("- project: %s\n", m.Projects[m.ProjCursor]))
+	}
+	if len(m.Components) > 0 {
+		progress.WriteString(fmt.Sprintf("- component: %s\n", m.Components[m.CompCursor]))
+	}
+	if m.name != "" {
+		progress.WriteString(fmt.Sprintf("- name: %s\n", m.name))
+	}
+	if len(m.builds) > 0 && m.state > stateBuildRefSelect {
+		progress.WriteString(fmt.Sprintf("- build: %s\n", m.builds[m.buildCursor]))
+	}
+	if m.imageTag != "" {
+		progress.WriteString(fmt.Sprintf("- image tag: %s\n", m.imageTag))
 	}
 
-	// Initialize the model with BaseModel.
+	return progress.String()
+}
+
+func createDeployableArtifactInteractive() error {
+	baseModel, err := interactive.NewBaseModel()
+	if err != nil {
+		return err
+	}
+
 	model := deployableArtifactModel{
-		BaseModel: interactive.BaseModel{
-			Organizations: orgs,
-		},
-		state: stateOrgSelect,
+		BaseModel: *baseModel,
+		state:     stateOrgSelect,
 	}
 
 	// Run the interactive model.
@@ -211,16 +247,27 @@ func createDeployableArtifactInteractive() error {
 
 	m, ok := finalModel.(deployableArtifactModel)
 	if !ok || !m.selected {
-		return errors.NewError("deployable artifact creation cancelled")
+		if m.errorMsg != "" {
+			return fmt.Errorf("%s", m.errorMsg)
+		}
+		return fmt.Errorf("deployable artifact creation cancelled")
 	}
 
-	// Build the parameters using the selected values.
 	params := api.CreateDeployableArtifactParams{
-		Name:            m.name,
-		Organization:    m.Organizations[m.OrgCursor],
-		Project:         m.Projects[m.ProjCursor],
-		Component:       m.Components[m.CompCursor],
-		DeploymentTrack: m.tracks[m.trackCursor],
+		Name:         m.name,
+		Organization: m.Organizations[m.OrgCursor],
+		Project:      m.Projects[m.ProjCursor],
+		Component:    m.Components[m.CompCursor],
+	}
+
+	if m.artifactTypes[m.typeCursor] == "build" {
+		params.FromBuildRef = &choreov1.FromBuildRef{
+			Name: m.builds[m.buildCursor],
+		}
+	} else {
+		params.FromImageRef = &choreov1.FromImageRef{
+			Tag: m.imageTag,
+		}
 	}
 
 	return createDeployableArtifact(params)

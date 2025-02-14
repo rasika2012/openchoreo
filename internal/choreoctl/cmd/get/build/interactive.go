@@ -20,12 +20,12 @@ package build
 
 import (
 	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
@@ -34,7 +34,6 @@ const (
 	stateOrgSelect = iota
 	stateProjSelect
 	stateCompSelect
-	stateBuildSelect
 )
 
 type buildListModel struct {
@@ -42,10 +41,6 @@ type buildListModel struct {
 	state                 int
 	selected              bool
 	errorMsg              string
-
-	// Build-specific fields.
-	builds      []string
-	buildCursor int
 }
 
 func (m buildListModel) Init() tea.Cmd {
@@ -66,10 +61,21 @@ func (m buildListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
 	case stateOrgSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			projects, err := m.FetchProjects() // Reusable function from BaseModel.
+			if m.OrgCursor >= len(m.Organizations) {
+				m.errorMsg = "Invalid organization selection"
+				return m, nil
+			}
+			projects, err := m.FetchProjects()
 			if err != nil {
 				m.errorMsg = err.Error()
-				return m, nil
+				m.selected = false
+				return m, tea.Quit
+			}
+			if len(projects) == 0 {
+				m.errorMsg = fmt.Sprintf("No projects found in organization '%s'. Please create a project first using 'choreoctl create project'",
+					m.Organizations[m.OrgCursor])
+				m.selected = false
+				return m, tea.Quit
 			}
 			m.Projects = projects
 			m.state = stateProjSelect
@@ -80,10 +86,21 @@ func (m buildListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case stateProjSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			components, err := m.FetchComponents() // Reusable function from BaseModel.
+			if m.ProjCursor >= len(m.Projects) {
+				m.errorMsg = "Invalid project selection"
+				return m, nil
+			}
+			components, err := m.FetchComponents()
 			if err != nil {
 				m.errorMsg = err.Error()
-				return m, nil
+				m.selected = false
+				return m, tea.Quit
+			}
+			if len(components) == 0 {
+				m.errorMsg = fmt.Sprintf("No components found in project '%s'. Please create a component first using 'choreoctl create component'",
+					m.Projects[m.ProjCursor])
+				m.selected = false
+				return m, tea.Quit
 			}
 			m.Components = components
 			m.state = stateCompSelect
@@ -94,36 +111,42 @@ func (m buildListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case stateCompSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			builds, err := m.FetchBuildNames() // Reusable function from BaseModel.
-			if err != nil {
-				m.errorMsg = err.Error()
+			if m.CompCursor >= len(m.Components) {
+				m.errorMsg = "Invalid component selection"
 				return m, nil
 			}
-			if len(builds) == 0 {
-				m.errorMsg = fmt.Sprintf("No builds found for component: %s", m.Components[m.CompCursor])
-				m.selected = true
-				return m, tea.Quit
-			}
-			m.builds = builds
-			m.state = stateBuildSelect
-			m.errorMsg = ""
-			return m, nil
-		}
-		m.CompCursor = interactive.ProcessListCursor(keyMsg, m.CompCursor, len(m.Components))
-
-	case stateBuildSelect:
-		if interactive.IsEnterKey(keyMsg) {
 			m.selected = true
 			return m, tea.Quit
 		}
-		m.buildCursor = interactive.ProcessListCursor(keyMsg, m.buildCursor, len(m.builds))
+		m.CompCursor = interactive.ProcessListCursor(keyMsg, m.CompCursor, len(m.Components))
 	}
 
 	return m, nil
 }
 
+func (m buildListModel) RenderProgress() string {
+	var progress strings.Builder
+	progress.WriteString("Selected resources:\n")
+
+	if len(m.Organizations) > 0 {
+		progress.WriteString(fmt.Sprintf("- organization: %s\n", m.Organizations[m.OrgCursor]))
+	}
+
+	if len(m.Projects) > 0 {
+		progress.WriteString(fmt.Sprintf("- project: %s\n", m.Projects[m.ProjCursor]))
+	}
+
+	if len(m.Components) > 0 {
+		progress.WriteString(fmt.Sprintf("- component: %s\n", m.Components[m.CompCursor]))
+	}
+
+	return progress.String()
+}
+
 func (m buildListModel) View() string {
+	progress := m.RenderProgress()
 	var view string
+
 	switch m.state {
 	case stateOrgSelect:
 		view = m.RenderOrgSelection()
@@ -131,28 +154,24 @@ func (m buildListModel) View() string {
 		view = m.RenderProjSelection()
 	case stateCompSelect:
 		view = m.RenderComponentSelection()
-	case stateBuildSelect:
-		view = interactive.RenderListPrompt("Select build:", m.builds, m.buildCursor)
-	default:
-		view = ""
 	}
-	return m.RenderProgress() + view
+
+	if m.errorMsg != "" {
+		view += "\nError: " + m.errorMsg
+	}
+
+	return progress + view
 }
 
 func listBuildInteractive(config constants.CRDConfig) error {
-	orgs, err := util.GetOrganizationNames()
+	baseModel, err := interactive.NewBaseModel()
 	if err != nil {
-		return errors.NewError("failed to get organizations: %v", err)
-	}
-	if len(orgs) == 0 {
-		return errors.NewError("no organizations found")
+		return err
 	}
 
 	model := buildListModel{
-		BaseModel: interactive.BaseModel{
-			Organizations: orgs,
-		},
-		state: stateOrgSelect,
+		BaseModel: *baseModel,
+		state:     stateOrgSelect,
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -162,12 +181,17 @@ func listBuildInteractive(config constants.CRDConfig) error {
 
 	m, ok := finalModel.(buildListModel)
 	if !ok || !m.selected {
+		if m.errorMsg != "" {
+			return fmt.Errorf("%s", m.errorMsg)
+		}
 		return errors.NewError("build listing cancelled")
 	}
 
-	return listBuilds(api.ListBuildParams{
+	params := api.ListBuildParams{
 		Organization: m.Organizations[m.OrgCursor],
 		Project:      m.Projects[m.ProjCursor],
 		Component:    m.Components[m.CompCursor],
-	}, config)
+	}
+
+	return listBuilds(params, config)
 }

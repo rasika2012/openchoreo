@@ -20,12 +20,12 @@ package component
 
 import (
 	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
@@ -36,10 +36,10 @@ const (
 )
 
 type componentListModel struct {
-	interactive.BaseModel // Reuses Organizations, Projects, OrgCursor, and ProjCursor.
-	state                 int
-	selected              bool
-	errorMsg              string
+	interactive.BaseModel
+	state    int
+	selected bool
+	errorMsg string
 }
 
 func (m componentListModel) Init() tea.Cmd {
@@ -60,7 +60,7 @@ func (m componentListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
 	case stateOrgSelect:
 		if interactive.IsEnterKey(keyMsg) {
-			projects, err := m.FetchProjects() // Reusable function from BaseModel.
+			projects, err := m.FetchProjects()
 			if err != nil {
 				m.errorMsg = err.Error()
 				return m, nil
@@ -106,22 +106,30 @@ func (m componentListModel) View() string {
 	return view
 }
 
+func (m componentListModel) RenderProgress() string {
+	var progress strings.Builder
+	progress.WriteString("Selected resources:\n")
+
+	if len(m.Organizations) > 0 {
+		progress.WriteString(fmt.Sprintf("- organization: %s\n", m.Organizations[m.OrgCursor]))
+	}
+
+	if len(m.Projects) > 0 {
+		progress.WriteString(fmt.Sprintf("- project: %s\n", m.Projects[m.ProjCursor]))
+	}
+
+	return progress.String()
+}
+
 func listComponentInteractive(config constants.CRDConfig) error {
-	orgs, err := util.GetOrganizationNames()
+	baseModel, err := interactive.NewBaseModel()
 	if err != nil {
 		return err
 	}
 
-	if len(orgs) == 0 {
-		fmt.Println("No organizations found. Please create an organization and a project first.")
-		return nil
-	}
-
 	model := componentListModel{
-		state: stateOrgSelect,
-		BaseModel: interactive.BaseModel{
-			Organizations: orgs,
-		},
+		BaseModel: *baseModel,
+		state:     stateOrgSelect,
 	}
 
 	finalModel, err := interactive.RunInteractiveModel(model)
@@ -131,13 +139,14 @@ func listComponentInteractive(config constants.CRDConfig) error {
 
 	m, ok := finalModel.(componentListModel)
 	if !ok || !m.selected {
-		return errors.NewError("operation cancelled")
+		if m.errorMsg != "" {
+			return fmt.Errorf("%s", m.errorMsg)
+		}
+		return errors.NewError("component listing cancelled")
 	}
 
-	params := api.ListComponentParams{
+	return listComponents(api.ListComponentParams{
 		Organization: m.Organizations[m.OrgCursor],
 		Project:      m.Projects[m.ProjCursor],
-	}
-
-	return listComponents(params, config)
+	}, config)
 }
