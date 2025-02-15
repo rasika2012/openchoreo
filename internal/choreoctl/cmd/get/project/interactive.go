@@ -26,6 +26,7 @@ import (
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
@@ -91,7 +92,7 @@ func (m projectListModel) View() string {
 	return progress + view
 }
 
-func listProjectsInteractive(config constants.CRDConfig) error {
+func listProjectInteractive(config constants.CRDConfig) error {
 	baseModel, err := interactive.NewBaseModel()
 	if err != nil {
 		return err
@@ -114,7 +115,18 @@ func listProjectsInteractive(config constants.CRDConfig) error {
 		return errors.NewError("project listing cancelled")
 	}
 
-	return listProjects(api.ListProjectParams{
+	params := api.ListProjectParams{
 		Organization: m.Organizations[m.OrgCursor],
-	}, config)
+	}
+
+	err = listProjects(params, config)
+	if err != nil {
+		return err
+	}
+
+	util.ShowEquivalentCommand("get project", map[string]string{
+		"organization": m.Organizations[m.OrgCursor],
+	})
+
+	return nil
 }

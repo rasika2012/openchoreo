@@ -26,6 +26,7 @@ import (
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
@@ -193,5 +194,16 @@ func listBuildInteractive(config constants.CRDConfig) error {
 		Component:    m.Components[m.CompCursor],
 	}
 
-	return listBuilds(params, config)
+	err = listBuilds(params, config)
+	if err != nil {
+		return err
+	}
+
+	util.ShowEquivalentCommand("get build", map[string]string{
+		"organization": m.Organizations[m.OrgCursor],
+		"project":      m.Projects[m.ProjCursor],
+		"component":    m.Components[m.CompCursor],
+	})
+
+	return nil
 }

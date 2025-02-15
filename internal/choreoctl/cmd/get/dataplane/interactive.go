@@ -26,6 +26,7 @@ import (
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
@@ -103,7 +104,18 @@ func listDataPlaneInteractive(config constants.CRDConfig) error {
 		return errors.NewError("data plane listing cancelled")
 	}
 
-	return listDataPlanes(api.ListDataPlaneParams{
+	params := api.ListDataPlaneParams{
 		Organization: m.Organizations[m.OrgCursor],
-	}, config)
+	}
+
+	err = listDataPlanes(params, config)
+	if err != nil {
+		return err
+	}
+
+	util.ShowEquivalentCommand("get dataplane", map[string]string{
+		"organization": m.Organizations[m.OrgCursor],
+	})
+
+	return nil
 }

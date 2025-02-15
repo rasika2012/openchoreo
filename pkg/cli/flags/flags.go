@@ -152,6 +152,25 @@ var (
 		Usage: messages.FlagBuildpackVersion,
 	}
 
+	Revision = Flag{
+		Name:  "revision",
+		Usage: messages.FlagRevisionDesc,
+	}
+	Branch = Flag{
+		Name:  "branch",
+		Usage: messages.FlagBranchDesc,
+	}
+
+	Path = Flag{
+		Name:  "path",
+		Usage: messages.FlagPathDesc,
+	}
+
+	AutoBuild = Flag{
+		Name:  "auto-build",
+		Usage: messages.FlagAutoBuildDesc,
+	}
+
 	DeployableArtifact = Flag{
 		Name:  "deployableartifact",
 		Usage: messages.FlagDeployableArtifactDesc,

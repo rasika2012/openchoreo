@@ -147,7 +147,12 @@ func newCreateBuildCmd(impl api.CommandImplementationInterface) *cobra.Command {
 		flags.DockerfilePath,
 		flags.BuildpackName,
 		flags.BuildpackVersion,
+		flags.Branch, // Add new flags
+		flags.Path,
+		flags.Revision,
+		flags.AutoBuild,
 	)
+
 	return (&builder.CommandBuilder{
 		Command: constants.CreateBuild,
 		Flags:   buildFlags,
@@ -157,6 +162,10 @@ func newCreateBuildCmd(impl api.CommandImplementationInterface) *cobra.Command {
 				Organization: fg.GetString(flags.Organization),
 				Project:      fg.GetString(flags.Project),
 				Component:    fg.GetString(flags.Component),
+				Branch:       fg.GetString(flags.Branch), // Add new params
+				Path:         fg.GetString(flags.Path),
+				Revision:     fg.GetString(flags.Revision),
+				AutoBuild:    fg.GetBool(flags.AutoBuild),
 				Interactive:  fg.GetBool(flags.Interactive),
 				Docker: &v1api.DockerConfiguration{
 					Context:        fg.GetString(flags.DockerContext),

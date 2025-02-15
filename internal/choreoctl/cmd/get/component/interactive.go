@@ -26,6 +26,7 @@ import (
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
@@ -145,8 +146,20 @@ func listComponentInteractive(config constants.CRDConfig) error {
 		return errors.NewError("component listing cancelled")
 	}
 
-	return listComponents(api.ListComponentParams{
+	params := api.ListComponentParams{
 		Organization: m.Organizations[m.OrgCursor],
 		Project:      m.Projects[m.ProjCursor],
-	}, config)
+	}
+
+	err = listComponents(params, config)
+	if err != nil {
+		return err
+	}
+
+	util.ShowEquivalentCommand("get component", map[string]string{
+		"organization": m.Organizations[m.OrgCursor],
+		"project":      m.Projects[m.ProjCursor],
+	})
+
+	return nil
 }

@@ -26,6 +26,7 @@ import (
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
@@ -217,5 +218,21 @@ func listEndpointInteractive(config constants.CRDConfig) error {
 		params.Environment = m.Environments[m.EnvCursor]
 	}
 
-	return listEndpoints(params, config)
+	err = listEndpoints(params, config)
+	if err != nil {
+		return err
+	}
+
+	flags := map[string]string{
+		"organization": m.Organizations[m.OrgCursor],
+		"project":      m.Projects[m.ProjCursor],
+		"component":    m.Components[m.CompCursor],
+	}
+	if len(m.Environments) > 0 {
+		flags["environment"] = m.Environments[m.EnvCursor]
+	}
+
+	util.ShowEquivalentCommand("get endpoint", flags)
+
+	return nil
 }

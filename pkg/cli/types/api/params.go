@@ -115,6 +115,11 @@ type CreateBuildParams struct {
 	// Build configuration
 	Docker    *choreov1.DockerConfiguration
 	Buildpack *choreov1.BuildpackConfiguration
+	// Build spec
+	Branch    string
+	Path      string
+	Revision  string
+	AutoBuild bool
 }
 
 // ListBuildParams defines parameters for listing builds

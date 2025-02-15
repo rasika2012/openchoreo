@@ -41,7 +41,7 @@ func NewListProjImpl(config constants.CRDConfig) *ListProjImpl {
 
 func (i *ListProjImpl) ListProject(params api.ListProjectParams) error {
 	if params.Interactive {
-		return listProjectsInteractive(i.config)
+		return listProjectInteractive(i.config)
 	}
 
 	if err := util.ValidateParams(util.CmdGet, util.ResourceProject, params); err != nil {

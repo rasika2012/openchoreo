@@ -160,6 +160,8 @@ func validateBuildParams(cmdType CommandType, params interface{}) error {
 				"organization": p.Organization,
 				"project":      p.Project,
 				"component":    p.Component,
+				"name":         p.Name,
+				"branch":       p.Branch,
 			}) {
 				return generateHelpError(cmdType, ResourceBuild)
 			}

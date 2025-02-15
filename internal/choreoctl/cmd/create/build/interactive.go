@@ -37,38 +37,37 @@ const (
 	stateProjSelect
 	stateCompSelect
 	stateNameInput
+	stateBranchInput
+	statePathInput
+	stateRevisionInput
 	stateBuildTypeSelect
-	stateDockerContextInput
-	stateDockerfilePathInput
 	stateBuildpackNameInput
 	stateBuildpackVersionInput
+	stateDockerContextInput
+	stateDockerfilePathInput
 )
 
 type buildModel struct {
-	interactive.BaseModel // Embeds common fields:
-	// Organizations, OrgCursor, Projects, ProjCursor, Components, CompCursor
-
-	// Build-specific fields.
+	interactive.BaseModel
 	buildTypes        []string
+	buildType         string
+	buildCursor       int
 	buildpacks        []string
+	buildpackName     string
+	buildpackCursor   int
 	buildpackVersions []string
-
-	// Cursors for selections.
-	buildCursor     int
-	buildpackCursor int
-	versionCursor   int
-
-	// Build details.
-	name          string
-	buildType     string
-	dockerContext string
-	dockerFile    string
-	buildpackName string
-	buildpackVer  string
-
-	selected bool
-	errorMsg string
-	state    int
+	buildpackVer      string
+	versionCursor     int
+	dockerContext     string
+	dockerFile        string
+	name              string
+	branch            string
+	path              string
+	revision          string
+	autoBuild         bool
+	selected          bool
+	errorMsg          string
+	state             int
 }
 
 func (m buildModel) Init() tea.Cmd {
@@ -86,34 +85,34 @@ func (m buildModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	}
 
-	var err error
-	switch {
-	case m.state <= stateCompSelect:
-		m, err = m.handleResourceSelection(keyMsg)
-	case m.state <= stateBuildpackVersionInput:
-		m, err = m.handleBuildConfig(keyMsg)
+	switch m.state {
+	case stateOrgSelect, stateProjSelect, stateCompSelect:
+		return m.handleResourceSelection(keyMsg)
+	case stateNameInput, stateBranchInput, statePathInput, stateRevisionInput, stateBuildTypeSelect:
+		return m.handleBuildConfig(keyMsg)
+	case stateBuildpackNameInput, stateBuildpackVersionInput:
+		return m.handleBuildpackFlow(keyMsg)
 	default:
-		m = m.handlePathConfig(keyMsg)
+		return m.handleDockerFlow(keyMsg)
 	}
-
-	if err != nil {
-		m.errorMsg = err.Error()
-		return m, nil
-	}
-
-	return m, nil
 }
 
-func (m buildModel) handleResourceSelection(keyMsg tea.KeyMsg) (buildModel, error) {
+func (m buildModel) handleResourceSelection(keyMsg tea.KeyMsg) (buildModel, tea.Cmd) {
 	switch m.state {
 	case stateOrgSelect:
 		if interactive.IsEnterKey(keyMsg) {
 			projects, err := m.FetchProjects()
 			if err != nil {
-				return m, err
+				m.errorMsg = err.Error()
+				return m, tea.Quit
+			}
+			if len(projects) == 0 {
+				m.errorMsg = fmt.Sprintf("No projects found in organization '%s'", m.Organizations[m.OrgCursor])
+				return m, tea.Quit
 			}
 			m.Projects = projects
 			m.state = stateProjSelect
+			m.errorMsg = ""
 		} else {
 			m.OrgCursor = interactive.ProcessListCursor(keyMsg, m.OrgCursor, len(m.Organizations))
 		}
@@ -121,10 +120,12 @@ func (m buildModel) handleResourceSelection(keyMsg tea.KeyMsg) (buildModel, erro
 		if interactive.IsEnterKey(keyMsg) {
 			components, err := m.FetchComponents()
 			if err != nil {
-				return m, err
+				m.errorMsg = err.Error()
+				return m, tea.Quit
 			}
 			if len(components) == 0 {
-				return m, fmt.Errorf("no components found in project '%s'. Please create a component first using 'choreoctl create component'", m.Projects[m.ProjCursor])
+				m.errorMsg = fmt.Sprintf("No components found in project '%s'", m.Projects[m.ProjCursor])
+				return m, tea.Quit
 			}
 			m.Components = components
 			m.state = stateCompSelect
@@ -141,26 +142,44 @@ func (m buildModel) handleResourceSelection(keyMsg tea.KeyMsg) (buildModel, erro
 	return m, nil
 }
 
-func (m buildModel) handleBuildConfig(keyMsg tea.KeyMsg) (buildModel, error) {
+func (m buildModel) handleBuildConfig(keyMsg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch m.state {
 	case stateNameInput:
 		if interactive.IsEnterKey(keyMsg) {
 			if err := util.ValidateResourceName("build", m.name); err != nil {
-				return m, err
+				m.errorMsg = err.Error()
+				return m, nil
 			}
-			builds, err := m.FetchBuildNames()
-			if err != nil {
-				return m, fmt.Errorf("failed to check build existence: %w", err)
-			}
-			for _, b := range builds {
-				if b == m.name {
-					return m, fmt.Errorf("build '%s' already exists in component '%s'", m.name, m.Components[m.CompCursor])
-				}
-			}
-			m.state = stateBuildTypeSelect
-		} else {
-			m.name, _ = interactive.EditTextInputField(keyMsg, m.name, len(m.name))
+			m.state = stateBranchInput
+			return m, nil
 		}
+		m.name, _ = interactive.EditTextInputField(keyMsg, m.name, len(m.name))
+		return m, nil
+
+	case stateBranchInput:
+		if interactive.IsEnterKey(keyMsg) {
+			m.state = statePathInput
+			return m, nil
+		}
+		m.branch, _ = interactive.EditTextInputField(keyMsg, m.branch, len(m.branch))
+		return m, nil
+
+	case statePathInput:
+		if interactive.IsEnterKey(keyMsg) {
+			m.state = stateRevisionInput
+			return m, nil
+		}
+		m.path, _ = interactive.EditTextInputField(keyMsg, m.path, len(m.path))
+		return m, nil
+
+	case stateRevisionInput:
+		if interactive.IsEnterKey(keyMsg) {
+			m.state = stateBuildTypeSelect
+			return m, nil
+		}
+		m.revision, _ = interactive.EditTextInputField(keyMsg, m.revision, len(m.revision))
+		return m, nil
+
 	case stateBuildTypeSelect:
 		if interactive.IsEnterKey(keyMsg) {
 			m.buildType = m.buildTypes[m.buildCursor]
@@ -169,33 +188,41 @@ func (m buildModel) handleBuildConfig(keyMsg tea.KeyMsg) (buildModel, error) {
 			} else {
 				m.state = stateBuildpackNameInput
 			}
-		} else {
-			m.buildCursor = interactive.ProcessListCursor(keyMsg, m.buildCursor, len(m.buildTypes))
+			return m, nil
 		}
+		m.buildCursor = interactive.ProcessListCursor(keyMsg, m.buildCursor, len(m.buildTypes))
+		return m, nil
+	}
+	return m, nil
+}
+
+func (m buildModel) handleBuildpackFlow(keyMsg tea.KeyMsg) (buildModel, tea.Cmd) {
+	switch m.state {
 	case stateBuildpackNameInput:
 		if interactive.IsEnterKey(keyMsg) {
 			m.buildpackName = m.buildpacks[m.buildpackCursor]
 			m.buildpackVersions = choreov1.SupportedVersions[choreov1.BuildpackName(m.buildpackName)]
 			if len(m.buildpackVersions) == 0 {
-				return m, fmt.Errorf("no versions available for selected buildpack")
+				m.errorMsg = fmt.Errorf("no versions available for selected buildpack").Error()
+				return m, nil
 			}
 			m.state = stateBuildpackVersionInput
 		} else {
 			m.buildpackCursor = interactive.ProcessListCursor(keyMsg, m.buildpackCursor, len(m.buildpacks))
 		}
+
 	case stateBuildpackVersionInput:
 		if interactive.IsEnterKey(keyMsg) {
 			m.buildpackVer = m.buildpackVersions[m.versionCursor]
 			m.selected = true
-			return m, nil
-		} else {
-			m.versionCursor = interactive.ProcessListCursor(keyMsg, m.versionCursor, len(m.buildpackVersions))
+			return m, tea.Quit
 		}
+		m.versionCursor = interactive.ProcessListCursor(keyMsg, m.versionCursor, len(m.buildpackVersions))
 	}
 	return m, nil
 }
 
-func (m buildModel) handlePathConfig(keyMsg tea.KeyMsg) buildModel {
+func (m buildModel) handleDockerFlow(keyMsg tea.KeyMsg) (buildModel, tea.Cmd) {
 	switch m.state {
 	case stateDockerContextInput:
 		if interactive.IsEnterKey(keyMsg) {
@@ -206,12 +233,12 @@ func (m buildModel) handlePathConfig(keyMsg tea.KeyMsg) buildModel {
 	case stateDockerfilePathInput:
 		if interactive.IsEnterKey(keyMsg) {
 			m.selected = true
-			return m
+			return m, tea.Quit
 		} else {
 			m.dockerFile, _ = interactive.EditTextInputField(keyMsg, m.dockerFile, len(m.dockerFile))
 		}
 	}
-	return m
+	return m, nil
 }
 
 func (m buildModel) View() string {
@@ -225,6 +252,12 @@ func (m buildModel) View() string {
 		return progress + m.RenderComponentSelection()
 	case stateNameInput:
 		return progress + interactive.RenderInputPrompt("Enter build name:", "", m.name, m.errorMsg)
+	case stateBranchInput:
+		return progress + interactive.RenderInputPrompt("Enter git branch (default: main):", "", m.branch, m.errorMsg)
+	case statePathInput:
+		return progress + interactive.RenderInputPrompt("Enter source code path:", "", m.path, m.errorMsg)
+	case stateRevisionInput:
+		return progress + interactive.RenderInputPrompt("Enter git revision (default: latest):", "", m.revision, m.errorMsg)
 	case stateBuildTypeSelect:
 		return progress + interactive.RenderListPrompt("Select build type:", m.buildTypes, m.buildCursor)
 	case stateDockerContextInput:
@@ -276,6 +309,10 @@ func createBuildInteractive() error {
 		Project:      m.Projects[m.ProjCursor],
 		Component:    m.Components[m.CompCursor],
 		Name:         m.name,
+		Branch:       defaultIfEmpty(m.branch, "main"),
+		Revision:     defaultIfEmpty(m.revision, "latest"),
+		Path:         m.path,
+		AutoBuild:    m.autoBuild,
 	}
 	if m.buildType == constants.Docker {
 		params.Docker = &choreov1.DockerConfiguration{
@@ -311,10 +348,25 @@ func (m buildModel) RenderProgress() string {
 		progress.WriteString(fmt.Sprintf("- name: %s\n", m.name))
 	}
 
+	branch := "main"
+	if m.branch != "" {
+		branch = m.branch
+	}
+	progress.WriteString(fmt.Sprintf("- branch: %s\n", branch))
+
+	revision := "latest"
+	if m.revision != "" {
+		revision = m.revision
+	}
+	progress.WriteString(fmt.Sprintf("- revision: %s\n", revision))
+
+	if m.path != "" {
+		progress.WriteString(fmt.Sprintf("- path: %s\n", m.path))
+	}
+
 	if m.buildType != "" {
 		progress.WriteString(fmt.Sprintf("- build type: %s\n", m.buildType))
 
-		// Show Docker configuration with defaults
 		if m.buildType == constants.Docker {
 			context := "/"
 			if m.dockerContext != "" {
@@ -328,7 +380,6 @@ func (m buildModel) RenderProgress() string {
 			progress.WriteString(fmt.Sprintf("- dockerfile path: %s\n", dockerfile))
 		}
 
-		// Show buildpack configuration
 		if m.buildType == constants.Buildpack && m.buildpackName != "" {
 			progress.WriteString(fmt.Sprintf("- buildpack: %s\n", m.buildpackName))
 			if m.buildpackVer != "" {
@@ -338,4 +389,11 @@ func (m buildModel) RenderProgress() string {
 	}
 
 	return progress.String()
+}
+
+func defaultIfEmpty(value, defaultValue string) string {
+	if value == "" {
+		return defaultValue
+	}
+	return value
 }

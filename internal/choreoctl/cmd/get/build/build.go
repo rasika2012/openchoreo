@@ -23,10 +23,35 @@ import (
 	"os"
 	"text/tabwriter"
 
+	"k8s.io/apimachinery/pkg/api/meta"
+
 	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
+)
+
+const (
+	// Status Types
+	statusTypeCompleted      = "Completed"
+	statusTypeBuildSucceeded = "BuildSucceeded"
+	statusTypeCloneSucceeded = "CloneSucceeded"
+	statusTypePushSucceeded  = "PushSucceeded"
+	statusTypeInitialized    = "Initialized"
+
+	// Status Values
+	statusValueTrue  = "True"
+	statusValueFalse = "False"
+
+	// Status Messages
+	statusMsgCompleted    = "Completed"
+	statusMsgBuildFailed  = "BuildFailed"
+	statusMsgCloneFailed  = "CloneFailed"
+	statusMsgPushFailed   = "PushFailed"
+	statusMsgFailed       = "Failed"
+	statusMsgBuilding     = "Building"
+	statusMsgInitializing = "Initializing"
+	statusMsgUnknown      = "Unknown"
 )
 
 type ListBuildImpl struct {
@@ -128,17 +153,34 @@ func printBuildTable(builds []corev1.Build, componentName, projectName, orgName 
 }
 
 func getBuildStatus(build corev1.Build) string {
-	status := "Unknown"
+	for _, condition := range build.Status.Conditions {
+		switch {
+		case condition.Type == statusTypeCompleted && condition.Status == statusValueTrue:
+			return statusMsgCompleted
+		case condition.Type == statusTypeCompleted && condition.Status == statusValueFalse:
+			if buildFailed := meta.FindStatusCondition(build.Status.Conditions, statusTypeBuildSucceeded); buildFailed != nil && buildFailed.Status == statusValueFalse {
+				return statusMsgBuildFailed
+			}
+			if cloneFailed := meta.FindStatusCondition(build.Status.Conditions, statusTypeCloneSucceeded); cloneFailed != nil && cloneFailed.Status == statusValueFalse {
+				return statusMsgCloneFailed
+			}
+			if pushFailed := meta.FindStatusCondition(build.Status.Conditions, statusTypePushSucceeded); pushFailed != nil && pushFailed.Status == statusValueFalse {
+				return statusMsgPushFailed
+			}
+			return statusMsgFailed
+		}
+	}
 
 	for _, condition := range build.Status.Conditions {
 		switch {
-		case condition.Type == "Initialized" && condition.Status == "True":
-			status = "Initialized"
-		case condition.Type == "Completed" && condition.Status == "True":
-			status = "Completed"
-		case condition.Type == "CloneSucceeded" && condition.Status == "False":
-			status = "CloneFailed"
+		case condition.Type == statusTypeBuildSucceeded && condition.Status == statusValueTrue:
+			return statusMsgBuilding
+		case condition.Type == statusTypeCloneSucceeded && condition.Status == statusValueTrue:
+			return statusMsgBuilding
+		case condition.Type == statusTypeInitialized && condition.Status == statusValueTrue:
+			return statusMsgInitializing
 		}
 	}
-	return status
+
+	return statusMsgUnknown
 }

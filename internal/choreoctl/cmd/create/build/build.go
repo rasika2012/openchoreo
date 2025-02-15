@@ -71,6 +71,10 @@ func createBuild(params api.CreateBuildParams) error {
 			},
 		},
 		Spec: corev1.BuildSpec{
+			Branch:             params.Branch,
+			Path:               params.Path,
+			GitRevision:        params.Revision,
+			AutoBuild:          params.AutoBuild,
 			BuildConfiguration: corev1.BuildConfiguration{},
 		},
 	}

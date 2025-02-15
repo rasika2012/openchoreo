@@ -26,6 +26,7 @@ import (
 
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
 )
@@ -117,7 +118,18 @@ func listEnvironmentInteractive(config constants.CRDConfig) error {
 		return errors.NewError("environment listing cancelled")
 	}
 
-	return listEnvironments(api.ListEnvironmentParams{
+	params := api.ListEnvironmentParams{
 		Organization: m.Organizations[m.OrgCursor],
-	}, config)
+	}
+
+	err = listEnvironments(params, config)
+	if err != nil {
+		return err
+	}
+
+	util.ShowEquivalentCommand("get environment", map[string]string{
+		"organization": m.Organizations[m.OrgCursor],
+	})
+
+	return nil
 }

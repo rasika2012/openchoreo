@@ -718,3 +718,13 @@ func LoadStoredConfig() (*config.StoredConfig, error) {
 
 	return &cfg, nil
 }
+
+// ShowEquivalentCommand prints the equivalent non-interactive command
+func ShowEquivalentCommand(command string, flags map[string]string) {
+	fmt.Printf("\nTip: You can run this command directly using:\n")
+	fmt.Printf("./choreoctl %s", command)
+	for flag, value := range flags {
+		fmt.Printf(" --%s %s", flag, value)
+	}
+	fmt.Println()
+}
