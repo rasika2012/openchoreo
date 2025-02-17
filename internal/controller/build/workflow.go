@@ -107,8 +107,8 @@ func makeWorkflowSpec(build *choreov1.Build, repo string) argo.WorkflowSpec {
 			},
 		},
 		TTLStrategy: &argo.TTLStrategy{
-			SecondsAfterFailure: ptr.Int32(600),
-			SecondsAfterSuccess: ptr.Int32(600),
+			SecondsAfterFailure: ptr.Int32(3600),
+			SecondsAfterSuccess: ptr.Int32(3600),
 		},
 	}
 }
