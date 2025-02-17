@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package deploymentpipeline
+package deploymentpipeline_test
 
 import (
-	"context"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -29,59 +29,109 @@ import (
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	apiv1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
+	dep "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deploymentpipeline"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/testutil"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 )
 
 var _ = Describe("DeploymentPipeline Controller", func() {
-	Context("When reconciling a resource", func() {
-		const resourceName = "test-resource"
+	BeforeEach(func() {
+		testutil.CreateTestOrganization(ctx, k8sClient)
+		testutil.CreateTestDataPlane(ctx, k8sClient)
+		testutil.CreateTestEnvironment(ctx, k8sClient)
+	})
 
-		ctx := context.Background()
+	const pipelineName = "test-deployment-pipeline"
 
-		typeNamespacedName := types.NamespacedName{
-			Name:      resourceName,
-			Namespace: "default", // TODO(user):Modify as needed
-		}
-		deploymentpipeline := &corev1.DeploymentPipeline{}
+	pipelineNamespacedName := types.NamespacedName{
+		Namespace: testutil.TestOrganizationNamespace,
+		Name:      pipelineName,
+	}
 
-		BeforeEach(func() {
-			By("creating the custom resource for the Kind DeploymentPipeline")
-			err := k8sClient.Get(ctx, typeNamespacedName, deploymentpipeline)
+	pipeline := &apiv1.DeploymentPipeline{}
+
+	It("should successfully create and reconcile deployment pipeline resource", func() {
+		By("creating a custom resource for the Kind DeploymentPipeline", func() {
+			err := k8sClient.Get(ctx, pipelineNamespacedName, pipeline)
 			if err != nil && errors.IsNotFound(err) {
-				resource := &corev1.DeploymentPipeline{
+				dp := &apiv1.DeploymentPipeline{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      resourceName,
-						Namespace: "default",
+						Name:      pipelineName,
+						Namespace: testutil.TestOrganizationNamespace,
+						Labels: map[string]string{
+							labels.LabelKeyOrganizationName: testutil.TestOrganizationName,
+							labels.LabelKeyName:             pipelineName,
+						},
+						Annotations: map[string]string{
+							controller.AnnotationKeyDisplayName: "Test Deployment pipeline",
+							controller.AnnotationKeyDescription: "Test Deployment pipeline Description",
+						},
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: apiv1.DeploymentPipelineSpec{
+						PromotionPaths: []apiv1.PromotionPath{
+							{
+								SourceEnvironmentRef:  "test-env",
+								TargetEnvironmentRefs: make([]apiv1.TargetEnvironmentRef, 0),
+							},
+						},
+					},
 				}
-				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
+				Expect(k8sClient.Create(ctx, dp)).To(Succeed())
 			}
 		})
 
-		AfterEach(func() {
-			// TODO(user): Cleanup logic after each test, like removing the resource instance.
-			resource := &corev1.DeploymentPipeline{}
-			err := k8sClient.Get(ctx, typeNamespacedName, resource)
-			Expect(err).NotTo(HaveOccurred())
-
-			By("Cleanup the specific resource instance DeploymentPipeline")
-			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
-		})
-		It("should successfully reconcile the resource", func() {
-			By("Reconciling the created resource")
-			controllerReconciler := &Reconciler{
+		By("Reconciling the deploymentPipeline resource", func() {
+			depReconciler := &dep.Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
-				recorder: record.NewFakeRecorder(100),
+				Recorder: record.NewFakeRecorder(100),
 			}
-
-			_, err := controllerReconciler.Reconcile(ctx, reconcile.Request{
-				NamespacedName: typeNamespacedName,
+			result, err := depReconciler.Reconcile(ctx, reconcile.Request{
+				NamespacedName: pipelineNamespacedName,
 			})
 			Expect(err).NotTo(HaveOccurred())
-			// TODO(user): Add more specific assertions depending on your controller's reconciliation logic.
-			// Example: If you expect a certain status condition after reconciliation, verify it here.
+			Expect(result.Requeue).To(BeFalse())
 		})
+
+		By("Checking the deploymentPipeline resource", func() {
+			deploymentPipeline := &apiv1.DeploymentPipeline{}
+			Eventually(func() error {
+				return k8sClient.Get(ctx, pipelineNamespacedName, deploymentPipeline)
+			}, time.Second*10, time.Millisecond*500).Should(Succeed())
+			Expect(deploymentPipeline.Name).To(Equal(pipelineName))
+			Expect(deploymentPipeline.Namespace).To(Equal(testutil.TestOrganizationNamespace))
+			Expect(deploymentPipeline.Spec).NotTo(BeNil())
+		})
+
+		By("Deleting the deploymentPipeline resource", func() {
+			err := k8sClient.Get(ctx, pipelineNamespacedName, pipeline)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(k8sClient.Delete(ctx, pipeline)).To(Succeed())
+		})
+
+		By("Checking the deploymentPipeline resource deletion", func() {
+			Eventually(func() error {
+				return k8sClient.Get(ctx, pipelineNamespacedName, pipeline)
+			}, time.Second*10, time.Millisecond*500).ShouldNot(Succeed())
+		})
+
+		By("Reconciling the deploymentPipeline resource after deletion", func() {
+			dpReconciler := &dep.Reconciler{
+				Client:   k8sClient,
+				Scheme:   k8sClient.Scheme(),
+				Recorder: record.NewFakeRecorder(100),
+			}
+			result, err := dpReconciler.Reconcile(ctx, reconcile.Request{
+				NamespacedName: pipelineNamespacedName,
+			})
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.Requeue).To(BeFalse())
+		})
+	})
+
+	AfterEach(func() {
+		testutil.DeleteTestOrganization(ctx, k8sClient)
 	})
 })

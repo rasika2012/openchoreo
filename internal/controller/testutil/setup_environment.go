@@ -20,7 +20,7 @@ import (
 const TestEnvironmentName = "test-env"
 
 // CreateTestEnvironment creates a test environment resource
-func CreateTestEnvironment(ctx context.Context, k8sClient client.Client, envName string) {
+func CreateTestEnvironment(ctx context.Context, k8sClient client.Client) {
 	envNamespacedName := types.NamespacedName{
 		Name:      TestEnvironmentName,
 		Namespace: TestOrganizationNamespace,
@@ -31,11 +31,11 @@ func CreateTestEnvironment(ctx context.Context, k8sClient client.Client, envName
 		if err != nil && errors.IsNotFound(err) {
 			dp := &apiv1.Environment{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      envName,
+					Name:      TestEnvironmentName,
 					Namespace: TestOrganizationNamespace,
 					Labels: map[string]string{
 						labels.LabelKeyOrganizationName: TestOrganizationName,
-						labels.LabelKeyName:             envName,
+						labels.LabelKeyName:             TestEnvironmentName,
 					},
 					Annotations: map[string]string{
 						controller.AnnotationKeyDisplayName: "Test Environment",
@@ -65,7 +65,7 @@ func CreateTestEnvironment(ctx context.Context, k8sClient client.Client, envName
 		Eventually(func() error {
 			return k8sClient.Get(ctx, envNamespacedName, environment)
 		}, time.Second*10, time.Millisecond*500).Should(Succeed())
-		Expect(environment.Name).To(Equal(envName))
+		Expect(environment.Name).To(Equal(TestEnvironmentName))
 		Expect(environment.Namespace).To(Equal(TestOrganizationNamespace))
 		Expect(environment.Spec).NotTo(BeNil())
 	})

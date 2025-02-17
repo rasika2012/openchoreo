@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package deploymentpipeline
+package deploymentpipeline_test
 
 import (
 	"context"
