@@ -5,29 +5,31 @@ This is a simple program that logs the current time. This program can be deploye
 The following command will create the component, deployment track and the deployment in Choreo. It'll also trigger a build by creating a build resource. 
 
 ```bash
-kubectl apply  -f samples/time-logger-scheduled-task/time-logger.yaml
+kubectl apply -f samples/time-logger-scheduled-task/time-logger.yaml
 ```
 
 ## Checking the Argo Workflow Status
 Argo workflow will create three tasks.
 
 ```
-NAMESPACE            NAME 
-argo-build           time-logger-build-01-clone-step-2264035552      
-argo-build           time-logger-build-01-build-step-3433253592                        
-argo-build           time-logger-build-01-push-step-3448493733                  
+NAMESPACE                       NAME 
+choreo-ci-default-org           time-logger-build-01-clone-step-2264035552      
+choreo-ci-default-org           time-logger-build-01-build-step-3433253592                        
+choreo-ci-default-org           time-logger-build-01-push-step-3448493733                  
 ```
 
 You can check the status of the workflow by running the following commands.
 
 ```bash
-kubectl get pods -n argo-build 
+kubectl get pods -n choreo-ci-default-org
 ```
 
-You can check build logs of each step by running the following command.
+You can check build logs of each step by running the following commands.
 
 ```bash
-kubectl logs -f -n argo-build <pod-name>
+kubectl -n choreo-ci-default-org logs -l workflow=time-logger-build-01,step=clone-step --tail=-1
+kubectl -n choreo-ci-default-org logs -l workflow=time-logger-build-01,step=build-step --tail=-1
+kubectl -n choreo-ci-default-org logs -l workflow=time-logger-build-01,step=push-step --tail=-1
 ```
 
 ## Checking the Deployment Status
@@ -44,7 +46,3 @@ You can check the status of the deployment by running the following commands.
 ```bash
 kubectl get pods -n dp-default-org-default-project-development-39faf2d8
 ```
-
-
-
-

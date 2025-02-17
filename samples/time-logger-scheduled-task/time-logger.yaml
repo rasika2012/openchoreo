@@ -64,6 +64,7 @@ spec:
   buildConfiguration:
     buildpack:
       name: Go
+      version: 1.x
 ---
 
 #### Sample Deployment kind (Namespaced)
