@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package environment_test
+package environment
 
 import (
 	"time"
@@ -31,25 +31,85 @@ import (
 
 	apiv1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-	env "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/environment"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/testutil"
+	dp "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/dataplane"
+	org "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/organization"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 )
 
 var _ = Describe("Environment Controller", func() {
+	orgName := "test-org"
 	BeforeEach(func() {
-		testutil.CreateTestOrganization(ctx, k8sClient)
-		testutil.CreateTestDataPlane(ctx, k8sClient)
+		By("Creating and reconciling organization resource", func() {
+			orgNamespacedName := types.NamespacedName{
+				Name: orgName,
+			}
+			organization := &apiv1.Organization{}
+			err := k8sClient.Get(ctx, orgNamespacedName, organization)
+			if err != nil && errors.IsNotFound(err) {
+				org := &apiv1.Organization{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: orgName,
+					},
+				}
+				Expect(k8sClient.Create(ctx, org)).To(Succeed())
+			}
+			orgReconciler := &org.Reconciler{
+				Client:   k8sClient,
+				Scheme:   k8sClient.Scheme(),
+				Recorder: record.NewFakeRecorder(100),
+			}
+			_, err = orgReconciler.Reconcile(ctx, reconcile.Request{
+				NamespacedName: orgNamespacedName,
+			})
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		const dpName = "test-dataplane"
+
+		dpNamespacedName := types.NamespacedName{
+			Name:      dpName,
+			Namespace: orgName,
+		}
+
+		dataplane := &apiv1.DataPlane{}
+
+		By("Creating and reconciling the dataplane resource", func() {
+			err := k8sClient.Get(ctx, dpNamespacedName, dataplane)
+			if err != nil && errors.IsNotFound(err) {
+				dp := &apiv1.DataPlane{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      dpName,
+						Namespace: orgName,
+					},
+				}
+				Expect(k8sClient.Create(ctx, dp)).To(Succeed())
+			}
+			dpReconciler := &dp.Reconciler{
+				Client:   k8sClient,
+				Scheme:   k8sClient.Scheme(),
+				Recorder: record.NewFakeRecorder(100),
+			}
+			_, err = dpReconciler.Reconcile(ctx, reconcile.Request{
+				NamespacedName: dpNamespacedName,
+			})
+			Expect(err).NotTo(HaveOccurred())
+		})
 	})
 
 	AfterEach(func() {
-		testutil.DeleteTestOrganization(ctx, k8sClient)
+		By("Deleting the organization resource", func() {
+			org := &apiv1.Organization{}
+			err := k8sClient.Get(ctx, types.NamespacedName{Name: orgName}, org)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(k8sClient.Delete(ctx, org)).To(Succeed())
+		})
 	})
+
 	It("should successfully create and reconcile environment resource", func() {
 		const envName = "test-env"
 
 		envNamespacedName := types.NamespacedName{
-			Namespace: testutil.TestOrganizationNamespace,
+			Namespace: orgName,
 			Name:      envName,
 		}
 		environment := &apiv1.Environment{}
@@ -59,9 +119,9 @@ var _ = Describe("Environment Controller", func() {
 				dp := &apiv1.Environment{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      envName,
-						Namespace: testutil.TestOrganizationNamespace,
+						Namespace: orgName,
 						Labels: map[string]string{
-							labels.LabelKeyOrganizationName: testutil.TestOrganizationName,
+							labels.LabelKeyOrganizationName: orgName,
 							labels.LabelKeyName:             envName,
 						},
 						Annotations: map[string]string{
@@ -75,7 +135,7 @@ var _ = Describe("Environment Controller", func() {
 		})
 
 		By("Reconciling the environment resource", func() {
-			envReconciler := &env.Reconciler{
+			envReconciler := &Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
 				Recorder: record.NewFakeRecorder(100),
@@ -93,7 +153,7 @@ var _ = Describe("Environment Controller", func() {
 				return k8sClient.Get(ctx, envNamespacedName, environment)
 			}, time.Second*10, time.Millisecond*500).Should(Succeed())
 			Expect(environment.Name).To(Equal(envName))
-			Expect(environment.Namespace).To(Equal(testutil.TestOrganizationNamespace))
+			Expect(environment.Namespace).To(Equal(orgName))
 			Expect(environment.Spec).NotTo(BeNil())
 		})
 
@@ -110,7 +170,7 @@ var _ = Describe("Environment Controller", func() {
 		})
 
 		By("Reconciling the environment resource after deletion", func() {
-			dpReconciler := &env.Reconciler{
+			dpReconciler := &Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
 				Recorder: record.NewFakeRecorder(100),

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package deploymentpipeline_test
+package deploymentpipeline
 
 import (
 	"time"
@@ -31,22 +31,125 @@ import (
 
 	apiv1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-	dep "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deploymentpipeline"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/testutil"
+	dp "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/dataplane"
+	env "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/environment"
+	org "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/organization"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 )
 
 var _ = Describe("DeploymentPipeline Controller", func() {
+	orgName := "test-org"
 	BeforeEach(func() {
-		testutil.CreateTestOrganization(ctx, k8sClient)
-		testutil.CreateTestDataPlane(ctx, k8sClient)
-		testutil.CreateTestEnvironment(ctx, k8sClient)
+		By("Creating and reconciling organization resource", func() {
+			orgNamespacedName := types.NamespacedName{
+				Name: orgName,
+			}
+			organization := &apiv1.Organization{}
+			err := k8sClient.Get(ctx, orgNamespacedName, organization)
+			if err != nil && errors.IsNotFound(err) {
+				org := &apiv1.Organization{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: orgName,
+					},
+				}
+				Expect(k8sClient.Create(ctx, org)).To(Succeed())
+			}
+			orgReconciler := &org.Reconciler{
+				Client:   k8sClient,
+				Scheme:   k8sClient.Scheme(),
+				Recorder: record.NewFakeRecorder(100),
+			}
+			_, err = orgReconciler.Reconcile(ctx, reconcile.Request{
+				NamespacedName: orgNamespacedName,
+			})
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		const dpName = "test-dataplane"
+
+		dpNamespacedName := types.NamespacedName{
+			Name:      dpName,
+			Namespace: orgName,
+		}
+
+		dataplane := &apiv1.DataPlane{}
+
+		By("Creating and reconciling the dataplane resource", func() {
+			err := k8sClient.Get(ctx, dpNamespacedName, dataplane)
+			if err != nil && errors.IsNotFound(err) {
+				dp := &apiv1.DataPlane{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      dpName,
+						Namespace: orgName,
+					},
+				}
+				Expect(k8sClient.Create(ctx, dp)).To(Succeed())
+			}
+			dpReconciler := &dp.Reconciler{
+				Client:   k8sClient,
+				Scheme:   k8sClient.Scheme(),
+				Recorder: record.NewFakeRecorder(100),
+			}
+			_, err = dpReconciler.Reconcile(ctx, reconcile.Request{
+				NamespacedName: dpNamespacedName,
+			})
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		const envName = "test-env"
+
+		envNamespacedName := types.NamespacedName{
+			Namespace: orgName,
+			Name:      envName,
+		}
+
+		By("Creating and reconciling the environment resource", func() {
+			environment := &apiv1.Environment{}
+
+			err := k8sClient.Get(ctx, envNamespacedName, environment)
+			if err != nil && errors.IsNotFound(err) {
+				dp := &apiv1.Environment{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      envName,
+						Namespace: orgName,
+						Labels: map[string]string{
+							labels.LabelKeyOrganizationName: orgName,
+							labels.LabelKeyName:             envName,
+						},
+						Annotations: map[string]string{
+							controller.AnnotationKeyDisplayName: "Test Environment",
+							controller.AnnotationKeyDescription: "Test Environment Description",
+						},
+					},
+				}
+				Expect(k8sClient.Create(ctx, dp)).To(Succeed())
+			}
+
+			envReconciler := &env.Reconciler{
+				Client:   k8sClient,
+				Scheme:   k8sClient.Scheme(),
+				Recorder: record.NewFakeRecorder(100),
+			}
+			_, err = envReconciler.Reconcile(ctx, reconcile.Request{
+				NamespacedName: envNamespacedName,
+			})
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
+	AfterEach(func() {
+		By("Deleting the organization resource", func() {
+			org := &apiv1.Organization{}
+			err := k8sClient.Get(ctx, types.NamespacedName{Name: orgName}, org)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(k8sClient.Delete(ctx, org)).To(Succeed())
+		})
 	})
 
 	const pipelineName = "test-deployment-pipeline"
 
 	pipelineNamespacedName := types.NamespacedName{
-		Namespace: testutil.TestOrganizationNamespace,
+		Namespace: orgName,
 		Name:      pipelineName,
 	}
 
@@ -59,9 +162,9 @@ var _ = Describe("DeploymentPipeline Controller", func() {
 				dp := &apiv1.DeploymentPipeline{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      pipelineName,
-						Namespace: testutil.TestOrganizationNamespace,
+						Namespace: orgName,
 						Labels: map[string]string{
-							labels.LabelKeyOrganizationName: testutil.TestOrganizationName,
+							labels.LabelKeyOrganizationName: orgName,
 							labels.LabelKeyName:             pipelineName,
 						},
 						Annotations: map[string]string{
@@ -83,7 +186,7 @@ var _ = Describe("DeploymentPipeline Controller", func() {
 		})
 
 		By("Reconciling the deploymentPipeline resource", func() {
-			depReconciler := &dep.Reconciler{
+			depReconciler := &Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
 				Recorder: record.NewFakeRecorder(100),
@@ -101,7 +204,7 @@ var _ = Describe("DeploymentPipeline Controller", func() {
 				return k8sClient.Get(ctx, pipelineNamespacedName, deploymentPipeline)
 			}, time.Second*10, time.Millisecond*500).Should(Succeed())
 			Expect(deploymentPipeline.Name).To(Equal(pipelineName))
-			Expect(deploymentPipeline.Namespace).To(Equal(testutil.TestOrganizationNamespace))
+			Expect(deploymentPipeline.Namespace).To(Equal(orgName))
 			Expect(deploymentPipeline.Spec).NotTo(BeNil())
 		})
 
@@ -118,7 +221,7 @@ var _ = Describe("DeploymentPipeline Controller", func() {
 		})
 
 		By("Reconciling the deploymentPipeline resource after deletion", func() {
-			dpReconciler := &dep.Reconciler{
+			dpReconciler := &Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
 				Recorder: record.NewFakeRecorder(100),
@@ -131,7 +234,4 @@ var _ = Describe("DeploymentPipeline Controller", func() {
 		})
 	})
 
-	AfterEach(func() {
-		testutil.DeleteTestOrganization(ctx, k8sClient)
-	})
 })

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package environment_test
+package environment
 
 import (
 	"context"

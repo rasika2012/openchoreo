@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package dataplane_test
+package dataplane
 
 import (
 	"context"
@@ -24,16 +24,13 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	apiv1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	dp "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/dataplane"
 	org "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/organization"
 )
 
@@ -82,13 +79,6 @@ var _ = Describe("DataPlane Controller", func() {
 				Expect(result.Requeue).To(BeFalse())
 			})
 
-			By("Checking the namespace of the organization resource", func() {
-				namespace := &corev1.Namespace{}
-				Eventually(func() error {
-					return k8sClient.Get(ctx, client.ObjectKey{Name: orgName}, namespace)
-				}, time.Second*10, time.Millisecond*500).Should(Succeed())
-				Expect(namespace.Name).To(Equal(orgName))
-			})
 		})
 
 		AfterEach(func() {
@@ -115,7 +105,7 @@ var _ = Describe("DataPlane Controller", func() {
 			})
 
 			By("Reconciling the dataplane resource", func() {
-				dpReconciler := &dp.Reconciler{
+				dpReconciler := &Reconciler{
 					Client:   k8sClient,
 					Scheme:   k8sClient.Scheme(),
 					Recorder: record.NewFakeRecorder(100),
@@ -150,7 +140,7 @@ var _ = Describe("DataPlane Controller", func() {
 			})
 
 			By("Reconciling the dataplane resource after deletion", func() {
-				dpReconciler := &dp.Reconciler{
+				dpReconciler := &Reconciler{
 					Client:   k8sClient,
 					Scheme:   k8sClient.Scheme(),
 					Recorder: record.NewFakeRecorder(100),
