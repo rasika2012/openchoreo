@@ -139,14 +139,14 @@ type EndpointSpec struct {
 // EndpointStatus defines the observed state of Endpoint
 type EndpointStatus struct {
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"`
-	URL        string             `json:"url,omitempty"`
+	Address    string             `json:"address,omitempty"`
 }
 
 // Endpoint is the Schema for the endpoints API
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
-// +kubebuilder:printcolumn:name="url",type="string",JSONPath=".status.url"
+// +kubebuilder:printcolumn:name="Address",type="string",JSONPath=".status.address"
 type Endpoint struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

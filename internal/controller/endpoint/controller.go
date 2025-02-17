@@ -80,18 +80,10 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	}
 
-	// TODO Add update all status fields function
-	if changed := meta.SetStatusCondition(&endpoint.Status.Conditions, NewEndpointReadyCondition(endpoint.Generation)); changed {
-		if err := controller.UpdateStatusConditions(ctx, r.Client, old, endpoint); err != nil {
-			return ctrl.Result{}, err
-		}
-		// Requeue to update URL after status conditions are updated
-		return ctrl.Result{Requeue: true}, nil
-	}
-
-	url := path.Clean(fmt.Sprintf("https://%s/%s", kubernetes.MakeHostname(endpointCtx), endpointCtx.Endpoint.Spec.Service.BasePath))
-	if endpoint.Status.URL != url {
-		endpoint.Status.URL = url
+	meta.SetStatusCondition(&endpoint.Status.Conditions, NewEndpointReadyCondition(endpoint.Generation))
+	endpoint.Status.Address = path.Clean(fmt.Sprintf("https://%s/%s", kubernetes.MakeHostname(endpointCtx), endpointCtx.Endpoint.Spec.Service.BasePath))
+	if endpoint.Status.Address != old.Status.Address ||
+		controller.NeedConditionUpdate(old.Status.Conditions, endpoint.Status.Conditions) {
 		if err := r.Status().Update(ctx, endpoint); err != nil {
 			logger.Error(err, "Failed to update Endpoint status")
 			return ctrl.Result{}, err
