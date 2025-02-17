@@ -76,10 +76,7 @@ func (h *deploymentHandler) GetCurrentState(ctx context.Context, deployCtx *data
 
 // Create creates the external resource.
 func (h *deploymentHandler) Create(ctx context.Context, deployCtx *dataplane.DeploymentContext) error {
-	deployment, err := makeDeployment(deployCtx)
-	if err != nil {
-		return err
-	}
+	deployment := makeDeployment(deployCtx)
 	return h.kubernetesClient.Create(ctx, deployment)
 }
 
@@ -91,10 +88,8 @@ func (h *deploymentHandler) Update(ctx context.Context, deployCtx *dataplane.Dep
 	if !ok {
 		return errors.New("failed to cast current state to CronJob")
 	}
-	newDeployment, err := makeDeployment(deployCtx)
-	if err != nil {
-		return err
-	}
+	newDeployment := makeDeployment(deployCtx)
+
 	if h.shouldUpdate(currentDeployment, newDeployment) {
 		newDeployment.ResourceVersion = currentDeployment.ResourceVersion
 		return h.kubernetesClient.Update(ctx, newDeployment)
@@ -106,11 +101,8 @@ func (h *deploymentHandler) Update(ctx context.Context, deployCtx *dataplane.Dep
 // Delete deletes the external resource.
 // The implementation should handle the case where the resource does not exist and return nil.
 func (h *deploymentHandler) Delete(ctx context.Context, deployCtx *dataplane.DeploymentContext) error {
-	deployment, err := makeDeployment(deployCtx)
-	if err != nil {
-		return err
-	}
-	err = h.kubernetesClient.Delete(ctx, deployment)
+	deployment := makeDeployment(deployCtx)
+	err := h.kubernetesClient.Delete(ctx, deployment)
 	if apierrors.IsNotFound(err) {
 		return nil
 	}
@@ -124,16 +116,15 @@ func makeDeploymentName(deployCtx *dataplane.DeploymentContext) string {
 	return dpkubernetes.GenerateK8sName(componentName, deploymentTrackName)
 }
 
-func makeDeployment(deployCtx *dataplane.DeploymentContext) (*appsv1.Deployment, error) {
-	deploymentSpec := makeDeploymentSpec(deployCtx)
+func makeDeployment(deployCtx *dataplane.DeploymentContext) *appsv1.Deployment {
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      makeDeploymentName(deployCtx),
 			Namespace: makeNamespaceName(deployCtx),
 			Labels:    makeWorkloadLabels(deployCtx),
 		},
-		Spec: deploymentSpec,
-	}, nil
+		Spec: makeDeploymentSpec(deployCtx),
+	}
 }
 
 func makeDeploymentSpec(deployCtx *dataplane.DeploymentContext) appsv1.DeploymentSpec {

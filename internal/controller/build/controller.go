@@ -23,8 +23,11 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"strings"
 
 	"github.com/go-logr/logr"
+	"github.com/google/go-github/v69/github"
+	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -38,6 +41,7 @@ import (
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
 	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes/types/argoproj.io/workflow/v1alpha1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 )
@@ -45,7 +49,8 @@ import (
 // Reconciler reconciles a Build object
 type Reconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme       *runtime.Scheme
+	githubClient *github.Client
 }
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
@@ -59,7 +64,9 @@ type Reconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/reconcile
 func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
-
+	if r.githubClient == nil {
+		r.githubClient = github.NewClient(nil)
+	}
 	// Fetch the Build instance
 	build := &choreov1.Build{}
 	if err := r.Get(ctx, req.NamespacedName, build); err != nil {
@@ -491,31 +498,40 @@ func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreo
 			},
 		},
 	}
-	componentType := r.getComponentType(ctx, build, logger)
-	addComponentSpecificConfigs(componentType, deployableArtifact)
-
 	if err := ctrl.SetControllerReference(build, deployableArtifact, r.Scheme); err != nil {
 		return err
 	}
-
-	if err := r.Client.Create(ctx, deployableArtifact); err != nil && !apierrors.IsAlreadyExists(err) {
-		logger.Error(err, "Failed to create deployable artifact", "Build.Name", build.ObjectMeta.Name)
-		return err
+	component, err := r.getComponent(ctx, build)
+	if err != nil {
+		return fmt.Errorf("failed to get component: %w ", err)
+	}
+	r.addComponentSpecificConfigs(ctx, logger, component, deployableArtifact, build)
+	existing := &choreov1.DeployableArtifact{}
+	err = r.Get(ctx, client.ObjectKeyFromObject(deployableArtifact), existing)
+	if apierrors.IsNotFound(err) {
+		if err := r.Create(ctx, deployableArtifact); err != nil {
+			return fmt.Errorf("failed to create deployable artifact: %w", err)
+		}
+	} else if err != nil {
+		return fmt.Errorf("failed to get deployable artifact: %w", err)
+	}
+	if err := r.Update(ctx, deployableArtifact); err != nil {
+		return fmt.Errorf("failed to update deployable artifact: %w", err)
 	}
 	return nil
 }
 
-func (r *Reconciler) getComponentType(ctx context.Context, build *choreov1.Build, logger logr.Logger) choreov1.ComponentType {
-	component, err := r.getComponent(ctx, build)
-	if err != nil {
-		logger.Info("Error occurred while retrieving the component of the build", "Build.Name", build.Name)
-		return ""
-	}
-	return component.Spec.Type
-}
-
-func addComponentSpecificConfigs(componentType choreov1.ComponentType, deployableArtifact *choreov1.DeployableArtifact) {
-	if componentType == choreov1.ComponentTypeScheduledTask {
+func (r *Reconciler) addComponentSpecificConfigs(ctx context.Context, logger logr.Logger, component *choreov1.Component, deployableArtifact *choreov1.DeployableArtifact, build *choreov1.Build) {
+	componentType := component.Spec.Type
+	if componentType == choreov1.ComponentTypeService {
+		endpointTemplates, err := r.getEndpointConfigs(ctx, build, logger)
+		if err != nil {
+			logger.Error(err, "Failed to get endpoint configurations", "Build.Name", build.Name)
+		}
+		deployableArtifact.Spec.Configuration = &choreov1.Configuration{
+			EndpointTemplates: endpointTemplates,
+		}
+	} else if componentType == choreov1.ComponentTypeScheduledTask {
 		deployableArtifact.Spec.Configuration = &choreov1.Configuration{
 			Application: &choreov1.Application{
 				Task: &choreov1.TaskConfig{
@@ -545,18 +561,75 @@ func addComponentSpecificConfigs(componentType choreov1.ComponentType, deployabl
 				},
 			},
 		}
-	} else if componentType == choreov1.ComponentTypeService {
-		deployableArtifact.Spec.Configuration = &choreov1.Configuration{
-			EndpointTemplates: []choreov1.EndpointTemplate{
-				{
-					Spec: choreov1.EndpointSpec{
-						Type: "HTTP",
-						Service: choreov1.EndpointServiceSpec{
-							Port: 9090,
-						},
-					},
+	}
+}
+
+func (r *Reconciler) getEndpointConfigs(ctx context.Context, build *choreov1.Build, logger logr.Logger) ([]choreov1.EndpointTemplate, error) {
+	component, err := r.getComponent(ctx, build)
+	if err != nil {
+		return nil, err
+	}
+	path := "./choreo/component.yaml"
+	if build.Spec.Path != "" {
+		path = fmt.Sprintf(".%s/.choreo/component.yaml", build.Spec.Path)
+	}
+
+	owner, repositoryName, err := extractRepositoryInfo(component.Spec.Source.GitRepository.URL)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// If the build has a specific git revision, use it. Otherwise, use the default branch.
+	ref := build.Spec.Branch
+	if build.Spec.GitRevision != "" {
+		ref = build.Spec.GitRevision
+	}
+
+	componentYaml, _, _, err := r.githubClient.Repositories.GetContents(ctx, owner, repositoryName, path, &github.RepositoryContentGetOptions{Ref: ref})
+	if err != nil {
+		logger.Error(err, fmt.Sprintf("Failed to get component.yaml from the repository buildName: %s;owner:%s;repo:%s;", build.Name, owner, repositoryName))
+		return nil, err
+	}
+	componentYamlContent, err := componentYaml.GetContent()
+	if err != nil {
+		logger.Error(err, fmt.Sprintf("Failed to get content of component.yaml from the repository buildName: %s;owner:%s;repo:%s;", build.Name, owner, repositoryName))
+		return nil, err
+	}
+	config := dataplane.Config{}
+	err = yaml.Unmarshal([]byte(componentYamlContent), &config)
+	if err != nil {
+		logger.Error(err, fmt.Sprintf("Failed to unmarshal component.yaml from the repository buildName: %s;owner:%s;repo:%s;", build.Name, owner, repositoryName))
+		return nil, err
+	}
+	endpointTemplates := []choreov1.EndpointTemplate{}
+	for _, endpoint := range config.Endpoints {
+		endpointTemplates = append(endpointTemplates, choreov1.EndpointTemplate{
+			Spec: choreov1.EndpointSpec{
+				Type: endpoint.Service.Type,
+				Service: choreov1.EndpointServiceSpec{
+					Port: endpoint.Service.Port,
 				},
 			},
-		}
+		})
 	}
+	return endpointTemplates, nil
+}
+
+func extractRepositoryInfo(repoURL string) (string, string, error) {
+	if repoURL == "" {
+		return "", "", fmt.Errorf("repository URL is empty")
+	}
+	if strings.Split(repoURL, "/")[0] != "https:" {
+		return "", "", fmt.Errorf("invalid repository URL")
+	}
+	urlSegments := strings.Split(repoURL, "/")
+	start := 0
+	len := len(urlSegments)
+	if len > 2 {
+		start = len - 2
+	}
+	owner := urlSegments[start]
+	repo := urlSegments[start+1]
+	return owner, repo, nil
 }
