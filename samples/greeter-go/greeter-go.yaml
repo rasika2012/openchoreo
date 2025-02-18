@@ -83,23 +83,3 @@ metadata:
     core.choreo.dev/name: greeting-service-go-deployment
 spec:
   deploymentArtifactRef: greeting-service-go-build
----
-apiVersion: core.choreo.dev/v1
-kind: Endpoint
-metadata:
-  namespace: default-org
-  name: greeting-service-go-endpoint
-  labels:
-    core.choreo.dev/organization: default-org
-    core.choreo.dev/project: default-project
-    core.choreo.dev/environment: development
-    core.choreo.dev/component: greeting-service-go
-    core.choreo.dev/deployment-track: greeting-service-go-main
-    core.choreo.dev/name: greeting-service-go-endpoint
-    core.choreo.dev/deployable-artifact: greeting-service-go-build
-    core.choreo.dev/deployment: greeting-service-go-deployment
-spec:
-  type: REST
-  service:
-    port: 9090
-    basePath: /greeter

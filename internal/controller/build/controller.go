@@ -575,11 +575,9 @@ func (r *Reconciler) getEndpointConfigs(ctx context.Context, build *choreov1.Bui
 	}
 
 	owner, repositoryName, err := extractRepositoryInfo(component.Spec.Source.GitRepository.URL)
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("bad git repository url: %w", err)
 	}
-
 	// If the build has a specific git revision, use it. Otherwise, use the default branch.
 	ref := build.Spec.Branch
 	if build.Spec.GitRevision != "" {
@@ -602,13 +600,19 @@ func (r *Reconciler) getEndpointConfigs(ctx context.Context, build *choreov1.Bui
 		logger.Error(err, fmt.Sprintf("Failed to unmarshal component.yaml from the repository buildName: %s;owner:%s;repo:%s;", build.Name, owner, repositoryName))
 		return nil, err
 	}
+
 	endpointTemplates := []choreov1.EndpointTemplate{}
 	for _, endpoint := range config.Endpoints {
+		basePath := endpoint.Service.BasePath
+		if basePath == "" {
+			basePath = "/"
+		}
 		endpointTemplates = append(endpointTemplates, choreov1.EndpointTemplate{
 			Spec: choreov1.EndpointSpec{
-				Type: endpoint.Service.Type,
+				Type: endpoint.Type,
 				Service: choreov1.EndpointServiceSpec{
-					Port: endpoint.Service.Port,
+					Port:     endpoint.Service.Port,
+					BasePath: basePath,
 				},
 			},
 		})
