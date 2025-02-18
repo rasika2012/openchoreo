@@ -105,17 +105,25 @@ sh install/check-status.sh
 ```
 
 You should see the following output if the installation is successful.
+
 ```text
-Installation status:
-✅ cilium-agent : ready
-✅ cilium-operator : ready
-✅ vault : ready
-✅ vault-agent-injector : ready
-✅ argo-workflows-server : ready
-✅ argo-workflows-workflow-controller : ready
-✅ cainjector : ready
-✅ webhook : ready
-✅ gateway-helm : ready
+Choreo Installation Status:
+
+Component                 Status         
+------------------------  ---------------
+cilium                    ✅ ready
+vault                     ✅ ready
+argo                      ✅ ready
+cert_manager              ✅ ready
+choreo_controller         ✅ ready
+choreo_image_registry     ✅ ready
+envoy_gateway             ✅ ready
+redis                     ✅ ready
+external_gateway          ✅ ready
+internal_gateway          ✅ ready
+
+Overall Status: ✅ READY
+🎉 Choreo has been successfully installed and is ready to use! 🚀
 ```
 
 ### Deploy your first component in choreo
