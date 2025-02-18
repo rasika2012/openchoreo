@@ -115,7 +115,7 @@ func makeCronJobName(deployCtx *dataplane.DeploymentContext) string {
 	componentName := deployCtx.Component.Name
 	deploymentTrackName := deployCtx.DeploymentTrack.Name
 	// Limit the name to 52 characters to comply with the K8s name length limit for CronJobs
-	return dpkubernetes.GenerateK8sNameWithLengthLimit(52, componentName, deploymentTrackName)
+	return dpkubernetes.GenerateK8sNameWithLengthLimit(dpkubernetes.MaxCronJobNameLength, componentName, deploymentTrackName)
 }
 
 // TODO: Unit test me

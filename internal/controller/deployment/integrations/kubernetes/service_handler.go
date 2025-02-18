@@ -103,8 +103,8 @@ func (h *serviceHandler) Delete(ctx context.Context, deployCtx *dataplane.Deploy
 func makeServiceName(deployCtx *dataplane.DeploymentContext) string {
 	componentName := deployCtx.Component.Name
 	deploymentTrackName := deployCtx.DeploymentTrack.Name
-	// Limit the name to 253 characters to comply with the K8s name length limit
-	return dpkubernetes.GenerateK8sName(componentName, deploymentTrackName)
+	// Limit the name to 63 characters to comply with the K8s name length limit for Services
+	return dpkubernetes.GenerateK8sNameWithLengthLimit(dpkubernetes.MaxServiceNameLength, componentName, deploymentTrackName)
 }
 
 func makeService(deployCtx *dataplane.DeploymentContext) *corev1.Service {

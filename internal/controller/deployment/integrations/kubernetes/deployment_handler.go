@@ -113,7 +113,7 @@ func makeDeploymentName(deployCtx *dataplane.DeploymentContext) string {
 	componentName := deployCtx.Component.Name
 	deploymentTrackName := deployCtx.DeploymentTrack.Name
 	// Limit the name to 253 characters to comply with the K8s name length limit for Deployments
-	return dpkubernetes.GenerateK8sNameWithLengthLimit(253, componentName, deploymentTrackName)
+	return dpkubernetes.GenerateK8sName(componentName, deploymentTrackName)
 }
 
 func makeDeployment(deployCtx *dataplane.DeploymentContext) *appsv1.Deployment {

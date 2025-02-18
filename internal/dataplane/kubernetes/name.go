@@ -30,6 +30,15 @@ const (
 	maxNameLength = 253
 	hashLength    = 8   // Length of the hash suffix
 	separator     = "-" // Separator between name parts
+
+	// Max length limits for Kubernetes resource names
+
+	MaxResourceNameLength  = maxNameLength
+	MaxCronJobNameLength   = 52
+	MaxJobNameLength       = 63
+	MaxServiceNameLength   = 63
+	MaxNamespaceNameLength = 63
+	MaxContainerNameLength = 63
 )
 
 // GenerateK8sName generates a Kubernetes-compliant name within the length limit,

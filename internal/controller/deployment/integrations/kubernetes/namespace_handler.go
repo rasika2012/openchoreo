@@ -105,7 +105,9 @@ func makeNamespaceName(deployCtx *dataplane.DeploymentContext) string {
 	organizationName := controller.GetOrganizationName(deployCtx.Project)
 	projectName := controller.GetName(deployCtx.Project)
 	environmentName := controller.GetName(deployCtx.Environment)
-	return dpkubernetes.GenerateK8sName("dp", organizationName, projectName, environmentName)
+	// Limit the name to 63 characters to comply with the K8s name length limit for Namespaces
+	return dpkubernetes.GenerateK8sNameWithLengthLimit(dpkubernetes.MaxNamespaceNameLength,
+		"dp", organizationName, projectName, environmentName)
 }
 
 func makeNamespace(deployCtx *dataplane.DeploymentContext) *corev1.Namespace {
