@@ -39,7 +39,7 @@ import (
 type Reconciler struct {
 	client.Client
 	Scheme   *runtime.Scheme
-	recorder record.EventRecorder
+	Recorder record.EventRecorder
 }
 
 // +kubebuilder:rbac:groups=core.choreo.dev,resources=components,verbs=get;list;watch;create;update;patch;delete
@@ -87,7 +87,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	} else {
 		if previousCondition == nil {
-			r.recorder.Event(component, corev1.EventTypeNormal, "ReconcileComplete", "Successfully created "+component.Name)
+			r.Recorder.Event(component, corev1.EventTypeNormal, "ReconcileComplete", "Successfully created "+component.Name)
 		}
 	}
 
@@ -96,8 +96,8 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
-	if r.recorder == nil {
-		r.recorder = mgr.GetEventRecorderFor("component-controller")
+	if r.Recorder == nil {
+		r.Recorder = mgr.GetEventRecorderFor("component-controller")
 	}
 
 	return ctrl.NewControllerManagedBy(mgr).
