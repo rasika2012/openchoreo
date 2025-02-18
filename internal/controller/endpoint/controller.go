@@ -21,7 +21,6 @@ package endpoint
 import (
 	"context"
 	"fmt"
-	"path"
 
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -81,7 +80,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	meta.SetStatusCondition(&endpoint.Status.Conditions, NewEndpointReadyCondition(endpoint.Generation))
-	endpoint.Status.Address = path.Clean(fmt.Sprintf("https://%s/%s", kubernetes.MakeHostname(endpointCtx), endpointCtx.Endpoint.Spec.Service.BasePath))
+	endpoint.Status.Address = kubernetes.MakeAddress(endpointCtx)
 	if endpoint.Status.Address != old.Status.Address ||
 		controller.NeedConditionUpdate(old.Status.Conditions, endpoint.Status.Conditions) {
 		if err := r.Status().Update(ctx, endpoint); err != nil {

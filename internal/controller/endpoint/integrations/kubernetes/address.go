@@ -20,6 +20,7 @@ package kubernetes
 
 import (
 	"fmt"
+	"path"
 
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
@@ -27,9 +28,20 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
 )
 
-func MakeHostname(endpointCtx *dataplane.EndpointContext) gatewayv1.Hostname {
+func makeHostname(endpointCtx *dataplane.EndpointContext) gatewayv1.Hostname {
 	if endpointCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication {
 		return gatewayv1.Hostname(fmt.Sprintf("%s-%s.choreo.local", endpointCtx.Component.Name, endpointCtx.Environment.Name))
 	}
 	return gatewayv1.Hostname(fmt.Sprintf("%s.apis.choreo.local", endpointCtx.Environment.Name))
+}
+
+func makePathPrefix(endpointCtx *dataplane.EndpointContext) string {
+	if endpointCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication {
+		return "/"
+	}
+	return path.Clean(path.Join("/", endpointCtx.Project.Name, endpointCtx.Component.Name))
+}
+
+func MakeAddress(endpointCtx *dataplane.EndpointContext) string {
+	return path.Clean(path.Join("https://", string(makeHostname(endpointCtx)), makePathPrefix(endpointCtx), endpointCtx.Endpoint.Spec.Service.BasePath))
 }

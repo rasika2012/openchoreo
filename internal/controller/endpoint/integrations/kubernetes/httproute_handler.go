@@ -21,6 +21,7 @@ package kubernetes
 import (
 	"context"
 	"errors"
+	"path"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -135,8 +136,15 @@ func makeHTTPRouteName(endpointCtx *dataplane.EndpointContext) string {
 
 func makeHTTPRouteSpec(endpointCtx *dataplane.EndpointContext) gatewayv1.HTTPRouteSpec {
 	pathType := gatewayv1.PathMatchPathPrefix
-	hostname := MakeHostname(endpointCtx)
+	hostname := makeHostname(endpointCtx)
 	port := gatewayv1.PortNumber(endpointCtx.Endpoint.Spec.Service.Port)
+	prefix := makePathPrefix(endpointCtx)
+	basePath := endpointCtx.Endpoint.Spec.Service.BasePath
+	endpointPath := basePath
+	if endpointCtx.Component.Spec.Type == choreov1.ComponentTypeService {
+		// Prefix basepath with project and component names TODO: add org if necessary
+		endpointPath = path.Clean(path.Join(prefix, basePath))
+	}
 	return gatewayv1.HTTPRouteSpec{
 		CommonRouteSpec: gatewayv1.CommonRouteSpec{
 			ParentRefs: []gatewayv1.ParentReference{
@@ -153,7 +161,18 @@ func makeHTTPRouteSpec(endpointCtx *dataplane.EndpointContext) gatewayv1.HTTPRou
 					{
 						Path: &gatewayv1.HTTPPathMatch{
 							Type:  &pathType,
-							Value: ptr.String(endpointCtx.Endpoint.Spec.Service.BasePath),
+							Value: ptr.String(endpointPath),
+						},
+					},
+				},
+				Filters: []gatewayv1.HTTPRouteFilter{
+					{
+						Type: gatewayv1.HTTPRouteFilterURLRewrite,
+						URLRewrite: &gatewayv1.HTTPURLRewriteFilter{
+							Path: &gatewayv1.HTTPPathModifier{
+								Type:               gatewayv1.PrefixMatchHTTPPathModifier,
+								ReplacePrefixMatch: ptr.String(basePath),
+							},
 						},
 					},
 				},
