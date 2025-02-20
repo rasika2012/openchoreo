@@ -82,7 +82,7 @@ func createComponent(params api.CreateComponentParams) error {
 		return err
 	}
 	component.Spec.Source = corev1.ComponentSource{
-		GitRepository: corev1.GitRepository{
+		GitRepository: &corev1.GitRepository{
 			URL: params.GitRepositoryURL,
 		},
 	}

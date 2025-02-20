@@ -43,33 +43,62 @@ spec:
             description: ComponentSpec defines the desired state of Component.
             properties:
               source:
-                description: Source configuration for the component
+                description: Source the source information of the component where
+                  the code or image is retrieved.
                 properties:
-                  authentication:
-                    description: Authentication configuration for the Git repository
+                  containerRegistry:
+                    description: |-
+                      ContainerRegistry specifies the configuration for the component source to be a container image indicating
+                      that the component should be deployed using the provided image.
+                      This field is mutually exclusive with the other source types.
                     properties:
-                      secretRef:
-                        description: SecretRef is a reference to the secret containing
-                          Git credentials
+                      authentication:
+                        description: Authentication information to access the container
+                          registry.
+                        properties:
+                          secretRef:
+                            description: Reference to the secret that contains the
+                              container registry authentication info.
+                            type: string
+                        type: object
+                      imageName:
+                        description: |-
+                          Image name of the container image. Format: <registry>/<image> without the tag.
+                          Example: docker.io/library/nginx
                         type: string
-                    required:
-                    - secretRef
                     type: object
                   gitRepository:
-                    description: GitRepository configuration
+                    description: |-
+                      GitRepository specifies the configuration for the component source to be a Git repository indicating
+                      that the component should be built from the source code.
+                      This field is mutually exclusive with the other source types.
                     properties:
+                      authentication:
+                        description: |-
+                          Authentication the authentication information to access the Git repository
+                          If not provided, the Git repository should be public
+                        properties:
+                          secretRef:
+                            description: SecretRef is a reference to the secret containing
+                              Git credentials
+                            type: string
+                        required:
+                        - secretRef
+                        type: object
                       url:
-                        description: URL of the Git repository
+                        description: |-
+                          URL the Git repository URL
+                          Examples:
+                          - https://github.com/jhonb2077/customer-service
+                          - https://gitlab.com/jhonb2077/customer-service
                         type: string
                     required:
                     - url
                     type: object
-                required:
-                - authentication
-                - gitRepository
                 type: object
               type:
-                description: Type of the component
+                description: Type of the component that indicates how the component
+                  deployed.
                 type: string
             type: object
           status:
@@ -131,9 +160,6 @@ spec:
                   - type
                   type: object
                 type: array
-              observedGeneration:
-                format: int64
-                type: integer
             type: object
         type: object
     served: true

@@ -3,7 +3,7 @@
 apiVersion: core.choreo.dev/v1
 kind: Component
 metadata:
-  name: react-starter
+  name: react-starter-image
   namespace: default-org
   annotations:
     core.choreo.dev/display-name: React Starter
@@ -11,75 +11,72 @@ metadata:
   labels:
     core.choreo.dev/organization: default-org
     core.choreo.dev/project: default-project
-    core.choreo.dev/name: react-starter
+    core.choreo.dev/name: react-starter-image
 spec:
   type: WebApplication
   source:
-    gitRepository:
-      url: https://github.com/docker/awesome-compose
-      authentication:
-        secretRef: choreo-bot-git-pat
+    containerRegistry:
+      imageName: choreoanonymouspullable.azurecr.io/react-spa
 ---
 ## Sample DeploymentTrack kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: DeploymentTrack
 metadata:
-  name: react-starter-main
+  name: react-starter-image-main
   namespace: default-org
   annotations:
     core.choreo.dev/display-name: Main deployment track
-    core.choreo.dev/description: The main deployment track for the react-starter component
+    core.choreo.dev/description: The main deployment track for the react-starter-image component
   labels:
     core.choreo.dev/organization: default-org
     core.choreo.dev/project: default-project
-    core.choreo.dev/component: react-starter
+    core.choreo.dev/component: react-starter-image
     core.choreo.dev/name: main
-spec:
-  buildTemplateSpec:
-    branch: master
-    path: /react-nginx
-    buildConfiguration:
-      docker:
-        context: /react-nginx
-        dockerfilePath: /react-nginx/Dockerfile
+spec: {}
 ---
-## Sample Build kind (Namespaced)
+## Sample Deployable Artifact kind (Namespaced)
 apiVersion: core.choreo.dev/v1
-kind: Build
+kind: DeployableArtifact
 metadata:
-  name: react-starter-build
+  name: react-starter-image
   namespace: default-org
   annotations:
-    core.choreo.dev/display-name: Build for react-starter
-    core.choreo.dev/description: Build 1 triggered for react-starter
+    core.choreo.dev/description: Deployable Artifact for react-starter-image with version v0.9
+    core.choreo.dev/display-name: react-starter-image
   labels:
     core.choreo.dev/organization: default-org
     core.choreo.dev/project: default-project
-    core.choreo.dev/component: react-starter
+    core.choreo.dev/component: react-starter-image
     core.choreo.dev/deployment-track: main
-    core.choreo.dev/name: react-starter-build
+    core.choreo.dev/name: react-starter-image
 spec:
-  branch: master
-  path: /react-nginx
-  buildConfiguration:
-    docker:
-      context: /react-nginx
-      dockerfilePath: /react-nginx/Dockerfile
+  configuration:
+    endpointTemplates:
+      - metadata:
+          name: webapp
+        spec:
+          service:
+            basePath: /
+            port: 8080
+          type: HTTP
+  targetArtifact:
+    fromImageRef:
+      tag: v0.9
 ---
 ## Sample Deployment kind (Namespaced)
 apiVersion: core.choreo.dev/v1
 kind: Deployment
 metadata:
-  name: react-starter-deployment
+  name: react-starter-image-deployment
   namespace: default-org
   annotations:
-    core.choreo.dev/display-name: react-starter deployment
+    core.choreo.dev/display-name: react-starter-image deployment
   labels:
     core.choreo.dev/organization: default-org
     core.choreo.dev/project: default-project
     core.choreo.dev/environment: development
-    core.choreo.dev/component: react-starter
+    core.choreo.dev/component: react-starter-image
     core.choreo.dev/deployment-track: main
-    core.choreo.dev/name: react-starter-deployment
+    core.choreo.dev/name: react-starter-image-deployment
 spec:
-  deploymentArtifactRef: react-starter-build
+  deploymentArtifactRef: react-starter-image

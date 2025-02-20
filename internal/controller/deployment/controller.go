@@ -192,7 +192,8 @@ func makeHierarchyLabelsForDeploymentTrack(objMeta metav1.ObjectMeta) map[string
 }
 
 // TODO: move this logic to the resource handler implementation as figuring out the container image is specific to the external resource
-func (r *Reconciler) findContainerImage(ctx context.Context, deployment *choreov1.Deployment, deployableArtifact *choreov1.DeployableArtifact) (string, error) {
+func (r *Reconciler) findContainerImage(ctx context.Context, component *choreov1.Component,
+	deployableArtifact *choreov1.DeployableArtifact, deployment *choreov1.Deployment) (string, error) {
 	if buildRef := deployableArtifact.Spec.TargetArtifact.FromBuildRef; buildRef != nil {
 		if buildRef.Name != "" {
 			// Find the build that the deployable artifact is referring to
@@ -207,7 +208,8 @@ func (r *Reconciler) findContainerImage(ctx context.Context, deployment *choreov
 
 			for _, build := range buildList.Items {
 				if build.Name == buildRef.Name {
-					return build.Status.ImageStatus.Image, nil
+					// TODO: Make local registry configurable and move to build controller
+					return fmt.Sprintf("%s/%s", "localhost:30003", build.Status.ImageStatus.Image), nil
 				}
 			}
 			meta.SetStatusCondition(&deployment.Status.Conditions,
@@ -218,9 +220,15 @@ func (r *Reconciler) findContainerImage(ctx context.Context, deployment *choreov
 			return "", fmt.Errorf("search by git revision is not supported")
 		}
 		return "", fmt.Errorf("one of the build name or git revision should be provided")
-	} else if deployableArtifact.Spec.TargetArtifact.FromImageRef != nil {
-		// TODO: BYOI image search
-		return "", fmt.Errorf("BYOI image target is not supported")
+	} else if imageRef := deployableArtifact.Spec.TargetArtifact.FromImageRef; imageRef != nil {
+		if imageRef.Tag == "" {
+			return "", fmt.Errorf("image tag is not provided")
+		}
+		containerRegistry := component.Spec.Source.ContainerRegistry
+		if containerRegistry == nil {
+			return "", fmt.Errorf("container registry is not provided for the component %s/%s", component.Namespace, component.Name)
+		}
+		return fmt.Sprintf("%s:%s", containerRegistry.ImageName, imageRef.Tag), nil
 	}
 	return "", fmt.Errorf("one of the build or image reference should be provided")
 }
@@ -255,7 +263,7 @@ func (r *Reconciler) makeDeploymentContext(ctx context.Context, deployment *chor
 		return nil, fmt.Errorf("cannot retrieve the deployable artifact: %w", err)
 	}
 
-	containerImage, err := r.findContainerImage(ctx, deployment, targetDeployableArtifact)
+	containerImage, err := r.findContainerImage(ctx, component, targetDeployableArtifact, deployment)
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve the container image: %w", err)
 	}

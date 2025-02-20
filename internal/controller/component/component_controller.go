@@ -74,7 +74,6 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 	previousCondition := meta.FindStatusCondition(component.Status.Conditions, controller.TypeCreated)
 
-	component.Status.ObservedGeneration = component.Generation
 	if err := controller.UpdateCondition(
 		ctx,
 		r.Status(),
