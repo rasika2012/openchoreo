@@ -125,7 +125,7 @@ type EndpointSpec struct {
 
 	// Network visibility levels that the endpoint is exposed
 	// +optional
-	NetworkVisibilities []string `json:"networkVisibilities,omitempty"`
+	NetworkVisibilities []NetworkVisibility `json:"networkVisibilities,omitempty"`
 
 	// Configuration parameters related to the managed endpoint
 	// +optional
@@ -135,6 +135,14 @@ type EndpointSpec struct {
 	// +optional
 	WebappGatewaySettings map[string]string `json:"webappGatewaySettings,omitempty"`
 }
+
+type NetworkVisibility string
+
+const (
+	NetworkVisibilityPublic       NetworkVisibility = "Public"
+	NetworkVisibilityOrganization NetworkVisibility = "Organization"
+	NetworkVisibilityPrivate      NetworkVisibility = "Project"
+)
 
 // EndpointStatus defines the observed state of Endpoint
 type EndpointStatus struct {

@@ -116,9 +116,13 @@ func printEndpointTable(endpoints []corev1.Endpoint, orgName string) error {
 
 	for _, endpoint := range endpoints {
 		age := util.FormatAge(endpoint.CreationTimestamp.Time)
-		visibility := "Public"
+		visibility := ""
 		if len(endpoint.Spec.NetworkVisibilities) > 0 {
-			visibility = endpoint.Spec.NetworkVisibilities[0]
+			for _, v := range endpoint.Spec.NetworkVisibilities {
+				visibility = fmt.Sprintf("%s,%s", visibility, v)
+			}
+		} else {
+			visibility = "Public"
 		}
 
 		fmt.Fprintf(w, "%s\t%s\t%d\t%s\t%s\t%s\t%s\n",

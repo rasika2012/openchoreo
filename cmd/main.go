@@ -24,6 +24,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/google/go-github/v69/github"
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	"k8s.io/apimachinery/pkg/runtime"
@@ -183,8 +184,9 @@ func main() {
 		os.Exit(1)
 	}
 	if err = (&build.Reconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:       mgr.GetClient(),
+		Scheme:       mgr.GetScheme(),
+		GithubClient: github.NewClient(nil),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Build")
 		os.Exit(1)

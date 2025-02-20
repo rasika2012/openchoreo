@@ -23,6 +23,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"path"
 	"strings"
 
 	"github.com/go-logr/logr"
@@ -50,7 +51,7 @@ import (
 type Reconciler struct {
 	client.Client
 	Scheme       *runtime.Scheme
-	githubClient *github.Client
+	GithubClient *github.Client
 }
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
@@ -64,9 +65,6 @@ type Reconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/reconcile
 func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
-	if r.githubClient == nil {
-		r.githubClient = github.NewClient(nil)
-	}
 	// Fetch the Build instance
 	build := &choreov1.Build{}
 	if err := r.Get(ctx, req.NamespacedName, build); err != nil {
@@ -524,7 +522,7 @@ func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreo
 func (r *Reconciler) addComponentSpecificConfigs(ctx context.Context, logger logr.Logger, component *choreov1.Component, deployableArtifact *choreov1.DeployableArtifact, build *choreov1.Build) {
 	componentType := component.Spec.Type
 	if componentType == choreov1.ComponentTypeService {
-		endpointTemplates, err := r.getEndpointConfigs(ctx, build, logger)
+		endpointTemplates, err := r.getEndpointConfigs(ctx, build)
 		if err != nil {
 			logger.Error(err, "Failed to get endpoint configurations", "Build.Name", build.Name)
 		}
@@ -564,14 +562,14 @@ func (r *Reconciler) addComponentSpecificConfigs(ctx context.Context, logger log
 	}
 }
 
-func (r *Reconciler) getEndpointConfigs(ctx context.Context, build *choreov1.Build, logger logr.Logger) ([]choreov1.EndpointTemplate, error) {
+func (r *Reconciler) getEndpointConfigs(ctx context.Context, build *choreov1.Build) ([]choreov1.EndpointTemplate, error) {
 	component, err := r.getComponent(ctx, build)
 	if err != nil {
 		return nil, err
 	}
-	path := "./choreo/component.yaml"
+	componentManifestPath := "./choreo/component.yaml"
 	if build.Spec.Path != "" {
-		path = fmt.Sprintf(".%s/.choreo/component.yaml", build.Spec.Path)
+		componentManifestPath = path.Clean(fmt.Sprintf(".%s/.choreo/component.yaml", build.Spec.Path))
 	}
 
 	owner, repositoryName, err := extractRepositoryInfo(component.Spec.Source.GitRepository.URL)
@@ -584,21 +582,18 @@ func (r *Reconciler) getEndpointConfigs(ctx context.Context, build *choreov1.Bui
 		ref = build.Spec.GitRevision
 	}
 
-	componentYaml, _, _, err := r.githubClient.Repositories.GetContents(ctx, owner, repositoryName, path, &github.RepositoryContentGetOptions{Ref: ref})
+	componentYaml, _, _, err := r.GithubClient.Repositories.GetContents(ctx, owner, repositoryName, componentManifestPath, &github.RepositoryContentGetOptions{Ref: ref})
 	if err != nil {
-		logger.Error(err, fmt.Sprintf("Failed to get component.yaml from the repository buildName: %s;owner:%s;repo:%s;", build.Name, owner, repositoryName))
-		return nil, err
+		return nil, fmt.Errorf("Failed to get component.yaml from the repository buildName:%s;owner:%s;repo:%s;%w", build.Name, owner, repositoryName, err)
 	}
 	componentYamlContent, err := componentYaml.GetContent()
 	if err != nil {
-		logger.Error(err, fmt.Sprintf("Failed to get content of component.yaml from the repository buildName: %s;owner:%s;repo:%s;", build.Name, owner, repositoryName))
-		return nil, err
+		return nil, fmt.Errorf("Failed to get content of component.yaml from the repository  buildName:%s;owner:%s;repo:%s;%w", build.Name, owner, repositoryName, err)
 	}
 	config := dataplane.Config{}
 	err = yaml.Unmarshal([]byte(componentYamlContent), &config)
 	if err != nil {
-		logger.Error(err, fmt.Sprintf("Failed to unmarshal component.yaml from the repository buildName: %s;owner:%s;repo:%s;", build.Name, owner, repositoryName))
-		return nil, err
+		return nil, fmt.Errorf("Failed to unmarshal component.yaml from the repository buildName:%s;owner:%s;repo:%s;%w", build.Name, owner, repositoryName, err)
 	}
 
 	endpointTemplates := []choreov1.EndpointTemplate{}
@@ -609,7 +604,8 @@ func (r *Reconciler) getEndpointConfigs(ctx context.Context, build *choreov1.Bui
 		}
 		endpointTemplates = append(endpointTemplates, choreov1.EndpointTemplate{
 			Spec: choreov1.EndpointSpec{
-				Type: endpoint.Type,
+				Type:                endpoint.Type,
+				NetworkVisibilities: endpoint.NetworkVisibilities,
 				Service: choreov1.EndpointServiceSpec{
 					Port:     endpoint.Service.Port,
 					BasePath: basePath,

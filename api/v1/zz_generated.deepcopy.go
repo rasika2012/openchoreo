@@ -1305,7 +1305,7 @@ func (in *EndpointSpec) DeepCopyInto(out *EndpointSpec) {
 	}
 	if in.NetworkVisibilities != nil {
 		in, out := &in.NetworkVisibilities, &out.NetworkVisibilities
-		*out = make([]string, len(*in))
+		*out = make([]NetworkVisibility, len(*in))
 		copy(*out, *in)
 	}
 	if in.APISettings != nil {
