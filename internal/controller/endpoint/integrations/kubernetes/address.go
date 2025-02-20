@@ -25,23 +25,22 @@ import (
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
 )
 
-func makeHostname(endpointCtx *dataplane.EndpointContext) gatewayv1.Hostname {
-	if endpointCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication {
-		return gatewayv1.Hostname(fmt.Sprintf("%s-%s.choreo.local", endpointCtx.Component.Name, endpointCtx.Environment.Name))
+func makeHostname(componentName, environmentName string, componentType choreov1.ComponentType) gatewayv1.Hostname {
+	if componentType == choreov1.ComponentTypeWebApplication {
+		return gatewayv1.Hostname(fmt.Sprintf("%s-%s.choreo.local", componentName, environmentName))
 	}
-	return gatewayv1.Hostname(fmt.Sprintf("%s.apis.choreo.local", endpointCtx.Environment.Name))
+	return gatewayv1.Hostname(fmt.Sprintf("%s.apis.choreo.local", environmentName))
 }
 
-func makePathPrefix(endpointCtx *dataplane.EndpointContext) string {
-	if endpointCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication {
+func makePathPrefix(projectName, componentName string, componentType choreov1.ComponentType) string {
+	if componentType == choreov1.ComponentTypeWebApplication {
 		return "/"
 	}
-	return path.Clean(path.Join("/", endpointCtx.Project.Name, endpointCtx.Component.Name))
+	return path.Clean(path.Join("/", projectName, componentName))
 }
 
-func MakeAddress(endpointCtx *dataplane.EndpointContext) string {
-	return path.Clean(path.Join("https://", string(makeHostname(endpointCtx)), makePathPrefix(endpointCtx), endpointCtx.Endpoint.Spec.Service.BasePath))
+func MakeAddress(componentName, environmentName string, componentType choreov1.ComponentType, basePath string) string {
+	return fmt.Sprintf("https://%s", path.Join(string(makeHostname(componentName, environmentName, componentType)), makePathPrefix(componentName, componentName, componentType), basePath))
 }

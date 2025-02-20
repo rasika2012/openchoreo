@@ -136,9 +136,9 @@ func makeHTTPRouteName(endpointCtx *dataplane.EndpointContext) string {
 
 func makeHTTPRouteSpec(endpointCtx *dataplane.EndpointContext) gatewayv1.HTTPRouteSpec {
 	pathType := gatewayv1.PathMatchPathPrefix
-	hostname := makeHostname(endpointCtx)
+	hostname := makeHostname(endpointCtx.Component.Name, endpointCtx.Environment.Name, endpointCtx.Component.Spec.Type)
 	port := gatewayv1.PortNumber(endpointCtx.Endpoint.Spec.Service.Port)
-	prefix := makePathPrefix(endpointCtx)
+	prefix := makePathPrefix(endpointCtx.Project.Name, endpointCtx.Component.Name, endpointCtx.Component.Spec.Type)
 	basePath := endpointCtx.Endpoint.Spec.Service.BasePath
 	endpointPath := basePath
 	if endpointCtx.Component.Spec.Type == choreov1.ComponentTypeService {

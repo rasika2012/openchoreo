@@ -80,7 +80,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	meta.SetStatusCondition(&endpoint.Status.Conditions, NewEndpointReadyCondition(endpoint.Generation))
-	endpoint.Status.Address = kubernetes.MakeAddress(endpointCtx)
+	endpoint.Status.Address = kubernetes.MakeAddress(endpointCtx.Component.Name, endpointCtx.Environment.Name, endpointCtx.Component.Spec.Type, endpointCtx.Endpoint.Spec.Service.BasePath)
 	if endpoint.Status.Address != old.Status.Address ||
 		controller.NeedConditionUpdate(old.Status.Conditions, endpoint.Status.Conditions) {
 		if err := r.Status().Update(ctx, endpoint); err != nil {
