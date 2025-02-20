@@ -5,7 +5,7 @@ This is a simple program that logs the current time. This program can be deploye
 The following command will create the component, deployment track and the deployment in Choreo. It'll also trigger a build by creating a build resource. 
 
 ```bash
-kubectl apply -f samples/time-logger-scheduled-task/time-logger.yaml
+kubectl apply -f samples/scheduled-tasks/source-code/time-logger.yaml
 ```
 
 ## Checking the Argo Workflow Status
