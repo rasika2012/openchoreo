@@ -42,5 +42,8 @@ func makePathPrefix(projectName, componentName string, componentType choreov1.Co
 }
 
 func MakeAddress(componentName, environmentName string, componentType choreov1.ComponentType, basePath string) string {
-	return fmt.Sprintf("https://%s", path.Join(string(makeHostname(componentName, environmentName, componentType)), makePathPrefix(componentName, componentName, componentType), basePath))
+	host := makeHostname(componentName, environmentName, componentType)
+	pathPrefix := makePathPrefix(componentName, componentName, componentType)
+
+	return fmt.Sprintf("https://%s", path.Join(string(host), pathPrefix, basePath))
 }

@@ -42,7 +42,7 @@ import (
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/build/descriptor"
 	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes/types/argoproj.io/workflow/v1alpha1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 )
@@ -496,6 +496,14 @@ func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreo
 			},
 		},
 	}
+	// We only create the deployable artifact if it doesn't exist
+	existing := &choreov1.DeployableArtifact{}
+	err := r.Get(ctx, client.ObjectKeyFromObject(deployableArtifact), existing)
+	if err == nil {
+		return nil
+	} else if !apierrors.IsNotFound(err) {
+		return fmt.Errorf("failed to get deployable artifact: %w", err)
+	}
 	if err := ctrl.SetControllerReference(build, deployableArtifact, r.Scheme); err != nil {
 		return err
 	}
@@ -504,18 +512,11 @@ func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreo
 		return fmt.Errorf("failed to get component: %w ", err)
 	}
 	r.addComponentSpecificConfigs(ctx, logger, component, deployableArtifact, build)
-	existing := &choreov1.DeployableArtifact{}
-	err = r.Get(ctx, client.ObjectKeyFromObject(deployableArtifact), existing)
-	if apierrors.IsNotFound(err) {
-		if err := r.Create(ctx, deployableArtifact); err != nil {
-			return fmt.Errorf("failed to create deployable artifact: %w", err)
-		}
-	} else if err != nil {
-		return fmt.Errorf("failed to get deployable artifact: %w", err)
+
+	if err := r.Create(ctx, deployableArtifact); err != nil {
+		return fmt.Errorf("failed to create deployable artifact: %w", err)
 	}
-	if err := r.Update(ctx, deployableArtifact); err != nil {
-		return fmt.Errorf("failed to update deployable artifact: %w", err)
-	}
+
 	return nil
 }
 
@@ -584,16 +585,16 @@ func (r *Reconciler) getEndpointConfigs(ctx context.Context, build *choreov1.Bui
 
 	componentYaml, _, _, err := r.GithubClient.Repositories.GetContents(ctx, owner, repositoryName, componentManifestPath, &github.RepositoryContentGetOptions{Ref: ref})
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get component.yaml from the repository buildName:%s;owner:%s;repo:%s;%w", build.Name, owner, repositoryName, err)
+		return nil, fmt.Errorf("failed to get component.yaml from the repository buildName:%s;owner:%s;repo:%s;%w", build.Name, owner, repositoryName, err)
 	}
 	componentYamlContent, err := componentYaml.GetContent()
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get content of component.yaml from the repository  buildName:%s;owner:%s;repo:%s;%w", build.Name, owner, repositoryName, err)
+		return nil, fmt.Errorf("failed to get content of component.yaml from the repository  buildName:%s;owner:%s;repo:%s;%w", build.Name, owner, repositoryName, err)
 	}
-	config := dataplane.Config{}
+	config := descriptor.Config{}
 	err = yaml.Unmarshal([]byte(componentYamlContent), &config)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to unmarshal component.yaml from the repository buildName:%s;owner:%s;repo:%s;%w", build.Name, owner, repositoryName, err)
+		return nil, fmt.Errorf("failed to unmarshal component.yaml from the repository buildName:%s;owner:%s;repo:%s;%w", build.Name, owner, repositoryName, err)
 	}
 
 	endpointTemplates := []choreov1.EndpointTemplate{}
