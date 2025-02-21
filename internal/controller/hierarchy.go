@@ -20,7 +20,10 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"reflect"
+	"strings"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -29,6 +32,67 @@ import (
 )
 
 // This file contains the helper functions to get the Choreo specific parent objects from the Kubernetes objects.
+
+// HierarchyNotFoundError is an error type that is used to indicate that a parent object in the hierarchy is not found.
+type HierarchyNotFoundError struct {
+	objInfo    string
+	parentInfo string
+
+	parentHierarchyInfos []string
+}
+
+func (e *HierarchyNotFoundError) Error() string {
+	return fmt.Sprintf("%s refers to a non-existent %s on %s", e.objInfo, e.parentInfo, strings.Join(e.parentHierarchyInfos, " -> "))
+}
+
+// NewHierarchyNotFoundError creates a new error with the given object and parent object details.
+// The parentObj is the immediate parent of the obj
+// The parentHierarchyObjs are the hierarchy of objects from the parentObj to the top level object starting from the top level object.
+// Example: NewHierarchyNotFoundError(deployment, deploymentTrack, organization, project, component)
+func NewHierarchyNotFoundError(obj client.Object, parentObj client.Object, parentHierarchyObjs ...client.Object) error {
+	getKindFn := func(obj client.Object) string {
+		if !obj.GetObjectKind().GroupVersionKind().Empty() {
+			return obj.GetObjectKind().GroupVersionKind().Kind
+		}
+		// If the object is initialized without setting the GVK, use the type name.
+		return reflect.TypeOf(obj).Elem().Name()
+	}
+
+	genInfoFn := func(obj client.Object) string {
+		return fmt.Sprintf("%s '%s'", strings.ToLower(getKindFn(obj)), obj.GetName())
+	}
+
+	parentHierarchyInfos := make([]string, 0, len(parentHierarchyObjs))
+	for _, parentHierarchyObj := range parentHierarchyObjs {
+		parentHierarchyInfos = append(parentHierarchyInfos, genInfoFn(parentHierarchyObj))
+	}
+
+	return &HierarchyNotFoundError{
+		objInfo:              genInfoFn(obj),
+		parentInfo:           genInfoFn(parentObj),
+		parentHierarchyInfos: parentHierarchyInfos,
+	}
+}
+
+// IgnoreHierarchyNotFoundError returns nil if the given error is a HierarchyNotFoundError.
+// This is useful during the reconciliation process to ignore the error if the parent object is not found and avoid retrying.
+func IgnoreHierarchyNotFoundError(err error) error {
+	if err == nil {
+		return nil
+	}
+	var notFoundErr *HierarchyNotFoundError
+	if errors.As(err, &notFoundErr) {
+		return nil
+	}
+	return err
+}
+
+// objWithName is a helper functions to set the name of the object.
+// Use this function to only set the name of a newly created object as it directly modifies the object.
+func objWithName(obj client.Object, name string) client.Object {
+	obj.SetName(name)
+	return obj
+}
 
 func GetProject(ctx context.Context, c client.Client, obj client.Object) (*choreov1.Project, error) {
 	projectList := &choreov1.ProjectList{}
@@ -53,7 +117,9 @@ func GetProject(ctx context.Context, c client.Client, obj client.Object) (*chore
 		}
 	}
 
-	return nil, fmt.Errorf("cannot find a project with the name %s", GetProjectName(obj))
+	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.Project{}, GetProjectName(obj)),
+		objWithName(&choreov1.Organization{}, GetOrganizationName(obj)),
+	)
 }
 
 func GetComponent(ctx context.Context, c client.Client, obj client.Object) (*choreov1.Component, error) {
@@ -79,7 +145,10 @@ func GetComponent(ctx context.Context, c client.Client, obj client.Object) (*cho
 		}
 	}
 
-	return nil, fmt.Errorf("cannot find a component with the name %s", GetComponentName(obj))
+	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.Component{}, GetComponentName(obj)),
+		objWithName(&choreov1.Organization{}, GetOrganizationName(obj)),
+		objWithName(&choreov1.Project{}, GetProjectName(obj)),
+	)
 }
 
 func GetDeploymentTrack(ctx context.Context, c client.Client, obj client.Object) (*choreov1.DeploymentTrack, error) {
@@ -106,7 +175,11 @@ func GetDeploymentTrack(ctx context.Context, c client.Client, obj client.Object)
 		}
 	}
 
-	return nil, fmt.Errorf("cannot find a deployment track with the name %s", GetDeploymentTrackName(obj))
+	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.DeploymentTrack{}, GetDeploymentTrackName(obj)),
+		objWithName(&choreov1.Organization{}, GetOrganizationName(obj)),
+		objWithName(&choreov1.Project{}, GetProjectName(obj)),
+		objWithName(&choreov1.Component{}, GetComponentName(obj)),
+	)
 }
 
 func GetEnvironment(ctx context.Context, c client.Client, obj client.Object) (*choreov1.Environment, error) {
@@ -131,7 +204,9 @@ func GetEnvironment(ctx context.Context, c client.Client, obj client.Object) (*c
 		}
 	}
 
-	return nil, fmt.Errorf("cannot find an environment with the name %s", GetEnvironmentName(obj))
+	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.Environment{}, GetEnvironmentName(obj)),
+		objWithName(&choreov1.Organization{}, GetOrganizationName(obj)),
+	)
 }
 
 func GetDeployment(ctx context.Context, c client.Client, obj client.Object) (*choreov1.Deployment, error) {
@@ -159,7 +234,12 @@ func GetDeployment(ctx context.Context, c client.Client, obj client.Object) (*ch
 		}
 	}
 
-	return nil, fmt.Errorf("cannot find a deployment with the name %s", GetDeploymentName(obj))
+	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.Deployment{}, GetDeploymentName(obj)),
+		objWithName(&choreov1.Organization{}, GetOrganizationName(obj)),
+		objWithName(&choreov1.Project{}, GetProjectName(obj)),
+		objWithName(&choreov1.Component{}, GetComponentName(obj)),
+		objWithName(&choreov1.DeploymentTrack{}, GetDeploymentTrackName(obj)),
+	)
 }
 
 func GetDeployableArtifact(ctx context.Context, c client.Client, obj client.Object) (*choreov1.DeployableArtifact, error) {
@@ -185,5 +265,10 @@ func GetDeployableArtifact(ctx context.Context, c client.Client, obj client.Obje
 		}
 	}
 
-	return nil, fmt.Errorf("cannot find a deployable artifact with the name %s", deployableArtifactName)
+	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.DeployableArtifact{}, deployableArtifactName),
+		objWithName(&choreov1.Organization{}, GetOrganizationName(obj)),
+		objWithName(&choreov1.Project{}, GetProjectName(obj)),
+		objWithName(&choreov1.Component{}, GetComponentName(obj)),
+		objWithName(&choreov1.DeploymentTrack{}, GetDeploymentTrackName(obj)),
+	)
 }

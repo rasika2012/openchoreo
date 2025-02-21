@@ -89,7 +89,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		if err := controller.UpdateStatusConditions(ctx, r.Client, old, deployment); err != nil {
 			return ctrl.Result{}, err
 		}
-		return ctrl.Result{}, err
+		return ctrl.Result{}, controller.IgnoreHierarchyNotFoundError(err)
 	}
 
 	// Find and reconcile all the external resources

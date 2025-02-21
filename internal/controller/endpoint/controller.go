@@ -71,7 +71,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	endpointCtx, err := r.makeEndpointContext(ctx, endpoint)
 	if err != nil {
 		logger.Error(err, "Failed to create endpoint context")
-		return ctrl.Result{}, err
+		return ctrl.Result{}, controller.IgnoreHierarchyNotFoundError(err)
 	}
 
 	if err = r.reconcileExternalResources(ctx, r.makeExternalResourceHandlers(), endpointCtx); err != nil {
