@@ -36,194 +36,155 @@ import (
 	env "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/environment"
 	org "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/organization"
 	proj "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/project"
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/testutils"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 )
 
 var _ = Describe("Component Controller", func() {
-	orgName := "test-org"
+	const (
+		orgName     = "test-org"
+		dpName      = "test-dataplane"
+		envName     = "test-env"
+		deppipName  = "test-deployment-pipeline"
+		projectName = "test-project"
+	)
+
+	orgNamespacedName := types.NamespacedName{
+		Name: orgName,
+	}
+
+	organization := &apiv1.Organization{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: orgName,
+		},
+	}
+
 	BeforeEach(func() {
 		By("Creating and reconciling organization resource", func() {
-			orgNamespacedName := types.NamespacedName{
-				Name: orgName,
-			}
-			organization := &apiv1.Organization{}
-			err := k8sClient.Get(ctx, orgNamespacedName, organization)
-			if err != nil && errors.IsNotFound(err) {
-				org := &apiv1.Organization{
-					ObjectMeta: metav1.ObjectMeta{
-						Name: orgName,
-					},
-				}
-				Expect(k8sClient.Create(ctx, org)).To(Succeed())
-			}
 			orgReconciler := &org.Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
 				Recorder: record.NewFakeRecorder(100),
 			}
-			_, err = orgReconciler.Reconcile(ctx, reconcile.Request{
-				NamespacedName: orgNamespacedName,
-			})
-			Expect(err).NotTo(HaveOccurred())
+			testutils.CreateAndReconcileResource(ctx, k8sClient, organization, orgReconciler, orgNamespacedName)
 		})
-
-		const dpName = "test-dataplane"
 
 		dpNamespacedName := types.NamespacedName{
 			Name:      dpName,
 			Namespace: orgName,
 		}
 
-		dataplane := &apiv1.DataPlane{}
+		dataplane := &apiv1.DataPlane{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      dpName,
+				Namespace: orgName,
+			},
+		}
 
 		By("Creating and reconciling the dataplane resource", func() {
-			err := k8sClient.Get(ctx, dpNamespacedName, dataplane)
-			if err != nil && errors.IsNotFound(err) {
-				dp := &apiv1.DataPlane{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      dpName,
-						Namespace: orgName,
-					},
-				}
-				Expect(k8sClient.Create(ctx, dp)).To(Succeed())
-			}
 			dpReconciler := &dp.Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
 				Recorder: record.NewFakeRecorder(100),
 			}
-			_, err = dpReconciler.Reconcile(ctx, reconcile.Request{
-				NamespacedName: dpNamespacedName,
-			})
-			Expect(err).NotTo(HaveOccurred())
+			testutils.CreateAndReconcileResource(ctx, k8sClient, dataplane, dpReconciler, dpNamespacedName)
 		})
-
-		const envName = "test-env"
 
 		envNamespacedName := types.NamespacedName{
 			Namespace: orgName,
 			Name:      envName,
 		}
 
+		environment := &apiv1.Environment{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      envName,
+				Namespace: orgName,
+				Labels: map[string]string{
+					labels.LabelKeyOrganizationName: orgName,
+					labels.LabelKeyName:             envName,
+				},
+				Annotations: map[string]string{
+					controller.AnnotationKeyDisplayName: "Test Environment",
+					controller.AnnotationKeyDescription: "Test Environment Description",
+				},
+			},
+		}
+
 		By("Creating and reconciling the environment resource", func() {
-			environment := &apiv1.Environment{}
-
-			err := k8sClient.Get(ctx, envNamespacedName, environment)
-			if err != nil && errors.IsNotFound(err) {
-				dp := &apiv1.Environment{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      envName,
-						Namespace: orgName,
-						Labels: map[string]string{
-							labels.LabelKeyOrganizationName: orgName,
-							labels.LabelKeyName:             envName,
-						},
-						Annotations: map[string]string{
-							controller.AnnotationKeyDisplayName: "Test Environment",
-							controller.AnnotationKeyDescription: "Test Environment Description",
-						},
-					},
-				}
-				Expect(k8sClient.Create(ctx, dp)).To(Succeed())
-			}
-
 			envReconciler := &env.Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
 				Recorder: record.NewFakeRecorder(100),
 			}
-			_, err = envReconciler.Reconcile(ctx, reconcile.Request{
-				NamespacedName: envNamespacedName,
-			})
-			Expect(err).NotTo(HaveOccurred())
+			testutils.CreateAndReconcileResource(ctx, k8sClient, environment, envReconciler, envNamespacedName)
 		})
 
-		By("Creating and reconciling the deployment pipeline resource", func() {
-			pipelineName := "test-pipeline"
+		depPipelineNamespacedName := types.NamespacedName{
+			Namespace: orgName,
+			Name:      deppipName,
+		}
 
-			pipelineNamespacedName := types.NamespacedName{
+		depPip := &apiv1.DeploymentPipeline{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      deppipName,
 				Namespace: orgName,
-				Name:      pipelineName,
-			}
-
-			pipeline := &apiv1.DeploymentPipeline{}
-
-			err := k8sClient.Get(ctx, pipelineNamespacedName, pipeline)
-			if err != nil && errors.IsNotFound(err) {
-				dp := &apiv1.DeploymentPipeline{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      pipelineName,
-						Namespace: orgName,
-						Labels: map[string]string{
-							labels.LabelKeyOrganizationName: orgName,
-							labels.LabelKeyName:             pipelineName,
-						},
-						Annotations: map[string]string{
-							controller.AnnotationKeyDisplayName: "Test Deployment pipeline",
-							controller.AnnotationKeyDescription: "Test Deployment pipeline Description",
-						},
+				Labels: map[string]string{
+					labels.LabelKeyOrganizationName: orgName,
+					labels.LabelKeyName:             deppipName,
+				},
+				Annotations: map[string]string{
+					controller.AnnotationKeyDisplayName: "Test Deployment pipeline",
+					controller.AnnotationKeyDescription: "Test Deployment pipeline Description",
+				},
+			},
+			Spec: apiv1.DeploymentPipelineSpec{
+				PromotionPaths: []apiv1.PromotionPath{
+					{
+						SourceEnvironmentRef:  "test-env",
+						TargetEnvironmentRefs: make([]apiv1.TargetEnvironmentRef, 0),
 					},
-					Spec: apiv1.DeploymentPipelineSpec{
-						PromotionPaths: []apiv1.PromotionPath{
-							{
-								SourceEnvironmentRef:  "test-env",
-								TargetEnvironmentRefs: make([]apiv1.TargetEnvironmentRef, 0),
-							},
-						},
-					},
-				}
-				Expect(k8sClient.Create(ctx, dp)).To(Succeed())
-			}
+				},
+			},
+		}
 
-			pipelineReconciler := &deppip.Reconciler{
+		By("Creating and reconciling the deployment pipeline resource", func() {
+			depPipelineReconciler := &deppip.Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
 				Recorder: record.NewFakeRecorder(100),
 			}
-			_, err = pipelineReconciler.Reconcile(ctx, reconcile.Request{
-				NamespacedName: pipelineNamespacedName,
-			})
-			Expect(err).NotTo(HaveOccurred())
+
+			testutils.CreateAndReconcileResource(ctx, k8sClient, depPip, depPipelineReconciler, depPipelineNamespacedName)
 		})
 
-		By("Creating and reconciling the project resource", func() {
-			projectName := "test-project"
+		projectNamespacedName := types.NamespacedName{
+			Namespace: orgName,
+			Name:      projectName,
+		}
 
-			projectNamespacedName := types.NamespacedName{
-				Namespace: orgName,
+		project := &apiv1.Project{
+			ObjectMeta: metav1.ObjectMeta{
 				Name:      projectName,
-			}
+				Namespace: orgName,
+				Labels: map[string]string{
+					labels.LabelKeyOrganizationName: orgName,
+					labels.LabelKeyName:             projectName,
+				},
+				Annotations: map[string]string{
+					controller.AnnotationKeyDisplayName: "Test Project",
+					controller.AnnotationKeyDescription: "Test Project Description",
+				},
+			},
+		}
 
-			project := &apiv1.Project{}
-
-			err := k8sClient.Get(ctx, projectNamespacedName, project)
-			if err != nil && errors.IsNotFound(err) {
-				dp := &apiv1.Project{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      projectName,
-						Namespace: orgName,
-						Labels: map[string]string{
-							labels.LabelKeyOrganizationName: orgName,
-							labels.LabelKeyName:             projectName,
-						},
-						Annotations: map[string]string{
-							controller.AnnotationKeyDisplayName: "Test Project",
-							controller.AnnotationKeyDescription: "Test Project Description",
-						},
-					},
-				}
-				Expect(k8sClient.Create(ctx, dp)).To(Succeed())
-			}
-
+		By("Creating and reconciling the project resource", func() {
 			projectReconciler := &proj.Reconciler{
 				Client:   k8sClient,
 				Scheme:   k8sClient.Scheme(),
 				Recorder: record.NewFakeRecorder(100),
 			}
-			_, err = projectReconciler.Reconcile(ctx, reconcile.Request{
-				NamespacedName: projectNamespacedName,
-			})
-			Expect(err).NotTo(HaveOccurred())
+
+			testutils.CreateAndReconcileResource(ctx, k8sClient, project, projectReconciler, projectNamespacedName)
 		})
 	})
 
@@ -240,7 +201,7 @@ var _ = Describe("Component Controller", func() {
 		By("Creating the component resource", func() {
 			err := k8sClient.Get(ctx, componentNamespacedName, component)
 			if err != nil && errors.IsNotFound(err) {
-				dp := &apiv1.Component{
+				cmp := &apiv1.Component{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      componentName,
 						Namespace: orgName,
@@ -256,16 +217,13 @@ var _ = Describe("Component Controller", func() {
 					Spec: apiv1.ComponentSpec{
 						Type: apiv1.ComponentTypeService,
 						Source: apiv1.ComponentSource{
-							GitRepository: apiv1.GitRepository{
+							GitRepository: &apiv1.GitRepository{
 								URL: "https://github.com/test-org/test-repo",
-							},
-							Authentication: apiv1.GitAuthentication{
-								SecretRef: "test-gh-pat",
 							},
 						},
 					},
 				}
-				Expect(k8sClient.Create(ctx, dp)).To(Succeed())
+				Expect(k8sClient.Create(ctx, cmp)).To(Succeed())
 			}
 		})
 
