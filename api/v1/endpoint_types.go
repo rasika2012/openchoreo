@@ -22,6 +22,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	// EndpointFinalizer should be added as a finalizer to the
+	// Endpoint whenever an endpoint is created. It should be cleared
+	// During deletion when child external resources have been deleted
+	EndpointFinalizer = "endpoint-finalizer.core.choreo.dev"
+)
+
 // EndpointServiceSpec defines the configuration of the upstream service
 type EndpointServiceSpec struct {
 	// URL of the upstream service
