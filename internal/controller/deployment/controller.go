@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -86,6 +87,8 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	deploymentCtx, err := r.makeDeploymentContext(ctx, deployment)
 	if err != nil {
 		logger.Error(err, "Error creating deployment context")
+		r.recorder.Eventf(deployment, corev1.EventTypeWarning, "ContextResolutionFailed",
+			"Context resolution failed: %s", err)
 		if err := controller.UpdateStatusConditions(ctx, r.Client, old, deployment); err != nil {
 			return ctrl.Result{}, err
 		}
@@ -96,11 +99,15 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	externalResourceHandlers := r.makeExternalResourceHandlers()
 	if err := r.reconcileExternalResources(ctx, externalResourceHandlers, deploymentCtx); err != nil {
 		logger.Error(err, "Error reconciling external resources")
+		r.recorder.Eventf(deployment, corev1.EventTypeWarning, "ExternalResourceReconciliationFailed",
+			"External resource reconciliation failed: %s", err)
 		return ctrl.Result{}, err
 	}
 
 	if err := r.reconcileChoreoEndpoints(ctx, deploymentCtx); err != nil {
 		logger.Error(err, "Error reconciling endpoints")
+		r.recorder.Eventf(deployment, corev1.EventTypeWarning, "EndpointReconciliationFailed",
+			"Endpoint reconciliation failed: %s", err)
 		return ctrl.Result{}, err
 	}
 
@@ -111,6 +118,14 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 	if err := controller.UpdateStatusConditions(ctx, r.Client, old, deployment); err != nil {
 		return ctrl.Result{}, err
+	}
+
+	oldReadyCondition := meta.IsStatusConditionTrue(old.Status.Conditions, ConditionReady.String())
+	newReadyCondition := meta.IsStatusConditionTrue(deployment.Status.Conditions, ConditionReady.String())
+
+	// Emit an event if the deployment is transitioning to ready
+	if !oldReadyCondition && newReadyCondition {
+		r.recorder.Event(deployment, corev1.EventTypeNormal, "DeploymentReady", "Deployment is ready")
 	}
 
 	return ctrl.Result{}, nil

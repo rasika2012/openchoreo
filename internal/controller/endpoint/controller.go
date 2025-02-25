@@ -22,8 +22,10 @@ import (
 	"context"
 	"fmt"
 
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -37,7 +39,8 @@ import (
 // Reconciler reconciles a Endpoint object
 type Reconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme   *runtime.Scheme
+	recorder record.EventRecorder
 }
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
@@ -71,11 +74,15 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	endpointCtx, err := r.makeEndpointContext(ctx, endpoint)
 	if err != nil {
 		logger.Error(err, "Failed to create endpoint context")
+		r.recorder.Eventf(endpoint, corev1.EventTypeWarning, "ContextResolutionFailed",
+			"Context resolution failed: %v", err)
 		return ctrl.Result{}, controller.IgnoreHierarchyNotFoundError(err)
 	}
 
 	if err = r.reconcileExternalResources(ctx, r.makeExternalResourceHandlers(), endpointCtx); err != nil {
 		logger.Error(err, "Failed to reconcile external resources")
+		r.recorder.Eventf(endpoint, corev1.EventTypeWarning, "ExternalResourceReconciliationFailed",
+			"External resource reconciliation failed: %s", err)
 		return ctrl.Result{}, err
 	}
 
@@ -87,6 +94,15 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 			logger.Error(err, "Failed to update Endpoint status")
 			return ctrl.Result{}, err
 		}
+	}
+
+	oldReadyCondition := meta.IsStatusConditionTrue(old.Status.Conditions, ConditionReady.String())
+	newReadyCondition := meta.IsStatusConditionTrue(endpoint.Status.Conditions, ConditionReady.String())
+
+	// Emit an event if the endpoint is transitioning to ready
+	if !oldReadyCondition && newReadyCondition {
+		r.recorder.Eventf(endpoint, corev1.EventTypeNormal, "EndpointReady",
+			"Endpoint is ready")
 	}
 
 	return ctrl.Result{}, nil
@@ -188,6 +204,10 @@ func (r *Reconciler) reconcileExternalResources(
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
+	if r.recorder == nil {
+		r.recorder = mgr.GetEventRecorderFor("endpoint-controller")
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&choreov1.Endpoint{}).
 		Named("endpoint").

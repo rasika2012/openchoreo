@@ -32,6 +32,11 @@ import (
 // Use CamelCase format (e.g., Ready, Available).
 type ConditionType string
 
+// String returns the string representation of the condition type.
+func (c ConditionType) String() string {
+	return string(c)
+}
+
 // ConditionReason represents the machine-readable reason for a condition's status.
 // Use CamelCase format (e.g., MinimumReplicasUnavailable, MinimumReplicasMet).
 type ConditionReason string

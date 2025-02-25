@@ -24,13 +24,23 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 )
 
+// Constants for condition types
+
 const (
+	// ConditionReady represents whether the endpoint is ready
+	ConditionReady controller.ConditionType = "Ready"
+)
+
+// Constants for condition reasons
+
+const (
+	// ReasonEndpointReady the endpoint is ready
 	ReasonEndpointReady controller.ConditionReason = "EndpointReady"
 )
 
 func NewEndpointReadyCondition(generation int64) metav1.Condition {
 	return controller.NewCondition(
-		controller.TypeReady,
+		ConditionReady,
 		metav1.ConditionTrue,
 		ReasonEndpointReady,
 		"Endpoint is ready",
