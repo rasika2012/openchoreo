@@ -59,15 +59,15 @@ func (h *httpRouteHandler) Name() string {
 	return "KubernetesHTTPRouteHandler"
 }
 
-func (h *httpRouteHandler) IsRequired(deployCtx *dataplane.EndpointContext) bool {
+func (h *httpRouteHandler) IsRequired(epCtx *dataplane.EndpointContext) bool {
 	// HTTPRoutes are required for Web Applications
-	return deployCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication ||
-		deployCtx.Component.Spec.Type == choreov1.ComponentTypeService
+	return epCtx.Component.Spec.Type == choreov1.ComponentTypeWebApplication ||
+		epCtx.Component.Spec.Type == choreov1.ComponentTypeService
 }
 
-func (h *httpRouteHandler) GetCurrentState(ctx context.Context, deployCtx *dataplane.EndpointContext) (interface{}, error) {
-	namespace := makeNamespaceName(deployCtx)
-	name := makeHTTPRouteName(deployCtx)
+func (h *httpRouteHandler) GetCurrentState(ctx context.Context, epCtx *dataplane.EndpointContext) (interface{}, error) {
+	namespace := makeNamespaceName(epCtx)
+	name := makeHTTPRouteName(epCtx)
 	out := &gatewayv1.HTTPRoute{}
 	err := h.kubernetesClient.Get(ctx, client.ObjectKey{Name: name, Namespace: namespace}, out)
 	if apierrors.IsNotFound(err) {
@@ -78,18 +78,18 @@ func (h *httpRouteHandler) GetCurrentState(ctx context.Context, deployCtx *datap
 	return out, nil
 }
 
-func (h *httpRouteHandler) Create(ctx context.Context, deployCtx *dataplane.EndpointContext) error {
-	httpRoute := makeHTTPRoute(deployCtx)
+func (h *httpRouteHandler) Create(ctx context.Context, epCtx *dataplane.EndpointContext) error {
+	httpRoute := makeHTTPRoute(epCtx)
 	return h.kubernetesClient.Create(ctx, httpRoute)
 }
 
-func (h *httpRouteHandler) Update(ctx context.Context, deployCtx *dataplane.EndpointContext, currentState interface{}) error {
+func (h *httpRouteHandler) Update(ctx context.Context, epCtx *dataplane.EndpointContext, currentState interface{}) error {
 	currentHTTPRoute, ok := currentState.(*gatewayv1.HTTPRoute)
 	if !ok {
 		return errors.New("failed to cast current state to HTTPRoute")
 	}
 
-	newHTTPRoute := makeHTTPRoute(deployCtx)
+	newHTTPRoute := makeHTTPRoute(epCtx)
 
 	if h.shouldUpdate(currentHTTPRoute, newHTTPRoute) {
 		newHTTPRoute.ResourceVersion = currentHTTPRoute.ResourceVersion
@@ -99,8 +99,8 @@ func (h *httpRouteHandler) Update(ctx context.Context, deployCtx *dataplane.Endp
 	return nil
 }
 
-func (h *httpRouteHandler) Delete(ctx context.Context, deployCtx *dataplane.EndpointContext) error {
-	httpRoute := makeHTTPRoute(deployCtx)
+func (h *httpRouteHandler) Delete(ctx context.Context, epCtx *dataplane.EndpointContext) error {
+	httpRoute := makeHTTPRoute(epCtx)
 	err := h.kubernetesClient.Delete(ctx, httpRoute)
 	if apierrors.IsNotFound(err) {
 		return nil
@@ -117,31 +117,31 @@ func (h *httpRouteHandler) shouldUpdate(current, new *gatewayv1.HTTPRoute) bool 
 	return !cmp.Equal(current.Spec, new.Spec, cmpopts.EquateEmpty())
 }
 
-func makeHTTPRoute(endpointCtx *dataplane.EndpointContext) *gatewayv1.HTTPRoute {
+func makeHTTPRoute(epCtx *dataplane.EndpointContext) *gatewayv1.HTTPRoute {
 	return &gatewayv1.HTTPRoute{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      makeHTTPRouteName(endpointCtx),
-			Namespace: makeNamespaceName(endpointCtx),
-			Labels:    makeWorkloadLabels(endpointCtx),
+			Name:      makeHTTPRouteName(epCtx),
+			Namespace: makeNamespaceName(epCtx),
+			Labels:    makeWorkloadLabels(epCtx),
 		},
-		Spec: makeHTTPRouteSpec(endpointCtx),
+		Spec: makeHTTPRouteSpec(epCtx),
 	}
 }
 
-func makeHTTPRouteName(endpointCtx *dataplane.EndpointContext) string {
-	componentName := endpointCtx.Component.Name
-	endpointName := endpointCtx.Endpoint.Name
+func makeHTTPRouteName(epCtx *dataplane.EndpointContext) string {
+	componentName := epCtx.Component.Name
+	endpointName := epCtx.Endpoint.Name
 	return dpkubernetes.GenerateK8sName(componentName, endpointName)
 }
 
-func makeHTTPRouteSpec(endpointCtx *dataplane.EndpointContext) gatewayv1.HTTPRouteSpec {
+func makeHTTPRouteSpec(epCtx *dataplane.EndpointContext) gatewayv1.HTTPRouteSpec {
 	pathType := gatewayv1.PathMatchPathPrefix
-	hostname := makeHostname(endpointCtx.Component.Name, endpointCtx.Environment.Name, endpointCtx.Component.Spec.Type)
-	port := gatewayv1.PortNumber(endpointCtx.Endpoint.Spec.Service.Port)
-	prefix := makePathPrefix(endpointCtx.Project.Name, endpointCtx.Component.Name, endpointCtx.Component.Spec.Type)
-	basePath := endpointCtx.Endpoint.Spec.Service.BasePath
+	hostname := makeHostname(epCtx.Component.Name, epCtx.Environment.Name, epCtx.Component.Spec.Type)
+	port := gatewayv1.PortNumber(epCtx.Endpoint.Spec.Service.Port)
+	prefix := makePathPrefix(epCtx.Project.Name, epCtx.Component.Name, epCtx.Component.Spec.Type)
+	basePath := epCtx.Endpoint.Spec.Service.BasePath
 	endpointPath := basePath
-	if endpointCtx.Component.Spec.Type == choreov1.ComponentTypeService {
+	if epCtx.Component.Spec.Type == choreov1.ComponentTypeService {
 		// Prefix basepath with project and component names TODO: add org if necessary
 		endpointPath = path.Clean(path.Join(prefix, basePath))
 	}
@@ -180,7 +180,7 @@ func makeHTTPRouteSpec(endpointCtx *dataplane.EndpointContext) gatewayv1.HTTPRou
 					{
 						BackendRef: gatewayv1.BackendRef{
 							BackendObjectReference: gatewayv1.BackendObjectReference{
-								Name: gatewayv1.ObjectName(makeServiceName(endpointCtx)),
+								Name: gatewayv1.ObjectName(makeServiceName(epCtx)),
 								Port: &port,
 							},
 						},
@@ -192,15 +192,15 @@ func makeHTTPRouteSpec(endpointCtx *dataplane.EndpointContext) gatewayv1.HTTPRou
 }
 
 // NamespaceName has the format dp-<organization-name>-<project-name>-<environment-name>-<hash>
-func makeNamespaceName(endpointCtx *dataplane.EndpointContext) string {
-	organizationName := controller.GetOrganizationName(endpointCtx.Project)
-	projectName := controller.GetName(endpointCtx.Project)
-	environmentName := controller.GetName(endpointCtx.Environment)
+func makeNamespaceName(epCtx *dataplane.EndpointContext) string {
+	organizationName := controller.GetOrganizationName(epCtx.Project)
+	projectName := controller.GetName(epCtx.Project)
+	environmentName := controller.GetName(epCtx.Environment)
 	return dpkubernetes.GenerateK8sNameWithLengthLimit(dpkubernetes.MaxNamespaceNameLength, "dp", organizationName, projectName, environmentName)
 }
 
-func makeServiceName(deployCtx *dataplane.EndpointContext) string {
-	componentName := deployCtx.Component.Name
-	deploymentTrackName := deployCtx.DeploymentTrack.Name
+func makeServiceName(epCtx *dataplane.EndpointContext) string {
+	componentName := epCtx.Component.Name
+	deploymentTrackName := epCtx.DeploymentTrack.Name
 	return dpkubernetes.GenerateK8sNameWithLengthLimit(dpkubernetes.MaxServiceNameLength, componentName, deploymentTrackName)
 }

@@ -40,12 +40,12 @@ func TestKubernetes(t *testing.T) {
 var _ = Describe("HTTPRoute Handler", func() {
 	Context("When generating HTTPRoute from Endpoint", func() {
 		DescribeTable("should generate correct HTTPRoute specifications for different scenarios",
-			func(endpointCtx *dataplane.EndpointContext, expectedPath string, expectedPort int32, expectedHostname string) {
-				httpRoute := makeHTTPRoute(endpointCtx)
+			func(epCtx *dataplane.EndpointContext, expectedPath string, expectedPort int32, expectedHostname string) {
+				httpRoute := makeHTTPRoute(epCtx)
 
 				// Name
 				Expect(httpRoute).NotTo(BeNil())
-				Expect(httpRoute.ObjectMeta.Name).To(Equal(makeHTTPRouteName(endpointCtx)))
+				Expect(httpRoute.ObjectMeta.Name).To(Equal(makeHTTPRouteName(epCtx)))
 
 				// Verify spec details
 				Expect(httpRoute.Spec.Rules).To(HaveLen(1))
@@ -57,7 +57,7 @@ var _ = Describe("HTTPRoute Handler", func() {
 
 				// Verify backend reference
 				backendRef := rule.BackendRefs[0]
-				Expect(backendRef.BackendRef.BackendObjectReference.Name).To(Equal(gatewayv1.ObjectName(makeServiceName(endpointCtx))))
+				Expect(backendRef.BackendRef.BackendObjectReference.Name).To(Equal(gatewayv1.ObjectName(makeServiceName(epCtx))))
 				Expect(backendRef.BackendRef.BackendObjectReference.Port).To(Equal((*gatewayv1.PortNumber)(ptr.Int32(expectedPort))))
 
 				// Verify hostname

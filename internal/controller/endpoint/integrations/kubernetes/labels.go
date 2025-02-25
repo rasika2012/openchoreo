@@ -24,27 +24,27 @@ import (
 	dpkubernetes "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes"
 )
 
-func makeLabels(endpointCtx *dataplane.EndpointContext) map[string]string {
+func makeLabels(epCtx *dataplane.EndpointContext) map[string]string {
 	return map[string]string{
-		dpkubernetes.LabelKeyOrganizationName:    controller.GetOrganizationName(endpointCtx.Project),
-		dpkubernetes.LabelKeyProjectName:         controller.GetName(endpointCtx.Project),
-		dpkubernetes.LabelKeyProjectID:           string(endpointCtx.Project.UID),
-		dpkubernetes.LabelKeyComponentName:       controller.GetName(endpointCtx.Component),
-		dpkubernetes.LabelKeyComponentID:         string(endpointCtx.Component.UID),
-		dpkubernetes.LabelKeyDeploymentTrackName: controller.GetName(endpointCtx.DeploymentTrack),
-		dpkubernetes.LabelKeyDeploymentTrackID:   string(endpointCtx.DeploymentTrack.UID),
-		dpkubernetes.LabelKeyEnvironmentName:     controller.GetName(endpointCtx.Environment),
-		dpkubernetes.LabelKeyEnvironmentID:       string(endpointCtx.Environment.UID),
-		dpkubernetes.LabelKeyDeploymentName:      controller.GetName(endpointCtx.Deployment),
-		dpkubernetes.LabelKeyDeploymentID:        string(endpointCtx.Deployment.UID),
+		dpkubernetes.LabelKeyOrganizationName:    controller.GetOrganizationName(epCtx.Project),
+		dpkubernetes.LabelKeyProjectName:         controller.GetName(epCtx.Project),
+		dpkubernetes.LabelKeyProjectID:           string(epCtx.Project.UID),
+		dpkubernetes.LabelKeyComponentName:       controller.GetName(epCtx.Component),
+		dpkubernetes.LabelKeyComponentID:         string(epCtx.Component.UID),
+		dpkubernetes.LabelKeyDeploymentTrackName: controller.GetName(epCtx.DeploymentTrack),
+		dpkubernetes.LabelKeyDeploymentTrackID:   string(epCtx.DeploymentTrack.UID),
+		dpkubernetes.LabelKeyEnvironmentName:     controller.GetName(epCtx.Environment),
+		dpkubernetes.LabelKeyEnvironmentID:       string(epCtx.Environment.UID),
+		dpkubernetes.LabelKeyDeploymentName:      controller.GetName(epCtx.Deployment),
+		dpkubernetes.LabelKeyDeploymentID:        string(epCtx.Deployment.UID),
 		dpkubernetes.LabelKeyManagedBy:           dpkubernetes.LabelValueManagedBy,
 		dpkubernetes.LabelKeyBelongTo:            dpkubernetes.LabelValueBelongTo,
 	}
 }
 
-func makeWorkloadLabels(endpointCtx *dataplane.EndpointContext) map[string]string {
-	labels := makeLabels(endpointCtx)
-	labels[dpkubernetes.LabelKeyComponentType] = string(endpointCtx.Component.Spec.Type)
+func makeWorkloadLabels(epCtx *dataplane.EndpointContext) map[string]string {
+	labels := makeLabels(epCtx)
+	labels[dpkubernetes.LabelKeyComponentType] = string(epCtx.Component.Spec.Type)
 	return labels
 }
 

@@ -57,71 +57,71 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	logger := log.FromContext(ctx)
 
 	// Get Endpoint CR
-	e := &choreov1.Endpoint{}
-	old := e.DeepCopy()
+	ep := &choreov1.Endpoint{}
+	oldEp := ep.DeepCopy()
 
-	if err := r.Get(ctx, req.NamespacedName, e); err != nil {
+	if err := r.Get(ctx, req.NamespacedName, ep); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	if e.Labels == nil {
+	if ep.Labels == nil {
 		logger.Info("Endpoint labels not set.")
 		return ctrl.Result{}, nil
 	}
 
 	// do we add finalizer only if there are dependent crs?
 	resourceHandlers := r.makeExternalResourceHandlers()
-	endpointCtx, err := r.makeEndpointContext(ctx, e)
+	epCtx, err := r.makeEndpointContext(ctx, ep)
 	if err != nil {
 		logger.Error(err, "Failed to create endpoint context")
-		r.recorder.Eventf(e, corev1.EventTypeWarning, "ContextResolutionFailed",
+		r.recorder.Eventf(ep, corev1.EventTypeWarning, "ContextResolutionFailed",
 			"Context resolution failed: %v", err)
 		return ctrl.Result{}, controller.IgnoreHierarchyNotFoundError(err)
 	}
 
-	if e.DeletionTimestamp.IsZero() {
-		if err := r.addFinalizer(ctx, e); err != nil {
+	if ep.DeletionTimestamp.IsZero() {
+		if err := r.addFinalizer(ctx, ep); err != nil {
 			return ctrl.Result{}, err
 		}
 	} else {
-		if err := r.removeFinalizer(ctx, e); err != nil {
+		if err := r.removeFinalizer(ctx, ep); err != nil {
 			return ctrl.Result{}, err
 		}
-		if err := r.removeExternalResources(ctx, resourceHandlers, endpointCtx); err != nil {
+		if err := r.removeExternalResources(ctx, resourceHandlers, epCtx); err != nil {
 			return ctrl.Result{}, err
 		}
 		return ctrl.Result{}, nil
 	}
 
-	if err = r.reconcileExternalResources(ctx, resourceHandlers, endpointCtx); err != nil {
+	if err = r.reconcileExternalResources(ctx, resourceHandlers, epCtx); err != nil {
 		// TODO Verify if this is necessary
-		base := client.StrategicMergeFrom(e.DeepCopy())
-		meta.SetStatusCondition(&e.Status.Conditions, NewEndpointReadyCondition(e.Generation, false, err.Error()))
+		base := client.StrategicMergeFrom(ep.DeepCopy())
+		meta.SetStatusCondition(&ep.Status.Conditions, NewEndpointReadyCondition(ep.Generation, false, err.Error()))
 		logger.Error(err, "failed to reconcile external resources")
-		r.recorder.Eventf(e, corev1.EventTypeWarning, "ExternalResourceReconciliationFailed",
+		r.recorder.Eventf(ep, corev1.EventTypeWarning, "ExternalResourceReconciliationFailed",
 			"External resource reconciliation failed: %s", err)
-		if err := r.Client.Patch(ctx, e, base); err != nil {
+		if err := r.Client.Patch(ctx, ep, base); err != nil {
 			return ctrl.Result{}, fmt.Errorf("%w, failed to patch endpoint ready condition", err)
 		}
 		return ctrl.Result{}, err
 	}
 
-	meta.SetStatusCondition(&e.Status.Conditions, NewEndpointReadyCondition(e.Generation, true, ""))
-	e.Status.Address = kubernetes.MakeAddress(endpointCtx.Component.Name, endpointCtx.Environment.Name, endpointCtx.Component.Spec.Type, endpointCtx.Endpoint.Spec.Service.BasePath)
-	if e.Status.Address != old.Status.Address ||
-		controller.NeedConditionUpdate(old.Status.Conditions, e.Status.Conditions) {
-		if err := r.Status().Update(ctx, e); err != nil {
+	meta.SetStatusCondition(&ep.Status.Conditions, NewEndpointReadyCondition(ep.Generation, true, ""))
+	ep.Status.Address = kubernetes.MakeAddress(epCtx.Component.Name, epCtx.Environment.Name, epCtx.Component.Spec.Type, epCtx.Endpoint.Spec.Service.BasePath)
+	if ep.Status.Address != oldEp.Status.Address ||
+		controller.NeedConditionUpdate(oldEp.Status.Conditions, ep.Status.Conditions) {
+		if err := r.Status().Update(ctx, ep); err != nil {
 			logger.Error(err, "Failed to update Endpoint status")
 			return ctrl.Result{}, err
 		}
 	}
 
-	oldReadyCondition := meta.IsStatusConditionTrue(old.Status.Conditions, ConditionReady.String())
-	newReadyCondition := meta.IsStatusConditionTrue(e.Status.Conditions, ConditionReady.String())
+	oldReadyCondition := meta.IsStatusConditionTrue(oldEp.Status.Conditions, ConditionReady.String())
+	newReadyCondition := meta.IsStatusConditionTrue(ep.Status.Conditions, ConditionReady.String())
 
 	// Emit an event if the endpoint is transitioning to ready
 	if !oldReadyCondition && newReadyCondition {
-		r.recorder.Eventf(e, corev1.EventTypeNormal, "EndpointReady",
+		r.recorder.Eventf(ep, corev1.EventTypeNormal, "EndpointReady",
 			"Endpoint is ready")
 	}
 
@@ -130,28 +130,28 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 // makeEndpointContext creates a endpoint context for the given deployment by retrieving the
 // parent objects that this deployment is associated with.
-func (r *Reconciler) makeEndpointContext(ctx context.Context, e *choreov1.Endpoint) (*dataplane.EndpointContext, error) {
-	project, err := controller.GetProject(ctx, r.Client, e)
+func (r *Reconciler) makeEndpointContext(ctx context.Context, ep *choreov1.Endpoint) (*dataplane.EndpointContext, error) {
+	project, err := controller.GetProject(ctx, r.Client, ep)
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve the project: %w", err)
 	}
 
-	component, err := controller.GetComponent(ctx, r.Client, e)
+	component, err := controller.GetComponent(ctx, r.Client, ep)
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve the component: %w", err)
 	}
 
-	deploymentTrack, err := controller.GetDeploymentTrack(ctx, r.Client, e)
+	deploymentTrack, err := controller.GetDeploymentTrack(ctx, r.Client, ep)
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve the deployment track: %w", err)
 	}
 
-	environment, err := controller.GetEnvironment(ctx, r.Client, e)
+	environment, err := controller.GetEnvironment(ctx, r.Client, ep)
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve the environment: %w", err)
 	}
 
-	deployment, err := controller.GetDeployment(ctx, r.Client, e)
+	deployment, err := controller.GetDeployment(ctx, r.Client, ep)
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve the deployment: %w", err)
 	}
@@ -162,7 +162,7 @@ func (r *Reconciler) makeEndpointContext(ctx context.Context, e *choreov1.Endpoi
 		DeploymentTrack: deploymentTrack,
 		Deployment:      deployment,
 		Environment:     environment,
-		Endpoint:        e,
+		Endpoint:        ep,
 	}, nil
 }
 
@@ -179,13 +179,13 @@ func (r *Reconciler) makeExternalResourceHandlers() []dataplane.ResourceHandler[
 func (r *Reconciler) reconcileExternalResources(
 	ctx context.Context,
 	resourceHandlers []dataplane.ResourceHandler[dataplane.EndpointContext],
-	endpointCtx *dataplane.EndpointContext) error {
+	epCtx *dataplane.EndpointContext) error {
 	handlerNameLogKey := "resourceHandler"
 	for _, resourceHandler := range resourceHandlers {
 		logger := log.FromContext(ctx).WithValues(handlerNameLogKey, resourceHandler.Name())
 		// Delete the external resource if it is not configured
-		if !resourceHandler.IsRequired(endpointCtx) {
-			if err := resourceHandler.Delete(ctx, endpointCtx); err != nil {
+		if !resourceHandler.IsRequired(epCtx) {
+			if err := resourceHandler.Delete(ctx, epCtx); err != nil {
 				logger.Error(err, "Error deleting external resource")
 				return err
 			}
@@ -195,7 +195,7 @@ func (r *Reconciler) reconcileExternalResources(
 		}
 
 		// Check if the external resource exists
-		currentState, err := resourceHandler.GetCurrentState(ctx, endpointCtx)
+		currentState, err := resourceHandler.GetCurrentState(ctx, epCtx)
 		if err != nil {
 			logger.Error(err, "Error retrieving current state of the external resource")
 			return err
@@ -203,13 +203,13 @@ func (r *Reconciler) reconcileExternalResources(
 		exists := currentState != nil
 		if !exists {
 			// Create the external resource if it does not exist
-			if err := resourceHandler.Create(ctx, endpointCtx); err != nil {
+			if err := resourceHandler.Create(ctx, epCtx); err != nil {
 				logger.Error(err, "Error creating external resource")
 				return err
 			}
 		} else {
 			// Update the external resource if it exists
-			if err := resourceHandler.Update(ctx, endpointCtx, currentState); err != nil {
+			if err := resourceHandler.Update(ctx, epCtx, currentState); err != nil {
 				logger.Error(err, "Error updating external resource")
 				return err
 			}
@@ -221,14 +221,14 @@ func (r *Reconciler) reconcileExternalResources(
 	return nil
 }
 
-func (r *Reconciler) removeExternalResources(ctx context.Context, resourceHandlers []dataplane.ResourceHandler[dataplane.EndpointContext], endpointCtx *dataplane.EndpointContext) error {
-	for _, rh := range resourceHandlers {
-		state, err := rh.GetCurrentState(ctx, endpointCtx)
+func (r *Reconciler) removeExternalResources(ctx context.Context, resourceHandlers []dataplane.ResourceHandler[dataplane.EndpointContext], epCtx *dataplane.EndpointContext) error {
+	for _, h := range resourceHandlers {
+		state, err := h.GetCurrentState(ctx, epCtx)
 		if err != nil {
 			return fmt.Errorf("error retrieving current state of the external resource: %w", err)
 		}
 		if state != nil {
-			if err := rh.Delete(ctx, endpointCtx); err != nil {
+			if err := h.Delete(ctx, epCtx); err != nil {
 				return fmt.Errorf("error deleting endpoints external resource: %w", err)
 			}
 		}
@@ -236,25 +236,25 @@ func (r *Reconciler) removeExternalResources(ctx context.Context, resourceHandle
 	return nil
 }
 
-func (r *Reconciler) addFinalizer(ctx context.Context, e *choreov1.Endpoint) error {
-	if !slices.Contains(e.Finalizers, choreov1.EndpointFinalizer) {
-		base := client.MergeFrom(e.DeepCopy())
-		e.Finalizers = append(e.Finalizers, choreov1.EndpointFinalizer)
-		if err := r.Client.Patch(ctx, e, base); err != nil {
-			return fmt.Errorf("failed to add finalizer to endpoint %s: %w", e.Name, err)
+func (r *Reconciler) addFinalizer(ctx context.Context, ep *choreov1.Endpoint) error {
+	if !slices.Contains(ep.Finalizers, choreov1.EndpointFinalizer) {
+		base := client.MergeFrom(ep.DeepCopy())
+		ep.Finalizers = append(ep.Finalizers, choreov1.EndpointFinalizer)
+		if err := r.Client.Patch(ctx, ep, base); err != nil {
+			return fmt.Errorf("failed to add finalizer to endpoint %s: %w", ep.Name, err)
 		}
 	}
 	return nil
 }
 
-func (r *Reconciler) removeFinalizer(ctx context.Context, e *choreov1.Endpoint) error {
-	if slices.Contains(e.Finalizers, choreov1.EndpointFinalizer) {
-		base := client.MergeFrom(e.DeepCopy())
-		e.Finalizers = slices.DeleteFunc(e.Finalizers, func(f string) bool {
+func (r *Reconciler) removeFinalizer(ctx context.Context, ep *choreov1.Endpoint) error {
+	if slices.Contains(ep.Finalizers, choreov1.EndpointFinalizer) {
+		base := client.MergeFrom(ep.DeepCopy())
+		ep.Finalizers = slices.DeleteFunc(ep.Finalizers, func(f string) bool {
 			return f == choreov1.EndpointFinalizer
 		})
-		if err := r.Client.Patch(ctx, e, base); err != nil {
-			return fmt.Errorf("failed to add finalizer to endpoint %s: %w", e.Name, err)
+		if err := r.Client.Patch(ctx, ep, base); err != nil {
+			return fmt.Errorf("failed to add finalizer to endpoint %s: %w", ep.Name, err)
 		}
 	}
 	return nil
