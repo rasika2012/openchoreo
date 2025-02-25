@@ -21,6 +21,7 @@ package endpoint
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -34,7 +35,6 @@ import (
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/endpoint/integrations/kubernetes"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/slice"
 )
 
 // Reconciler reconciles a Endpoint object
@@ -237,7 +237,7 @@ func (r *Reconciler) removeExternalResources(ctx context.Context, resourceHandle
 }
 
 func (r *Reconciler) addFinalizer(ctx context.Context, e *choreov1.Endpoint) error {
-	if !slice.ContainsString(e.Finalizers, choreov1.EndpointFinalizer) {
+	if !slices.Contains(e.Finalizers, choreov1.EndpointFinalizer) {
 		base := client.MergeFrom(e.DeepCopy())
 		e.Finalizers = append(e.Finalizers, choreov1.EndpointFinalizer)
 		if err := r.Client.Patch(ctx, e, base); err != nil {
@@ -248,9 +248,11 @@ func (r *Reconciler) addFinalizer(ctx context.Context, e *choreov1.Endpoint) err
 }
 
 func (r *Reconciler) removeFinalizer(ctx context.Context, e *choreov1.Endpoint) error {
-	if slice.ContainsString(e.Finalizers, choreov1.EndpointFinalizer) {
+	if slices.Contains(e.Finalizers, choreov1.EndpointFinalizer) {
 		base := client.MergeFrom(e.DeepCopy())
-		e.Finalizers = slice.RemoveString(e.Finalizers, choreov1.EndpointFinalizer)
+		e.Finalizers = slices.DeleteFunc(e.Finalizers, func(f string) bool {
+			return f == choreov1.EndpointFinalizer
+		})
 		if err := r.Client.Patch(ctx, e, base); err != nil {
 			return fmt.Errorf("failed to add finalizer to endpoint %s: %w", e.Name, err)
 		}
