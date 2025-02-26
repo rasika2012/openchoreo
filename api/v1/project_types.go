@@ -31,7 +31,7 @@ type ProjectSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of Project. Edit project_types.go to remove/update
-	DeploymentPipelineRef string `json:"deploymentPipelineRef,omitempty"`
+	DeploymentPipelineRef string `json:"deploymentPipelineRef"`
 }
 
 // ProjectStatus defines the observed state of Project.

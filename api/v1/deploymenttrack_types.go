@@ -42,6 +42,9 @@ type DeploymentTrackSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
+	// AutoDeploy defines whether deployment should be triggered automatically
+	AutoDeploy bool `json:"autoDeploy"`
+
 	// BuildTemplateSpec defines the build template configuration
 	BuildTemplateSpec *BuildTemplateSpec `json:"buildTemplateSpec,omitempty"`
 }
