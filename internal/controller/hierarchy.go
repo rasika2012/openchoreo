@@ -94,27 +94,59 @@ func objWithName(obj client.Object, name string) client.Object {
 	return obj
 }
 
+func GetDeploymentPipeline(ctx context.Context, c client.Client, obj client.Object, dpName string) (*choreov1.DeploymentPipeline, error) {
+	deploymentPipelineList := &choreov1.DeploymentPipelineList{}
+	listOpts := []client.ListOption{
+		client.InNamespace(obj.GetNamespace()),
+		client.MatchingLabels{
+			labels.LabelKeyOrganizationName: GetOrganizationName(obj),
+			labels.LabelKeyName:             dpName,
+		},
+	}
+
+	if err := c.List(ctx, deploymentPipelineList, listOpts...); err != nil {
+		return nil, fmt.Errorf("failed to list projects: %w", err)
+	}
+
+	if len(deploymentPipelineList.Items) > 0 {
+		return &deploymentPipelineList.Items[0], nil
+	}
+
+	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.DeploymentPipeline{}, dpName),
+		objWithName(&choreov1.Organization{}, GetOrganizationName(obj)),
+	)
+}
+
+func GetDeploymentPipelineOfProject(ctx context.Context, c client.Client, obj client.Object) (*choreov1.DeploymentPipeline, error) {
+	project, err := GetProject(ctx, c, obj)
+	if err != nil {
+		return nil, err
+	}
+
+	dp, err := GetDeploymentPipeline(ctx, c, obj, project.Spec.DeploymentPipelineRef)
+	if err != nil {
+		return nil, err
+	}
+
+	return dp, nil
+}
+
 func GetProject(ctx context.Context, c client.Client, obj client.Object) (*choreov1.Project, error) {
 	projectList := &choreov1.ProjectList{}
 	listOpts := []client.ListOption{
 		client.InNamespace(obj.GetNamespace()),
 		client.MatchingLabels{
 			labels.LabelKeyOrganizationName: GetOrganizationName(obj),
+			labels.LabelKeyName:             GetProjectName(obj),
 		},
 	}
-	// TODO: possible to use the index to get the project directly instead of listing all projects
+
 	if err := c.List(ctx, projectList, listOpts...); err != nil {
 		return nil, fmt.Errorf("failed to list projects: %w", err)
 	}
 
-	for _, project := range projectList.Items {
-		if project.Labels == nil {
-			// Ideally, this should not happen as the project should have the organization label
-			continue
-		}
-		if GetName(&project) == GetProjectName(obj) {
-			return &project, nil
-		}
+	if len(projectList.Items) > 0 {
+		return &projectList.Items[0], nil
 	}
 
 	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.Project{}, GetProjectName(obj)),
@@ -129,20 +161,16 @@ func GetComponent(ctx context.Context, c client.Client, obj client.Object) (*cho
 		client.MatchingLabels{
 			labels.LabelKeyOrganizationName: GetOrganizationName(obj),
 			labels.LabelKeyProjectName:      GetProjectName(obj),
+			labels.LabelKeyName:             GetComponentName(obj),
 		},
 	}
+
 	if err := c.List(ctx, componentList, listOpts...); err != nil {
 		return nil, fmt.Errorf("failed to list components: %w", err)
 	}
 
-	for _, component := range componentList.Items {
-		if component.Labels == nil {
-			// Ideally, this should not happen as the Choreo object should have the hierarchy labels.
-			continue
-		}
-		if GetName(&component) == GetComponentName(obj) {
-			return &component, nil
-		}
+	if len(componentList.Items) > 0 {
+		return &componentList.Items[0], nil
 	}
 
 	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.Component{}, GetComponentName(obj)),
@@ -159,20 +187,16 @@ func GetDeploymentTrack(ctx context.Context, c client.Client, obj client.Object)
 			labels.LabelKeyOrganizationName: GetOrganizationName(obj),
 			labels.LabelKeyProjectName:      GetProjectName(obj),
 			labels.LabelKeyComponentName:    GetComponentName(obj),
+			labels.LabelKeyName:             GetDeploymentTrackName(obj),
 		},
 	}
+
 	if err := c.List(ctx, deploymentTrackList, listOpts...); err != nil {
 		return nil, fmt.Errorf("failed to list deployment tracks: %w", err)
 	}
 
-	for _, deploymentTrack := range deploymentTrackList.Items {
-		if deploymentTrack.Labels == nil {
-			// Ideally, this should not happen as the deployment track should have the organization, project and component labels
-			continue
-		}
-		if GetName(&deploymentTrack) == GetDeploymentTrackName(obj) {
-			return &deploymentTrack, nil
-		}
+	if len(deploymentTrackList.Items) > 0 {
+		return &deploymentTrackList.Items[0], nil
 	}
 
 	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.DeploymentTrack{}, GetDeploymentTrackName(obj)),
@@ -188,23 +212,42 @@ func GetEnvironment(ctx context.Context, c client.Client, obj client.Object) (*c
 		client.InNamespace(obj.GetNamespace()),
 		client.MatchingLabels{
 			labels.LabelKeyOrganizationName: GetOrganizationName(obj),
+			labels.LabelKeyName:             GetEnvironmentName(obj),
 		},
 	}
+
 	if err := c.List(ctx, environmentList, listOpts...); err != nil {
 		return nil, fmt.Errorf("failed to list environments: %w", err)
 	}
 
-	for _, environment := range environmentList.Items {
-		if environment.Labels == nil {
-			// Ideally, this should not happen as the environment should have the organization, project, component and deployment track labels
-			continue
-		}
-		if GetName(&environment) == GetEnvironmentName(obj) {
-			return &environment, nil
-		}
+	if len(environmentList.Items) > 0 {
+		return &environmentList.Items[0], nil
 	}
 
 	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.Environment{}, GetEnvironmentName(obj)),
+		objWithName(&choreov1.Organization{}, GetOrganizationName(obj)),
+	)
+}
+
+func GetEnvironmentByName(ctx context.Context, c client.Client, obj client.Object, envName string) (*choreov1.Environment, error) {
+	environmentList := &choreov1.EnvironmentList{}
+	listOpts := []client.ListOption{
+		client.InNamespace(obj.GetNamespace()),
+		client.MatchingLabels{
+			labels.LabelKeyOrganizationName: GetOrganizationName(obj),
+			labels.LabelKeyName:             envName,
+		},
+	}
+
+	if err := c.List(ctx, environmentList, listOpts...); err != nil {
+		return nil, fmt.Errorf("failed to list environments: %w", err)
+	}
+
+	if len(environmentList.Items) > 0 {
+		return &environmentList.Items[0], nil
+	}
+
+	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.Environment{}, envName),
 		objWithName(&choreov1.Organization{}, GetOrganizationName(obj)),
 	)
 }
@@ -218,20 +261,16 @@ func GetDeployment(ctx context.Context, c client.Client, obj client.Object) (*ch
 			labels.LabelKeyProjectName:         GetProjectName(obj),
 			labels.LabelKeyComponentName:       GetComponentName(obj),
 			labels.LabelKeyDeploymentTrackName: GetDeploymentTrackName(obj),
+			labels.LabelKeyName:                GetDeploymentName(obj),
 		},
 	}
+
 	if err := c.List(ctx, deploymentList, listOpts...); err != nil {
 		return nil, fmt.Errorf("failed to list deployments: %w", err)
 	}
 
-	for _, deployment := range deploymentList.Items {
-		if deployment.Labels == nil {
-			// Ideally, this should not happen as the deployment should have the organization, project, component and deployment track labels
-			continue
-		}
-		if deployment.Name == GetDeploymentName(obj) {
-			return &deployment, nil
-		}
+	if len(deploymentList.Items) > 0 {
+		return &deploymentList.Items[0], nil
 	}
 
 	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.Deployment{}, GetDeploymentName(obj)),
@@ -251,21 +290,18 @@ func GetDeployableArtifact(ctx context.Context, c client.Client, obj client.Obje
 			labels.LabelKeyProjectName:         GetProjectName(obj),
 			labels.LabelKeyComponentName:       GetComponentName(obj),
 			labels.LabelKeyDeploymentTrackName: GetDeploymentTrackName(obj),
+			labels.LabelKeyName:                GetDeployableArtifactName(obj),
 		},
 	}
 	if err := c.List(ctx, deployableArtifactList, listOpts...); err != nil {
 		return nil, fmt.Errorf("failed to list deployable artifacts: %w", err)
 	}
 
-	deployableArtifactName := GetDeployableArtifactName(obj)
-
-	for _, deployableArtifact := range deployableArtifactList.Items {
-		if deployableArtifact.Name == deployableArtifactName {
-			return &deployableArtifact, nil
-		}
+	if len(deployableArtifactList.Items) > 0 {
+		return &deployableArtifactList.Items[0], nil
 	}
 
-	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.DeployableArtifact{}, deployableArtifactName),
+	return nil, NewHierarchyNotFoundError(obj, objWithName(&choreov1.DeployableArtifact{}, GetDeployableArtifactName(obj)),
 		objWithName(&choreov1.Organization{}, GetOrganizationName(obj)),
 		objWithName(&choreov1.Project{}, GetProjectName(obj)),
 		objWithName(&choreov1.Component{}, GetComponentName(obj)),
