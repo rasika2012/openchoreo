@@ -19,19 +19,18 @@
 package build
 
 import (
+	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes/types/argoproj.io/workflow/v1alpha1"
 )
 
-type ConditionType string
-
 const (
-	Initialized               ConditionType = "Initialized"
-	CloneSucceeded            ConditionType = "CloneSucceeded"
-	BuildSucceeded            ConditionType = "BuildSucceeded"
-	PushSucceeded             ConditionType = "PushSucceeded"
-	Completed                 ConditionType = "Completed"
-	DeployableArtifactCreated ConditionType = "DeployableArtifactCreated"
-	DeploymentApplied         ConditionType = "DeploymentApplied"
+	Initialized               controller.ConditionType = "Initialized"
+	CloneSucceeded            controller.ConditionType = "CloneSucceeded"
+	BuildSucceeded            controller.ConditionType = "BuildSucceeded"
+	PushSucceeded             controller.ConditionType = "PushSucceeded"
+	Completed                 controller.ConditionType = "Completed"
+	DeployableArtifactCreated controller.ConditionType = "DeployableArtifactCreated"
+	DeploymentApplied         controller.ConditionType = "DeploymentApplied"
 )
 
 type WorkflowStep string

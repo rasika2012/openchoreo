@@ -93,6 +93,14 @@ type BuildSpec struct {
 	BuildEnvironment   BuildEnvironment   `json:"buildEnvironment,omitempty"`
 }
 
+func (b *Build) GetConditions() []metav1.Condition {
+	return b.Status.Conditions
+}
+
+func (b *Build) SetConditions(conditions []metav1.Condition) {
+	b.Status.Conditions = conditions
+}
+
 type Image struct {
 	Image string `json:"image"`
 }

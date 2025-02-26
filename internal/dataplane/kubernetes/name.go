@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	maxNameLength = 253
+	maxNameLength = 63
 	hashLength    = 8   // Length of the hash suffix
 	separator     = "-" // Separator between name parts
 
