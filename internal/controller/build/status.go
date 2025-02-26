@@ -31,6 +31,7 @@ const (
 	PushSucceeded             ConditionType = "PushSucceeded"
 	Completed                 ConditionType = "Completed"
 	DeployableArtifactCreated ConditionType = "DeployableArtifactCreated"
+	DeploymentApplied         ConditionType = "DeploymentApplied"
 )
 
 type WorkflowStep string
