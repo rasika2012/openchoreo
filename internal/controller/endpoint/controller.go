@@ -95,7 +95,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 
 	if err = r.reconcileExternalResources(ctx, resourceHandlers, epCtx); err != nil {
 		// TODO Verify if this is necessary
-		base := client.StrategicMergeFrom(ep.DeepCopy())
+		base := client.MergeFrom(ep.DeepCopy())
 		meta.SetStatusCondition(&ep.Status.Conditions, NewEndpointReadyCondition(ep.Generation, false, err.Error()))
 		logger.Error(err, "failed to reconcile external resources")
 		r.recorder.Eventf(ep, corev1.EventTypeWarning, "ExternalResourceReconciliationFailed",
