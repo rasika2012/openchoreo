@@ -117,20 +117,6 @@ func GetDeploymentPipeline(ctx context.Context, c client.Client, obj client.Obje
 	)
 }
 
-func GetDeploymentPipelineOfProject(ctx context.Context, c client.Client, obj client.Object) (*choreov1.DeploymentPipeline, error) {
-	project, err := GetProject(ctx, c, obj)
-	if err != nil {
-		return nil, err
-	}
-
-	dp, err := GetDeploymentPipeline(ctx, c, obj, project.Spec.DeploymentPipelineRef)
-	if err != nil {
-		return nil, err
-	}
-
-	return dp, nil
-}
-
 func GetProject(ctx context.Context, c client.Client, obj client.Object) (*choreov1.Project, error) {
 	projectList := &choreov1.ProjectList{}
 	listOpts := []client.ListOption{

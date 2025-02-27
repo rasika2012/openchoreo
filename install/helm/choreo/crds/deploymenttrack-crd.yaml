@@ -42,6 +42,10 @@ spec:
           spec:
             description: DeploymentTrackSpec defines the desired state of DeploymentTrack.
             properties:
+              autoDeploy:
+                description: AutoDeploy defines whether deployment should be triggered
+                  automatically
+                type: boolean
               buildTemplateSpec:
                 description: BuildTemplateSpec defines the build template configuration
                 properties:
@@ -83,6 +87,8 @@ spec:
                 - branch
                 - path
                 type: object
+            required:
+            - autoDeploy
             type: object
           status:
             description: DeploymentTrackStatus defines the observed state of DeploymentTrack.
