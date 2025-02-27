@@ -87,12 +87,8 @@ func (h *namespaceHandler) Update(ctx context.Context, deployCtx *dataplane.Depl
 }
 
 func (h *namespaceHandler) Delete(ctx context.Context, deployCtx *dataplane.DeploymentContext) error {
-	namespace := makeNamespace(deployCtx)
-	err := h.kubernetesClient.Delete(ctx, namespace)
-	if apierrors.IsNotFound(err) {
-		return nil
-	}
-	return err
+	// Namespaces should not be deleted by the deployment controller as they are cleaned up by the project deletion
+	return nil
 }
 
 func (h *namespaceHandler) shouldUpdate(current, new *corev1.Namespace) bool {

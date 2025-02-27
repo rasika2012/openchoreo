@@ -72,13 +72,19 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	}
 
-	// Check if the labels are set
-	if deployment.Labels == nil {
-		logger.Info("Deployment labels not set. Ignoring since it is not valid.")
-		return ctrl.Result{}, nil
+	old := deployment.DeepCopy()
+
+	// Handle the deletion of the deployment
+	if !deployment.DeletionTimestamp.IsZero() {
+		logger.Info("Finalizing deployment")
+		return r.finalize(ctx, old, deployment)
 	}
 
-	old := deployment.DeepCopy()
+	// Ensure the finalizer is added to the deployment
+	if finalizerAdded, err := r.ensureFinalizer(ctx, deployment); err != nil || finalizerAdded {
+		// Return after adding the finalizer to ensure the finalizer is persisted
+		return ctrl.Result{}, err
+	}
 
 	// Mark the deployment as progressing so that any non-terminating paths will persist the progressing status
 	meta.SetStatusCondition(&deployment.Status.Conditions, NewDeploymentProgressingCondition(deployment.Generation))

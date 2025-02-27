@@ -52,6 +52,7 @@ const (
 	// ReasonDeploymentReady the deployment is ready
 	ReasonDeploymentReady       controller.ConditionReason = "DeploymentReady"
 	ReasonDeploymentProgressing controller.ConditionReason = "DeploymentProgressing"
+	ReasonDeploymentFinalizing  controller.ConditionReason = "DeploymentFinalizing"
 )
 
 func NewArtifactResolvedCondition(generation int64) metav1.Condition {
@@ -100,6 +101,16 @@ func NewDeploymentProgressingCondition(generation int64) metav1.Condition {
 		metav1.ConditionFalse,
 		ReasonDeploymentProgressing,
 		"Deployment is progressing",
+		generation,
+	)
+}
+
+func NewDeploymentFinalizingCondition(generation int64) metav1.Condition {
+	return controller.NewCondition(
+		ConditionReady,
+		metav1.ConditionFalse,
+		ReasonDeploymentFinalizing,
+		"Deployment is finalizing",
 		generation,
 	)
 }
