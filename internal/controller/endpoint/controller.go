@@ -239,7 +239,7 @@ func (r *Reconciler) removeExternalResources(ctx context.Context, resourceHandle
 func (r *Reconciler) addFinalizer(ctx context.Context, ep *choreov1.Endpoint) error {
 	base := client.MergeFrom(ep.DeepCopy())
 
-	if changed := controllerutil.AddFinalizer(ep, choreov1.EndpointFinalizer); changed {
+	if changed := controllerutil.AddFinalizer(ep, choreov1.EndpointDeletionFinalizer); changed {
 		if err := r.Client.Patch(ctx, ep, base); err != nil {
 			return fmt.Errorf("failed to add finalizer to endpoint %s: %w", ep.Name, err)
 		}
@@ -249,7 +249,7 @@ func (r *Reconciler) addFinalizer(ctx context.Context, ep *choreov1.Endpoint) er
 
 func (r *Reconciler) removeFinalizer(ctx context.Context, ep *choreov1.Endpoint) error {
 	base := client.MergeFrom(ep.DeepCopy())
-	if changed := controllerutil.RemoveFinalizer(ep, choreov1.EndpointFinalizer); changed {
+	if changed := controllerutil.RemoveFinalizer(ep, choreov1.EndpointDeletionFinalizer); changed {
 		if err := r.Client.Patch(ctx, ep, base); err != nil {
 			return fmt.Errorf("failed to add finalizer to endpoint %s: %w", ep.Name, err)
 		}
