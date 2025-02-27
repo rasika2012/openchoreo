@@ -20,6 +20,8 @@ package controller
 
 import (
 	"context"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"time"
 
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -117,4 +119,40 @@ func UpdateStatusConditions[T ConditionedObject](
 		return c.Status().Update(ctx, newObj)
 	}
 	return nil
+}
+
+func UpdateStatusAndRequeue[T ConditionedObject](
+	ctx context.Context, c client.Client, current, updated T,
+) (ctrl.Result, error) {
+	if err := UpdateStatusConditions(ctx, c, current, updated); err != nil {
+		return ctrl.Result{}, err
+	}
+	return ctrl.Result{Requeue: true}, nil
+}
+
+func UpdateStatusAndReturn[T ConditionedObject](
+	ctx context.Context, c client.Client, current, updated T,
+) (ctrl.Result, error) {
+	if err := UpdateStatusConditions(ctx, c, current, updated); err != nil {
+		return ctrl.Result{}, err
+	}
+	return ctrl.Result{}, nil
+}
+
+func UpdateStatusAndReturnError[T ConditionedObject](
+	ctx context.Context, c client.Client, current, updated T, err error,
+) (ctrl.Result, error) {
+	if updateErr := UpdateStatusConditions(ctx, c, current, updated); updateErr != nil {
+		return ctrl.Result{}, updateErr
+	}
+	return ctrl.Result{}, err
+}
+
+func UpdateStatusAndRequeueAfter[T ConditionedObject](
+	ctx context.Context, c client.Client, current, updated T, duration time.Duration,
+) (ctrl.Result, error) {
+	if err := UpdateStatusConditions(ctx, c, current, updated); err != nil {
+		return ctrl.Result{}, err
+	}
+	return ctrl.Result{RequeueAfter: duration}, nil
 }
