@@ -27,12 +27,13 @@ import (
 )
 
 const (
-	maxNameLength = 63
+	maxNameLength = 253
 	hashLength    = 8   // Length of the hash suffix
 	separator     = "-" // Separator between name parts
 
 	// Max length limits for Kubernetes resource names
 
+	MaxLabelNameLength     = 63
 	MaxResourceNameLength  = maxNameLength
 	MaxCronJobNameLength   = 52
 	MaxJobNameLength       = 63

@@ -23,9 +23,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/google/go-github/v69/github"
@@ -36,7 +36,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -44,6 +43,7 @@ import (
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/build/descriptor"
+	dpKubernetes "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes"
 	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes/types/argoproj.io/workflow/v1alpha1"
 	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
 )
@@ -66,26 +66,18 @@ type Reconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/reconcile
 func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
-	// Fetch the Build instance
-	build := &choreov1.Build{}
-	if err := r.Get(ctx, req.NamespacedName, build); err != nil {
-		if apierrors.IsNotFound(err) {
-			logger.Info("Build resource not found, ignoring since object must be deleted")
-			return ctrl.Result{}, nil
-		}
-		// Error reading the object
-		logger.Error(err, "Failed to get Build")
+
+	build, err := r.getBuildInstance(ctx, req)
+	if err != nil || build == nil {
 		return ctrl.Result{}, err
 	}
 
-	if meta.FindStatusCondition(build.Status.Conditions, string(DeploymentApplied)) != nil ||
-		meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, string(Completed), metav1.ConditionFalse) {
+	if r.shouldIgnoreReconcile(build) {
 		return ctrl.Result{}, nil
 	}
 
 	old := build.DeepCopy()
 
-	// Check if the build namespace exists, and create it if not
 	buildNamespace := "choreo-ci-" + build.Labels[labels.LabelKeyOrganizationName]
 	if err := r.ensureNamespaceResources(ctx, buildNamespace, logger); err != nil {
 		logger.Error(err, "Failed to ensure choreo ci namespace resources")
@@ -97,97 +89,49 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	if err != nil {
 		logger.Error(err, "Failed to ensure workflow")
 		return ctrl.Result{}, err
-	} else if existingWorkflow == nil {
-		// New workflow created
-		if updateErr := controller.UpdateStatusConditions(ctx, r.Client, old, build); updateErr != nil {
-			return ctrl.Result{}, updateErr
-		}
-		return ctrl.Result{Requeue: true}, nil
+	}
+
+	// If a new workflow was created, update status and requeue
+	if existingWorkflow == nil {
+		return controller.UpdateStatusAndRequeue(ctx, r.Client, old, build)
 	}
 
 	requeue, err := r.handleBuildSteps(ctx, build, existingWorkflow.Status.Nodes, logger)
 	if err != nil {
 		logger.Error(err, "Failed to handle build steps")
-		if updateErr := controller.UpdateStatusConditions(ctx, r.Client, old, build); updateErr != nil {
-			return ctrl.Result{}, updateErr
-		}
-		return ctrl.Result{}, err
+		return controller.UpdateStatusAndReturnError(ctx, r.Client, old, build, err)
 	}
 
-	stepInfo, isFound := GetStepByTemplateName(existingWorkflow.Status.Nodes, BuildStep)
-	// If the build step is still running, requeue the reconciliation after 1 minute.
-	// This provides a controlled requeue interval instead of relying on exponential backoff.
-	if requeue && isFound && meta.FindStatusCondition(build.Status.Conditions, string(BuildSucceeded)) == nil {
-		if getStepPhase(stepInfo.Phase) == Running {
-			if updateErr := controller.UpdateStatusConditions(ctx, r.Client, old, build); updateErr != nil {
-				return ctrl.Result{}, updateErr
-			}
-			return ctrl.Result{RequeueAfter: 60000000000}, nil
-		}
-	} else if requeue {
-		if updateErr := controller.UpdateStatusConditions(ctx, r.Client, old, build); updateErr != nil {
-			return ctrl.Result{}, updateErr
-		}
-		return ctrl.Result{Requeue: true}, nil
+	if requeue {
+		return r.handleAfterBuildRequeue(ctx, old, build, existingWorkflow)
 	}
 
-	if meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, string(Completed), metav1.ConditionTrue) &&
-		meta.FindStatusCondition(build.Status.Conditions, string(DeployableArtifactCreated)) == nil {
-
-		err := r.createDeployableArtifact(ctx, build, logger)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		meta.SetStatusCondition(&build.Status.Conditions,
-			controller.NewCondition(
-				DeployableArtifactCreated,
-				metav1.ConditionTrue,
-				"ArtifactCreationSuccessful",
-				"Successfully created a deployable artifact for the build",
-				build.Generation,
-			))
-		if updateErr := controller.UpdateStatusConditions(ctx, r.Client, old, build); updateErr != nil {
-			return ctrl.Result{}, updateErr
-		}
-		return ctrl.Result{Requeue: true}, nil
-	}
-
-	dt, err := controller.GetDeploymentTrack(ctx, r.Client, build)
-	if apierrors.IsNotFound(err) {
-		return ctrl.Result{}, nil
-	} else if err != nil {
-		return ctrl.Result{Requeue: true}, err
-	}
-
-	if dt.Spec.AutoDeploy && meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, string(DeployableArtifactCreated), metav1.ConditionTrue) {
-		err, requeue = r.handleAutoDeployment(ctx, build)
+	if r.shouldCreateDeployableArtifact(build) {
+		requeue, err := r.createDeployableArtifact(ctx, build)
 		if requeue {
-			return ctrl.Result{Requeue: true}, nil
-		} else if err != nil {
-			meta.SetStatusCondition(&build.Status.Conditions, controller.NewCondition(
-				DeploymentApplied,
-				metav1.ConditionFalse,
-				"DeploymentFailed",
-				"Deployment configuration failed.",
-				build.Generation,
-			))
-			if updateErr := controller.UpdateStatusConditions(ctx, r.Client, old, build); updateErr != nil {
-				return ctrl.Result{}, updateErr
-			}
-			return ctrl.Result{}, err
+			return controller.UpdateStatusAndRequeue(ctx, r.Client, old, build)
+		}
+		if err != nil {
+			return controller.UpdateStatusAndReturn(ctx, r.Client, old, build)
 		}
 		meta.SetStatusCondition(&build.Status.Conditions, controller.NewCondition(
-			DeploymentApplied,
+			DeployableArtifactCreated,
 			metav1.ConditionTrue,
-			"DeploymentAppliedSuccessfully",
-			"Successfully configured the deployment.",
+			"ArtifactCreationSuccessful",
+			"Successfully created a deployable artifact for the build",
 			build.Generation,
 		))
-		if updateErr := controller.UpdateStatusConditions(ctx, r.Client, old, build); updateErr != nil {
-			return ctrl.Result{}, updateErr
-		}
+		return controller.UpdateStatusAndRequeue(ctx, r.Client, old, build)
 	}
-	return ctrl.Result{}, nil
+
+	requeue, err = r.handleAutoDeployment(ctx, build)
+	if requeue {
+		return controller.UpdateStatusAndRequeue(ctx, r.Client, old, build)
+	} else if err != nil {
+		return controller.UpdateStatusAndReturn(ctx, r.Client, old, build)
+	}
+
+	return controller.UpdateStatusAndReturn(ctx, r.Client, old, build)
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -196,6 +140,86 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&choreov1.Build{}).
 		Named("build").
 		Complete(r)
+}
+
+func (r *Reconciler) getBuildInstance(ctx context.Context, req ctrl.Request) (*choreov1.Build, error) {
+	logger := log.FromContext(ctx)
+	build := &choreov1.Build{}
+	if err := r.Get(ctx, req.NamespacedName, build); err != nil {
+		if apierrors.IsNotFound(err) {
+			logger.Info("Build resource not found, ignoring since object must be deleted")
+			return nil, nil
+		}
+		logger.Error(err, "Failed to get Build")
+		return nil, err
+	}
+	return build, nil
+}
+
+func (r *Reconciler) shouldIgnoreReconcile(build *choreov1.Build) bool {
+	return meta.FindStatusCondition(build.Status.Conditions, string(DeploymentApplied)) != nil ||
+		meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, string(Completed), metav1.ConditionFalse)
+}
+
+func (r *Reconciler) handleAfterBuildRequeue(
+	ctx context.Context, old, build *choreov1.Build, workflow *argo.Workflow,
+) (ctrl.Result, error) {
+	// If the build step is still running, requeue the reconciliation after 1 minute.
+	// This provides a controlled requeue interval instead of relying on exponential backoff.
+	stepInfo, isFound := GetStepByTemplateName(workflow.Status.Nodes, BuildStep)
+	if isFound && meta.FindStatusCondition(build.Status.Conditions, string(BuildSucceeded)) == nil {
+		if getStepPhase(stepInfo.Phase) == Running {
+			return controller.UpdateStatusAndRequeueAfter(ctx, r.Client, old, build, 60*time.Second)
+		}
+	}
+	return controller.UpdateStatusAndRequeue(ctx, r.Client, old, build)
+}
+
+func (r *Reconciler) shouldCreateDeployableArtifact(build *choreov1.Build) bool {
+	return meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, string(Completed), metav1.ConditionTrue) &&
+		meta.FindStatusCondition(build.Status.Conditions, string(DeployableArtifactCreated)) == nil
+}
+
+func (r *Reconciler) handleAutoDeployment(ctx context.Context, build *choreov1.Build) (bool, error) {
+	logger := log.FromContext(ctx)
+	dt, err := controller.GetDeploymentTrack(ctx, r.Client, build)
+	if apierrors.IsNotFound(err) {
+		logger.Error(err, "Deployment resource not found")
+		meta.SetStatusCondition(&build.Status.Conditions, controller.NewCondition(
+			DeploymentApplied,
+			metav1.ConditionFalse,
+			"DeploymentFailed",
+			"Deployment configuration failed.",
+			build.Generation,
+		))
+		return false, nil
+	} else if err != nil {
+		return true, err
+	}
+
+	if dt.Spec.AutoDeploy && meta.IsStatusConditionPresentAndEqual(build.Status.Conditions, string(DeployableArtifactCreated), metav1.ConditionTrue) {
+		requeue, err := r.updateOrCreateDeployment(ctx, build)
+		if requeue {
+			return true, nil
+		} else if err != nil {
+			meta.SetStatusCondition(&build.Status.Conditions, controller.NewCondition(
+				DeploymentApplied,
+				metav1.ConditionFalse,
+				"DeploymentFailed",
+				"Deployment configuration failed.",
+				build.Generation,
+			))
+			return false, err
+		}
+		meta.SetStatusCondition(&build.Status.Conditions, controller.NewCondition(
+			DeploymentApplied,
+			metav1.ConditionTrue,
+			"DeploymentAppliedSuccessfully",
+			"Successfully configured the deployment.",
+			build.Generation,
+		))
+	}
+	return false, nil
 }
 
 // ensureNamespaceResources ensures that the namespace, service account, role, and role binding are created.
@@ -269,7 +293,7 @@ func (r *Reconciler) ensureNamespaceResources(ctx context.Context, namespaceName
 }
 
 func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, buildNamespace string, logger logr.Logger) (*argo.Workflow, error) {
-	component, err := r.getComponent(ctx, build)
+	component, err := controller.GetComponent(ctx, r.Client, build)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			logger.Info("Component of the build is not found", "Build.Name", build.Name)
@@ -288,14 +312,13 @@ func (r *Reconciler) ensureWorkflow(ctx context.Context, build *choreov1.Build, 
 			if err := r.Create(ctx, workflow); err != nil {
 				return nil, err
 			}
-			meta.SetStatusCondition(&build.Status.Conditions,
-				controller.NewCondition(
-					Initialized,
-					metav1.ConditionTrue,
-					"WorkflowCreated",
-					"Workflow was created in the cluster",
-					build.Generation,
-				))
+			meta.SetStatusCondition(&build.Status.Conditions, controller.NewCondition(
+				Initialized,
+				metav1.ConditionTrue,
+				"WorkflowCreated",
+				"Workflow was created in the cluster",
+				build.Generation,
+			))
 			return nil, nil
 		}
 		return nil, err
@@ -404,14 +427,13 @@ func (r *Reconciler) markStepAsSucceeded(ctx context.Context, build *choreov1.Bu
 		},
 	}
 
-	meta.SetStatusCondition(&build.Status.Conditions,
-		controller.NewCondition(
-			conditionType,
-			metav1.ConditionTrue,
-			successDescriptiors[conditionType].Reason,
-			successDescriptiors[conditionType].Message,
-			build.Generation,
-		))
+	meta.SetStatusCondition(&build.Status.Conditions, controller.NewCondition(
+		conditionType,
+		metav1.ConditionTrue,
+		successDescriptiors[conditionType].Reason,
+		successDescriptiors[conditionType].Message,
+		build.Generation,
+	))
 	return nil
 }
 
@@ -434,23 +456,21 @@ func (r *Reconciler) markStepAsFailed(ctx context.Context, build *choreov1.Build
 		},
 	}
 
-	meta.SetStatusCondition(&build.Status.Conditions,
-		controller.NewCondition(
-			conditionType,
-			metav1.ConditionTrue,
-			failureDescriptors[conditionType].Reason,
-			failureDescriptors[conditionType].Message,
-			build.Generation,
-		))
+	meta.SetStatusCondition(&build.Status.Conditions, controller.NewCondition(
+		conditionType,
+		metav1.ConditionTrue,
+		failureDescriptors[conditionType].Reason,
+		failureDescriptors[conditionType].Message,
+		build.Generation,
+	))
 
-	meta.SetStatusCondition(&build.Status.Conditions,
-		controller.NewCondition(
-			Completed,
-			metav1.ConditionFalse,
-			"BuildFailed",
-			"Build completed with a failure status",
-			build.Generation,
-		))
+	meta.SetStatusCondition(&build.Status.Conditions, controller.NewCondition(
+		Completed,
+		metav1.ConditionFalse,
+		"BuildFailed",
+		"Build completed with a failure status",
+		build.Generation,
+	))
 	return false, nil
 }
 
@@ -477,7 +497,8 @@ func constructImageNameWithTag(build *choreov1.Build) string {
 	return fmt.Sprintf("%s-%s:%s", hashString, componentName, dtName)
 }
 
-func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreov1.Build, logger logr.Logger) error {
+func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreov1.Build) (bool, error) {
+	logger := log.FromContext(ctx)
 	deployableArtifact := &choreov1.DeployableArtifact{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "DeployableArtifact",
@@ -511,82 +532,104 @@ func (r *Reconciler) createDeployableArtifact(ctx context.Context, build *choreo
 	existing := &choreov1.DeployableArtifact{}
 	err := r.Get(ctx, client.ObjectKeyFromObject(deployableArtifact), existing)
 	if err == nil {
-		return nil
+		return false, nil
 	} else if !apierrors.IsNotFound(err) {
-		return fmt.Errorf("failed to get deployable artifact: %w", err)
+		logger.Error(err, "failed to get deployable artifact")
+		return true, fmt.Errorf("failed to get deployable artifact: %w", err)
 	}
 	if err := ctrl.SetControllerReference(build, deployableArtifact, r.Scheme); err != nil {
-		return err
+		logger.Error(err, "Failed to set controller reference", "DeployableArtifact", deployableArtifact.Labels)
+		return false, err
 	}
-	component, err := r.getComponent(ctx, build)
+	component, err := controller.GetComponent(ctx, r.Client, build)
 	if err != nil {
-		return fmt.Errorf("failed to get component: %w ", err)
+		if apierrors.IsNotFound(err) {
+			logger.Error(err, "Component doesn't exist")
+			return false, err
+		}
+		return true, fmt.Errorf("failed to get component: %w ", err)
 	}
 	r.addComponentSpecificConfigs(ctx, logger, component, deployableArtifact, build)
 
 	if err := r.Create(ctx, deployableArtifact); err != nil {
-		return fmt.Errorf("failed to create deployable artifact: %w", err)
+		return true, fmt.Errorf("failed to create deployable artifact: %w", err)
 	}
-
-	return nil
+	return false, nil
 }
-
-func (r *Reconciler) handleAutoDeployment(ctx context.Context, build *choreov1.Build) (error, bool) {
+func (r *Reconciler) updateOrCreateDeployment(ctx context.Context, build *choreov1.Build) (bool, error) {
 	logger := log.FromContext(ctx)
 
-	deployment, err := r.getDeployment(ctx, build)
-	if err != nil && !apierrors.IsNotFound(err) {
+	environment, err := r.getFirstEnvironmentFromDeploymentPipeline(ctx, build)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			// Environment not found, no need to requeue
+			return false, nil
+		}
+		// Other errors should be retried
+		return true, err
+	}
+
+	// Retrieve the existing deployment
+	deployment, err := controller.GetDeploymentByEnvironment(ctx, r.Client, build, environment.Labels[labels.LabelKeyName])
+	if err != nil {
+		if hierarchyErr, ok := err.(*controller.HierarchyNotFoundError); ok {
+			// Deployment does not exist, create a new one
+			logger.Info("Hierarchy not found", "error", hierarchyErr)
+			// Call your deployment creation handler
+			return r.createDeployment(ctx, build, environment.Labels[labels.LabelKeyName])
+		}
 		// Return if the error is not a "Not Found" error
 		logger.Error(err, "Failed to get deployment", "Build.name", build.Name)
-		return err, true
-	} else if deployment != nil {
-		// Deployment exists, update it
-		if deployment.Spec.DeploymentArtifactRef != build.Name {
-			deployment.Spec.DeploymentArtifactRef = build.Name
-			if err = r.Update(ctx, deployment); err != nil {
-				logger.Error(err, "Failed to update deployment", "Deployment.name", deployment.Name)
-				return err, true
-			}
-		}
-		return nil, false
+		return true, err
 	}
-	return r.createDeployment(ctx, build)
+
+	// If deployment exists, update the DeploymentArtifactRef if necessary
+	if deployment.Spec.DeploymentArtifactRef != build.Name {
+		deployment.Spec.DeploymentArtifactRef = build.Name
+		if err = r.Update(ctx, deployment); err != nil {
+			logger.Error(err, "Failed to update deployment", "Deployment.name", deployment.Name)
+			return true, err
+		}
+	}
+
+	// No further reconciliation needed
+	return false, nil
 }
 
-func (r *Reconciler) createDeployment(ctx context.Context, build *choreov1.Build) (error, bool) {
+func (r *Reconciler) getFirstEnvironmentFromDeploymentPipeline(ctx context.Context, build *choreov1.Build) (*choreov1.Environment, error) {
+	// Get the deployment pipeline of the project
 	deploymentPipeline, err := controller.GetDeploymentPipelineOfProject(ctx, r.Client, build)
-	if err != nil && apierrors.IsNotFound(err) {
-		// If the resource is not found, do not requeue
-		return err, false
-	} else if err != nil {
-		// If there is any other error, retry
-		return err, true
+	if err != nil {
+		return nil, err
 	}
 
+	// Get the environment name from the first promotion path
 	environmentName := deploymentPipeline.Spec.PromotionPaths[0].SourceEnvironmentRef
 
+	// Retrieve the environment by name
 	environment, err := controller.GetEnvironmentByName(ctx, r.Client, build, environmentName)
-	if err == nil {
-		return r.createDeploymentKind(ctx, build, environment.Labels[labels.LabelKeyName])
-	} else if apierrors.IsNotFound(err) {
-		// If the resource is not found, do not requeue
-		return err, false
+	if err != nil {
+		return nil, err
 	}
-	// If there is any other error, retry
-	return err, true
+	return environment, nil
 }
 
-func (r *Reconciler) createDeploymentKind(ctx context.Context, build *choreov1.Build, environmentName string) (error, bool) {
+func (r *Reconciler) createDeployment(ctx context.Context, build *choreov1.Build, environmentName string) (bool, error) {
 	logger := log.FromContext(ctx)
 
-	deploymentName := kubernetes.GenerateK8sName(
-		build.Labels[labels.LabelKeyOrganizationName],
-		build.Labels[labels.LabelKeyProjectName],
-		build.Labels[labels.LabelKeyComponentName],
-		build.Labels[labels.LabelKeyDeploymentTrackName],
-		build.Labels[labels.LabelKeyEnvironmentName],
+	// Generate the deployment name
+	deploymentName := dpKubernetes.GenerateK8sNameWithLengthLimit(
+		dpKubernetes.MaxResourceNameLength,
+		controller.GetOrganizationName(build),
+		controller.GetProjectName(build),
+		controller.GetComponentName(build),
+		controller.GetDeploymentTrackName(build),
+		environmentName,
 	)
 
+	deploymentLabelName := dpKubernetes.GenerateK8sNameWithLengthLimit(63, environmentName, "deployment")
+
+	// Create the deployment object
 	deployment := &choreov1.Deployment{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "core.choreo.dev/v1",
@@ -601,7 +644,7 @@ func (r *Reconciler) createDeploymentKind(ctx context.Context, build *choreov1.B
 				labels.LabelKeyComponentName:       controller.GetComponentName(build),
 				labels.LabelKeyDeploymentTrackName: controller.GetDeploymentTrackName(build),
 				labels.LabelKeyEnvironmentName:     environmentName,
-				labels.LabelKeyName:                deploymentName,
+				labels.LabelKeyName:                deploymentLabelName,
 			},
 		},
 		Spec: choreov1.DeploymentSpec{
@@ -609,11 +652,13 @@ func (r *Reconciler) createDeploymentKind(ctx context.Context, build *choreov1.B
 		},
 	}
 
+	// Create the deployment
 	if err := r.Create(ctx, deployment); err != nil {
 		logger.Error(err, "Failed to create deployment", "Deployment.name", deploymentName)
-		return err, true
+		return true, err
 	}
-	return nil, false
+	logger.Info("Created deployment", "Deployment.Name", deploymentName, "Deployment.Label.Name", deploymentLabelName)
+	return false, nil
 }
 
 func (r *Reconciler) addComponentSpecificConfigs(ctx context.Context, logger logr.Logger, component *choreov1.Component, deployableArtifact *choreov1.DeployableArtifact, build *choreov1.Build) {
@@ -660,7 +705,7 @@ func (r *Reconciler) addComponentSpecificConfigs(ctx context.Context, logger log
 }
 
 func (r *Reconciler) getEndpointConfigs(ctx context.Context, build *choreov1.Build) ([]choreov1.EndpointTemplate, error) {
-	component, err := r.getComponent(ctx, build)
+	component, err := controller.GetComponent(ctx, r.Client, build)
 	if err != nil {
 		return nil, err
 	}
@@ -729,79 +774,4 @@ func extractRepositoryInfo(repoURL string) (string, string, error) {
 	owner := urlSegments[start]
 	repo := urlSegments[start+1]
 	return owner, repo, nil
-}
-
-func (r *Reconciler) getComponent(ctx context.Context, build *choreov1.Build) (*choreov1.Component, error) {
-	componentList := &choreov1.ComponentList{}
-	listOpts := []client.ListOption{
-		client.InNamespace(build.Namespace),
-		client.MatchingLabels{
-			labels.LabelKeyOrganizationName: build.Labels[labels.LabelKeyOrganizationName],
-			labels.LabelKeyProjectName:      build.Labels[labels.LabelKeyProjectName],
-		},
-	}
-	if err := r.Client.List(ctx, componentList, listOpts...); err != nil {
-		return nil, err
-	}
-
-	for _, component := range componentList.Items {
-		if component.Labels == nil {
-			// Ideally, this should not happen as the component should have the organization and project labels
-			continue
-		}
-		if component.Labels[labels.LabelKeyName] == build.Labels[labels.LabelKeyComponentName] {
-			return &component, nil
-		}
-	}
-	return nil, apierrors.NewNotFound(schema.GroupResource{Group: "core.choreo.dev", Resource: "Component"}, build.Labels[labels.LabelKeyComponentName])
-}
-
-func (r *Reconciler) getDeployment(ctx context.Context, build *choreov1.Build) (*choreov1.Deployment, error) {
-	deploymentList := &choreov1.DeploymentList{}
-	listOpts := []client.ListOption{
-		client.InNamespace(build.GetNamespace()),
-		client.MatchingLabels{
-			labels.LabelKeyOrganizationName:    controller.GetOrganizationName(build),
-			labels.LabelKeyProjectName:         controller.GetProjectName(build),
-			labels.LabelKeyComponentName:       controller.GetComponentName(build),
-			labels.LabelKeyDeploymentTrackName: controller.GetDeploymentTrackName(build),
-			labels.LabelKeyEnvironmentName:     controller.GetEnvironmentName(build),
-			labels.LabelKeyName:                controller.GetDeploymentName(build),
-		},
-	}
-	if err := r.Client.List(ctx, deploymentList, listOpts...); err != nil {
-		return nil, fmt.Errorf("failed to list deployments: %w", err)
-	}
-
-	if len(deploymentList.Items) == 0 {
-		return nil, apierrors.NewNotFound(schema.GroupResource{Group: build.APIVersion, Resource: "Deployment"}, "deployment")
-	}
-
-	return &deploymentList.Items[0], nil
-}
-
-func (r *Reconciler) getDeploymentTrack(ctx context.Context, build *choreov1.Build) (*choreov1.DeploymentTrack, error) {
-	deploymentTrackList := &choreov1.DeploymentTrackList{}
-	listOpts := []client.ListOption{
-		client.InNamespace(build.GetNamespace()),
-		client.MatchingLabels{
-			labels.LabelKeyOrganizationName: build.Labels[labels.LabelKeyOrganizationName],
-			labels.LabelKeyProjectName:      build.Labels[labels.LabelKeyProjectName],
-			labels.LabelKeyComponentName:    build.Labels[labels.LabelKeyComponentName],
-		},
-	}
-	if err := r.Client.List(ctx, deploymentTrackList, listOpts...); err != nil {
-		return nil, fmt.Errorf("failed to list deployment tracks: %w", err)
-	}
-
-	for _, deploymentTrack := range deploymentTrackList.Items {
-		if deploymentTrack.Labels == nil {
-			// Ideally, this should not happen as the component should have the organization and project labels
-			continue
-		}
-		if deploymentTrack.Labels[labels.LabelKeyName] == build.Labels[labels.LabelKeyDeploymentTrackName] {
-			return &deploymentTrack, nil
-		}
-	}
-	return nil, apierrors.NewNotFound(schema.GroupResource{Group: "core.choreo.dev", Resource: "DeploymentTrack"}, build.Labels[labels.LabelKeyDeploymentTrackName])
 }
