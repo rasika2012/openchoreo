@@ -121,6 +121,9 @@ func UpdateStatusConditions[T ConditionedObject](
 	return nil
 }
 
+// UpdateStatusConditionsAndRequeue updates status conditions and requests a requeue.
+// This indicates that the controller should requeue the request for further processing.
+// It returns an error if the status update fails.
 func UpdateStatusConditionsAndRequeue[T ConditionedObject](
 	ctx context.Context, c client.Client, current, updated T,
 ) (ctrl.Result, error) {
@@ -130,6 +133,8 @@ func UpdateStatusConditionsAndRequeue[T ConditionedObject](
 	return ctrl.Result{Requeue: true}, nil
 }
 
+// UpdateStatusConditionsAndReturn updates status conditions without requeuing.
+// It returns an error if the update fails.
 func UpdateStatusConditionsAndReturn[T ConditionedObject](
 	ctx context.Context, c client.Client, current, updated T,
 ) (ctrl.Result, error) {
@@ -139,6 +144,9 @@ func UpdateStatusConditionsAndReturn[T ConditionedObject](
 	return ctrl.Result{}, nil
 }
 
+// UpdateStatusConditionsAndReturnError updates status conditions and returns the given error.
+// It returns an update error if the conditions update fails.
+// It prioritizes the status update error over the provided error, if any.
 func UpdateStatusConditionsAndReturnError[T ConditionedObject](
 	ctx context.Context, c client.Client, current, updated T, err error,
 ) (ctrl.Result, error) {
@@ -148,6 +156,8 @@ func UpdateStatusConditionsAndReturnError[T ConditionedObject](
 	return ctrl.Result{}, err
 }
 
+// UpdateStatusConditionsAndRequeueAfter updates status conditions and requeues after the specified duration.
+// It returns an error if the status update fails.
 func UpdateStatusConditionsAndRequeueAfter[T ConditionedObject](
 	ctx context.Context, c client.Client, current, updated T, duration time.Duration,
 ) (ctrl.Result, error) {

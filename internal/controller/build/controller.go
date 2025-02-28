@@ -68,8 +68,14 @@ type Reconciler struct {
 func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	build, err := r.getBuildInstance(ctx, req)
-	if err != nil || build == nil {
+	// Fetch the build resource
+	build := &choreov1.Build{}
+	if err := r.Get(ctx, req.NamespacedName, build); err != nil {
+		if apierrors.IsNotFound(err) {
+			logger.Info("Build resource not found, ignoring since object must be deleted")
+			return ctrl.Result{}, nil
+		}
+		logger.Error(err, "Failed to get Build")
 		return ctrl.Result{}, err
 	}
 
@@ -144,20 +150,6 @@ func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&choreov1.Build{}).
 		Named("build").
 		Complete(r)
-}
-
-func (r *Reconciler) getBuildInstance(ctx context.Context, req ctrl.Request) (*choreov1.Build, error) {
-	logger := log.FromContext(ctx)
-	build := &choreov1.Build{}
-	if err := r.Get(ctx, req.NamespacedName, build); err != nil {
-		if apierrors.IsNotFound(err) {
-			logger.Info("Build resource not found, ignoring since object must be deleted")
-			return nil, nil
-		}
-		logger.Error(err, "Failed to get Build")
-		return nil, err
-	}
-	return build, nil
 }
 
 func (r *Reconciler) shouldIgnoreReconcile(build *choreov1.Build) bool {
