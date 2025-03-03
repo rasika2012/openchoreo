@@ -28,7 +28,6 @@ import (
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
@@ -79,18 +78,17 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, controller.IgnoreHierarchyNotFoundError(err)
 	}
 
-	if ep.DeletionTimestamp.IsZero() {
-		if err := r.addFinalizer(ctx, ep); err != nil {
-			return ctrl.Result{}, err
-		}
-	} else {
-		if err := r.removeFinalizer(ctx, ep); err != nil {
-			return ctrl.Result{}, err
-		}
-		if err := r.removeExternalResources(ctx, resourceHandlers, epCtx); err != nil {
-			return ctrl.Result{}, err
-		}
-		return ctrl.Result{}, nil
+	old := ep.DeepCopy()
+
+	if !ep.DeletionTimestamp.IsZero() {
+		logger.Info("Finalizing endpoint")
+		return r.finalize(ctx, old, ep)
+	}
+
+	// Ensure the finalizer is added to the deployment
+	if err := r.ensureFinalizer(ctx, ep); err != nil {
+		// Return after adding the finalizer to ensure the finalizer is persisted
+		return ctrl.Result{}, err
 	}
 
 	if err = r.reconcileExternalResources(ctx, resourceHandlers, epCtx); err != nil {
@@ -218,42 +216,6 @@ func (r *Reconciler) reconcileExternalResources(
 		logger.Info("Reconciled external resource")
 	}
 
-	return nil
-}
-
-func (r *Reconciler) removeExternalResources(ctx context.Context, resourceHandlers []dataplane.ResourceHandler[dataplane.EndpointContext], epCtx *dataplane.EndpointContext) error {
-	for _, h := range resourceHandlers {
-		state, err := h.GetCurrentState(ctx, epCtx)
-		if err != nil {
-			return fmt.Errorf("error retrieving current state of the external resource: %w", err)
-		}
-		if state != nil {
-			if err := h.Delete(ctx, epCtx); err != nil {
-				return fmt.Errorf("error deleting endpoints external resource: %w", err)
-			}
-		}
-	}
-	return nil
-}
-
-func (r *Reconciler) addFinalizer(ctx context.Context, ep *choreov1.Endpoint) error {
-	base := client.MergeFrom(ep.DeepCopy())
-
-	if changed := controllerutil.AddFinalizer(ep, choreov1.EndpointDeletionFinalizer); changed {
-		if err := r.Client.Patch(ctx, ep, base); err != nil {
-			return fmt.Errorf("failed to add finalizer to endpoint %s: %w", ep.Name, err)
-		}
-	}
-	return nil
-}
-
-func (r *Reconciler) removeFinalizer(ctx context.Context, ep *choreov1.Endpoint) error {
-	base := client.MergeFrom(ep.DeepCopy())
-	if changed := controllerutil.RemoveFinalizer(ep, choreov1.EndpointDeletionFinalizer); changed {
-		if err := r.Client.Patch(ctx, ep, base); err != nil {
-			return fmt.Errorf("failed to add finalizer to endpoint %s: %w", ep.Name, err)
-		}
-	}
 	return nil
 }
 
