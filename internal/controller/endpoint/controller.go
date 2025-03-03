@@ -68,7 +68,6 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, nil
 	}
 
-	// do we add finalizer only if there are dependent crs?
 	resourceHandlers := r.makeExternalResourceHandlers()
 	epCtx, err := r.makeEndpointContext(ctx, ep)
 	if err != nil {
