@@ -51,7 +51,7 @@ func (r *Reconciler) finalize(ctx context.Context, old, ep *choreov1.Endpoint) (
 
 	// Mark the endpoint condition as finalizing and return so that the deployment will indicate that it is being finalized.
 	// The actual finalization will be done in the next reconcile loop triggered by the status update.
-	if meta.SetStatusCondition(&ep.Status.Conditions, NewEndpointReadyCondition(ep.Generation, false, "Endpoint is terminating")) {
+	if meta.SetStatusCondition(&ep.Status.Conditions, EndpointTerminatingCondition(ep.Generation)) {
 		if err := controller.UpdateStatusConditions(ctx, r.Client, old, ep); err != nil {
 			return ctrl.Result{}, err
 		}

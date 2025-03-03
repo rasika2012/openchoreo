@@ -38,23 +38,32 @@ const (
 	ReasonEndpointReady controller.ConditionReason = "EndpointReady"
 )
 
-func NewEndpointReadyCondition(generation int64, accepted bool, message string) metav1.Condition {
-	switch accepted {
-	case true:
-		return controller.NewCondition(
-			controller.TypeReady,
-			metav1.ConditionTrue,
-			ReasonEndpointReady,
-			message,
-			generation,
-		)
-	default:
-		return controller.NewCondition(
-			controller.TypeReady,
-			metav1.ConditionFalse,
-			ReasonEndpointReady,
-			message,
-			generation,
-		)
-	}
+func EndpointReadyCondition(generation int64) metav1.Condition {
+	return controller.NewCondition(
+		controller.TypeReady,
+		metav1.ConditionTrue,
+		ReasonEndpointReady,
+		"Endpoint is ready",
+		generation,
+	)
+}
+
+func EndpointFailedExternalReconcileCondition(generation int64, message string) metav1.Condition {
+	return controller.NewCondition(
+		controller.TypeReady,
+		metav1.ConditionFalse,
+		ReasonEndpointReady,
+		message,
+		generation,
+	)
+}
+
+func EndpointTerminatingCondition(generation int64) metav1.Condition {
+	return controller.NewCondition(
+		controller.TypeReady,
+		metav1.ConditionFalse,
+		ReasonEndpointReady,
+		"Endpoint is terminating",
+		generation,
+	)
 }

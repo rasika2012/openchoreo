@@ -92,9 +92,8 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	}
 
 	if err = r.reconcileExternalResources(ctx, resourceHandlers, epCtx); err != nil {
-		// TODO Verify if this is necessary
 		base := client.MergeFrom(ep.DeepCopy())
-		meta.SetStatusCondition(&ep.Status.Conditions, NewEndpointReadyCondition(ep.Generation, false, err.Error()))
+		meta.SetStatusCondition(&ep.Status.Conditions, EndpointFailedExternalReconcileCondition(ep.Generation, err.Error()))
 		logger.Error(err, "failed to reconcile external resources")
 		r.recorder.Eventf(ep, corev1.EventTypeWarning, "ExternalResourceReconciliationFailed",
 			"External resource reconciliation failed: %s", err)
@@ -104,7 +103,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		return ctrl.Result{}, err
 	}
 
-	meta.SetStatusCondition(&ep.Status.Conditions, NewEndpointReadyCondition(ep.Generation, true, ""))
+	meta.SetStatusCondition(&ep.Status.Conditions, EndpointReadyCondition(ep.Generation))
 	ep.Status.Address = kubernetes.MakeAddress(epCtx.Component.Name, epCtx.Environment.Name, epCtx.Component.Spec.Type, epCtx.Endpoint.Spec.Service.BasePath)
 	if ep.Status.Address != oldEp.Status.Address ||
 		controller.NeedConditionUpdate(oldEp.Status.Conditions, ep.Status.Conditions) {
