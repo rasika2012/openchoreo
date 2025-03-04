@@ -111,8 +111,12 @@ func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		}
 
 		// When build is completed, it is required to update conditions
-		if err := controller.UpdateStatusConditions(ctx, r.Client, oldBuild, build); err != nil {
-			return ctrl.Result{Requeue: true}, nil
+		if oldBuild.Status.ImageStatus.Image != build.Status.ImageStatus.Image ||
+			controller.NeedConditionUpdate(oldBuild.Status.Conditions, build.Status.Conditions) {
+			if err := r.Status().Update(ctx, build); err != nil {
+				logger.Error(err, "Failed to update build status")
+				return ctrl.Result{Requeue: true}, err
+			}
 		}
 	}
 
