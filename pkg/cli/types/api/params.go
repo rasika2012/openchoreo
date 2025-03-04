@@ -19,7 +19,7 @@
 package api
 
 import (
-	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	choreov1 "github.com/choreo-idp/choreo/api/v1"
 )
 
 // ListParams defines common parameters for listing resources

@@ -18,7 +18,7 @@
 
 package descriptor
 
-import choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+import choreov1 "github.com/choreo-idp/choreo/api/v1"
 
 // Config represents the root configuration structure
 type Config struct {

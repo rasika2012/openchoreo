@@ -33,7 +33,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	corev1 "github.com/choreo-idp/choreo/api/v1"
 	// +kubebuilder:scaffold:imports
 )
 

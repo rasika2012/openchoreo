@@ -31,9 +31,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
+	choreov1 "github.com/choreo-idp/choreo/api/v1"
+	"github.com/choreo-idp/choreo/internal/controller"
+	"github.com/choreo-idp/choreo/internal/labels"
 )
 
 // Reconciler reconciles a Organization object

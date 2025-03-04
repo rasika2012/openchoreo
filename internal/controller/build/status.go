@@ -19,8 +19,8 @@
 package build
 
 import (
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes/types/argoproj.io/workflow/v1alpha1"
+	"github.com/choreo-idp/choreo/internal/controller"
+	argo "github.com/choreo-idp/choreo/internal/dataplane/kubernetes/types/argoproj.io/workflow/v1alpha1"
 )
 
 const (

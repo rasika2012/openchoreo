@@ -22,8 +22,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
+	"github.com/choreo-idp/choreo/internal/choreoctl/errors"
+	"github.com/choreo-idp/choreo/internal/choreoctl/util"
 )
 
 type LogoutImpl struct{}

@@ -30,7 +30,7 @@ package build
 
 // 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-// 	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+// 	corev1 "github.com/choreo-idp/choreo/api/v1"
 // )
 
 // var _ = Describe("Build Controller", func() {

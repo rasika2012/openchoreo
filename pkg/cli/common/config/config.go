@@ -18,7 +18,7 @@
 
 package config
 
-import "github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/messages"
+import "github.com/choreo-idp/choreo/pkg/cli/common/messages"
 
 type CLIConfig struct {
 	Name             string

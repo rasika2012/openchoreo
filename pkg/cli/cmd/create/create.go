@@ -21,11 +21,11 @@ package create
 import (
 	"github.com/spf13/cobra"
 
-	v1api "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/builder"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/flags"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
+	v1api "github.com/choreo-idp/choreo/api/v1"
+	"github.com/choreo-idp/choreo/pkg/cli/common/builder"
+	"github.com/choreo-idp/choreo/pkg/cli/common/constants"
+	"github.com/choreo-idp/choreo/pkg/cli/flags"
+	"github.com/choreo-idp/choreo/pkg/cli/types/api"
 )
 
 // Helper functions for common flag sets

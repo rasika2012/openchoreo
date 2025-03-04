@@ -30,8 +30,8 @@ import (
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	apiv1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	org "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/organization"
+	apiv1 "github.com/choreo-idp/choreo/api/v1"
+	org "github.com/choreo-idp/choreo/internal/controller/organization"
 )
 
 var _ = Describe("DataPlane Controller", func() {

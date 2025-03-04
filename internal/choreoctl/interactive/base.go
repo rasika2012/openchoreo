@@ -24,7 +24,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
+	"github.com/choreo-idp/choreo/internal/choreoctl/util"
 )
 
 const (

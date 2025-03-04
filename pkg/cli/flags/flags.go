@@ -21,7 +21,7 @@ package flags
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/messages"
+	"github.com/choreo-idp/choreo/pkg/cli/common/messages"
 )
 
 type Flag struct {

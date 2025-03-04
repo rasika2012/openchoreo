@@ -27,8 +27,8 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
+	choreov1 "github.com/choreo-idp/choreo/api/v1"
+	"github.com/choreo-idp/choreo/internal/labels"
 )
 
 // This file contains the helper functions to get the Choreo specific parent objects from the Kubernetes objects.

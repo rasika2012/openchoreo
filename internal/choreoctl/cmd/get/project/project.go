@@ -23,10 +23,10 @@ import (
 	"os"
 	"text/tabwriter"
 
-	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
+	choreov1 "github.com/choreo-idp/choreo/api/v1"
+	"github.com/choreo-idp/choreo/internal/choreoctl/util"
+	"github.com/choreo-idp/choreo/pkg/cli/common/constants"
+	"github.com/choreo-idp/choreo/pkg/cli/types/api"
 )
 
 type ListProjImpl struct {

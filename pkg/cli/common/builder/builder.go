@@ -21,8 +21,8 @@ package builder
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/flags"
+	"github.com/choreo-idp/choreo/pkg/cli/common/constants"
+	"github.com/choreo-idp/choreo/pkg/cli/flags"
 )
 
 type CommandBuilder struct {

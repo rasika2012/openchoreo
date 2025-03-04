@@ -28,9 +28,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
-	dpkubernetes "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes"
+	"github.com/choreo-idp/choreo/internal/controller"
+	"github.com/choreo-idp/choreo/internal/dataplane"
+	dpkubernetes "github.com/choreo-idp/choreo/internal/dataplane/kubernetes"
 )
 
 type namespaceHandler struct {

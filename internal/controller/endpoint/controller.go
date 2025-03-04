@@ -30,10 +30,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/endpoint/integrations/kubernetes"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
+	choreov1 "github.com/choreo-idp/choreo/api/v1"
+	"github.com/choreo-idp/choreo/internal/controller"
+	"github.com/choreo-idp/choreo/internal/controller/endpoint/integrations/kubernetes"
+	"github.com/choreo-idp/choreo/internal/dataplane"
 )
 
 // Reconciler reconciles a Endpoint object

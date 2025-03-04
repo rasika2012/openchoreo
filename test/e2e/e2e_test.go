@@ -29,7 +29,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/test/utils"
+	"github.com/choreo-idp/choreo/test/utils"
 )
 
 // namespace where the project is deployed in

@@ -21,7 +21,7 @@ package constants
 import (
 	"fmt"
 
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/messages"
+	"github.com/choreo-idp/choreo/pkg/cli/common/messages"
 )
 
 type Command struct {

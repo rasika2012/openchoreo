@@ -5,7 +5,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes/types/argoproj.io/workflow"
+	"github.com/choreo-idp/choreo/internal/dataplane/kubernetes/types/argoproj.io/workflow"
 )
 
 // SchemeGroupVersion is group version used to register these objects

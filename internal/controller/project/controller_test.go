@@ -29,14 +29,14 @@ import (
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	apiv1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-	dp "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/dataplane"
-	deppip "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deploymentpipeline"
-	env "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/environment"
-	org "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/organization"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/testutils"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
+	apiv1 "github.com/choreo-idp/choreo/api/v1"
+	"github.com/choreo-idp/choreo/internal/controller"
+	dp "github.com/choreo-idp/choreo/internal/controller/dataplane"
+	deppip "github.com/choreo-idp/choreo/internal/controller/deploymentpipeline"
+	env "github.com/choreo-idp/choreo/internal/controller/environment"
+	org "github.com/choreo-idp/choreo/internal/controller/organization"
+	"github.com/choreo-idp/choreo/internal/controller/testutils"
+	"github.com/choreo-idp/choreo/internal/labels"
 )
 
 var _ = Describe("Project Controller", func() {

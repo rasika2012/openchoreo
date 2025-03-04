@@ -1,4 +1,4 @@
-module github.com/wso2-enterprise/choreo-cp-declarative-api
+module github.com/choreo-idp/choreo
 
 go 1.23.1
 

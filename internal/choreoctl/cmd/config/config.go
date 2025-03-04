@@ -27,10 +27,10 @@ import (
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
-	configContext "github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/config"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/flags"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
+	"github.com/choreo-idp/choreo/internal/choreoctl/util"
+	configContext "github.com/choreo-idp/choreo/pkg/cli/cmd/config"
+	"github.com/choreo-idp/choreo/pkg/cli/flags"
+	"github.com/choreo-idp/choreo/pkg/cli/types/api"
 )
 
 // ConfigContextImpl implements context-related commands.

@@ -21,7 +21,7 @@ package logs
 import (
 	"fmt"
 
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
+	"github.com/choreo-idp/choreo/pkg/cli/types/api"
 )
 
 type LogsImpl struct{}

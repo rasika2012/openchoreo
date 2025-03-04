@@ -24,7 +24,7 @@ import (
 
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
-	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	choreov1 "github.com/choreo-idp/choreo/api/v1"
 )
 
 func makeHostname(componentName, environmentName string, componentType choreov1.ComponentType) gatewayv1.Hostname {

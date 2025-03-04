@@ -21,10 +21,10 @@ package organization
 import (
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/interactive"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/util"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
+	"github.com/choreo-idp/choreo/internal/choreoctl/errors"
+	"github.com/choreo-idp/choreo/internal/choreoctl/interactive"
+	"github.com/choreo-idp/choreo/internal/choreoctl/util"
+	"github.com/choreo-idp/choreo/pkg/cli/types/api"
 )
 
 const (

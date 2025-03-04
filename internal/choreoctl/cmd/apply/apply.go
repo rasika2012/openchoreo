@@ -25,8 +25,8 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
+	"github.com/choreo-idp/choreo/internal/choreoctl/errors"
+	"github.com/choreo-idp/choreo/pkg/cli/types/api"
 )
 
 type ApplyImpl struct{}

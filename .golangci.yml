@@ -48,7 +48,7 @@ linters-settings:
     sections:
       - standard
       - default
-      - prefix(github.com/wso2-enterprise/choreo-cp-declarative-api)
+      - prefix(github.com/choreo-idp/choreo)
   govet:
     # Enable all analyzers.
     # Default: false
@@ -80,7 +80,7 @@ linters-settings:
   goimports:
     # put imports beginning with prefix after 3rd-party packages;
     # it's a comma-separated list of prefixes
-    local-prefixes: github.com/wso2-enterprise/choreo-cp-declarative-api
+    local-prefixes: github.com/choreo-idp/choreo
   misspell:
     # Correct spellings using locale preferences for US or UK.
     # Default is to use a neutral variety of English.

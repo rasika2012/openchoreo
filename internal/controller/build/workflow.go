@@ -26,9 +26,9 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	argo "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes/types/argoproj.io/workflow/v1alpha1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/ptr"
+	choreov1 "github.com/choreo-idp/choreo/api/v1"
+	argo "github.com/choreo-idp/choreo/internal/dataplane/kubernetes/types/argoproj.io/workflow/v1alpha1"
+	"github.com/choreo-idp/choreo/internal/ptr"
 )
 
 func makeArgoWorkflow(build *choreov1.Build, repo string, buildNamespace string) *argo.Workflow {

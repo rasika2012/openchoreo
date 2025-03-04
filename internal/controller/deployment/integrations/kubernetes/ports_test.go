@@ -24,7 +24,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 
-	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	choreov1 "github.com/choreo-idp/choreo/api/v1"
 )
 
 type fakePort struct {

@@ -41,10 +41,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/yaml"
 
-	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/choreoctl/errors"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/config"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/constants"
+	choreov1 "github.com/choreo-idp/choreo/api/v1"
+	"github.com/choreo-idp/choreo/internal/choreoctl/errors"
+	"github.com/choreo-idp/choreo/pkg/cli/cmd/config"
+	"github.com/choreo-idp/choreo/pkg/cli/common/constants"
 )
 
 var (

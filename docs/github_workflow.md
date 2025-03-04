@@ -17,7 +17,7 @@ Following this workflow ensures that contributions remain clean and consistent w
 ---
 
 ## Forking the Repository
-1. Navigate to the repository on GitHub: [wso2-enterprise/choreo-cp-declarative-api](https://github.com/wso2-enterprise/choreo-cp-declarative-api).
+1. Navigate to the repository on GitHub: [choreo-idp/choreo](https://github.com/choreo-idp/choreo).
 2. Click the **Fork** button in the top-right corner.
 3. This will create a fork under your GitHub account.
 
@@ -25,25 +25,25 @@ Following this workflow ensures that contributions remain clean and consistent w
 To work on your fork locally:
 ```sh
 # Replace <your-username> with your GitHub username
-$ git clone https://github.com/<your-username>/choreo-cp-declarative-api.git
-$ cd choreo-cp-declarative-api
+$ git clone https://github.com/<your-username>/choreo.git
+$ cd choreo
 ```
 
 ## Configuring Upstream
 To keep your fork up to date with the original repository:
 ```sh
 # Add the upstream repository
-$ git remote add upstream https://github.com/wso2-enterprise/choreo-cp-declarative-api.git
+$ git remote add upstream https://github.com/choreo-idp/choreo.git
 
 # Verify the remote repositories
 $ git remote -v
 ```
 Expected output:
 ```
-origin    https://github.com/<your-username>/choreo-cp-declarative-api.git (fetch)
-origin    https://github.com/<your-username>/choreo-cp-declarative-api.git (push)
-upstream  https://github.com/wso2-enterprise/choreo-cp-declarative-api.git (fetch)
-upstream  https://github.com/wso2-enterprise/choreo-cp-declarative-api.git (push)
+origin    https://github.com/<your-username>/choreo.git (fetch)
+origin    https://github.com/<your-username>/choreo.git (push)
+upstream  https://github.com/choreo-idp/choreo.git (fetch)
+upstream  https://github.com/choreo-idp/choreo.git (push)
 ```
 
 ## Syncing with Upstream

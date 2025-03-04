@@ -30,11 +30,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
 
-	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
-	dpkubernetes "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane/kubernetes"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/ptr"
+	choreov1 "github.com/choreo-idp/choreo/api/v1"
+	"github.com/choreo-idp/choreo/internal/controller"
+	"github.com/choreo-idp/choreo/internal/dataplane"
+	dpkubernetes "github.com/choreo-idp/choreo/internal/dataplane/kubernetes"
+	"github.com/choreo-idp/choreo/internal/ptr"
 )
 
 // Gateway Types

@@ -22,7 +22,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	corev1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
+	corev1 "github.com/choreo-idp/choreo/api/v1"
 )
 
 var _ = Describe("Project Webhook", func() {

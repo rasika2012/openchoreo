@@ -33,11 +33,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	choreov1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller"
-	k8sintegrations "github.com/wso2-enterprise/choreo-cp-declarative-api/internal/controller/deployment/integrations/kubernetes"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/dataplane"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
+	choreov1 "github.com/choreo-idp/choreo/api/v1"
+	"github.com/choreo-idp/choreo/internal/controller"
+	k8sintegrations "github.com/choreo-idp/choreo/internal/controller/deployment/integrations/kubernetes"
+	"github.com/choreo-idp/choreo/internal/dataplane"
+	"github.com/choreo-idp/choreo/internal/labels"
 )
 
 // Reconciler reconciles a Deployment object

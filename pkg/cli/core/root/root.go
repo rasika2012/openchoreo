@@ -21,13 +21,13 @@ package root
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/apply"
-	configContext "github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/config"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/create"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/get"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/cmd/logs"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/common/config"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/pkg/cli/types/api"
+	"github.com/choreo-idp/choreo/pkg/cli/cmd/apply"
+	configContext "github.com/choreo-idp/choreo/pkg/cli/cmd/config"
+	"github.com/choreo-idp/choreo/pkg/cli/cmd/create"
+	"github.com/choreo-idp/choreo/pkg/cli/cmd/get"
+	"github.com/choreo-idp/choreo/pkg/cli/cmd/logs"
+	"github.com/choreo-idp/choreo/pkg/cli/common/config"
+	"github.com/choreo-idp/choreo/pkg/cli/types/api"
 )
 
 // BuildRootCmd assembles the root command with all subcommands

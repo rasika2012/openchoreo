@@ -32,9 +32,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	apiv1 "github.com/wso2-enterprise/choreo-cp-declarative-api/api/v1"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/labels"
-	"github.com/wso2-enterprise/choreo-cp-declarative-api/internal/ptr"
+	apiv1 "github.com/choreo-idp/choreo/api/v1"
+	"github.com/choreo-idp/choreo/internal/labels"
+	"github.com/choreo-idp/choreo/internal/ptr"
 )
 
 var _ = Context("Organization Controller", func() {
