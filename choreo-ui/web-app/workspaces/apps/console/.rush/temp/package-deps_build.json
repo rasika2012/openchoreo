@@ -1,8 +1,9 @@
 {
   "files": {
     "choreo-ui/web-app/workspaces/apps/console/.gitignore": "a547bf36d8d11a4f89c59c144f24795749086dd1",
-    "choreo-ui/web-app/workspaces/apps/console/.rush/temp/chunked-rush-logs/console.build.chunks.jsonl": "f3bb0351745474aa050d94c539812a8a2a0f75ab",
+    "choreo-ui/web-app/workspaces/apps/console/.rush/temp/chunked-rush-logs/console.build.chunks.jsonl": "d43680e62786a02ca7cf13ea69c4acce023fe303",
     "choreo-ui/web-app/workspaces/apps/console/.rush/temp/chunked-rush-logs/open-choreo-console.build.chunks.jsonl": "58ec60b5555b1fec81f9998729d323bbc6780e65",
+    "choreo-ui/web-app/workspaces/apps/console/.rush/temp/package-deps_build.json": "fea548b5197220fe718c9c6def93ad5addff126a",
     "choreo-ui/web-app/workspaces/apps/console/.rush/temp/shrinkwrap-deps.json": "09a9cfd0955beb2e37911aea290adfe61147c465",
     "choreo-ui/web-app/workspaces/apps/console/.vite/deps/_metadata.json": "270ed0fc1900258501639e7e9f3efabca092a69e",
     "choreo-ui/web-app/workspaces/apps/console/.vite/deps/package.json": "3dbc1ca591c0557e35b6004aeba250e6a70b56e3",
@@ -26,9 +27,10 @@
     "choreo-ui/web-app/workspaces/apps/console/public/fonts/gilmer-regular.woff2": "e92be881e245e0877ac0f3489811f5f732a059b9",
     "choreo-ui/web-app/workspaces/apps/console/public/images/favicon.ico": "0b5e9a76a453a9c84e64e6cde58baee9fc76bbcd",
     "choreo-ui/web-app/workspaces/apps/console/public/openChoreo.svg": "1c5fa0e6f4ea1b16b95f4d257d0d30443a32f5b1",
-    "choreo-ui/web-app/workspaces/apps/console/src/App.tsx": "12080e0be90421920f5468f6d657e6783b522d0d",
+    "choreo-ui/web-app/workspaces/apps/console/src/App.tsx": "6ef1e3ee293957bc694c765b978ea327b83a784d",
     "choreo-ui/web-app/workspaces/apps/console/src/assets/react.svg": "6c87de9bb3358469122cc991d5cf578927246184",
     "choreo-ui/web-app/workspaces/apps/console/src/index.css": "243096ae11a0657ef15c2d5715f710e637d5f116",
+    "choreo-ui/web-app/workspaces/apps/console/src/layouts/MainLayout.tsx": "57df4ec6588ef389415eace0f6cf513be6ece42d",
     "choreo-ui/web-app/workspaces/apps/console/src/main.tsx": "eff7ccc677608297138b2a1a799344089325c99c",
     "choreo-ui/web-app/workspaces/apps/console/src/vite-env.d.ts": "11f02fe2a0061d6e6e1f271b21da95423b448b32",
     "choreo-ui/web-app/workspaces/apps/console/tsconfig.app.json": "9c8a3c40b2712453c0d0ed977963fc3d911d92b9",
