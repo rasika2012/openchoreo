@@ -1,0 +1,37 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": true,
+    "declarationDir": "dist",
+    "sourceMap": true,
+    "baseUrl": ".",
+    /* Bundler mode */
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": false,
+    "jsx": "react-jsx",
+    
+    "paths": {
+      "@design-system/*": ["./src/*"]
+    },
+    "rootDir": "src"
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "src/**/__docs__",
+    "src/**/__test__",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.stories.tsx",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx",
+    "src/**/*.stories.mdx",
+    "node_modules",
+    "dist"
+  ]
+}
