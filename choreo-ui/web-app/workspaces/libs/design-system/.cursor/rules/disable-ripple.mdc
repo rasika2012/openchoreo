@@ -1,0 +1,47 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Disable Ripple Effect in Components
+
+All interactive components in the design system should have ripple effects disabled by default. This includes:
+
+- Buttons
+- Radio buttons
+- Checkboxes
+- Menu items
+- List items
+- Any other components with Material-UI's ripple effect
+
+## Implementation
+
+When creating or modifying components:
+
+1. Always set `disableRipple={true}` by default
+2. For MUI-based components, pass this prop in the base implementation:
+```tsx
+export const MyComponent = () => (
+  <MuiComponent disableRipple {...props} />
+);
+```
+
+3. For styled components, ensure the ripple is disabled in the base component:
+```tsx
+const StyledComponent = styled(MuiComponent)`
+  /* styles */
+`;
+
+export const MyComponent = () => (
+  <StyledComponent disableRipple {...props} />
+);
+```
+
+## Example Implementation
+See [Button.tsx](mdc:workspaces/choreo-design-system/src/components/Button/Button.tsx) for a reference implementation of a component with disabled ripple effect.
+
+## Rationale
+- Provides a cleaner, more subtle interaction style
+- Reduces visual noise
+- Maintains consistent behavior across the design system
+- Better aligns with modern UI practices
