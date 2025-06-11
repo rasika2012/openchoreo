@@ -1,0 +1,19 @@
+{
+  "editor": {
+    "formatOnSave": true,
+    "defaultFormatter": "prettier",
+    "codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    }
+  },
+  "eslint": {
+    "enable": true,
+    "run": "onType",
+    "validate": ["javascript", "typescript", "javascriptreact", "typescriptreact"]
+  },
+  "typescript": {
+    "preferences": {
+      "importModuleSpecifier": "relative"
+    }
+  }
+} 
