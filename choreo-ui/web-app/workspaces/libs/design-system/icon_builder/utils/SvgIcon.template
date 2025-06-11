@@ -1,0 +1,10 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable max-len */
+
+import { createSvgIcon } from '@mui/material';
+import * as React from 'react';
+
+
+export default createSvgIcon(
+  {{{paths}}}
+, '{{componentName}}');
