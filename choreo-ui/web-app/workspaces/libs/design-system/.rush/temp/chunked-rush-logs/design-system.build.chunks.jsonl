@@ -1,0 +1,26 @@
+{"kind":"O","text":"Invoking: rushx  clean && rushx  build:esm && rushx  build:cjs && rushx  copy-assets && rushx  transform-paths \n"}
+{"kind":"O","text":"Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/web-app/rush.json\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"\u001b[1mRush Multi-Project Build Tool 5.153.1\u001b[33m\u001b[39m\u001b[22m - Node.js 20.14.0 (LTS)\n"}
+{"kind":"O","text":"> \"rm -rf dist\"\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/web-app/rush.json\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"\u001b[1mRush Multi-Project Build Tool 5.153.1\u001b[33m\u001b[39m\u001b[22m - Node.js 20.14.0 (LTS)\n"}
+{"kind":"O","text":"> \"tsc -project tsconfig.lib.json\"\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/web-app/rush.json\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"\u001b[1mRush Multi-Project Build Tool 5.153.1\u001b[33m\u001b[39m\u001b[22m - Node.js 20.14.0 (LTS)\n"}
+{"kind":"O","text":"> \"tsc -project tsconfig.lib.json --module CommonJS --outDir dist/cjs\"\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/web-app/rush.json\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"\u001b[1mRush Multi-Project Build Tool 5.153.1\u001b[33m\u001b[39m\u001b[22m - Node.js 20.14.0 (LTS)\n"}
+{"kind":"O","text":"> \"find src -type f \\\\( -name '*.css' -o -name '*.scss' -o -name '*.less' -o -name '*.woff*' -o -name '*.ttf' -o -name '*.eot' \\\\) -exec sh -c 'mkdir -p dist/$(dirname {}| sed \\\"s|^src||\\\") && cp {} dist/$(dirname {}| sed \\\"s|^src||\\\")/$(basename {})' \\\\;\"\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/web-app/rush.json\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"\u001b[1mRush Multi-Project Build Tool 5.153.1\u001b[33m\u001b[39m\u001b[22m - Node.js 20.14.0 (LTS)\n"}
+{"kind":"O","text":"> \"node scripts/transform-paths.js\"\n"}
+{"kind":"O","text":"\n"}
