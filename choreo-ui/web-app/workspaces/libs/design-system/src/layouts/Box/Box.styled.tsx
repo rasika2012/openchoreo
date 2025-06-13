@@ -35,7 +35,14 @@ export interface BoxProps {
   minWidth?: string | number;
   maxWidth?: string | number;
   flexGrow?: string | number;
-  justifyContent?: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly';
+  justifyContent?:
+    | 'flex-start'
+    | 'flex-end'
+    | 'center'
+    | 'space-between'
+    | 'space-around'
+    | 'space-evenly';
+  alignItems?: 'flex-start' | 'flex-end' | 'center' | 'baseline' | 'stretch';
   position?: 'static' | 'relative' | 'absolute' | 'fixed' | 'sticky';
   gap?: string | number;
 }
@@ -79,6 +86,7 @@ export const StyledBox: ComponentType<BoxProps> = styled(Box)<BoxProps>(
     borderRight,
     gap,
     justifyContent,
+    alignItems,
   }) => ({
     transition: transition,
     backgroundColor: backgroundColor,
@@ -107,5 +115,6 @@ export const StyledBox: ComponentType<BoxProps> = styled(Box)<BoxProps>(
     position: position,
     gap: gap,
     justifyContent: justifyContent,
+    alignItems: alignItems,
   })
 );

@@ -4,26 +4,39 @@ import {
   MenuHomeIcon,
   MenuOverviewFilledIcon,
   MenuOverviewIcon,
+  NavItemExpandableSubMenu,
 } from '@open-choreo/design-system';
 import { MainLayout } from './MainLayout';
 import type { Meta, StoryObj } from '@storybook/react';
-import { MainMenuItem } from './types';
+
 import { useState } from 'react';
 
-const menuItems: MainMenuItem[] = [
+const menuItems: NavItemExpandableSubMenu[] = [
   {
-    id: 'home',
-    label: 'Home',
     icon: <MenuHomeIcon fontSize="inherit" />,
-    filledIcon: <MenuHomeFilledIcon fontSize="inherit" />,
-    path: '/',
+    title: 'Home',
+    selectedIcon: <MenuHomeFilledIcon fontSize="inherit" />,
+    id: 'home-1',
+    subMenuItems: [
+      {
+        icon: <MenuHomeIcon fontSize="inherit" />,
+        title: 'Home 2',
+        selectedIcon: <MenuHomeFilledIcon fontSize="inherit" />,
+        id: 'home-2',
+      },
+      {
+        icon: <MenuHomeIcon fontSize="inherit" />,
+        title: 'Home 1',
+        selectedIcon: <MenuHomeFilledIcon fontSize="inherit" />,
+        id: 'home-3',
+      },
+    ],
   },
   {
-    id: 'overview',
-    label: 'Overview',
     icon: <MenuOverviewIcon fontSize="inherit" />,
-    filledIcon: <MenuOverviewFilledIcon fontSize="inherit" />,
-    path: '/overview',
+    title: 'Overview',
+    selectedIcon: <MenuOverviewFilledIcon fontSize="inherit" />,
+    id: 'overview',
   },
 ];
 
@@ -42,25 +55,19 @@ const footer = (
 );
 
 const MainLayoutWithState = () => {
-  const [selectedMenuItem, setSelectedMenuItem] = useState<
-    MainMenuItem | undefined
-  >(menuItems[0]);
-
-  const menuItemsWithHandlers = menuItems.map((item) => ({
-    ...item,
-    onClick: () => setSelectedMenuItem(item),
-  }));
-
+  const [selectedMenuItem, setSelectedMenuItem] = useState<string | undefined>(
+    menuItems[0].id
+  );
   return (
     <MainLayout
-      menuItems={menuItemsWithHandlers}
-      selectedMenuItem={selectedMenuItem}
+      menuItems={menuItems}
       rightSidebar={rightElement}
       header={header}
       footer={footer}
       onMenuItemClick={setSelectedMenuItem}
+      selectedMenuItem={selectedMenuItem}
     >
-      MainLayout Content - Selected: {selectedMenuItem?.label}
+      MainLayout Content - Selected: {selectedMenuItem}
     </MainLayout>
   );
 };

@@ -1,6 +1,9 @@
-import { useChoreoTheme, Box } from '@open-choreo/design-system';
+import {
+  useChoreoTheme,
+  Box,
+  NavItemExpandableSubMenu,
+} from '@open-choreo/design-system';
 import React, { useState } from 'react';
-import { MainMenuItem } from './types';
 import { Header, Sidebar, ContentArea, Footer } from './components';
 
 export interface MainLayoutProps {
@@ -10,9 +13,9 @@ export interface MainLayoutProps {
   footer?: React.ReactNode;
   className?: string;
   testId?: string;
-  menuItems?: MainMenuItem[];
-  selectedMenuItem?: MainMenuItem;
-  onMenuItemClick: (menuItem: MainMenuItem) => void;
+  menuItems?: NavItemExpandableSubMenu[];
+  selectedMenuItem?: string;
+  onMenuItemClick: (menu: string) => void;
 }
 
 export const MainLayout = React.forwardRef<HTMLDivElement, MainLayoutProps>(
@@ -48,7 +51,7 @@ export const MainLayout = React.forwardRef<HTMLDivElement, MainLayoutProps>(
         >
           {header}
         </Header>
-        
+
         <Box flexGrow={1} flexDirection="row" display="flex" overflow="hidden">
           {menuItems && (
             <Sidebar
@@ -58,14 +61,9 @@ export const MainLayout = React.forwardRef<HTMLDivElement, MainLayoutProps>(
               isSidebarOpen={isSidebarOpen}
             />
           )}
-
           <Box flexGrow={1} flexDirection="column" display="flex">
-            <ContentArea rightSidebar={rightSidebar}>
-              {children}
-            </ContentArea>
-            <Footer>
-              {footer}
-            </Footer>
+            <ContentArea rightSidebar={rightSidebar}>{children}</ContentArea>
+            <Footer>{footer}</Footer>
           </Box>
         </Box>
       </Box>
