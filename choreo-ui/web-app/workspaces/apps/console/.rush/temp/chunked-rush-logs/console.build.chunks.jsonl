@@ -1,10 +1,10 @@
 {"kind":"O","text":"Invoking: tsc -b && vite build \n"}
 {"kind":"O","text":"vite v6.3.5 building for production...\n"}
 {"kind":"O","text":"transforming...\n"}
-{"kind":"O","text":"✓ 1414 modules transformed.\n"}
+{"kind":"O","text":"✓ 1418 modules transformed.\n"}
 {"kind":"O","text":"rendering chunks...\n"}
 {"kind":"O","text":"computing gzip size...\n"}
-{"kind":"O","text":"dist/index.html                                    0.83 kB │ gzip:   0.49 kB\n"}
+{"kind":"O","text":"dist/index.html                                    0.83 kB │ gzip:   0.48 kB\n"}
 {"kind":"O","text":"dist/assets/DroidSansMono-webfont-Bs2YQVik.woff   18.97 kB\n"}
 {"kind":"O","text":"dist/assets/gilmer-medium-BwTaPAdm.woff2          33.29 kB\n"}
 {"kind":"O","text":"dist/assets/gilmer-regular-CQo1oE74.woff2         33.60 kB\n"}
@@ -19,5 +19,5 @@
 {"kind":"O","text":"dist/assets/gilmer-bold-D_0T7HYJ.ttf              98.70 kB\n"}
 {"kind":"O","text":"dist/assets/gilmer-bold-DNAzo7gO.eot              98.92 kB\n"}
 {"kind":"O","text":"dist/assets/index-DXhhdnhS.css                     1.51 kB │ gzip:   0.52 kB\n"}
-{"kind":"O","text":"dist/assets/index-Bt9hk6sW.js                    393.29 kB │ gzip: 131.37 kB\n"}
-{"kind":"O","text":"✓ built in 1.96s\n"}
+{"kind":"O","text":"dist/assets/index-DDSy_Pxu.js                    408.76 kB │ gzip: 135.51 kB\n"}
+{"kind":"O","text":"✓ built in 1.91s\n"}

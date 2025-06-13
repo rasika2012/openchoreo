@@ -12,10 +12,10 @@ export const StyledNavItemContainer: ComponentType<
 > = styled(Box)<BoxProps & StyledNavItemContainerProps>(
   ({ theme, isSubNavVisible, isExpanded, disabled }) => ({
     color: theme.palette.background.default,
-    background: alpha(theme.palette.primary.main, isSubNavVisible ? 1: 0.8),
+    background: alpha(theme.palette.primary.main, isSubNavVisible ? 1 : 0.8),
     display: 'flex',
     flexDirection: 'column',
-    width: isExpanded ? '100%' : "fit-content",
+    width: isExpanded ? '100%' : 'fit-content',
     fontSize: '1rem',
     cursor: 'pointer',
     borderRadius: theme.shape.borderRadius,
@@ -32,7 +32,7 @@ interface StyledSubNavContainerProps {
 export const StyledSubNavContainer: ComponentType<
   BoxProps & StyledSubNavContainerProps
 > = styled(Box)<BoxProps & StyledSubNavContainerProps>(
-  ({ theme, isSelected}) => ({
+  ({ theme, isSelected }) => ({
     display: 'flex',
     background: isSelected ? theme.palette.primary.dark : 'transparent',
     cursor: 'pointer',
@@ -42,39 +42,54 @@ export const StyledSubNavContainer: ComponentType<
 );
 
 export const StyledMainNavItemContainer: ComponentType<
-LinkProps & { isExpanded?: boolean, isSelected?: boolean, isSubNavVisible?: boolean }
-> = styled(Link)<LinkProps & { isExpanded?: boolean, isSelected?: boolean, isSubNavVisible?: boolean }>(
-  ({ theme, isExpanded, isSelected, isSubNavVisible }) => ({
-    display: 'flex',
-    gap: theme.spacing(1),
-    background: (isSubNavVisible && isSelected ) ? theme.palette.primary.dark : (!isSubNavVisible && isSelected ? alpha(theme.palette.primary.light, 0.4) : 'transparent'),
-    alignItems: 'center',
-    color: theme.palette.background.default,
-    padding: theme.spacing(1.625, 1.5),
-    paddingLeft: isExpanded ? theme.spacing(3) : theme.spacing(1.5),
-    textDecoration: 'none',
-    transition: theme.transitions.create(['background', 'padding', ], {
-      duration: theme.transitions.duration.short,
-    }),
-    '&:hover': {
-      background: alpha(theme.palette.primary.light, 0.4),
-    },
-  })
-);
+  LinkProps & {
+    isExpanded?: boolean;
+    isSelected?: boolean;
+    isSubNavVisible?: boolean;
+  }
+> = styled(Link)<
+  LinkProps & {
+    isExpanded?: boolean;
+    isSelected?: boolean;
+    isSubNavVisible?: boolean;
+  }
+>(({ theme, isExpanded, isSelected, isSubNavVisible }) => ({
+  display: 'flex',
+  gap: theme.spacing(1),
+  background:
+    isSubNavVisible && isSelected
+      ? theme.palette.primary.dark
+      : !isSubNavVisible && isSelected
+        ? alpha(theme.palette.primary.light, 0.4)
+        : 'transparent',
+  alignItems: 'center',
+  color: theme.palette.background.default,
+  padding: theme.spacing(1.625, 1.5),
+  paddingLeft: isExpanded ? theme.spacing(3) : theme.spacing(1.5),
+  textDecoration: 'none',
+  transition: theme.transitions.create(['background', 'padding'], {
+    duration: theme.transitions.duration.short,
+  }),
+  '&:hover': {
+    background: alpha(theme.palette.primary.light, 0.4),
+  },
+}));
 
 export const StyledSubNavItemContainer: ComponentType<
-LinkProps & { isExpanded?: boolean, isSelected?: boolean }
-> = styled(Link)<LinkProps & { isExpanded?: boolean, isSelected?: boolean}>(
+  LinkProps & { isExpanded?: boolean; isSelected?: boolean }
+> = styled(Link)<LinkProps & { isExpanded?: boolean; isSelected?: boolean }>(
   ({ theme, isExpanded, isSelected }) => ({
     display: 'flex',
     gap: theme.spacing(1),
-    background: (isSelected) ? alpha(theme.palette.primary.light, 0.4) : 'transparent',
+    background: isSelected
+      ? alpha(theme.palette.primary.light, 0.4)
+      : 'transparent',
     alignItems: 'center',
     color: theme.palette.background.default,
     padding: theme.spacing(1.625, 1.5),
     paddingLeft: isExpanded ? theme.spacing(3) : theme.spacing(1.5),
     textDecoration: 'none',
-    transition: theme.transitions.create(['background', 'padding', ], {
+    transition: theme.transitions.create(['background', 'padding'], {
       duration: theme.transitions.duration.short,
     }),
     '&:hover': {
@@ -84,8 +99,8 @@ LinkProps & { isExpanded?: boolean, isSelected?: boolean }
 );
 
 export const StyledSpinIcon: ComponentType<
-  BoxProps & { isSubNavVisible: boolean, isExpanded?: boolean }
-> = styled(Box)<BoxProps & { isSubNavVisible: boolean, isExpanded?: boolean }>(
+  BoxProps & { isSubNavVisible: boolean; isExpanded?: boolean }
+> = styled(Box)<BoxProps & { isSubNavVisible: boolean; isExpanded?: boolean }>(
   ({ theme, isSubNavVisible, isExpanded }) => ({
     display: 'flex',
     alignItems: 'center',
