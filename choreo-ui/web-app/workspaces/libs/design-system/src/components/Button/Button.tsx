@@ -27,11 +27,12 @@ export interface ButtonProps {
   disableRipple?: boolean;
   pill?: boolean;
   fullWidth?: boolean;
+  startIcon?: React.ReactNode;
+  endIcon?: React.ReactNode;
   /**
    * Test id for the button
    */
   testId?: string;
-  [key: string]: any;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -47,6 +48,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       disableRipple = true,
       pill = false,
       fullWidth = false,
+      startIcon,
+      endIcon,
       testId,
       ...props
     },
@@ -68,6 +71,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disableRipple={disableRipple}
         fullWidth={fullWidth}
         data-testid={testId}
+        startIcon={startIcon}
+        endIcon={endIcon}
         {...props}
       >
         {children}
@@ -75,3 +80,5 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     );
   }
 );
+
+Button.displayName = 'Button';

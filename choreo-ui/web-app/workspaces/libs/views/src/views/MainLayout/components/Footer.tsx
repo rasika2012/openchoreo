@@ -22,4 +22,4 @@ export const Footer = React.forwardRef<HTMLDivElement, FooterProps>(
   }
 );
 
-Footer.displayName = 'Footer'; 
+Footer.displayName = 'Footer';
