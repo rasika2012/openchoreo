@@ -1,2 +1,0 @@
-{"kind":"O","text":"Invoking: tsc -b && vite build \n"}
-{"kind":"O","text":"src/App.tsx(57,15): error TS2322: Type '\"sm\"' is not assignable to type '\"small\" | \"medium\" | undefined'.\n"}
