@@ -73,7 +73,7 @@ function getProjectPath(type) {
         return projectPath;    
     }
     if(type === 'view') {
-        const projectPath = path.resolve(__dirname, '../../workspaces/views/src');
+        const projectPath = path.resolve(__dirname, '../../workspaces/libs/views/src');
         return projectPath;
     }
     if (!fs.existsSync(projectPath)) {

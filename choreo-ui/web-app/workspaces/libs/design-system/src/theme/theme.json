@@ -59,9 +59,9 @@
                     "white": "#ffffff"
                 },
                 "primary": {
-                    "light": "#7B86FF",
+                    "light": "#3D4BA3",
                     "main": "#5567d5",
-                    "dark": "#3D4BA3",
+                    "dark": "#7B86FF",
                     "contrastText": "#ffffff"
                 },
                 "secondary": {
