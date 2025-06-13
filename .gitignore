@@ -30,6 +30,8 @@ go.work
 
 .DS_Store
 
+# Rush temporary files
+**/.rush/temp/**
 *.local.md
 
 # Log files

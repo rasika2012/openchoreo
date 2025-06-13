@@ -1,0 +1,25 @@
+{
+  "editor": {
+    "formatOnSave": true,
+    "defaultFormatter": "eslint",
+    "codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    }
+  },
+  "eslint": {
+    "enable": true,
+    "run": "onType",
+    "useFlatConfig": true,
+    "validate": ["javascript", "typescript", "javascriptreact", "typescriptreact"],
+    "workingDirectories": [
+      "./workspaces/apps/*",
+      "./workspaces/libs/*"
+    ]
+  },
+  "typescript": {
+    "preferences": {
+      "importModuleSpecifier": "relative"
+    },
+    "tsdk": "node_modules/typescript/lib"
+  }
+} 

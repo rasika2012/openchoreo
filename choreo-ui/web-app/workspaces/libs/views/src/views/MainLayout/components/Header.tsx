@@ -31,10 +31,7 @@ export const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
         borderColor={theme.pallet.grey[200]}
       >
         {isMobile && (
-          <IconButton
-            testId="menuOpen"
-            onClick={onSidebarToggle}
-          >
+          <IconButton testId="menuOpen" onClick={onSidebarToggle}>
             {isSidebarOpen ? (
               <MenuCollapseIcon fontSize="inherit" />
             ) : (
@@ -48,4 +45,4 @@ export const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
   }
 );
 
-Header.displayName = 'Header'; 
+Header.displayName = 'Header';
