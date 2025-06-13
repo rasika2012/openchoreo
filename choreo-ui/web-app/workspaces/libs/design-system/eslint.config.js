@@ -28,7 +28,10 @@ export default [
       '**/.storybook/**',
       '**/storybook-static/**',
       "**.config.js",
-      "**.config.cjs"
+      "**.config.cjs",
+      "**/icon_builder/**",
+      "**/*.stories.tsx",
+       "**/*.test.tsx"
     ],
   }
 ]
