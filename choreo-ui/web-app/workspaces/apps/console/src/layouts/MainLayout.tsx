@@ -4,25 +4,46 @@ import {
   MenuHomeFilledIcon,
   MenuProjectIcon,
   MenuProjectFilledIcon,
+  type NavItemExpandableSubMenu,
+  MenuObserveIcon,
+  MenuObserveFilledIcon
 } from "@open-choreo/design-system";
-import { MainLayout as BaseMainLayout, type MainMenuItem } from "@open-choreo/common-views";
+import { MainLayout as BaseMainLayout } from "@open-choreo/common-views";
 import { useState } from "react";
 
-const mockMenuItems = [
+const mockMenuItems : NavItemExpandableSubMenu[] = [
   {
+    title: "Home",
     id: "home",
-    label: "Home",
     icon: <MenuHomeIcon fontSize="inherit" />,
-    filledIcon: <MenuHomeFilledIcon fontSize="inherit" />,
-    path: "/home",
+    selectedIcon: <MenuHomeFilledIcon fontSize="inherit" />,
   },
   {
+    title: "Projects",
     id: "projects",
-    label: "Projects",
     icon: <MenuProjectIcon fontSize="inherit" />,
-    filledIcon: <MenuProjectFilledIcon fontSize="inherit" />,
-    path: "/projects",
+    selectedIcon: <MenuProjectFilledIcon fontSize="inherit" />,
   },
+  {
+    title: "Observability",
+    id: "observability",
+    icon: <MenuObserveIcon fontSize="inherit" />,
+    selectedIcon: <MenuObserveFilledIcon fontSize="inherit" />,
+    subMenuItems: [
+      {
+        title: "Logs",
+        id: "logs",
+        icon: <MenuObserveIcon fontSize="inherit" />,
+        selectedIcon: <MenuObserveFilledIcon fontSize="inherit" />,
+      },
+      {
+        title: "Metrics",
+        id: "metrics",
+        icon: <MenuObserveIcon fontSize="inherit" />,
+        selectedIcon: <MenuObserveFilledIcon fontSize="inherit" />,
+      },
+    ]
+  }
 ];
 
 interface MainLayoutProps {
@@ -30,8 +51,8 @@ interface MainLayoutProps {
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
-  const [selectedMenuItem, setSelectedMenuItem] = useState<MainMenuItem>(
-    mockMenuItems[0],
+  const [selectedMenuItem, setSelectedMenuItem] = useState<string>(
+    mockMenuItems[0].id ,
   );
 
   return (
