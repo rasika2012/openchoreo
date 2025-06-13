@@ -29,9 +29,7 @@ export interface ButtonProps {
   fullWidth?: boolean;
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
-  /**
-   * Test id for the button
-   */
+  href?: string;
   testId?: string;
 }
 

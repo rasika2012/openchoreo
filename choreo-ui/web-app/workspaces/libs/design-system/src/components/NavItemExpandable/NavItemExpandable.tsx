@@ -53,7 +53,12 @@ export const NavItemExpandable = React.forwardRef<
   } = props;
   const [isSubNavVisible, setIsSubNavVisible] = useState(false);
   const theme = useTheme();
-  const isSelected = useMemo(() => id === selectedId || !!(subMenuItems?.find((item) => item.id === selectedId)), [id, selectedId, subMenuItems]);
+  const isSelected = useMemo(
+    () =>
+      id === selectedId ||
+      !!subMenuItems?.find((item) => item.id === selectedId),
+    [id, selectedId, subMenuItems]
+  );
   const handleOnClick = (id: string) => {
     if (!disabled && onClick) {
       onClick(id);
@@ -67,7 +72,10 @@ export const NavItemExpandable = React.forwardRef<
     setIsSubNavVisible(!isSubNavVisible);
   };
 
-  const isSubNavExpanded = useMemo(() => !!(isSubNavVisible && subMenuItems), [isSubNavVisible, subMenuItems]);
+  const isSubNavExpanded = useMemo(
+    () => !!(isSubNavVisible && subMenuItems),
+    [isSubNavVisible, subMenuItems]
+  );
 
   return (
     <StyledNavItemContainer
@@ -77,41 +85,60 @@ export const NavItemExpandable = React.forwardRef<
       disabled={disabled}
       ref={ref}
     >
-      <StyledMainNavItemContainer onClick={handleMainNavItemClick} href={href} isSelected={isSelected} isSubNavVisible={isSubNavExpanded}>
+      <StyledMainNavItemContainer
+        onClick={handleMainNavItemClick}
+        href={href}
+        isSelected={isSelected}
+        isSubNavVisible={isSubNavExpanded}
+      >
         <Box
-          flexDirection='row'
-          display='flex'
+          flexDirection="row"
+          display="flex"
           flexGrow={1}
-          alignItems='center'
+          alignItems="center"
           gap={1}
           pl={theme.spacing(0.5)}
-          whiteSpace='nowrap'
+          whiteSpace="nowrap"
         >
           {isSubNavExpanded ? selectedIcon : icon}
-          {isExpanded &&
+          {isExpanded && (
             <Typography variant="body2" color="inherit">
               {title}
             </Typography>
-          }
+          )}
         </Box>
-        {
-          subMenuItems ? <StyledSpinIcon isSubNavVisible={isSubNavExpanded}>
-            <ChevronRightIcon fontSize='inherit' />
-          </StyledSpinIcon> 
-          : <Box />
-        }
+        {subMenuItems ? (
+          <StyledSpinIcon isSubNavVisible={isSubNavExpanded}>
+            <ChevronRightIcon fontSize="inherit" />
+          </StyledSpinIcon>
+        ) : (
+          <Box />
+        )}
       </StyledMainNavItemContainer>
       <Collapse in={isSubNavExpanded} mountOnEnter unmountOnExit>
-        <StyledSubNavContainer isSelected={isSelected} >
+        <StyledSubNavContainer isSelected={isSelected}>
           {subMenuItems?.map((item) => (
-            <StyledSubNavItemContainer href={item.href} onClick={() => handleOnClick(item.id)} isExpanded={isExpanded} isSelected={item.id === selectedId} >
-              <Box flexDirection='row' display='flex' pl={theme.spacing(0.5)} flexGrow={1} alignItems='center' gap={1}>
+            <StyledSubNavItemContainer
+              href={item.href}
+              onClick={() => handleOnClick(item.id)}
+              isExpanded={isExpanded}
+              isSelected={item.id === selectedId}
+              key={item.id}
+            >
+              <Box
+                flexDirection="row"
+                display="flex"
+                pl={theme.spacing(0.5)}
+                flexGrow={1}
+                alignItems="center"
+                gap={1}
+              >
                 {item.id === selectedId ? item.selectedIcon : item.icon}
-                {isExpanded &&
+                {isExpanded && (
                   <Typography variant="body2" color="inherit" noWrap>
                     {item.title}
                   </Typography>
-                }
+                )}
               </Box>
             </StyledSubNavItemContainer>
           ))}

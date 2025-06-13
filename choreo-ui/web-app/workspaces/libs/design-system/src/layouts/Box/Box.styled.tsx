@@ -5,6 +5,7 @@ import { ComponentType, MouseEvent, ReactNode } from 'react';
 export interface BoxProps {
   children?: ReactNode;
   className?: string;
+  testId?: string;
   onClick?: (event: MouseEvent<HTMLDivElement>) => void;
   onMouseEnter?: (event: MouseEvent<HTMLDivElement>) => void;
   onMouseLeave?: (event: MouseEvent<HTMLDivElement>) => void;
