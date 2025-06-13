@@ -28,7 +28,10 @@ yarn-error.log*
 /common/temp/*
 **/node_modules
 *storybook.log
-workspaces/choreo-design-system/.rush/temp/chunked-rush-logs/design-system.build.chunks.jsonl
-workspaces/choreo-design-system/rush-logs/design-system.build.error.log
-workspaces/choreo-design-system/rush-logs/design-system.build.log
-workspaces/open-choreo-console/.rush/temp/chunked-rush-logs/console.build.chunks.jsonl
+
+/workspaces/libs/design-system/rush-logs/design-system.build.log
+/web-app/workspaces/libs/design-system/.rush/temp/chunked-rush-logs/design-system.build.chunks.jsonl
+/web-app/workspaces/libs/design-system/.rush/temp/package-deps_build.json
+/web-app/workspaces/apps/console/.rush/temp/chunked-rush-logs/console.build.chunks.jsonl
+/web-app/workspaces/libs/views/.rush/temp/package-deps_build.json
+
