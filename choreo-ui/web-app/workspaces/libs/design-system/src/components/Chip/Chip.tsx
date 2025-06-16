@@ -10,7 +10,7 @@ export type colorVariant =
   | 'warning'
   | 'info'
   | 'success';
-export type chipVariant = 'filled' | 'outlined' | 'text';
+export type chipVariant = 'filled' | 'outlined';
 export type sizeVariant = 'small' | 'medium' | 'large';
 
 export interface ChipProps {
