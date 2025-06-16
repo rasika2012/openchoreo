@@ -1,4 +1,4 @@
-import { LinkProps, styled, Link } from '@mui/material';
+import { LinkProps, styled, Link as MuiLink } from '@mui/material';
 import { ComponentType } from 'react';
 
 export interface StyledLinkProps extends LinkProps {
