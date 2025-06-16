@@ -2,7 +2,7 @@ import React from 'react';
 import { StyledLink } from './Link.styled';
 
 export type linkVariant =
-  | ' body1'
+  | 'body1'
   | 'body2'
   | 'button'
   | 'caption'
