@@ -10,6 +10,7 @@ export const StyledChip: ComponentType<MUIChipProps> = styled(MUIChip)(
   ({ theme, disabled, variant = 'filled' }) => ({
     opacity: disabled ? 0.5 : 1,
     cursor: disabled ? 'not-allowed' : 'default',
+    pointerEvents: disabled ? 'none' : 'auto',
 
     '& .MuiTouchRipple-root': {
       display: 'none',
