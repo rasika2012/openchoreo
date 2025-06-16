@@ -6,3 +6,4 @@ export * from './NavItemExpandable';
 export * from './Typography';
 export * from './Chip';
 export * from './Link';
+export * from './Tag';
