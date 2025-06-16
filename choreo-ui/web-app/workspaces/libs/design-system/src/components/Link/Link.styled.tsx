@@ -7,7 +7,7 @@ export interface StyledLinkProps extends LinkProps {
 }
 
 export const StyledLink: ComponentType<StyledLinkProps> = styled(
-  Link
+  MuiLink
 )<StyledLinkProps>(({ disabled }) => ({
   opacity: disabled ? 0.4 : 1,
   cursor: disabled ? 'default' : 'pointer',
