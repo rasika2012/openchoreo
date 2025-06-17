@@ -19,4 +19,29 @@ export const StyledTooltip: ComponentType<StyledTooltipProps> = styled(
     fontSize: theme.typography.body2.fontSize,
     fontFamily: theme.typography.fontFamily,
   },
+  '.divider': {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+    backgroundColor: theme.palette.grey[100],
+  },
+  '.buttonLink': {
+    color: theme.palette.primary.main,
+    cursor: 'pointer',
+    marginTop: theme.spacing(1.5),
+    textDecoration: 'none',
+  },
+  '.dividerDark': {
+    backgroundColor: theme.palette.grey[100],
+  },
+  '.exampleContent': {
+    fontWeight: 100,
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+  },
+  '.exampleContentDark': {
+    color: theme.palette.grey[100],
+  },
+  '.exampleContentLight': {
+    color: theme.palette.secondary.dark,
+  },
 }));
