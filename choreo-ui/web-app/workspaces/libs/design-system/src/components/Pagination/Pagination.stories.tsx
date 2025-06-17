@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 import React from 'react';
 
 const meta: Meta<typeof Pagination> = {
-  title: 'Choreo DS/Pagination',
+  title: 'Components/Pagination',
   component: Pagination,
   tags: ['autodocs'],
   argTypes: {

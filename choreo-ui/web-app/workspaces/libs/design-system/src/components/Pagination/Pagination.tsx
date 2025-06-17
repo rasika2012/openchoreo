@@ -89,6 +89,7 @@ export const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
           <IconButton
             onClick={handleFirstPageButtonClick}
             disabled={disabled || isFirstPage}
+            disableRipple={true}
             aria-label="first page"
             color="secondary"
             variant="text"
@@ -99,6 +100,7 @@ export const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
           <IconButton
             onClick={handleBackButtonClick}
             disabled={disabled || isFirstPage}
+            disableRipple={true}
             aria-label="previous page"
             color="secondary"
             variant="text"
@@ -110,6 +112,7 @@ export const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
           <IconButton
             onClick={handleNextButtonClick}
             disabled={disabled || isLastPage}
+            disableRipple={true}
             aria-label="next page"
             color="secondary"
             variant="text"
@@ -120,6 +123,7 @@ export const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
           <IconButton
             onClick={handleLastPageButtonClick}
             disabled={disabled || isLastPage}
+            disableRipple={true}
             aria-label="last page"
             color="secondary"
             variant="text"
