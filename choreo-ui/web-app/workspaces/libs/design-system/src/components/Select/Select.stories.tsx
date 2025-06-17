@@ -8,7 +8,7 @@ import { Button } from '../Button';
 import Tools from '@design-system/Icons/generated/Tools';
 
 const meta: Meta<typeof Select> = {
-  title: 'Choreo DS/Select',
+  title: 'Components/Select',
   component: Select,
   tags: ['autodocs'],
   argTypes: {
