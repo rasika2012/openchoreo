@@ -16,4 +16,21 @@ export const StyledTooltipBase: ComponentType<StyledTooltipBaseProps> = styled(
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
   },
+  '.infoTooltipDark': {
+    color: theme.palette.grey[100],
+    backgroundColor: theme.palette.secondary.dark,
+    borderRadius: 5,
+  },
+  '.infoArrowDark': {
+    color: theme.palette.secondary.dark,
+  },
+  '.infoTooltipLight': {
+    color: theme.palette.secondary.dark,
+    backgroundColor: theme.palette.common.white,
+    borderRadius: 5,
+    maxWidth: theme.spacing(53),
+  },
+  '.infoArrowLight': {
+    color: theme.palette.common.white,
+  },
 }));
