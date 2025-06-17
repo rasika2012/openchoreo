@@ -10,3 +10,4 @@ export * from './Tag';
 export * from './TooltipBase';
 export * from './Tooltip';
 export * from './Select';
+export * from './Pagination';
