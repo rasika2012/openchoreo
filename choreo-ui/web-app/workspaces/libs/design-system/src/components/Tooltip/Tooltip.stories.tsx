@@ -2,9 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Tooltip } from './Tooltip';
 import { Button } from '../Button';
 import { QuestionMark } from '@mui/icons-material';
+import { Box, Typography } from '@mui/material';
 
 const meta: Meta<typeof Tooltip> = {
-  title: 'Choreo DS/Tooltip',
+  title: 'Components/Tooltip',
   component: Tooltip,
   tags: ['autodocs'],
   argTypes: {
@@ -80,6 +81,34 @@ export const ToNormalText: Story = {
     return (
       <Tooltip {...args}>
         <span>Hover over here</span>
+      </Tooltip>
+    );
+  },
+};
+
+export const WithHeadingAndContent: Story = {
+  args: {
+    children: 'Tooltip with heading and content',
+    title: 'Tooltip Heading',
+    content: 'This is the content of the tooltip.',
+  },
+  render: (args) => {
+    return (
+      <Tooltip
+        {...args}
+        title={
+          <Box>
+            <Typography variant="h4">Title</Typography>
+            <Typography variant="body1">
+              Create programs that trigger via events. E.g., Business automation
+              tasks.
+            </Typography>
+          </Box>
+        }
+      >
+        <Button variant="contained" color="primary">
+          Hover me
+        </Button>
       </Tooltip>
     );
   },
