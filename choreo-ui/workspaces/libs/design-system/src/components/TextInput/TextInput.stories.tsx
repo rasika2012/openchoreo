@@ -1,5 +1,6 @@
 import { TextInput } from './TextInput';
 import type { Meta, StoryObj } from '@storybook/react';
+import { SearchIcon } from '@design-system/Icons';
 
 const meta: Meta<typeof TextInput> = {
   title: 'Components/TextInput',
@@ -89,6 +90,16 @@ export const WithValue: Story = {
   args: {
     label: 'Filled Input',
     value: 'This is some text',
+    onChange: (value: string) => console.log('Value changed:', value),
+  },
+};
+
+export const WithIcons: Story = {
+  args: {
+    label: 'Input with Icons',
+    value: '',
+    startIcon: <SearchIcon fontSize="small" />,
+    endIcon: <SearchIcon fontSize="small" color="primary" />,
     onChange: (value: string) => console.log('Value changed:', value),
   },
 };
