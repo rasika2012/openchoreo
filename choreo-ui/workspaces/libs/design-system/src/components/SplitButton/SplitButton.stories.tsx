@@ -38,7 +38,7 @@ const SplitButtonWrapper = (props: any) => {
   const [selectedIndex, setSelectedIndex] = React.useState(1);
 
   const handleMenuItemClick = (
-    event: React.MouseEvent<HTMLLIElement, MouseEvent>,
+    _event: React.MouseEvent<HTMLLIElement, MouseEvent>,
     index: number
   ) => {
     setSelectedIndex(index);
@@ -79,7 +79,7 @@ const SplitButtonWrapperWithStartIcon = (props: any) => {
   const [selectedIndex, setSelectedIndex] = React.useState(1);
 
   const handleMenuItemClick = (
-    event: React.MouseEvent<HTMLLIElement, MouseEvent>,
+    _event: React.MouseEvent<HTMLLIElement, MouseEvent>,
     index: number
   ) => {
     setSelectedIndex(index);
@@ -121,7 +121,7 @@ const SplitButtonWrapperOutlined = (props: any) => {
   const [selectedIndex, setSelectedIndex] = React.useState(1);
 
   const handleMenuItemClick = (
-    event: React.MouseEvent<HTMLLIElement, MouseEvent>,
+    _event: React.MouseEvent<HTMLLIElement, MouseEvent>,
     index: number
   ) => {
     setSelectedIndex(index);
