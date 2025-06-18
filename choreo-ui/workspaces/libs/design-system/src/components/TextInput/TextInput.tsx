@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Tooltip, Typography } from '@mui/material';
+import { Box, InputAdornment, Tooltip, Typography } from '@mui/material';
 import { QuestionIcon, InfoIcon } from '@design-system/Icons';
 import {
   StyledTextField,
@@ -57,6 +57,15 @@ export interface TextInputProps {
    * Placeholder text for the text input
    */
   placeholder?: string;
+
+  /**
+   * Icon to display at the start of the text input
+   */
+  startIcon?: React.ReactNode;
+  /**
+   * Icon to display at the end of the text input
+   */
+  endIcon?: React.ReactNode;
 }
 
 export const TextInput = React.forwardRef<HTMLDivElement, TextInputProps>(
@@ -73,6 +82,8 @@ export const TextInput = React.forwardRef<HTMLDivElement, TextInputProps>(
       helperText,
       size = 'small',
       fullWidth = false,
+      startIcon,
+      endIcon,
       ...props
     },
     ref
@@ -99,9 +110,22 @@ export const TextInput = React.forwardRef<HTMLDivElement, TextInputProps>(
           value={value}
           disabled={disabled}
           slotProps={{
+            input: {
+              startAdornment: startIcon && (
+                <InputAdornment position="start">
+                  {startIcon}
+                </InputAdornment>
+              ),
+              endAdornment: endIcon && (
+                <InputAdornment position="end">
+                  {endIcon}
+                </InputAdornment>
+              ),
+            },
             inputLabel: {
               shrink: false,
             },
+
           }}
           error={!!error}
           helperText={
