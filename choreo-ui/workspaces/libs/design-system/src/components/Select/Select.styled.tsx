@@ -12,6 +12,7 @@ export const StyledSelect: ComponentType<StyledSelectProps> = styled(Box)(
       color: theme.palette.secondary.dark,
       marginBottom: theme.spacing(0.5),
     },
+
     '.selectRoot': {
       '& .MuiAutocomplete-inputRoot[class*="MuiOutlinedInput-root"]': {
         '& .MuiAutocomplete-endAdornment': {
