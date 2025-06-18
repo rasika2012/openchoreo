@@ -119,13 +119,13 @@ export const StyledSelect: ComponentType<StyledSelectProps> = styled(Box)(
     '.formLabel': {
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'space-between', // or 'flex-start'
+      justifyContent: 'space-between',
       marginBottom: theme.spacing(0.5),
       gap: theme.spacing(1),
-      flexWrap: 'nowrap', // Force items into a row
+      flexWrap: 'nowrap',
     },
     '.formLabelAction': {
-      marginLeft: 'auto', // Push actions to the right
+      marginLeft: 'auto',
       display: 'flex',
       alignItems: 'center',
     },
