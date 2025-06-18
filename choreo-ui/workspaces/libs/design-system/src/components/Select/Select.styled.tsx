@@ -12,6 +12,7 @@ export const StyledSelect: ComponentType<StyledSelectProps> = styled(Box)(
       color: theme.palette.secondary.dark,
       marginBottom: theme.spacing(0.5),
     },
+
     '.selectRoot': {
       '& .MuiAutocomplete-inputRoot[class*="MuiOutlinedInput-root"]': {
         '& .MuiAutocomplete-endAdornment': {
@@ -118,13 +119,13 @@ export const StyledSelect: ComponentType<StyledSelectProps> = styled(Box)(
     '.formLabel': {
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      justifyContent: 'space-between', // or 'flex-start'
       marginBottom: theme.spacing(0.5),
       gap: theme.spacing(1),
-      flexWrap: 'nowrap',
+      flexWrap: 'nowrap', // Force items into a row
     },
     '.formLabelAction': {
-      marginLeft: 'auto',
+      marginLeft: 'auto', // Push actions to the right
       display: 'flex',
       alignItems: 'center',
     },
