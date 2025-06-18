@@ -14,3 +14,4 @@ export * from './Pagination';
 export * from './TableDefault';
 export * from './Checkbox';
 export * from './Avatar';
+export * from './SplitButton';
