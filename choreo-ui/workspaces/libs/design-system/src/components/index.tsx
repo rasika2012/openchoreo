@@ -7,3 +7,5 @@ export * from './Typography';
 export * from './Chip';
 export * from './Link';
 export * from './Tag';
+export * from './TooltipBase';
+export * from './Tooltip';
