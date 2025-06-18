@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyledPopover, StyledTopLevelSelector } from './TopLevelSelector.styled';
 import { Box, Divider, List, ListItem, ListItemButton, ListItemText, Typography } from '@mui/material';
 import { IconButton } from '../IconButton';
-import { AddIcon, ChevronDownIcon, SearchIcon } from '@design-system/Icons';
+import { AddIcon, ChevronDownIcon, CloseIcon, SearchIcon } from '@design-system/Icons';
 import { TextInput } from '../TextInput';
 import { Button } from '../Button';
 
@@ -23,10 +23,11 @@ export interface TopLevelSelectorProps {
   recentItems: LevelItem[];
   selectedItem: LevelItem;
   level: Level;
-  onSelect: (item: LevelItem) => void;
-  onClick?: (level: Level) => void;
   isHighlighted?: boolean;
   disabled?: boolean;
+  onSelect: (item: LevelItem) => void;
+  onClick?: (level: Level) => void;
+  onClose?: () => void;
 }
 
 const getLevelLabel = (level: Level) => {
@@ -45,7 +46,7 @@ const getLevelLabel = (level: Level) => {
  * @component
  */
 export const TopLevelSelector = React.forwardRef<HTMLDivElement, TopLevelSelectorProps>(
-  ({ items, selectedItem, onSelect, isHighlighted, disabled, onClick, level, recentItems = [] }, ref) => {
+  ({ items, selectedItem, onSelect, isHighlighted, disabled, onClick, level, recentItems = [], onClose }, ref) => {
     const [search, setSearch] = useState('');
 
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -69,6 +70,7 @@ export const TopLevelSelector = React.forwardRef<HTMLDivElement, TopLevelSelecto
 
     const handleClose = () => {
       setAnchorEl(null);
+      onClose?.();
     }
 
     return (
@@ -80,12 +82,17 @@ export const TopLevelSelector = React.forwardRef<HTMLDivElement, TopLevelSelecto
         isHighlighted={isHighlighted}
 
       >
-        <Typography variant="body2" color="text.secondary">
-          {getLevelLabel(level)}
-        </Typography>
+        <Box display="flex" alignItems="center" justifyContent="space-between" gap={1} flexGrow={1}>
+          <Typography variant="body2" color="text.secondary">
+            {getLevelLabel(level)}
+          </Typography>
+          <IconButton size="small" variant="text" onClick={handleClose}>
+            <CloseIcon fontSize="inherit" />
+          </IconButton>
+        </Box>
         <Box display="flex" alignItems="center" gap={1}>
           <Typography variant="body1" color="text.primary">
-            Sample
+            Sample Project
           </Typography>
           <IconButton size="small" variant="text" onClick={handleOpen}>
             <ChevronDownIcon />
