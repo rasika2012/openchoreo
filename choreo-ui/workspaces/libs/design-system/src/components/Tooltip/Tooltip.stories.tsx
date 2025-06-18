@@ -85,7 +85,6 @@ export const ToNormalText: Story = {
     );
   },
 };
-
 export const WithHeadingAndContent: Story = {
   args: {
     children: 'Tooltip with heading and content',

@@ -7,12 +7,13 @@ export interface StyledSelectProps extends BoxProps {
 
 export const StyledSelect: ComponentType<StyledSelectProps> = styled(Box)(
   ({ theme }) => ({
-    selectLabel: {
+    '.selectLabel': {
       display: 'block',
       color: theme.palette.secondary.dark,
       marginBottom: theme.spacing(0.5),
     },
-    selectRoot: {
+
+    '.selectRoot': {
       '& .MuiAutocomplete-inputRoot[class*="MuiOutlinedInput-root"]': {
         '& .MuiAutocomplete-endAdornment': {
           right: theme.spacing(0.8),
