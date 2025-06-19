@@ -16,3 +16,4 @@ export * from './Checkbox';
 export * from './Avatar';
 export * from './SplitButton';
 export * from './Radio';
+export * from './RadioGroup';
