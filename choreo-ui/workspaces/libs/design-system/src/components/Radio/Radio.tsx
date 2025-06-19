@@ -82,7 +82,6 @@ export const Radio = React.forwardRef<HTMLDivElement, RadioProps>(
           }
           label={children}
           disabled={disabled}
-          sx={{ pointerEvents: disabled ? 'none' : 'auto' }}
         />
       </StyledRadio>
     );
