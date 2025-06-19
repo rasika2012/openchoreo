@@ -1,4 +1,4 @@
-import { alpha, Box, Card, CardProps, Popover, PopoverProps, styled } from "@mui/material";
+import { alpha, Card, CardProps, Popover, PopoverProps, styled } from "@mui/material";
 import { ComponentType } from "react";
 
 
