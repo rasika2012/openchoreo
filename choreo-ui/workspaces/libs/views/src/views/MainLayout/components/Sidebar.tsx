@@ -63,6 +63,7 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
             {menuItems?.map((item) => (
               <>
                 <MenuItem
+                  href={item.href}
                   id={item.id}
                   title={item.title}
                   selectedIcon={item.selectedIcon}
@@ -91,7 +92,7 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
               isExpanded={isFullWidth}
             />
           </Box>
-     
+
         </Box>
       </Box>
     );
