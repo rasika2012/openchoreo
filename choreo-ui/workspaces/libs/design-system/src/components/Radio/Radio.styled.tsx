@@ -30,41 +30,6 @@ export const StyledRadio: ComponentType<StyledRadioProps> = styled(Box, {
   radioButton: {
     margin: theme.spacing(-1, 0),
   },
-  root: {
-    color: theme.palette.secondary.dark,
-    '&:hover': {
-      backgroundColor: 'transparent',
-    },
-    '&$checked': {
-      color: theme.palette.secondary.dark,
-      '&:hover': {
-        backgroundColor: 'transparent',
-      },
-      '&$disabled': {
-        color: theme.palette.grey[200],
-      },
-    },
-    '&$disabled': {
-      color: theme.palette.grey[200],
-    },
-  },
-  rootPrimary: {
-    color: theme.palette.primary.main,
-    '&$checked': {
-      color: theme.palette.primary.main,
-      '&$disabled': {
-        color: theme.palette.grey[200],
-      },
-      '&:hover': {
-        backgroundColor: 'transparent',
-      },
-    },
-    '&$disabled': {
-      color: theme.palette.grey[200],
-    },
-  },
-  checked: {},
-  disabled: {},
   radioLabelRoot: {
     marginLeft: theme.spacing(-1),
   },
@@ -80,8 +45,8 @@ export interface RadioIndicatorProos {
 export const StyledRadioIndicator: ComponentType<
   MuiRadioProps & RadioIndicatorProos
 > = styled(MuiRadio)<MuiRadioProps & RadioIndicatorProos>(
-  ({ theme, color = 'primary' }) => ({
-    color: theme.palette.primary.main,
+  ({ theme, color = 'default' }) => ({
+    color: theme.palette.text.primary,
     '&.Mui-checked': {
       color:
         color === 'primary'
