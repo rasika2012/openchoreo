@@ -1,50 +1,21 @@
 import {
   Box,
-  MenuHomeIcon,
-  MenuHomeFilledIcon,
-  MenuProjectIcon,
-  MenuProjectFilledIcon,
   type NavItemExpandableSubMenu,
-  MenuObserveIcon,
-  MenuObserveFilledIcon
 } from "@open-choreo/design-system";
 import { MainLayout as BaseMainLayout } from "@open-choreo/common-views";
 import { useState } from "react";
+import { registry, PluginEntryType } from "@open-choreo/plugins";
 
-const mockMenuItems : NavItemExpandableSubMenu[] = [
-  {
-    title: "Home",
-    id: "home",
-    icon: <MenuHomeIcon fontSize="inherit" />,
-    selectedIcon: <MenuHomeFilledIcon fontSize="inherit" />,
-  },
-  {
-    title: "Projects",
-    id: "projects",
-    icon: <MenuProjectIcon fontSize="inherit" />,
-    selectedIcon: <MenuProjectFilledIcon fontSize="inherit" />,
-  },
-  {
-    title: "Observability",
-    id: "observability",
-    icon: <MenuObserveIcon fontSize="inherit" />,
-    selectedIcon: <MenuObserveFilledIcon fontSize="inherit" />,
-    subMenuItems: [
-      {
-        title: "Logs",
-        id: "logs",
-        icon: <MenuObserveIcon fontSize="inherit" />,
-        selectedIcon: <MenuObserveFilledIcon fontSize="inherit" />,
-      },
-      {
-        title: "Metrics",
-        id: "metrics",
-        icon: <MenuObserveIcon fontSize="inherit" />,
-        selectedIcon: <MenuObserveFilledIcon fontSize="inherit" />,
-      },
-    ]
-  }
-];
+const navigationEntries: NavItemExpandableSubMenu[] = registry.flatMap(plugin => plugin.entries.filter(entry => entry.type === PluginEntryType.NAVIGATION).map(entry => ({
+  title: entry.name,
+  id: entry.name,
+  icon: <entry.icon />,
+  selectedIcon: <entry.iconSelected />,
+  // path: entry.path,
+  href: entry.path,
+  // subMenuItems: [],
+  // subMenuItems: entry.,
+} as NavItemExpandableSubMenu)));
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -52,14 +23,14 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const [selectedMenuItem, setSelectedMenuItem] = useState<string>(
-    mockMenuItems[0].id ,
+    navigationEntries[0].id,
   );
 
   return (
     <BaseMainLayout
       footer={<Box>Footer</Box>}
       header={<Box>Header</Box>}
-      menuItems={mockMenuItems}
+      menuItems={navigationEntries}
       rightSidebar={<Box>Right Sidebar</Box>}
       selectedMenuItem={selectedMenuItem}
       onMenuItemClick={setSelectedMenuItem}

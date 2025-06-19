@@ -450,8 +450,13 @@
       "projectFolder": "workspaces/libs/design-system"
     },
     {
+      "packageName": "@open-choreo/plugins",
+      "projectFolder": "workspaces/libs/plugins"
+    },
+    {
       "packageName": "@open-choreo/common-views",
       "projectFolder": "workspaces/libs/views"
     }
+    
   ]
 }
