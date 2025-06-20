@@ -1,11 +1,11 @@
 import { ThemeProvider, Box } from "@open-choreo/design-system";
 import { MainLayout } from "./layouts/MainLayout";
 import { Route, Routes } from "react-router";
-import { PluginEntryType } from "@open-choreo/plugins";
-import { registry } from "@open-choreo/plugins";
 import { useEffect } from "react";
+import { pluginRegistry } from "./plugins";
+import { PluginExtensionType } from "@open-choreo/plugin-core";
 
-const pages = registry.flatMap(plugin => plugin.entries.filter(entry => entry.type === PluginEntryType.PAGE).map(entry => ({
+const pages = pluginRegistry.flatMap(plugin => plugin.extensions.filter(entry => entry.type === PluginExtensionType.PAGE).map(entry => ({
   path: entry.path,
   element: <entry.component />,
 })));
