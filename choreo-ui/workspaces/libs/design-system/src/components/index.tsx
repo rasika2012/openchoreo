@@ -18,3 +18,4 @@ export * from './SplitButton';
 export * from './Radio';
 export * from './RadioGroup';
 export * from './AvatarUserName';
+export * from './SimpleSelect';
