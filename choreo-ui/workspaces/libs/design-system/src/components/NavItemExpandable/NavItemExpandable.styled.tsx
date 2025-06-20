@@ -1,5 +1,6 @@
-import { alpha, Box, BoxProps, Link, LinkProps, styled } from '@mui/material';
+import { alpha, Box, BoxProps, styled } from '@mui/material';
 import { ComponentType } from 'react';
+import { Link, LinkProps } from 'react-router';
 
 interface StyledNavItemContainerProps {
   isSubNavVisible?: boolean;
@@ -42,13 +43,13 @@ export const StyledSubNavContainer: ComponentType<
 );
 
 export const StyledMainNavItemContainer: ComponentType<
-  LinkProps & {
+  BoxProps & {
     isExpanded?: boolean;
     isSelected?: boolean;
     isSubNavVisible?: boolean;
   }
-> = styled(Link)<
-  LinkProps & {
+> = styled(Box)<
+  BoxProps & {
     isExpanded?: boolean;
     isSelected?: boolean;
     isSubNavVisible?: boolean;

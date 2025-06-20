@@ -1,17 +1,20 @@
 import { type ComponentType, type LazyExoticComponent } from "react";
 
 export enum PluginEntryType {
-    NAVIGATION = "navigation",
+    NAVIGATION = "nav-item",
     PAGE = "page"
 }
-
 export interface PluginManifest  {
     name: string;
     description: string;
-    version: string;
-    author: string;
-    license: string;
     entries: PluginEntry[];
+}
+
+interface PluginEntrySubmenu {
+    name: string;
+    icon: ComponentType<{className?: string}> | LazyExoticComponent<ComponentType<{className?: string}>>;
+    iconSelected: ComponentType<{className?: string}> | LazyExoticComponent<ComponentType<{className?: string}>>;
+    path?: string;
 }
 
 interface PluginEntryNavigation  {
@@ -19,7 +22,8 @@ interface PluginEntryNavigation  {
     name: string;
     icon: ComponentType<{className?: string}> | LazyExoticComponent<ComponentType<{className?: string}>>;
     iconSelected: ComponentType<{className?: string}> | LazyExoticComponent<ComponentType<{className?: string}>>;
-    path: string;
+    path?: string;
+    submenu?: PluginEntrySubmenu[];
 }
 
 interface PluginEntryPage {
