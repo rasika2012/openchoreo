@@ -19,3 +19,4 @@ export * from './Radio';
 export * from './RadioGroup';
 export * from './AvatarUserName';
 export * from './SimpleSelect';
+export * from './SearchBar';
