@@ -5,9 +5,10 @@ import {
 import { MainLayout as BaseMainLayout } from "@open-choreo/common-views";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router";
-import { registry, PluginEntryType } from "@open-choreo/plugins";
+import { pluginRegistry } from "../plugins";
+import { PluginExtensionType } from "@open-choreo/plugin-core";
 
-const navigationEntries: NavItemExpandableSubMenu[] = registry.flatMap(plugin => plugin.entries.filter(entry => entry.type === PluginEntryType.NAVIGATION).map(entry => ({
+const navigationEntries: NavItemExpandableSubMenu[] = pluginRegistry.flatMap(plugin => plugin.extensions.filter(entry => entry.type === PluginExtensionType.NAVIGATION).map(entry => ({
   title: entry.name,
   id: entry.name,
   icon: <entry.icon />,
