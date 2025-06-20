@@ -32,6 +32,7 @@ export interface SimpleSelectProps {
   isLoading?: boolean;
   isScrollable?: boolean;
   startAdornment?: React.ReactNode;
+  isSearchBarItem?: boolean;
 }
 
 /**
@@ -57,6 +58,7 @@ export const SimpleSelect = React.forwardRef<HTMLDivElement, SimpleSelectProps>(
       error,
       helperText,
       isScrollable,
+      isSearchBarItem = false,
       ...props
     },
     ref
@@ -92,6 +94,7 @@ export const SimpleSelect = React.forwardRef<HTMLDivElement, SimpleSelectProps>(
           simpleSelect: true,
           resetSimpleSelectStyles: props.resetStyles,
         })}
+        isSearchBarItem={isSearchBarItem}
         size={size}
         {...props}
       >
