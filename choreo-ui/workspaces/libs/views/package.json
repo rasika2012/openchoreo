@@ -94,6 +94,7 @@
     "@babel/traverse": "^7.27.3",
     "less": "^4.3.0",
     "@open-choreo/design-system": "workspace:*",
-    "@eslint/eslintrc": "~3.3.1"
+    "@eslint/eslintrc": "~3.3.1",
+    "react-router": "~7.6.2"
   }
 }
