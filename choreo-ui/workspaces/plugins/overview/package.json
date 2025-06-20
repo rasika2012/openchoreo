@@ -1,10 +1,19 @@
 {
-  "name": "@open-choreo/plugins",
+  "name": "@open-choreo/plugin-overview",
   "version": "1.0.0",
-  "main": "index.ts",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "baseUrl": ".",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "echo \"Error: no build for plugins\""
+    "dev": "tsc -project tsconfig.json  --watch",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc -project tsconfig.json"
   },
   "author": "",
   "license": "ISC",
@@ -12,6 +21,7 @@
   "dependencies": {
     "@open-choreo/design-system": "workspace:*",
     "@open-choreo/common-views": "workspace:*",
+    "@open-choreo/plugin-core": "workspace:*",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "@eslint/eslintrc": "~3.3.1",
