@@ -18,3 +18,4 @@ export * from './Avatar';
 export * from './SimpleSelect';
 export * from './SearchBar';
 export * from './ProgressBar';
+export * from './Toggler';
