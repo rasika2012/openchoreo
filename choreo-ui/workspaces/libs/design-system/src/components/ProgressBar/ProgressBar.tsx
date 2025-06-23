@@ -35,7 +35,7 @@ export const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>(
       children,
       className,
       onClick,
-      size = 'medium',
+      size = 'small',
       disabled = false,
       ...props
     },
@@ -55,7 +55,7 @@ export const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>(
         ref={ref}
         className={className}
         color={props.color || 'primary'}
-        variant={props.variant || 'determinate'}
+        variant={props.variant || 'indeterminate'}
         onClick={handleClick}
         disabled={disabled}
         size={size}
