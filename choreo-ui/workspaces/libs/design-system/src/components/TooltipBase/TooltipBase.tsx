@@ -4,12 +4,12 @@ import { StyledTooltipBase } from './TooltipBase.styled';
 export interface TooltipBaseProps {
   /** The content to be rendered within the component */
   children?: React.ReactNode;
+  /** The tooltip content */
+  title?: React.ReactNode;
   /** Additional CSS class names */
   className?: string;
   /** Click event handler */
   onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
-  /** Whether the component is disabled */
-  disabled?: boolean;
 }
 
 /**
@@ -17,24 +17,22 @@ export interface TooltipBaseProps {
  * @component
  */
 export const TooltipBase = React.forwardRef<HTMLDivElement, TooltipBaseProps>(
-  ({ children, className, onClick, disabled = false, ...props }, ref) => {
+  ({ children, title, className, onClick, ...props }, ref) => {
     const child = React.isValidElement(children) ? (
       React.cloneElement(children, {
+        ...(onClick && { onClick }),
+        ...(className && { className }),
+        ref,
         ...props,
-      })
+      } as any)
     ) : (
-      <span
-        ref={ref}
-        onClick={disabled ? undefined : onClick}
-        className={className}
-        {...props}
-      >
+      <span ref={ref} onClick={onClick} className={className} {...props}>
         {children}
       </span>
     );
 
     return (
-      <StyledTooltipBase title={children} disabled={disabled}>
+      <StyledTooltipBase title={title || 'Tooltip content'}>
         {child}
       </StyledTooltipBase>
     );
