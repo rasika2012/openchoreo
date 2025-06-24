@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Toggler } from './Toggler';
+import { Card, CardContent } from '../Card';
+import { Box } from '@mui/material';
 
 const meta: Meta<typeof Toggler> = {
   title: 'Components/Toggler',
@@ -30,9 +32,30 @@ export const Default: Story = {
   },
 };
 
-export const Disabled: Story = {
-  args: {
-    children: 'Disabled Toggler',
-    disabled: true,
-  },
+export const Variants: Story = {
+  render: () => (
+    <Card testId="toggle">
+      <CardContent>
+        <Box display="flex" gap="1rem">
+          <Box>
+            <Toggler testId="default-toggle" />
+          </Box>
+          <Box>
+            <Toggler size="small" testId="small-toggle" />
+          </Box>
+          <Box>
+            <Toggler disabled testId="disable-toggle" />
+          </Box>
+          <Box>
+            <Toggler
+              disabled
+              checked
+              color="default"
+              testId="disable-checked-toggle"
+            />
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
+  ),
 };
