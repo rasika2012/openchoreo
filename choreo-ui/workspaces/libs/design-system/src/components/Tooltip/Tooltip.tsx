@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyledTooltip } from './Tooltip.styled';
-import { Box, Divider, Typography, Tooltip as MuiTooltip } from '@mui/material';
+import { Box, Divider, Typography } from '@mui/material';
 
 export type tooltipPlacement =
   | 'top'
@@ -42,10 +42,6 @@ export interface TooltipProps {
    */
   onClick?: (event: React.MouseEvent) => void;
   /**
-   * If true, the component will be disabled
-   */
-  disabled?: boolean;
-  /**
    * content of the tooltip
    */
   content?: React.ReactNode;
@@ -68,7 +64,7 @@ export interface TooltipProps {
  * @component
  */
 export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
-  ({ children, className, onClick, disabled = false, ...props }, ref) => {
+  ({ children, className, onClick, ...props }, ref) => {
     const infoTooltipFragment = (
       <Box p={0.5}>
         {props.title && (
@@ -81,7 +77,7 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
             <Typography variant="body2">{props.content}</Typography>
           </Box>
         )}
-        {props.example && <Divider />}
+        {props.example && <Divider className="divider" />}
         {props.example && (
           <Typography variant="body2">Eg: {props.example}</Typography>
         )}
@@ -94,18 +90,9 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
       <StyledTooltip
         ref={ref}
         className={className}
-        onClick={disabled ? undefined : onClick}
-        disabled={disabled}
         arrow={props.arrow}
         placement={props.placement || 'bottom'}
-        title={
-          <MuiTooltip
-            title={infoTooltipFragment}
-            placement={props.placement || 'bottom'}
-          >
-            {infoTooltipFragment}
-          </MuiTooltip>
-        }
+        title={infoTooltipFragment}
         {...props}
       >
         {React.isValidElement(children) ? (
