@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyledTooltip } from './Tooltip.styled';
-import { Box, Divider, Typography } from '@mui/material';
+import { Box, Divider, Link, Typography } from '@mui/material';
 
 export type tooltipPlacement =
   | 'top'
@@ -49,6 +49,7 @@ export interface TooltipProps {
    * example to be displayed in the tooltip
    */
   example?: React.ReactNode;
+  action?: { link: string; text: string };
   /**
    * sx prop for styling
    */
@@ -77,9 +78,14 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
             <Typography variant="body2">{props.content}</Typography>
           </Box>
         )}
-        {props.example && <Divider className="divider" />}
+        {(props.example || props.action) && <Divider className="divider" />}
         {props.example && (
           <Typography variant="body2">Eg: {props.example}</Typography>
+        )}
+        {props.action && (
+          <Link href={props.action.link} target="_blank" rel="noreferrer">
+            {props.action.text}
+          </Link>
         )}
       </Box>
     );
