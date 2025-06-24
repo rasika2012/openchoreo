@@ -1,13 +1,7 @@
 import React from 'react';
 import { StyledToggler } from './Toggler.styled';
 
-export type colorVariant =
-  | 'primary'
-  | 'secondary'
-  | 'error'
-  | 'warning'
-  | 'info'
-  | 'success';
+export type colorVariant = 'primary' | 'default'; // Updated to match styled component
 export type sizeVariant = 'small' | 'medium';
 
 export interface TogglerProps {
@@ -18,6 +12,7 @@ export interface TogglerProps {
   checked?: boolean;
   color?: colorVariant;
   sx?: React.CSSProperties;
+  testId?: string; // Added missing testId prop
   [key: string]: any;
 }
 
@@ -26,10 +21,24 @@ export interface TogglerProps {
  * @component
  */
 export const Toggler = React.forwardRef<HTMLButtonElement, TogglerProps>(
-  ({ children, className, onClick, disabled = false, ...props }, ref) => {
-    const handleChange = (event: React.MouseEvent<HTMLButtonElement>) => {
+  (
+    {
+      children,
+      className,
+      onClick,
+      disabled = false,
+      color = 'default', // Set default to 'default'
+      testId,
+      ...props
+    },
+    ref
+  ) => {
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (disabled) return;
-      onClick?.(event);
+      // Convert ChangeEvent to MouseEvent for onClick handler
+      const mouseEvent =
+        event as unknown as React.MouseEvent<HTMLButtonElement>;
+      onClick?.(mouseEvent);
     };
 
     return (
@@ -37,13 +46,14 @@ export const Toggler = React.forwardRef<HTMLButtonElement, TogglerProps>(
         ref={ref}
         size={props.size || 'medium'}
         className={className}
-        onClick={disabled ? disabled : handleChange}
+        onChange={handleChange} // Use onChange instead of onClick for Switch
         disabled={disabled}
         checked={props.checked}
-        color={props.color}
+        color={color}
         disableRipple={true}
         disableTouchRipple={true}
         disableFocusRipple={true}
+        data-testid={testId}
         {...props}
       />
     );
