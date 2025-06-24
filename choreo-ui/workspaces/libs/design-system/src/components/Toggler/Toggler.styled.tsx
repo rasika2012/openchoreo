@@ -1,13 +1,7 @@
 import { Switch, SwitchProps, styled } from '@mui/material';
 import { ComponentType } from 'react';
 
-export type colorVariant =
-  | 'primary'
-  | 'secondary'
-  | 'error'
-  | 'warning'
-  | 'info'
-  | 'success';
+export type colorVariant = 'primary' | 'default'; // Updated to match requirements
 export type sizeVariant = 'small' | 'medium';
 
 export interface StyledTogglerProps extends SwitchProps {
@@ -22,23 +16,15 @@ export const StyledToggler: ComponentType<StyledTogglerProps> = styled(
   disabled,
   theme,
   size = 'medium',
-  color = 'primary',
+  color = 'default', // Changed default to 'default'
 }) => {
   const getColor = () => {
     switch (color) {
       case 'primary':
         return theme.palette.primary.main;
-      case 'secondary':
-        return theme.palette.secondary.main;
-      case 'error':
-        return theme.palette.error.main;
-      case 'warning':
-        return theme.palette.warning.main;
-      case 'info':
-        return theme.palette.info.main;
-      case 'success':
+      case 'default':
       default:
-        return theme.palette.success.main;
+        return theme.palette.success.main; // Default is success color as required
     }
   };
 
@@ -51,6 +37,7 @@ export const StyledToggler: ComponentType<StyledTogglerProps> = styled(
     display: 'flex',
     alignItems: 'center',
     opacity: disabled ? 0.5 : 1,
+    pointerEvents: disabled ? 'none' : 'auto',
 
     '& .MuiSwitch-switchBase': {
       padding: theme.spacing(0.25),
@@ -58,20 +45,22 @@ export const StyledToggler: ComponentType<StyledTogglerProps> = styled(
 
       '&.Mui-disabled': {
         '& + .MuiSwitch-track': {
-          backgroundColor: theme.palette.grey[100],
-          border: `1px solid ${theme.palette.grey[200]}`,
-          opacity: 1,
+          opacity: 0.5,
+          pointerEvents: 'none',
         },
         '& .MuiSwitch-thumb': {
-          backgroundColor: theme.palette.grey[300],
+          backgroundColor: theme.palette.grey[200],
         },
         '&.Mui-checked': {
           '& .MuiSwitch-thumb': {
-            backgroundColor: theme.palette.grey[400],
+            backgroundColor:
+              color === 'primary'
+                ? theme.palette.primary.main
+                : theme.palette.success.main,
           },
           '& + .MuiSwitch-track': {
-            backgroundColor: theme.palette.grey[200],
-            border: `1px solid ${theme.palette.grey[300]}`,
+            backgroundColor: 'transparent',
+            border: `1px solid ${color === 'primary' ? theme.palette.primary.main : theme.palette.success.main}`,
             opacity: 1,
           },
         },
@@ -99,7 +88,7 @@ export const StyledToggler: ComponentType<StyledTogglerProps> = styled(
     },
 
     '& .MuiSwitch-track': {
-      border: `1px solid ${theme.palette.secondary.main}`,
+      border: `1px solid ${theme.palette.grey[200]}`,
       borderRadius: size === 'small' ? theme.spacing(1) : theme.spacing(1.5),
       backgroundColor: theme.palette.common.white,
       opacity: 1,
