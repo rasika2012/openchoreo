@@ -6,8 +6,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Path to the plugins directory
-const pluginsRoot = path.resolve(__dirname, '../../../../plugins');
-const tmpDir = path.resolve(__dirname, 'tmp');
+const pluginsRoot = path.resolve(__dirname, '../../workspaces/plugins');
+const tmpDir = path.resolve(__dirname, '../../workspaces/apps/console/src/plugins/tmp');
 
 // Create tmp directory if it doesn't exist
 if (!fs.existsSync(tmpDir)) {

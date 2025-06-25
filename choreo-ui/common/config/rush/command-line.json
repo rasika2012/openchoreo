@@ -17,6 +17,13 @@
       "summary": "Create a new element",
       "description": "Create a new element",
       "shellCommand": "node common/scripts/create-element-rush.cjs"
+    },
+    {
+      "commandKind": "global",
+      "name": "update-plugins",
+      "summary": "Update the plugins",
+      "description": "Update the plugins",
+      "shellCommand": "node common/scripts/update-plugins.mjs"
     }
     // {
     //   /**
