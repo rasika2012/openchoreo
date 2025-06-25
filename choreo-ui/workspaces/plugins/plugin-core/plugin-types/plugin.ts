@@ -1,9 +1,10 @@
-import { type ComponentType, type LazyExoticComponent } from "react";
+import { ReactNode, type ComponentType, type LazyExoticComponent } from "react";
 
 export enum PluginExtensionType {
     NAVIGATION = "nav-item",
     PAGE = "page",
-    PANEL = "panel"
+    PANEL = "panel",
+    PROVIDER = "provider"
 }
 export interface PluginManifest  {
     name: string;
@@ -35,9 +36,15 @@ export interface PluginExtensionPage {
 
 export interface PluginExtensionPanel {
     type: PluginExtensionType.PANEL;
-    mountPointId: string;
+    extentionPointId: string;
     key: string;
     component: ComponentType<{}> | LazyExoticComponent<ComponentType<{}>>;
 }
 
-export type PluginExtension = PluginExtensionNavigation | PluginExtensionPage | PluginExtensionPanel;
+export interface PluginExtensionProvider {
+    type: PluginExtensionType.PROVIDER;
+    extentionPointId: string;
+    key: string;
+    component: ComponentType<{children: ReactNode}> | LazyExoticComponent<ComponentType<{children: ReactNode}>>;
+}
+export type PluginExtension = PluginExtensionNavigation | PluginExtensionPage | PluginExtensionPanel | PluginExtensionProvider;
