@@ -5,7 +5,7 @@ import { MainLayout as BaseMainLayout } from "@open-choreo/common-views";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router";
 import { pluginRegistry } from "../plugins";
-import { useMainNavExtentions } from "@open-choreo/plugin-core";
+import { ExtentionMounter, useMainNavExtentions } from "@open-choreo/plugin-core";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -42,7 +42,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   return (
     <BaseMainLayout
       footer={<Box>Footer</Box>}
-      header={<Box>Header</Box>}
+      header={<ExtentionMounter mountPointId="header.left" pluginRegistry={pluginRegistry} />}
       menuItems={navigationEntries}
       rightSidebar={<Box>Right Sidebar</Box>}
       selectedMenuItem={selectedMenuItem}
