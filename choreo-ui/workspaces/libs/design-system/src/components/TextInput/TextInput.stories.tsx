@@ -9,7 +9,6 @@ import HidePassword from '@design-system/Icons/generated/HidePassword';
 import { Chip } from '../Chip';
 import { Button } from '../Button';
 import Tools from '@design-system/Icons/generated/Tools';
-import { SearchIcon } from '@design-system/Icons';
 
 const meta: Meta<typeof TextInput> = {
   title: 'Components/TextInput',
@@ -32,10 +31,6 @@ const meta: Meta<typeof TextInput> = {
     label: {
       control: 'text',
       description: 'Label for the text input',
-    },
-    value: {
-      control: 'text',
-      description: 'Current value of the text input',
     },
     tooltip: {
       control: 'text',
@@ -77,7 +72,7 @@ export const Default: Story = {
               <TextInput
                 {...args}
                 disabled
-                placeholder="Disabled"
+                value="Disabled"
                 testId={`${testId}-disabled`}
               />
             </Box>
@@ -612,15 +607,5 @@ export const textInputSizes: Story = {
         </Grid>
       </Grid>
     );
-  },
-};
-
-export const WithIcons: Story = {
-  args: {
-    label: 'Input with Icons',
-    value: '',
-    startIcon: <SearchIcon fontSize="small" />,
-    endIcon: <SearchIcon fontSize="small" color="primary" />,
-    onChange: (value: string) => console.log('Value changed:', value),
   },
 };
