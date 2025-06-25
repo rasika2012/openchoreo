@@ -10,7 +10,7 @@ export type iconButtonColorVariant =
   | 'warning'
   | 'info'
   | 'success';
-export type iconButtonSizeVariant = 'small' | 'medium' | 'large';
+export type iconButtonSizeVariant = 'tiny' | 'small' | 'medium';
 export type edgeVariant = 'start' | 'end' | false;
 
 export interface IconButtonProps {
@@ -63,26 +63,6 @@ export interface IconButtonProps {
    */
   [key: string]: any;
 }
-
-// export const IconButton = React.forwardRef<HTMLDivElement, IconButtonProps>(({
-//     children,
-//     className,
-//     onClick,
-//     disabled = false,
-//     ...props
-// }, ref) => {
-//     return (
-//         <StyledIconButton
-//             ref={ref}
-//             className={className}
-//             onClick={disabled ? undefined : onClick}
-//             disabled={disabled}
-//             {...props}
-//         >
-//             {children}
-//         </StyledIconButton>
-//     );
-// });
 
 export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
   ({ children, ...props }, ref) => (
