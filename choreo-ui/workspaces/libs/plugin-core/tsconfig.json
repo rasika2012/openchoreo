@@ -15,14 +15,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": false,
-
     "baseUrl": ".",
-    "paths": {
-      "@open-choreo/plugins": ["./plugin-types"]
-    },
     "rootDir": "."
   },
-  "include": ["./index.ts","./plugin-types/index.ts"],
+  "include": ["./index.ts"],
   "exclude": [
     "node_modules",
     "dist"
