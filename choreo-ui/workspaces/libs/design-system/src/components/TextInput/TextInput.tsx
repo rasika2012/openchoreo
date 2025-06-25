@@ -38,7 +38,7 @@ export interface TextInputProps {
   rows?: number;
   rounded?: boolean;
   className?: string;
-  size?: 'small' | 'medium';
+  size?: 'small' | 'medium' | 'large';
   fullWidth?: boolean;
   placeholder?: string;
   endAdornment?: React.ReactNode;
@@ -106,7 +106,7 @@ export const TextInput = React.forwardRef<HTMLDivElement, TextInputProps>(
           </HeadingWrapper>
         )}
         <StyledTextField
-          size={size}
+          customSize={size}
           data-cyid={testId}
           variant="outlined"
           multiline={multiline}
