@@ -5,8 +5,7 @@ import { MainLayout as BaseMainLayout } from "@open-choreo/common-views";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router";
 import { pluginRegistry } from "../plugins";
-import { useMainNavPlugin } from "@open-choreo/plugin-core";
-
+import { useMainNavExtentions } from "@open-choreo/plugin-core";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -14,7 +13,7 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const location = useLocation();
-  const navigationEntries = useMainNavPlugin(pluginRegistry);
+  const navigationEntries = useMainNavExtentions(pluginRegistry);
   const [selectedMenuItem, setSelectedMenuItem] = useState<string>(
     navigationEntries[0].id,
   );
