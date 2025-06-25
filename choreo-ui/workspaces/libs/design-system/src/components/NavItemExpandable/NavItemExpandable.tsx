@@ -8,6 +8,7 @@ import {
 } from './NavItemExpandable.styled';
 import { ChevronRightIcon } from '@design-system/Icons';
 import { Box, Collapse, Typography, useTheme } from '@mui/material';
+// import { Link } from 'react-router';
 
 export interface NavItemBase {
   title: string;
@@ -49,7 +50,7 @@ export const NavItemExpandable = React.forwardRef<
     selectedIcon,
     subMenuItems,
     id,
-    href,
+    // href,
   } = props;
   const [isSubNavVisible, setIsSubNavVisible] = useState(false);
   const theme = useTheme();
@@ -85,9 +86,10 @@ export const NavItemExpandable = React.forwardRef<
       disabled={disabled}
       ref={ref}
     >
+
       <StyledMainNavItemContainer
         onClick={handleMainNavItemClick}
-        href={href}
+        // to={href ?? './'}
         isSelected={isSelected}
         isSubNavVisible={isSubNavExpanded}
       >
@@ -115,11 +117,12 @@ export const NavItemExpandable = React.forwardRef<
           <Box />
         )}
       </StyledMainNavItemContainer>
+
       <Collapse in={isSubNavExpanded} mountOnEnter unmountOnExit>
         <StyledSubNavContainer isSelected={isSelected}>
           {subMenuItems?.map((item) => (
             <StyledSubNavItemContainer
-              href={item.href}
+              to={item.href ?? ''}
               onClick={() => handleOnClick(item.id)}
               isExpanded={isExpanded}
               isSelected={item.id === selectedId}

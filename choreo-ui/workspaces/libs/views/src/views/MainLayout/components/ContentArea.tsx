@@ -25,8 +25,8 @@ export const ContentArea = React.forwardRef<HTMLDivElement, ContentAreaProps>(
         {!isMobile && rightSidebar && (
           <Box
             height="100%"
-            minWidth={theme.spacing(30)}
-            maxWidth={theme.spacing(40)}
+            minWidth={theme.spacing(10)}
+            maxWidth={theme.spacing(11)}
             borderLeft="small"
             borderColor={theme.pallet.grey[200]}
           >
