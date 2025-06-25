@@ -1,9 +1,8 @@
-import { NavItemExpandableSubMenu } from "@open-choreo/design-system";
 import React, { useMemo } from "react";
 import { PluginExtensionType, PluginManifest } from "../..";
 import { Route, Routes } from "react-router";
 
-export function useMainPagePlgins(pluginRegistry: PluginManifest[]) {
+export function useRouteExtentions(pluginRegistry: PluginManifest[]) {
 
   const routes = useMemo(() => {
     const pageEntries = pluginRegistry.flatMap(plugin =>
