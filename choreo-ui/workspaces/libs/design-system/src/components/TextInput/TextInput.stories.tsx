@@ -9,6 +9,7 @@ import HidePassword from '@design-system/Icons/generated/HidePassword';
 import { Chip } from '../Chip';
 import { Button } from '../Button';
 import Tools from '@design-system/Icons/generated/Tools';
+import { SearchIcon } from '@design-system/Icons';
 
 const meta: Meta<typeof TextInput> = {
   title: 'Components/TextInput',
@@ -611,5 +612,15 @@ export const textInputSizes: Story = {
         </Grid>
       </Grid>
     );
+  },
+};
+
+export const WithIcons: Story = {
+  args: {
+    label: 'Input with Icons',
+    value: '',
+    startIcon: <SearchIcon fontSize="small" />,
+    endIcon: <SearchIcon fontSize="small" color="primary" />,
+    onChange: (value: string) => console.log('Value changed:', value),
   },
 };

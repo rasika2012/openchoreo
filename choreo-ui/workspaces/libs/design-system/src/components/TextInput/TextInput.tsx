@@ -7,6 +7,7 @@ import {
   TooltipProps,
   Typography,
 } from '@mui/material';
+import { Box, InputAdornment, Tooltip, Typography } from '@mui/material';
 import { QuestionIcon, InfoIcon } from '@design-system/Icons';
 import {
   StyledTextField,
@@ -117,9 +118,22 @@ export const TextInput = React.forwardRef<HTMLDivElement, TextInputProps>(
           }
           disabled={disabled}
           slotProps={{
+            input: {
+              startAdornment: startIcon && (
+                <InputAdornment position="start">
+                  {startIcon}
+                </InputAdornment>
+              ),
+              endAdornment: endIcon && (
+                <InputAdornment position="end">
+                  {endIcon}
+                </InputAdornment>
+              ),
+            },
             inputLabel: {
               shrink: false,
             },
+
           }}
           InputProps={{
             endAdornment: endAdornment,

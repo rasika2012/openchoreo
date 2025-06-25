@@ -56,14 +56,16 @@ export const StyledTextField: ComponentType<CustomTextFieldProps> = styled(
 
   '& .MuiOutlinedInput-root': {
     backgroundColor: theme.palette.background.paper,
-    '& .MuiOutlinedInput-input': {
-      borderRadius: theme.spacing(0.625),
-      boxShadow: theme.shadows[20],
-      '&:active, &:focus': {
-        backgroundColor: theme.palette.background.paper,
-        borderRadius: theme.spacing(0.625),
-        boxShadow: theme.shadows[21],
-      },
+    boxShadow: theme.shadows[20],
+    borderRadius: theme.shape.borderRadius,
+    border: 0,
+    '&:active, &:focus': {
+      backgroundColor: theme.palette.background.paper,
+      boxShadow: theme.shadows[21],
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.background.paper,
+      boxShadow: theme.shadows[21],
     },
     '& .MuiOutlinedInput-notchedOutline': {
       border: 0,
@@ -71,11 +73,11 @@ export const StyledTextField: ComponentType<CustomTextFieldProps> = styled(
     },
     '&.Mui-error': {
       backgroundColor: alpha(theme.palette.error.main, 0.05),
-      '& .MuiOutlinedInput-input': {
-        boxShadow: theme.shadows[22],
-      },
+      borderRadius: theme.shape.borderRadius,
+      boxShadow: theme.shadows[22],
     },
   },
+
   '& .MuiFormHelperText-root.Mui-error': {
     margin: 0,
     marginTop: theme.spacing(1),
