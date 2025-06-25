@@ -98,6 +98,76 @@ importers:
         specifier: ^6.3.5
         version: 6.3.5(@types/node@22.15.32)(less@4.3.0)
 
+  ../../workspaces/libs/api-client:
+    dependencies:
+      '@eslint/eslintrc':
+        specifier: ~3.3.1
+        version: 3.3.1
+      '@fontsource/roboto':
+        specifier: ~5.2.5
+        version: 5.2.6
+      '@open-choreo/common-views':
+        specifier: workspace:*
+        version: link:../views
+      '@open-choreo/design-system':
+        specifier: workspace:*
+        version: link:../design-system
+      '@open-choreo/plugin-core':
+        specifier: workspace:*
+        version: link:../plugin-core
+      '@types/lodash':
+        specifier: ~4.17.17
+        version: 4.17.18
+      '@typescript-eslint/eslint-plugin':
+        specifier: ~8.33.1
+        version: 8.33.1(@typescript-eslint/parser@8.33.1(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
+      '@typescript-eslint/parser':
+        specifier: ~8.33.1
+        version: 8.33.1(eslint@9.28.0)(typescript@5.8.3)
+      clsx:
+        specifier: ~2.1.1
+        version: 2.1.1
+      eslint-plugin-import:
+        specifier: ~2.31.0
+        version: 2.31.0(eslint@9.28.0)
+      eslint-plugin-jest-dom:
+        specifier: ~5.5.0
+        version: 5.5.0(@testing-library/dom@10.4.0)(eslint@9.28.0)
+      eslint-plugin-react:
+        specifier: ~7.37.5
+        version: 7.37.5(eslint@9.28.0)
+      eslint-plugin-testing-library:
+        specifier: ~7.4.0
+        version: 7.4.0(eslint@9.28.0)(typescript@5.8.3)
+      lodash:
+        specifier: ~4.17.21
+        version: 4.17.21
+    devDependencies:
+      '@eslint/js':
+        specifier: ~9.28.0
+        version: 9.28.0
+      eslint:
+        specifier: ~9.28.0
+        version: 9.28.0
+      eslint-plugin-prettier:
+        specifier: ~5.4.1
+        version: 5.4.1(eslint-config-prettier@10.1.5(eslint@9.28.0))(eslint@9.28.0)(prettier@3.6.0)
+      eslint-plugin-react-hooks:
+        specifier: ~5.2.0
+        version: 5.2.0(eslint@9.28.0)
+      eslint-plugin-react-refresh:
+        specifier: ^0.4.19
+        version: 0.4.20(eslint@9.28.0)
+      globals:
+        specifier: ~16.2.0
+        version: 16.2.0
+      typescript:
+        specifier: ~5.8.3
+        version: 5.8.3
+      typescript-eslint:
+        specifier: ^8.30.1
+        version: 8.34.1(eslint@9.28.0)(typescript@5.8.3)
+
   ../../workspaces/libs/design-system:
     dependencies:
       '@babel/generator':
@@ -523,24 +593,12 @@ importers:
 
   ../../workspaces/plugins/overview:
     dependencies:
-      '@emotion/react':
-        specifier: ~11.14.0
-        version: 11.14.0(@types/react@19.1.8)(react@19.1.0)
-      '@emotion/styled':
-        specifier: ~11.14.0
-        version: 11.14.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
       '@eslint/eslintrc':
         specifier: ~3.3.1
         version: 3.3.1
       '@fontsource/roboto':
         specifier: ~5.2.5
         version: 5.2.6
-      '@mui/icons-material':
-        specifier: ~7.1.0
-        version: 7.1.2(@mui/material@7.1.2(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
-      '@mui/material':
-        specifier: ~7.1.0
-        version: 7.1.2(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@open-choreo/common-views':
         specifier: workspace:*
         version: link:../../libs/views
