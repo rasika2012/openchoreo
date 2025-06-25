@@ -112,30 +112,22 @@ export const TextInput = React.forwardRef<HTMLDivElement, TextInputProps>(
           multiline={multiline}
           rows={rows}
           type={type}
+          value={value}
           onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
             onChange(evt.target.value)
           }
           disabled={disabled}
           slotProps={{
             input: {
-              startAdornment: startIcon && (
-                <InputAdornment position="start">
-                  {startIcon}
-                </InputAdornment>
-              ),
-              endAdornment: endIcon && (
-                <InputAdornment position="end">
-                  {endIcon}
-                </InputAdornment>
-              ),
+              readOnly: readonly,
             },
             inputLabel: {
               shrink: false,
             },
-
           }}
           InputProps={{
-            endAdornment: endAdornment,
+            ...(props.InputProps || {}),
+            endAdornment: endAdornment ?? props.InputProps?.endAdornment,
           }}
           error={computedError}
           helperText={
