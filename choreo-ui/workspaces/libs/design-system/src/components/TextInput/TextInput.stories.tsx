@@ -1,4 +1,4 @@
-import { Box, InputAdornment } from '@mui/material';
+import { Box, Grid, InputAdornment, Typography } from '@mui/material';
 import { Card, CardContent } from '../Card';
 import { TextInput } from './TextInput';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -21,7 +21,7 @@ const meta: Meta<typeof TextInput> = {
     },
     size: {
       control: 'select',
-      options: ['small', 'medium'],
+      options: ['small', 'medium', 'large'],
       description: 'Size of the text input',
     },
     helperText: {
@@ -121,42 +121,6 @@ export const Default: Story = {
         </CardContent>
       </Card>
     );
-  },
-};
-
-export const WithTooltip: Story = {
-  args: {
-    label: 'Input with Tooltip',
-    value: '',
-    tooltip: 'This is a helpful tooltip',
-    onChange: (value: string) => console.log('Value changed:', value),
-  },
-};
-
-export const WithError: Story = {
-  args: {
-    label: 'Input with Error',
-    value: 'Invalid value',
-    error: true,
-    helperText: 'This field has an error',
-    onChange: (value: string) => console.log('Value changed:', value),
-  },
-};
-
-export const Disabled: Story = {
-  args: {
-    label: 'Disabled Input',
-    value: 'Cannot edit this',
-    disabled: true,
-    onChange: (value: string) => console.log('Value changed:', value),
-  },
-};
-
-export const WithValue: Story = {
-  args: {
-    label: 'Filled Input',
-    value: 'This is some text',
-    onChange: (value: string) => console.log('Value changed:', value),
   },
 };
 
@@ -444,6 +408,208 @@ export const textInputRoundedEndActions: Story = {
           </Box>
         </CardContent>
       </Card>
+    );
+  },
+};
+
+export const textInputSizes: Story = {
+  args: {},
+  render: function TextInputSizes(args) {
+    return (
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Card testId={`${testId}-sizes-small`}>
+            <CardContent>
+              <Box>
+                <Box mb={3}>
+                  <Typography variant="h3">Size - Small</Typography>
+                </Box>
+                <Box mb={3}>
+                  <TextInput size="small" {...args} testId={testId} />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    size="small"
+                    {...args}
+                    disabled
+                    placeholder="Disabled"
+                    testId={`${testId}-disabled`}
+                  />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    size="small"
+                    {...args}
+                    error
+                    value="Error Text"
+                    helperText="Error helper text"
+                    tooltip="Tooltip goes here"
+                    label="Error Input"
+                    testId={`${testId}-error`}
+                  />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    size="small"
+                    {...args}
+                    readonly
+                    value="Read Only"
+                    testId={`${testId}-readonly`}
+                  />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    size="small"
+                    {...args}
+                    tooltip="Tooltip goes here"
+                    optional
+                    label="Label"
+                    testId={`${testId}-with-label`}
+                  />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    size="small"
+                    {...args}
+                    multiline
+                    rows={3}
+                    placeholder="Textarea"
+                    testId="text-area"
+                  />
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Card testId={`${testId}-sizes--medium`}>
+            <CardContent>
+              <Box>
+                <Box mb={3}>
+                  <Typography variant="h3">Size - Medium(Default)</Typography>
+                </Box>
+                <Box mb={3}>
+                  <TextInput {...args} testId={testId} />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    {...args}
+                    disabled
+                    size="medium"
+                    placeholder="Disabled"
+                    testId={`${testId}-disabled`}
+                  />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    {...args}
+                    error
+                    value="Error Text"
+                    helperText="Error helper text"
+                    tooltip="Tooltip goes here"
+                    label="Error Input"
+                    size="medium"
+                    testId={`${testId}-error`}
+                  />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    {...args}
+                    readonly
+                    size="medium"
+                    value="Read Only"
+                    testId={`${testId}-readonly`}
+                  />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    {...args}
+                    tooltip="Tooltip goes here"
+                    optional
+                    size="medium"
+                    label="Label"
+                    testId={`${testId}-with-label`}
+                  />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    {...args}
+                    multiline
+                    rows={3}
+                    size="medium"
+                    placeholder="Textarea"
+                    testId="text-area"
+                  />
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Card testId={`${testId}-sizes--large`}>
+            <CardContent>
+              <Box>
+                <Box mb={3}>
+                  <Typography variant="h3">Size - Large</Typography>
+                </Box>
+                <Box mb={3}>
+                  <TextInput size="large" {...args} testId={testId} />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    size="large"
+                    {...args}
+                    disabled
+                    placeholder="Disabled"
+                    testId={`${testId}-disabled`}
+                  />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    size="large"
+                    {...args}
+                    error
+                    value="Error Text"
+                    helperText="Error helper text"
+                    tooltip="Tooltip goes here"
+                    label="Error Input"
+                    testId={`${testId}-error`}
+                  />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    size="large"
+                    {...args}
+                    readonly
+                    value="Read Only"
+                    testId={`${testId}-readonly`}
+                  />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    size="large"
+                    {...args}
+                    tooltip="Tooltip goes here"
+                    optional
+                    label="Label"
+                    testId={`${testId}-with-label`}
+                  />
+                </Box>
+                <Box mb={3}>
+                  <TextInput
+                    size="large"
+                    {...args}
+                    multiline
+                    rows={3}
+                    placeholder="Textarea"
+                    testId="text-area"
+                  />
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
     );
   },
 };
