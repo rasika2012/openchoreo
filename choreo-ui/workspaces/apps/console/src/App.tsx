@@ -1,14 +1,19 @@
 import { ThemeProvider, Box } from "@open-choreo/design-system";
 import { MainLayout } from "./layouts/MainLayout";
+import { useEffect } from "react";
+import { pluginRegistry } from "./plugins";
+import { useMainPagePlgins } from "@open-choreo/plugin-core";
 
 export default function App() {
+  const pages = useMainPagePlgins(pluginRegistry);
+  useEffect(() => {
+    console.log(pages, "pages");
+  }, []);
   return (
     <ThemeProvider mode="light">
       <Box width="100vw" height="100vh">
         <MainLayout>
-          <Box>
-            Content will be here
-          </Box>
+          {pages}
         </MainLayout>
       </Box>
     </ThemeProvider>
