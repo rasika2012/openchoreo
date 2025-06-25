@@ -1,2 +1,3 @@
 export * from "./plugin-types";
-export * from "./hooks";
+export * from "./src/hooks";
+export * from "./src/component";

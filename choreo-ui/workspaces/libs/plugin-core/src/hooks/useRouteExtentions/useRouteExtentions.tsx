@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { PluginExtensionType, PluginManifest } from "../..";
+import { PluginExtensionType, PluginManifest } from "../../../plugin-types";
 import { Route, Routes } from "react-router";
 
 export function useRouteExtentions(pluginRegistry: PluginManifest[]) {
