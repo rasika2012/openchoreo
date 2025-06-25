@@ -32,10 +32,6 @@ const meta: Meta<typeof TextInput> = {
       control: 'text',
       description: 'Label for the text input',
     },
-    value: {
-      control: 'text',
-      description: 'Current value of the text input',
-    },
     tooltip: {
       control: 'text',
       description: 'Optional tooltip text',
@@ -76,7 +72,7 @@ export const Default: Story = {
               <TextInput
                 {...args}
                 disabled
-                placeholder="Disabled"
+                value="Disabled"
                 testId={`${testId}-disabled`}
               />
             </Box>
