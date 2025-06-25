@@ -19,3 +19,6 @@ export * from './SimpleSelect';
 export * from './SearchBar';
 export * from './ProgressBar';
 export * from './Toggler';
+export * from './Radio';
+export * from './RadioGroup';
+export * from './AvatarUserName';
