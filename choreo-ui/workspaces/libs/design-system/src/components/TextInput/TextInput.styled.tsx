@@ -2,7 +2,6 @@ import { styled } from '@mui/material/styles';
 import TextField, { TextFieldProps } from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import type { FormControlProps } from '@mui/material/FormControl';
-import { StyledComponent } from '@emotion/styled';
 import { alpha, Theme } from '@mui/material';
 import { TextInputProps } from './TextInput';
 import { ComponentType } from 'react';
@@ -238,13 +237,13 @@ export const StyledTextField: ComponentType<CustomTextFieldProps> = styled(
   },
 }));
 
-export const StyledFormControl: StyledComponent<FormControlProps> = styled(
+export const StyledFormControl: ComponentType<FormControlProps> = styled(
   FormControl
 )({
   width: '100%',
 });
 
-export const HeadingWrapper: StyledComponent<any> = styled('div')(
+export const HeadingWrapper: ComponentType<any> = styled('div')(
   ({ theme }: { theme: Theme }) => ({
     display: 'flex',
     width: '100%',
