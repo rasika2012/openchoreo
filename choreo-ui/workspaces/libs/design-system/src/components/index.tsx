@@ -16,3 +16,4 @@ export * from './TableDefault';
 export * from './Checkbox';
 export * from './Avatar';
 export * from './Radio';
+export * from './RadioGroup';
