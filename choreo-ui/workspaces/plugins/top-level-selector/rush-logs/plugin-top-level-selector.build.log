@@ -1,0 +1,5 @@
+Invoking: npm run clean && tsc -project tsconfig.json 
+
+> @open-choreo/plugin-top-level-selector@1.0.0 clean
+> rm -rf dist
+
