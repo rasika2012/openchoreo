@@ -20,10 +20,10 @@
     },
     {
       "commandKind": "global",
-      "name": "update-plugins",
-      "summary": "Update the plugins",
-      "description": "Update the plugins",
-      "shellCommand": "node common/scripts/update-plugins.mjs"
+      "name": "create-plugin",
+      "summary": "Create a new plugin",
+      "description": "Create a new plugin with all necessary files and structure",
+      "shellCommand": "node common/scripts/create-plugin-rush.cjs"
     }
     // {
     //   /**
@@ -223,6 +223,14 @@
       "shortName": "-n",
       "description": "The name of the element to create",
       "associatedCommands": ["create"],
+      "argumentName": "NAME"
+    },
+    {
+      "parameterKind": "string",
+      "longName": "--name",
+      "shortName": "-n",
+      "description": "The name of the plugin to create",
+      "associatedCommands": ["create-plugin"],
       "argumentName": "NAME"
     }
     // {

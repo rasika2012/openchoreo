@@ -2,8 +2,8 @@ import { type PluginManifest } from "@open-choreo/plugin-core";
 
 import {panel} from "./panel";
 
-export const levelSelectorPlugin = {
-    name: "Top Level Selector",
-    description: "Top Level Selector",
+export const topRightMenuPlugin = {
+    name: "Top Right Menu",
+    description: "Top Right Menu Plugin",
     extensions: [panel],
 } as PluginManifest;
