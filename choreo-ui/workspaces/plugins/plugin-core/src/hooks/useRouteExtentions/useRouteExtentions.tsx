@@ -1,9 +1,10 @@
 import React, { useMemo } from "react";
-import { PluginExtensionType, PluginManifest } from "../../../plugin-types";
+import { PluginExtensionType } from "../../../plugin-types";
 import { Route, Routes } from "react-router";
+import { usePluginRegistry } from "../../Providers";
 
-export function useRouteExtentions(pluginRegistry: PluginManifest[]) {
-
+export function useRouteExtentions() {
+  const pluginRegistry = usePluginRegistry();
   const routes = useMemo(() => {
     const pageEntries = pluginRegistry.flatMap(plugin =>
       plugin.extensions.filter(entry => entry.type === PluginExtensionType.PAGE).map(entry => ({
