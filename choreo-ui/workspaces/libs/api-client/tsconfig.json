@@ -18,7 +18,7 @@
     "baseUrl": ".",
     "rootDir": "."
   },
-  "include": ["./index.ts"],
+  "include": ["./index.ts", "src"],
   "exclude": [
     "node_modules",
     "dist"
