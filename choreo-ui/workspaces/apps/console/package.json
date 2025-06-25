@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --config ./tsconfig.app.json",
-    "build": "tsc -b && vite build",
+    "dev": "rushx setup-symlinks && vite --config ./tsconfig.app.json",
+    "build": "rushx setup-symlinks &&tsc -b && vite build",
     "lint": "eslint . --config ./eslint.config.js",
     "preview": "vite preview",
     "mock-server":  "prism mock ./specs/api-server-openapi.yaml",
