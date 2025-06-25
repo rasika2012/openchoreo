@@ -451,7 +451,7 @@
     },
     {
       "packageName": "@open-choreo/plugin-core",
-      "projectFolder": "workspaces/libs/plugin-core"
+      "projectFolder": "workspaces/plugins/plugin-core"
     },
     {
       "packageName": "@open-choreo/plugin-overview",
@@ -469,6 +469,10 @@
       "packageName": "@open-choreo/common-views",
       "projectFolder": "workspaces/libs/views"
     }
-    
-  ]
+
+,
+    {
+      "packageName": "@open-choreo/top-right-menu",
+      "projectFolder": "workspaces/plugins/top-right-menu"
+    }  ]
 }

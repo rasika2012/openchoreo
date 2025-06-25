@@ -1,9 +1,11 @@
 import { NavItemExpandableSubMenu } from "@open-choreo/design-system";
 import React, { useMemo } from "react";
-import { PluginExtensionType, PluginManifest } from "../../../plugin-types";
+import { PluginExtensionType } from "../../../plugin-types";
+import { usePluginRegistry } from "../../Providers";
 
-export function useMainNavExtentions(pluginRegistry: PluginManifest[]) {
+export function useMainNavExtentions() {
 
+  const pluginRegistry = usePluginRegistry();
   const navigationEntries: NavItemExpandableSubMenu[] = useMemo(() => pluginRegistry.flatMap(plugin => plugin.extensions.filter(entry => entry.type === PluginExtensionType.NAVIGATION).map(entry => ({
     title: entry.name,
     id: entry.name,
