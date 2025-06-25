@@ -8,7 +8,7 @@ const sampleItems: LevelItem[] = [
 ];
 
 const meta: Meta<typeof TopLevelSelector> = {
-  title: 'Choreo DS/TopLevelSelector',
+  title: 'Layouts/TopLevelSelector',
   component: TopLevelSelector,
   tags: ['autodocs'],
   argTypes: {

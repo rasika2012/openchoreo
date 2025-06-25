@@ -1,5 +1,5 @@
 import type { PluginManifest } from '@open-choreo/plugin-core'
-import {overviewPlugin} from './tmp'
+import {overviewPlugin, LevelSelectorPlugin } from './tmp'
 
-export const pluginRegistry: PluginManifest[] = [overviewPlugin]
+export const pluginRegistry: PluginManifest[] = [overviewPlugin, LevelSelectorPlugin]
  
