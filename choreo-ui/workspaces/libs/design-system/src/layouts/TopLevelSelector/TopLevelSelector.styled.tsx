@@ -13,20 +13,19 @@ export const StyledTopLevelSelector: ComponentType<StyledTopLevelSelectorProps &
   pointerEvents: disabled ? 'none' : 'auto',
   display: 'flex',
   flexDirection: 'column',
+  alignItems: 'space-between',
+  justifyContent: 'center',
+  height: theme.spacing(5),
   gap: theme.spacing(1),
-  backgroundColor: isHighlighted ? alpha(theme.palette.primary.light, 0.1) : 'transparent',
+  backgroundColor: isHighlighted ? alpha(theme.palette.primary.light, 0.05) : 'transparent',
   borderColor: isHighlighted ? theme.palette.primary.main : theme.palette.divider,
   transition: theme.transitions.create(['background-color'], {
     duration: theme.transitions.duration.short,
   }),
   '&:hover': {
-    backgroundColor: theme.palette.action.hover,
+    backgroundColor: isHighlighted ? alpha(theme.palette.primary.light, 0.15) : theme.palette.action.hover,
   },
-  '& .MuiCardHeader-root': {
-    padding: theme.spacing(1),
-  },
-
-  padding: theme.spacing(1),
+  padding: theme.spacing(0.615),
 
 }));
 
