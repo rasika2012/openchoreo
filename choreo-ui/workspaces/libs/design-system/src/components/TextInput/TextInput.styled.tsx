@@ -1,15 +1,57 @@
 import { styled } from '@mui/material/styles';
-import TextField from '@mui/material/TextField';
+import TextField, { TextFieldProps } from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
-import type { TextFieldProps } from '@mui/material/TextField';
 import type { FormControlProps } from '@mui/material/FormControl';
 import { StyledComponent } from '@emotion/styled';
-import { alpha } from '@mui/material';
+import { alpha, Theme } from '@mui/material';
 import { TextInputProps } from './TextInput';
+import { ComponentType } from 'react';
 
-export const StyledTextField: StyledComponent<TextFieldProps> = styled(
-  TextField
-)(({ theme }) => ({
+type CustomTextFieldProps = TextFieldProps & {
+  customSize?: 'small' | 'medium' | 'large';
+};
+
+const getSize = (size: CustomTextFieldProps['customSize'], theme: Theme) => {
+  switch (size) {
+    case 'small':
+      return {
+        '& .MuiOutlinedInput-root': {
+          minHeight: theme.spacing(4),
+        },
+        '& .MuiOutlinedInput-input': {
+          padding: theme.spacing(1, 1.5),
+        },
+      };
+    case 'large':
+      return {
+        '& .MuiOutlinedInput-root': {
+          minHeight: theme.spacing(7),
+          borderRadius: 12,
+        },
+        '& .MuiOutlinedInput-input': {
+          padding: theme.spacing(2, 2),
+        },
+      };
+    case 'medium':
+    default:
+      return {
+        '& .MuiOutlinedInput-root': {
+          minHeight: theme.spacing(5),
+        },
+        '& .MuiOutlinedInput-input': {
+          padding: theme.spacing(1.5, 2),
+        },
+      };
+  }
+};
+
+export const StyledTextField: ComponentType<CustomTextFieldProps> = styled(
+  TextField,
+  {
+    shouldForwardProp: (prop) => prop !== 'customSize',
+  }
+)<CustomTextFieldProps>(({ theme, customSize }) => ({
+  ...getSize(customSize, theme),
   borderRadius: theme.spacing(0.625),
 
   '& .MuiOutlinedInput-root': {
@@ -201,7 +243,7 @@ export const StyledFormControl: StyledComponent<FormControlProps> = styled(
 });
 
 export const HeadingWrapper: StyledComponent<any> = styled('div')(
-  ({ theme }) => ({
+  ({ theme }: { theme: Theme }) => ({
     display: 'flex',
     width: '100%',
     alignItems: 'center',
