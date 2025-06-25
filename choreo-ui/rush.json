@@ -458,6 +458,10 @@
       "projectFolder": "workspaces/plugins/overview"
     },
     {
+      "packageName": "@open-choreo/api-client",
+      "projectFolder": "workspaces/libs/api-client"
+    },
+    {
       "packageName": "@open-choreo/common-views",
       "projectFolder": "workspaces/libs/views"
     }
