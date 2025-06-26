@@ -9,7 +9,7 @@ import { pluginRegistry } from "./plugins/index.ts";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <PluginProvider pluginRegistry={pluginRegistry}>
-      <BrowserRouter>
+      <BrowserRouter basename="/">
         <App />
       </BrowserRouter>
     </PluginProvider>

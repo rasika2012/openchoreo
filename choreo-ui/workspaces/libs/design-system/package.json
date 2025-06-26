@@ -35,6 +35,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "generate-icons": "node icon_builder/builder.mjs",
+    "generate-images": "node image_builder/builder.mjs",
     "generate-icons-prettier:fix": "rushx prettier -- 'src/Icons/generated/*.{js,jsx,ts,tsx,json,css,scss,md}' --write"
   },
   "keywords": [],
