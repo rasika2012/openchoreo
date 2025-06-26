@@ -62,7 +62,7 @@ module.exports = [
       // General rules
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-debugger': 'warn',
-      'no-unused-vars': 'off', // Using TypeScript's no-unused-vars instead
+      'no-unused-vars': 'warn', // Using TypeScript's no-unused-vars instead
       'prefer-const': 'warn',
       'no-var': 'error'
     }
