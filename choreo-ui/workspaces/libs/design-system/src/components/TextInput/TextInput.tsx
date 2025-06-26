@@ -1,71 +1,48 @@
 import React from 'react';
-import { Box, InputAdornment, Tooltip, Typography } from '@mui/material';
+import {
+  Box,
+  CircularProgress,
+  FormHelperText,
+  Tooltip,
+  TooltipProps,
+  Typography,
+} from '@mui/material';
 import { QuestionIcon, InfoIcon } from '@design-system/Icons';
 import {
   StyledTextField,
   StyledFormControl,
   HeadingWrapper,
 } from './TextInput.styled';
+import Question from '@design-system/Icons/generated/Question';
 
 export interface TextInputProps {
-  /**
-   * Label for the text input
-   */
   label?: string;
-  /**
-   * Current value of the text input
-   */
   value: string;
-  /**
-   * Optional tooltip text
-   */
-  tooltip?: string;
-  /**
-   * Helper text to display
-   */
+  optional?: boolean;
+  loading?: boolean;
+  tooltip?: React.ReactNode;
+  info?: React.ReactNode;
+  tooltipPlacement?: TooltipProps['placement'];
+  inputTooltip?: React.ReactNode;
+  typography?: React.ComponentProps<typeof Typography>['variant'];
   helperText?: string;
-  /**
-   * Error message to display
-   */
   error?: boolean;
-  /**
-   * Test ID for cypress
-   */
+  errorMessage?: string;
   testId: string;
-  /**
-   * Callback when text changes
-   */
   onChange: (text: string) => void;
-  /**
-   * If true, the text input will be disabled
-   */
   disabled?: boolean;
-  /**
-   * Additional className for the component
-   */
+  type?: string;
+  readonly?: boolean;
+  actions?: React.ReactNode;
+  multiline?: boolean;
+  rows?: number;
+  rounded?: boolean;
   className?: string;
-
-  /**
-   * Size of the text input
-   */
-  size?: 'small' | 'medium';
-  /**
-   * If true, the text input will be full width
-   */
+  size?: 'small' | 'medium' | 'large';
   fullWidth?: boolean;
-  /**
-   * Placeholder text for the text input
-   */
   placeholder?: string;
-
-  /**
-   * Icon to display at the start of the text input
-   */
-  startIcon?: React.ReactNode;
-  /**
-   * Icon to display at the end of the text input
-   */
-  endIcon?: React.ReactNode;
+  endAdornment?: React.ReactNode;
+  InputProps?: React.ComponentProps<typeof StyledTextField>['InputProps'];
 }
 
 export const TextInput = React.forwardRef<HTMLDivElement, TextInputProps>(
@@ -75,70 +52,105 @@ export const TextInput = React.forwardRef<HTMLDivElement, TextInputProps>(
       tooltip,
       value,
       error,
+      errorMessage,
       testId,
       onChange,
       disabled,
+      readonly,
+      multiline = false,
       className,
+      rows,
+      optional,
+      loading,
+      info,
+      actions,
       helperText,
+      rounded = true,
       size = 'small',
       fullWidth = false,
-      startIcon,
-      endIcon,
+      type,
+      endAdornment,
       ...props
     },
     ref
   ) => {
+    const computedError = !!errorMessage || !!error;
+
+    const toolTip = tooltip && (
+      <Tooltip title={tooltip} placement={props.tooltipPlacement}>
+        <Box className="tooltipIcon">
+          <Box className="textInputInfoIcon">
+            <Question fontSize="inherit" />
+          </Box>
+        </Box>
+      </Tooltip>
+    );
+
     return (
       <StyledFormControl ref={ref} className={className}>
-        {label && (
+        {(label || toolTip || info || optional || actions) && (
           <HeadingWrapper>
             <Typography>{label}</Typography>
             {tooltip && (
-              <Tooltip title={tooltip}>
-                <QuestionIcon fontSize="inherit" />
+              <Tooltip title={tooltip} className="formLabelTooltip">
+                <QuestionIcon fontSize="inherit" className="tooltipIcon" />
               </Tooltip>
             )}
+            {info && <Box className="formLabelInfo">{info}</Box>}
+            {optional && (
+              <Typography variant="body2" className="formOptional">
+                (Optional)
+              </Typography>
+            )}
+            {actions && <Box className="formLabelAction">{actions}</Box>}
           </HeadingWrapper>
         )}
         <StyledTextField
-          size={size}
+          customSize={size}
           data-cyid={testId}
           variant="outlined"
+          multiline={multiline}
+          rows={rows}
+          type={type}
+          value={value}
           onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
             onChange(evt.target.value)
           }
-          value={value}
           disabled={disabled}
           slotProps={{
             input: {
-              startAdornment: startIcon && (
-                <InputAdornment position="start">
-                  {startIcon}
-                </InputAdornment>
-              ),
-              endAdornment: endIcon && (
-                <InputAdornment position="end">
-                  {endIcon}
-                </InputAdornment>
-              ),
+              readOnly: readonly,
             },
             inputLabel: {
               shrink: false,
             },
-
           }}
-          error={!!error}
+          InputProps={{
+            ...(props.InputProps || {}),
+            endAdornment: endAdornment ?? props.InputProps?.endAdornment,
+          }}
+          error={computedError}
           helperText={
-            helperText && (
+            computedError && errorMessage ? (
               <Box display="flex" alignItems="center" gap={0.5}>
                 <InfoIcon fontSize="inherit" />
-                {helperText}
+                {errorMessage}
               </Box>
+            ) : (
+              helperText
             )
           }
           fullWidth={fullWidth}
           {...props}
         />
+        {loading && helperText && (
+          <FormHelperText>
+            <Box display="flex" alignItems="center">
+              <CircularProgress size={12} />
+              <Box ml={1}>{helperText}</Box>
+            </Box>
+          </FormHelperText>
+        )}
       </StyledFormControl>
     );
   }
