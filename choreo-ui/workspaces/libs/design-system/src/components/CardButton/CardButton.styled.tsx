@@ -23,12 +23,11 @@ export const StyledCardButton: ComponentType<StyledCardButtonProps> = styled(
   '&[data-button-root-active="true"]': {
     borderColor: theme.palette.primary.light,
     boxShadow: `0 0 0 1px ${theme.palette.primary.light}`,
-    // Use rgba directly for better browser support
-    backgroundColor: alpha(theme.palette.primary.main, 0.08), // Lighter background (8% opacity)
+    backgroundColor: alpha(theme.palette.primary.main, 0.08),
     '&:hover': {
       borderColor: theme.palette.primary.light,
       boxShadow: `0 0 0 1px ${theme.palette.primary.light}`,
-      backgroundColor: alpha(theme.palette.primary.main, 0.12), // Slightly darker on hover (12% opacity)
+      backgroundColor: alpha(theme.palette.primary.main, 0.12),
     },
   },
   '&[data-button-root-error="true"]': {
