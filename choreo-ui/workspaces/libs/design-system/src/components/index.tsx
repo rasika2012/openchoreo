@@ -25,3 +25,4 @@ export * from './SplitButton';
 export * from './TooltipBase';
 export * from './Tooltip';
 export * from './SimpleSelect';
+export * from './ButtonContainer';

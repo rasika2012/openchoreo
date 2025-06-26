@@ -1,12 +1,14 @@
 import React from 'react';
 import { Box, Typography, styled } from '@mui/material';
 import { Button } from '../../Button';
+import { CloseIcon } from '@design-system/Icons';
 
 const StyledCardHeading = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: theme.spacing(2),
+  // padding: theme.spacing(2),
+  padding: theme.spacing(5, 5, 0, 5),
   borderBottom: `1px solid ${theme.palette.divider}`,
 }));
 
@@ -35,6 +37,7 @@ export function CardHeading(props: CardHeadingProps) {
           variant="text"
           onClick={onClose}
           testId="btn-close"
+          endIcon={<CloseIcon />}
         >
           Close
         </Button>
