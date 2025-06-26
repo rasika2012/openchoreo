@@ -4,9 +4,7 @@ import {
 import { MainLayout as BaseMainLayout } from "@open-choreo/common-views";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router";
-import { pluginRegistry } from "../plugins";
-import { useMainNavPlugin } from "@open-choreo/plugin-core";
-
+import { ExtentionMounter, useMainNavExtentions } from "@open-choreo/plugin-core";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -14,9 +12,9 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const location = useLocation();
-  const navigationEntries = useMainNavPlugin(pluginRegistry);
+  const navigationEntries = useMainNavExtentions();
   const [selectedMenuItem, setSelectedMenuItem] = useState<string>(
-    navigationEntries[0].id,
+    navigationEntries?.[0]?.id,
   );
 
   // Update selected menu item based on current path
@@ -43,9 +41,14 @@ export function MainLayout({ children }: MainLayoutProps) {
   return (
     <BaseMainLayout
       footer={<Box>Footer</Box>}
-      header={<Box>Header</Box>}
+      header={
+        <Box display="flex" flexDirection="row" justifyContent="space-between" alignItems="center" width="100%">
+          <ExtentionMounter extentionPointId="header.left" />
+          <ExtentionMounter extentionPointId="header.right" />
+        </Box>
+      }
       menuItems={navigationEntries}
-      rightSidebar={<Box>Right Sidebar</Box>}
+      rightSidebar={<ExtentionMounter extentionPointId="sidebar.right" />}
       selectedMenuItem={selectedMenuItem}
       onMenuItemClick={setSelectedMenuItem}
     >
