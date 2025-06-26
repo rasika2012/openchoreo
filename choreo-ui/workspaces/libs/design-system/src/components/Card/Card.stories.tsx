@@ -197,11 +197,7 @@ export const BgGrey: Story = {
                   <Typography gutterBottom variant="h5" component="h2">
                     Lizard
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    component="p"
-                  >
+                  <Typography variant="body2" color="secondary" component="p">
                     Lizards are a widespread group of squamate reptiles, with
                     over 6,000 species, ranging across all continents except
                     Antarctica
@@ -225,11 +221,7 @@ export const BgGrey: Story = {
                   <Typography gutterBottom variant="h5" component="h2">
                     Lizard
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    component="p"
-                  >
+                  <Typography variant="body2" color="secondary" component="p">
                     Lizards are a widespread group of squamate reptiles, with
                     over 6,000 species, ranging across all continents except
                     Antarctica
@@ -258,11 +250,7 @@ export const BgGrey: Story = {
                   <Typography gutterBottom variant="h5" component="h2">
                     Lizard
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    component="p"
-                  >
+                  <Typography variant="body2" color="secondary" component="p">
                     Lizards are a widespread group of squamate reptiles, with
                     over 6,000 species, ranging across all continents except
                     Antarctica
@@ -301,11 +289,7 @@ export const BgWhite: Story = {
                     <Typography gutterBottom variant="h5" component="h2">
                       Lizard
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      component="p"
-                    >
+                    <Typography variant="body2" color="secondary" component="p">
                       Lizards are a widespread group of squamate reptiles, with
                       over 6,000 species, ranging across all continents except
                       Antarctica
@@ -333,11 +317,7 @@ export const BgWhite: Story = {
                     <Typography gutterBottom variant="h5" component="h2">
                       Lizard
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      component="p"
-                    >
+                    <Typography variant="body2" color="secondary" component="p">
                       Lizards are a widespread group of squamate reptiles, with
                       over 6,000 species, ranging across all continents except
                       Antarctica
@@ -370,11 +350,7 @@ export const BgWhite: Story = {
                     <Typography gutterBottom variant="h5" component="h2">
                       Lizard
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      component="p"
-                    >
+                    <Typography variant="body2" color="secondary" component="p">
                       Lizards are a widespread group of squamate reptiles, with
                       over 6,000 species, ranging across all continents except
                       Antarctica
@@ -418,11 +394,7 @@ export const Record: Story = {
                     <Typography gutterBottom variant="h5" component="h2">
                       Lizard
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      component="p"
-                    >
+                    <Typography variant="body2" color="secondary" component="p">
                       Lizards are a widespread group of squamate reptiles, with
                       over 6,000 species, ranging across all continents except
                       Antarctica
@@ -450,11 +422,7 @@ export const Record: Story = {
                     <Typography gutterBottom variant="h5" component="h2">
                       Lizard
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      component="p"
-                    >
+                    <Typography variant="body2" color="secondary" component="p">
                       Lizards are a widespread group of squamate reptiles, with
                       over 6,000 species, ranging across all continents except
                       Antarctica
@@ -491,11 +459,7 @@ export const Record: Story = {
                     <Typography gutterBottom variant="h5" component="h2">
                       Lizard
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      component="p"
-                    >
+                    <Typography variant="body2" color="secondary" component="p">
                       Lizards are a widespread group of squamate reptiles, with
                       over 6,000 species, ranging across all continents except
                       Antarctica
@@ -543,11 +507,7 @@ export const GreyCard: Story = {
                   <Typography gutterBottom variant="h5" component="h2">
                     Lizard
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    component="p"
-                  >
+                  <Typography variant="body2" color="secondary" component="p">
                     Lizards are a widespread group of squamate reptiles, with
                     over 6,000 species, ranging across all continents except
                     Antarctica
@@ -574,11 +534,7 @@ export const GreyCard: Story = {
                   <Typography gutterBottom variant="h5" component="h2">
                     Lizard
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    component="p"
-                  >
+                  <Typography variant="body2" color="secondary" component="p">
                     Lizards are a widespread group of squamate reptiles, with
                     over 6,000 species, ranging across all continents except
                     Antarctica
@@ -605,11 +561,7 @@ export const GreyCard: Story = {
                   <Typography gutterBottom variant="h5" component="h2">
                     Lizard
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    component="p"
-                  >
+                  <Typography variant="body2" color="secondary" component="p">
                     Lizards are a widespread group of squamate reptiles, with
                     over 6,000 species, ranging across all continents except
                     Antarctica
@@ -654,11 +606,7 @@ export const FullHeightCard: Story = {
                     <Typography gutterBottom variant="h5" component="h2">
                       Lizard
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      component="p"
-                    >
+                    <Typography variant="body2" color="secondary" component="p">
                       Lizards are a widespread group of squamate reptiles, with
                       over
                     </Typography>
@@ -679,11 +627,7 @@ export const FullHeightCard: Story = {
                     <Typography gutterBottom variant="h5" component="h2">
                       Lizard
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      component="p"
-                    >
+                    <Typography variant="body2" color="secondary" component="p">
                       Lizards are a widespread group of squamate reptiles, with
                       over 6,000 species, ranging across all continents except
                       Antarctica
@@ -705,11 +649,7 @@ export const FullHeightCard: Story = {
                     <Typography gutterBottom variant="h5" component="h2">
                       Lizard
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      component="p"
-                    >
+                    <Typography variant="body2" color="secondary" component="p">
                       Lizards are a widespread group of squamate reptiles, with
                       over 6,000 species, ranging across all continents except
                       Antarctica widespread group of squamate reptiles, with
@@ -741,11 +681,7 @@ export const SimpleCard: Story = {
                   <Typography gutterBottom variant="h5" component="h2">
                     Lizard
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    component="p"
-                  >
+                  <Typography variant="body2" color="secondary" component="p">
                     Lizards are a widespread group of squamate reptiles, with
                     over
                   </Typography>
@@ -758,11 +694,7 @@ export const SimpleCard: Story = {
                   <Typography gutterBottom variant="h5" component="h2">
                     Lizard
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    component="p"
-                  >
+                  <Typography variant="body2" color="secondary" component="p">
                     Lizards are a widespread group of squamate reptiles, with
                     over 6,000 species, ranging across all continents except
                     Antarctica
@@ -776,11 +708,7 @@ export const SimpleCard: Story = {
                   <Typography gutterBottom variant="h5" component="h2">
                     Lizard (md)
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    component="p"
-                  >
+                  <Typography variant="body2" color="secondary" component="p">
                     Lizards are a widespread group of squamate reptiles, with
                     over 6,000 species, ranging across all continents except
                     Antarctica widespread group of squamate reptiles, with over

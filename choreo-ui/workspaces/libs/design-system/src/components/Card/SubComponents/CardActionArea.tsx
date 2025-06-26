@@ -26,10 +26,10 @@ const StyledCardActionArea = styled(MuiCardActionArea, {
     transition: 'all 0.25s',
     '&:hover': {
       borderColor: theme.palette.primary.main,
-      backgroundColor: 'transparent !important',
+      backgroundColor: 'transparent',
       '& .MuiCardActionArea-focusHighlight': {
         opacity: 0,
-        backgroundColor: 'transparent !important',
+        backgroundColor: `transparent`,
       },
     },
     '&.Mui-disabled': {
@@ -39,7 +39,7 @@ const StyledCardActionArea = styled(MuiCardActionArea, {
       border: `1px solid ${theme.palette.grey[200]}`,
       '&:hover': {
         borderColor: theme.palette.primary.main,
-        backgroundColor: 'transparent !important',
+        backgroundColor: 'transparent',
       },
     }),
     ...(variant === 'elevation' && {
@@ -47,7 +47,7 @@ const StyledCardActionArea = styled(MuiCardActionArea, {
       '&:hover': {
         boxShadow: `none`,
         borderColor: theme.palette.primary.main,
-        backgroundColor: 'transparent !important',
+        backgroundColor: 'transparent',
       },
     }),
     ...(fullHeight && {
@@ -69,7 +69,7 @@ export const CardActionArea = ({
     fullHeight={fullHeight}
     data-cyid={`${testId}-card-action-area`}
     disableRipple
-    sx={sx}
+    sx={sx || { backgroundColor: 'transparent' }}
     {...rest}
   >
     {children}
