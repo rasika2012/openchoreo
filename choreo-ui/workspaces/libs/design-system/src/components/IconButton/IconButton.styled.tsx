@@ -42,10 +42,10 @@ export const StyledIconButton = styled(IconButton, {
         fontSize: theme.spacing(2.5),
       },
     },
-    tiny: {
-      padding: theme.spacing(0.625),
-      '& svg': {
-        fontSize: theme.spacing(1.375),
+    large: {
+      padding: theme.spacing(1.5),
+      '& > *:first-of-type': {
+        fontSize: theme.spacing(3),
       },
     },
   };
