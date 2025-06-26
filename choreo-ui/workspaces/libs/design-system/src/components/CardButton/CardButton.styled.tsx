@@ -23,11 +23,11 @@ export const StyledCardButton: ComponentType<StyledCardButtonProps> = styled(
   '&[data-button-root-active="true"]': {
     borderColor: theme.palette.primary.light,
     boxShadow: `0 0 0 1px ${theme.palette.primary.light}`,
-    backgroundColor: theme.palette.grey[100],
+    backgroundColor: 'inherit', // had backgroundColor: theme.custom.indigo[100],
     '&:hover': {
       borderColor: theme.palette.primary.light,
       boxShadow: `0 0 0 1px ${theme.palette.primary.light}`,
-      backgroundColor: 'inherit',
+      backgroundColor: 'inherit', // had backgroundColor: theme.custom.indigo[100],
     },
   },
   '&[data-button-root-error="true"]': {
