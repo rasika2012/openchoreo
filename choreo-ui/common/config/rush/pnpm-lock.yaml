@@ -106,15 +106,6 @@ importers:
       '@fontsource/roboto':
         specifier: ~5.2.5
         version: 5.2.6
-      '@open-choreo/common-views':
-        specifier: workspace:*
-        version: link:../views
-      '@open-choreo/design-system':
-        specifier: workspace:*
-        version: link:../design-system
-      '@open-choreo/plugin-core':
-        specifier: workspace:*
-        version: link:../plugin-core
       '@types/lodash':
         specifier: ~4.17.17
         version: 4.17.18
