@@ -4,13 +4,16 @@ import { Decorator } from '@storybook/react';
 import { useDarkMode } from 'storybook-dark-mode'
 import { ThemeProvider } from '@open-choreo/design-system';
 import './fonts/fonts.css'
+import { BrowserRouter } from 'react-router';
 
 export const withTheme: Decorator = (Story) => {
   const isDark = useDarkMode();
 
   return (
     <ThemeProvider mode={isDark ? 'dark' : 'light'}>
-      <Story />
+      <BrowserRouter >
+        <Story />
+      </BrowserRouter>
     </ThemeProvider>
   );
 }; 
