@@ -1,4 +1,4 @@
-import { Button, ButtonProps, styled } from '@mui/material';
+import { alpha, Button, ButtonProps, styled } from '@mui/material';
 import { ComponentType } from 'react';
 
 export interface StyledCardButtonProps extends ButtonProps {
@@ -23,11 +23,12 @@ export const StyledCardButton: ComponentType<StyledCardButtonProps> = styled(
   '&[data-button-root-active="true"]': {
     borderColor: theme.palette.primary.light,
     boxShadow: `0 0 0 1px ${theme.palette.primary.light}`,
-    backgroundColor: 'inherit', // had backgroundColor: theme.custom.indigo[100],
+    // Use rgba directly for better browser support
+    backgroundColor: alpha(theme.palette.primary.main, 0.08), // Lighter background (8% opacity)
     '&:hover': {
       borderColor: theme.palette.primary.light,
       boxShadow: `0 0 0 1px ${theme.palette.primary.light}`,
-      backgroundColor: 'inherit', // had backgroundColor: theme.custom.indigo[100],
+      backgroundColor: alpha(theme.palette.primary.main, 0.12), // Slightly darker on hover (12% opacity)
     },
   },
   '&[data-button-root-error="true"]': {
