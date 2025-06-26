@@ -17,6 +17,10 @@ const StyledCardActions = styled(MuiCardActions)(({ theme }) => ({
   '&:last-child': {
     paddingBottom: theme.spacing(1),
   },
+  display: 'flex',
+  gap: theme.spacing(1),
+  paddingTop: theme.spacing(3),
+  borderTop: `1px solid ${theme.palette.grey[100]}`,
 }));
 
 export const CardActions = ({

@@ -13,6 +13,7 @@ export interface CardProps {
   testId: string;
   bgColor?: CardBgColor;
   className?: string;
+  fullHeight?: boolean;
   variant?: 'elevation' | 'outlined';
   onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
   style?: React.CSSProperties;
@@ -25,6 +26,7 @@ export const Card = ({
   disabled = false,
   variant = 'elevation',
   testId,
+  fullHeight = false,
   bgColor = 'default',
   ...rest
 }: CardProps) => (

@@ -127,9 +127,6 @@ importers:
       '@fontsource/roboto':
         specifier: ~5.2.5
         version: 5.2.6
-      '@tanstack/react-query':
-        specifier: ~5.81.5
-        version: 5.81.5(react@19.1.0)
       '@types/lodash':
         specifier: ~4.17.17
         version: 4.17.20
