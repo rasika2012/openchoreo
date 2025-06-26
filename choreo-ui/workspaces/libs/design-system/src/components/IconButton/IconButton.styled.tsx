@@ -18,7 +18,11 @@ export const StyledIconButton = styled(IconButton, {
   disabled,
 }: {
   theme: Theme;
+<<<<<<< plugin
   size?: 'small' | 'medium' | 'large' | 'tiny';
+=======
+  size?: 'tiny' | 'small' | 'medium';
+>>>>>>> main
   color?:
   | 'default'
   | 'primary'
@@ -31,8 +35,8 @@ export const StyledIconButton = styled(IconButton, {
 }) => {
   const sizeStyles = {
     small: {
-      padding: theme.spacing(0.75),
-      '& > *:first-of-type': {
+      padding: theme.spacing(0.875),
+      '& svg': {
         fontSize: theme.spacing(2),
       },
     },
@@ -42,10 +46,10 @@ export const StyledIconButton = styled(IconButton, {
         fontSize: theme.spacing(2.5),
       },
     },
-    large: {
-      padding: theme.spacing(1.25),
-      '& > *:first-of-type': {
-        fontSize: theme.spacing(3),
+    tiny: {
+      padding: theme.spacing(0.625),
+      '& svg': {
+        fontSize: theme.spacing(1.375),
       },
     },
     tiny: {
