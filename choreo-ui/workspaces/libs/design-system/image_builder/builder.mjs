@@ -14,14 +14,17 @@ const __dirname = path.dirname(__filename);
 
 function defaultDestRewriter(svgPathObj, options) {
   let fileName = svgPathObj.base;
+
   if (options.fileSuffix) {
     fileName.replace(options.fileSuffix, '.svg');
   } else {
     fileName = fileName.replace('.svg', '.tsx');
   }
-  fileName = fileName.replace(/(^.)|(_)(.)/g, (match, p1, p2, p3) =>
-    (p1 || p3).toUpperCase()
-  );
+
+  // Convert to PascalCase: handle spaces, underscores, hyphens while preserving file extension
+  fileName = fileName
+    .replace(/[ _-]+(.)/g, (match, p1) => p1.toUpperCase())
+    .replace(/^(.)/, (match, p1) => p1.toUpperCase());
   return fileName;
 }
 
