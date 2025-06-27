@@ -56,21 +56,46 @@ export const StyledCardButton: ComponentType<StyledCardButtonProps> = styled(
       fontSize: theme.spacing(1.5),
     },
   },
-  '&.Mui-buttonStartIcon': {
-    '&.MuiButton-iconSizeSmall > *:first-child': {
-      fontSize: theme.spacing(3),
-      width: theme.spacing(3),
-      height: theme.spacing(3),
+  // Base styles for startIcon - these apply to all sizes
+  '& .MuiButton-startIcon': {
+    margin: 0,
+    marginRight: theme.spacing(2),
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'visible',
+    '& > *': {
+      maxWidth: '100%',
+      maxHeight: '100%',
+      width: 'auto',
+      height: 'auto',
+      objectFit: 'contain',
     },
-    '&.MuiButton-iconSizeMedium > *:first-child': {
-      fontSize: theme.spacing(4),
-      width: theme.spacing(4),
-      height: theme.spacing(4),
+  },
+  // Size-specific styles
+  '&[data-button-label-size="small"]': {
+    '& .MuiButton-startIcon': {
+      width: theme.spacing(4), // 32px
+      height: theme.spacing(4), // 32px
+      minWidth: theme.spacing(4),
+      minHeight: theme.spacing(4),
     },
-    '&.MuiButton-iconSizeLarge > *:first-child': {
-      fontSize: theme.spacing(5),
-      width: theme.spacing(5),
-      height: theme.spacing(5),
+  },
+  '&[data-button-label-size="medium"]': {
+    '& .MuiButton-startIcon': {
+      width: theme.spacing(5), // 40px
+      height: theme.spacing(5), // 40px
+      minWidth: theme.spacing(5),
+      minHeight: theme.spacing(5),
+    },
+  },
+  '&[data-button-label-size="large"]': {
+    minHeight: theme.spacing(5.5),
+    '& .MuiButton-startIcon': {
+      width: theme.spacing(6), // 48px
+      height: theme.spacing(6), // 48px
+      minWidth: theme.spacing(6),
+      minHeight: theme.spacing(6),
     },
   },
   '&.Mui-buttonLabel': {
@@ -86,11 +111,6 @@ export const StyledCardButton: ComponentType<StyledCardButtonProps> = styled(
       marginRight: 0,
       marginLeft: 0,
     },
-  },
-  '&[data-button-label-size="small"]': {},
-  '&[data-button-label-size="medium"]': {},
-  '&[data-button-label-size="large"]': {
-    minHeight: theme.spacing(5.5),
   },
   '& .buttonLabelText': {
     textOverflow: 'ellipsis',
