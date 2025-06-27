@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyledButtonContainer } from './ButtonContainer.styled';
-import { useTheme } from '@mui/material/styles';
 
 export interface ButtonContainerProps {
   /**
@@ -38,7 +37,6 @@ export const ButtonContainer = React.forwardRef<
     <StyledButtonContainer
       ref={ref}
       className={className}
-      theme={useTheme()}
       onClick={disabled ? undefined : onClick}
       disabled={disabled}
       {...props}
