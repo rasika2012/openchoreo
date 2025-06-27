@@ -20,13 +20,13 @@ export const StyledIconButton = styled(IconButton, {
   theme: Theme;
   size?: 'small' | 'medium' | 'large' | 'tiny';
   color?:
-  | 'default'
-  | 'primary'
-  | 'secondary'
-  | 'error'
-  | 'warning'
-  | 'info'
-  | 'success';
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'error'
+    | 'warning'
+    | 'info'
+    | 'success';
   disabled?: boolean;
 }) => {
   const sizeStyles = {
