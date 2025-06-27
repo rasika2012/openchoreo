@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
 import { Card, CardContent } from '../index copy';
 import ChevronRight from '@design-system/Icons/generated/ChevronRight';
-import APIDefinition from '@design-system/Icons/generated/APIDefinition';
+import Github from '@design-system/Images/generated/Github';
+import Bitbucket from '@design-system/Images/generated/Bitbucket';
 
 const meta: Meta<typeof CardButton> = {
   title: 'Components/CardButton',
@@ -41,7 +42,7 @@ export const Default: Story = {
               <Grid size={{ xs: 12, md: 6, lg: 4, xl: 3 }}>
                 <CardButton
                   {...args}
-                  icon={<APIDefinition />}
+                  icon={<Github width={50} height={50} />}
                   text="Authorize with GitHub"
                   onClick={() => setActiveId(1)}
                   active={activeId === 1}
@@ -51,7 +52,7 @@ export const Default: Story = {
               <Grid size={{ xs: 12, md: 6, lg: 4, xl: 3 }}>
                 <CardButton
                   {...args}
-                  icon={<APIDefinition />}
+                  icon={<Bitbucket />}
                   text="Authorize with Bitbucket"
                   onClick={() => setActiveId(2)}
                   active={activeId === 2}
@@ -68,7 +69,7 @@ export const Default: Story = {
               <Grid size={{ xs: 12, md: 6, lg: 4, xl: 3 }}>
                 <CardButton
                   {...args}
-                  icon={<APIDefinition />}
+                  icon={<Github />}
                   text="Authorize with GitHub"
                   onClick={() => setActiveId(1)}
                   active={activeId === 1}
@@ -86,7 +87,7 @@ export const Default: Story = {
               <Grid size={{ xs: 12, md: 12, lg: 12, xl: 12 }}>
                 <CardButton
                   {...args}
-                  icon={<APIDefinition />}
+                  icon={<Github />}
                   text="Authorize with GitHub"
                   onClick={() => setActiveId(3)}
                   active={activeId === 3}
