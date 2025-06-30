@@ -27,11 +27,13 @@ export const StyledNoDataMessage: ComponentType<StyledNoDataMessageProps> =
     '& [data-noData-icon-wrap="true"]': {
       display: 'flex',
       alignItems: 'center',
-      marginBottom: theme.spacing(1),
+      marginBottom: theme.spacing(0.5),
       '& svg': {
         width: '100%',
         maxWidth: '100%',
-        height: 'auto',
+        aspectRatio: '1 / 1',
+        height: '100%',
+        objectFit: 'contain',
       },
     },
     '& [data-noData-icon-size="sm"]': {
