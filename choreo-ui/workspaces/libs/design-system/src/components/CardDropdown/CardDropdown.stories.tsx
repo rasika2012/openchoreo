@@ -12,7 +12,14 @@ const meta: Meta<typeof CardDropdown> = {
   title: 'Choreo DS/CardDropdown',
   component: CardDropdown,
   tags: ['autodocs'],
-  argTypes: {},
+  argTypes: {
+    size: {
+      control: 'select',
+      options: ['small', 'medium', 'large'],
+      description: 'Size of the dropdown button',
+      defaultValue: 'medium',
+    },
+  },
 };
 
 export default meta;
@@ -21,6 +28,8 @@ type Story = StoryObj<typeof CardDropdown>;
 export const Default: Story = {
   args: {
     children: 'CardDropdown Content',
+    size: 'medium',
+    active: false,
   },
   render: function RenderCardDropdown(args) {
     const [selectedItem, setSelectedItem] = useState(0);
@@ -39,6 +48,9 @@ export const Default: Story = {
                   icon={<Bitbucket />}
                   text="Authorized Via bitbucket"
                   testId="bitbucket"
+                  size={_args.size}
+                  active={_args.active}
+                  disabled={_args.disabled}
                   fullHeight
                 >
                   <CardDropdownMenuItemCreate
@@ -75,6 +87,8 @@ export const Default: Story = {
                   text="Authorized Via bitbucket"
                   active
                   testId="bitbucket"
+                  size={_args.size}
+                  disabled={_args.disabled}
                   fullHeight
                 >
                   <CardDropdownMenuItem
@@ -112,6 +126,8 @@ export const Default: Story = {
                   icon={<Bitbucket />}
                   text="Authorized Via bitbucket"
                   active
+                  size={_args.size}
+                  disabled={_args.disabled}
                   testId="bitbucket"
                   fullHeight
                 >
@@ -126,6 +142,61 @@ export const Default: Story = {
             </Grid>
           </CardContent>
         </Card>
+      </Box>
+    );
+  },
+};
+
+export const Click: Story = {
+  args: {
+    children: 'CardDropdown Content',
+    size: 'medium',
+  },
+  render: function RenderCardDropdown(_args) {
+    const [selectedItem, setSelectedItem] = useState(0);
+    const handleCreate = () => {};
+
+    const handleClick = (selectedNo: number) => {
+      setSelectedItem(selectedNo);
+    };
+    return (
+      <Box p={3}>
+        <Grid size={{ xs: 12, md: 12 }}>
+          <CardDropdown
+            icon={<Bitbucket />}
+            text="Authorized Via bitbucket"
+            testId="bitbucket"
+            size={_args.size}
+            fullHeight
+          >
+            <CardDropdownMenuItemCreate
+              createText="Create"
+              onClick={handleCreate}
+              testId="create"
+            />
+            <CardDropdownMenuItem
+              selected={selectedItem === 1}
+              // button
+              onClick={() => handleClick(1)}
+            >
+              Profile
+            </CardDropdownMenuItem>
+            <CardDropdownMenuItem
+              selected={selectedItem === 2}
+              // button
+              onClick={() => handleClick(2)}
+            >
+              My account
+            </CardDropdownMenuItem>
+            <CardDropdownMenuItem
+              selected={selectedItem === 3}
+              // button
+              onClick={() => handleClick(3)}
+            >
+              Logout
+            </CardDropdownMenuItem>
+          </CardDropdown>
+        </Grid>
       </Box>
     );
   },
