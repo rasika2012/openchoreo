@@ -1,6 +1,6 @@
 import { NavItemExpandableSubMenu } from "@open-choreo/design-system";
 import React, { useMemo } from "react";
-import { PluginExtensionType } from "../../../plugin-types";
+import { PluginExtensionType } from "../../plugin-types";
 import { usePluginRegistry } from "../../Providers";
 
 export function useMainNavExtentions() {
