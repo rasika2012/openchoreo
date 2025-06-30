@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   StyledMainNavItemContainer,
+  StyledMainNavItemContainerWithLink,
   StyledNavItemContainer,
   StyledSpinIcon,
   StyledSubNavContainer,
@@ -8,7 +9,6 @@ import {
 } from './NavItemExpandable.styled';
 import { ChevronRightIcon } from '@design-system/Icons';
 import { Box, Collapse, Typography, useTheme } from '@mui/material';
-// import { Link } from 'react-router';
 
 export interface NavItemBase {
   title: string;
@@ -50,7 +50,7 @@ export const NavItemExpandable = React.forwardRef<
     selectedIcon,
     subMenuItems,
     id,
-    // href,
+    href,
   } = props;
   const [isSubNavVisible, setIsSubNavVisible] = useState(false);
   const theme = useTheme();
@@ -78,6 +78,32 @@ export const NavItemExpandable = React.forwardRef<
     [isSubNavVisible, subMenuItems]
   );
 
+  if (!subMenuItems || subMenuItems.length === 0) {
+    return (
+      <StyledNavItemContainer
+        isSubNavVisible={isSubNavExpanded}
+        className={className}
+        isExpanded={isExpanded}
+        disabled={disabled}
+        ref={ref}
+      >
+        <StyledMainNavItemContainerWithLink
+          to={href ?? ''}
+          onClick={() => handleOnClick(id)}
+          isSelected={id === selectedId}
+          key={id}
+        >
+          {isSubNavExpanded ? selectedIcon : icon}
+          {isExpanded && (
+            <Typography variant="body2" color="inherit">
+              {title}
+            </Typography>
+          )}
+        </StyledMainNavItemContainerWithLink>
+      </StyledNavItemContainer>
+    )
+  }
+
   return (
     <StyledNavItemContainer
       isSubNavVisible={isSubNavExpanded}
@@ -88,7 +114,6 @@ export const NavItemExpandable = React.forwardRef<
     >
       <StyledMainNavItemContainer
         onClick={handleMainNavItemClick}
-        // to={href ?? './'}
         isSelected={isSelected}
         isSubNavVisible={isSubNavExpanded}
       >

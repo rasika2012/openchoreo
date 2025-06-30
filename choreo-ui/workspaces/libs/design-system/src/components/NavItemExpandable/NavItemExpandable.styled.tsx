@@ -76,6 +76,37 @@ export const StyledMainNavItemContainer: ComponentType<
   },
 }));
 
+export const StyledMainNavItemContainerWithLink: ComponentType<
+  LinkProps & {
+    isSelected?: boolean;
+    isSubNavVisible?: boolean;
+  }
+> = styled(Link)<
+  LinkProps & {
+    isSelected?: boolean;
+    isSubNavVisible?: boolean;
+  }
+>(({ theme, isSelected, isSubNavVisible }) => ({
+  display: 'flex',
+  gap: theme.spacing(1),
+  background:
+    isSubNavVisible && isSelected
+      ? theme.palette.primary.dark
+      : !isSubNavVisible && isSelected
+        ? alpha(theme.palette.primary.light, 0.4)
+        : 'transparent',
+  alignItems: 'center',
+  color: theme.palette.background.default,
+  padding: theme.spacing(1.625, 2.25),
+  textDecoration: 'none',
+  transition: theme.transitions.create(['background', 'padding'], {
+    duration: theme.transitions.duration.short,
+  }),
+  '&:hover': {
+    background: alpha(theme.palette.primary.light, 0.4),
+  },
+}));
+
 export const StyledSubNavItemContainer: ComponentType<
   LinkProps & { isExpanded?: boolean; isSelected?: boolean }
 > = styled(Link)<LinkProps & { isExpanded?: boolean; isSelected?: boolean }>(

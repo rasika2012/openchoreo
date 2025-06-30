@@ -103,3 +103,85 @@ export const Disabled: Story = {
     selectedIcon: <MenuHomeFilledIcon fontSize='inherit' />,
   },
 };
+
+export const SimpleNavItem: Story = {
+  args: {
+    title: 'Simple Navigation Item',
+    icon: <MenuHomeIcon fontSize='inherit' />,
+    selectedIcon: <MenuHomeFilledIcon fontSize='inherit' />,
+    id: 'simple-nav-item',
+  },
+};
+
+export const SimpleNavItemSelected: Story = {
+  args: {
+    title: 'Selected Simple Navigation Item',
+    icon: <MenuHomeIcon fontSize='inherit' />,
+    selectedIcon: <MenuHomeFilledIcon fontSize='inherit' />,
+    id: 'simple-nav-item',
+    selectedId: 'simple-nav-item',
+  },
+};
+
+export const SimpleNavItemExpanded: Story = {
+  args: {
+    title: 'Simple Navigation Item (Expanded)',
+    icon: <MenuHomeIcon fontSize='inherit' />,
+    selectedIcon: <MenuHomeFilledIcon fontSize='inherit' />,
+    id: 'simple-nav-item',
+    isExpanded: true,
+  },
+};
+
+export const SimpleNavItemExpandedSelected: Story = {
+  args: {
+    title: 'Selected Simple Navigation Item (Expanded)',
+    icon: <MenuHomeIcon fontSize='inherit' />,
+    selectedIcon: <MenuHomeFilledIcon fontSize='inherit' />,
+    id: 'simple-nav-item',
+    selectedId: 'simple-nav-item',
+    isExpanded: true,
+  },
+};
+
+export const SimpleNavItemDisabled: Story = {
+  args: {
+    title: 'Disabled Simple Navigation Item',
+    icon: <MenuHomeIcon fontSize='inherit' />,
+    selectedIcon: <MenuHomeFilledIcon fontSize='inherit' />,
+    id: 'simple-nav-item',
+    disabled: true,
+  },
+};
+
+export const SimpleNavItemDisabledExpanded: Story = {
+  args: {
+    title: 'Disabled Simple Navigation Item (Expanded)',
+    icon: <MenuHomeIcon fontSize='inherit' />,
+    selectedIcon: <MenuHomeFilledIcon fontSize='inherit' />,
+    id: 'simple-nav-item',
+    disabled: true,
+    isExpanded: true,
+  },
+};
+
+export const EmptySubMenuItems: Story = {
+  args: {
+    title: 'NavItem with Empty Sub Menu',
+    icon: <MenuHomeIcon fontSize='inherit' />,
+    selectedIcon: <MenuHomeFilledIcon fontSize='inherit' />,
+    id: 'nav-item-empty',
+    subMenuItems: [],
+  },
+};
+
+export const EmptySubMenuItemsExpanded: Story = {
+  args: {
+    title: 'NavItem with Empty Sub Menu (Expanded)',
+    icon: <MenuHomeIcon fontSize='inherit' />,
+    selectedIcon: <MenuHomeFilledIcon fontSize='inherit' />,
+    id: 'nav-item-empty',
+    subMenuItems: [],
+    isExpanded: true,
+  },
+};
