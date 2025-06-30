@@ -29,7 +29,7 @@ export const CardDropdown = React.forwardRef<HTMLDivElement, CardDropdownProps>(
       text,
       active = false,
       testId,
-      size = 'large',
+      size = 'medium',
       fullHeight = false,
       ...props
     },
@@ -81,6 +81,9 @@ export const CardDropdown = React.forwardRef<HTMLDivElement, CardDropdownProps>(
           aria-describedby={id}
           onClick={handleClick}
           data-cyid={`${testId}-card-button`}
+          data-card-dropdown-size={size}
+          data-button-root-full-height={fullHeight}
+          data-button-root-active={active}
           {...props}
         >
           {icon}
@@ -108,7 +111,11 @@ export const CardDropdown = React.forwardRef<HTMLDivElement, CardDropdownProps>(
             style: {
               width: buttonWidth,
               maxHeight: theme.spacing(40),
+              boxShadow: theme.shadows[3],
+              border: `1px solid ${theme.palette.grey[100]}`,
+              borderRadius: '8px',
             },
+            className: 'popoverPaper',
           }}
           elevation={0}
           data-cyid={`${testId}-popover`}
