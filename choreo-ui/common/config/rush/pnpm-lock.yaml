@@ -656,6 +656,9 @@ importers:
       '@fontsource/roboto':
         specifier: ~5.2.5
         version: 5.2.6
+      '@open-choreo/api-client':
+        specifier: workspace:*
+        version: link:../api-client
       '@open-choreo/common-views':
         specifier: workspace:*
         version: link:../../libs/views
