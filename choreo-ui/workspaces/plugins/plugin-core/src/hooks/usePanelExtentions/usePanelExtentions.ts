@@ -1,21 +1,21 @@
 import { useMemo } from "react";
 import {
   PluginExtensionType,
-  PluginExtensionProvider,
-} from "../../../plugin-types";
+  PluginExtensionPanel,
+} from "../../plugin-types";
 import { usePluginRegistry } from "../../Providers";
 
-export function useExtentionProviders(extentionPointId: string) {
+export function usePanelExtentions(extentionPointId: string) {
   const pluginRegistry = usePluginRegistry();
-  const entries: PluginExtensionProvider[] = useMemo(
+  const entries: PluginExtensionPanel[] = useMemo(
     () =>
       pluginRegistry.flatMap(
         (plugin) =>
           plugin.extensions.filter(
             (entry) =>
-              entry.type === PluginExtensionType.PROVIDER &&
+              entry.type === PluginExtensionType.PANEL &&
               entry.extentionPointId === extentionPointId,
-          ) as PluginExtensionProvider[],
+          ) as PluginExtensionPanel[],
       ),
     [pluginRegistry, extentionPointId],
   );

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { TopLevelSelector, Level, type LevelItem } from './TopLevelSelector';
+import { TopLevelSelector } from './TopLevelSelector';
+import { LevelItem, Level } from './utils';
 
 const sampleItems: LevelItem[] = [
   { label: 'Item 1', id: '1' },
