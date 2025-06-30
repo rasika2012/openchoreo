@@ -44,6 +44,17 @@ const svgoC = {
     { name: 'removeEmptyAttrs' },
     { name: 'removeHiddenElems' },
     { name: 'removeEmptyText' },
+    { name: 'removeEmptyContainers' },
+    // { name: 'removeViewBox' },
+    // { name: 'cleanupEnableBackground' },
+    // { name: 'minifyStyles' },
+    // { name: 'convertStyleToAttrs' },
+    // {
+    //   name: 'convertColors',
+    //   params: {
+    //     currentColor: true,
+    //   },
+    // },
     { name: 'convertPathData' },
     { name: 'convertTransform' },
     { name: 'removeUnknownsAndDefaults' },
@@ -63,38 +74,19 @@ const svgoC = {
     { name: 'moveGroupAttrsToElems' },
     { name: 'collapseGroups' },
     { name: 'removeRasterImages' },
+    { name: 'mergePaths' },
+    { name: 'convertShapeToPath' },
     { name: 'sortAttrs' },
     { name: 'removeDimensions' },
     {
       name: 'removeAttrs',
       params: {
-        attrs: [
-          'style',
-          'xmlns:xlink',
-          'xmlns',
-          'version',
-          'id',
-          'data-name',
-          'data-old_color',
-          'data-new_color',
-          'xlink:href',
-          'xlink:title',
-          'xlink:desc',
-          'xlink:actuate',
-          'xlink:show',
-          'xlink:arcrole',
-          'xlink:role',
-          'xml:space',
-          'xml:lang',
-          'xml:base',
-          'xml:id',
-          'xml:lang',
-          'xml:base',
-          'xml:id',
-        ],
+        attrs: ['style'],
       },
     },
+    { name: 'removeElementsByAttr' },
     { name: 'removeStyleElement' },
+
     { name: 'removeScriptElement' },
   ],
 };
@@ -166,31 +158,16 @@ async function cleanPaths({ svgPath, data }) {
   // Clean xml paths
   // TODO: tmkasun test and change class to className
   let paths = result.data
+    .replace(/<svg[^>]*>/g, '')
+    .replace(/<\/svg>/g, '')
     .replace(/"\/>/g, '" />')
     .replace(/fill-opacity=/g, 'fillOpacity=')
     .replace(/xlink:href=/g, 'xlinkHref=')
-    .replace(/xlink:title=/g, 'xlinkTitle=')
-    .replace(/xlink:desc=/g, 'xlinkDesc=')
-    .replace(/xlink:actuate=/g, 'xlinkActuate=')
-    .replace(/xlink:show=/g, 'xlinkShow=')
-    .replace(/xlink:arcrole=/g, 'xlinkArcrole=')
-    .replace(/xlink:role=/g, 'xlinkRole=')
-    .replace(/xml:space=/g, 'xmlSpace=')
-    .replace(/xml:lang=/g, 'xmlLang=')
-    .replace(/xml:base=/g, 'xmlBase=')
-    .replace(/xml:id=/g, 'xmlId=')
     .replace(/class=/g, 'className=')
     .replace(/clip-rule=/g, 'clipRule=')
     .replace(/fill-rule=/g, 'fillRule=')
     .replace(/ clip-path=".+?"/g, '') // Fix visibility issue and save some bytes.
-    .replace(/<clipPath.+?<\/clipPath>/g, '') // Remove unused definitions
-    .replace(/ xmlns:xlink="[^"]*"/g, '') // Remove xmlns:xlink attributes
-    .replace(/ xmlns="[^"]*"/g, '') // Remove xmlns attributes
-    .replace(/ version="[^"]*"/g, '') // Remove version attributes
-    .replace(/ id="[^"]*"/g, '') // Remove id attributes
-    .replace(/ data-name="[^"]*"/g, '') // Remove data-name attributes
-    .replace(/ data-old_color="[^"]*"/g, '') // Remove data-old_color attributes
-    .replace(/ data-new_color="[^"]*"/g, ''); // Remove data-new_color attributes
+    .replace(/<clipPath.+?<\/clipPath>/g, ''); // Remove unused definitions
 
   const sizeMatch = svgPath.match(/^.*_([0-9]+)px.svg$/);
   const size = sizeMatch ? Number(sizeMatch[1]) : null;

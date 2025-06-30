@@ -31,7 +31,7 @@ function ImagePreview() {
       sx={{ p: (theme: Theme) => theme.spacing(3) }}
     >
       <TextField
-        placeholder="Search Images..."
+        placeholder="Search icons..."
         variant="outlined"
         fullWidth
         size="medium"

@@ -152,9 +152,10 @@ export const TopLevelSelector = React.forwardRef<
           <Box display="flex" flexDirection="column" gap={1} p={1}>
             <SearchBar
               inputValue={search}
-              onChange={(value: string) => setSearch(value)}
+              onChange={(value) => setSearch(value)}
               testId="top-level-selector-search"
               placeholder="Search"
+              // startIcon={<SearchIcon fontSize="inherit" />}
             />
             <Box display="flex" gap={1}>
               <Button variant="text" startIcon={<AddIcon fontSize="inherit" />}>
