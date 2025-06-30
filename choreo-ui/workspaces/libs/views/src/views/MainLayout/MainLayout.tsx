@@ -2,7 +2,7 @@ import {
   useChoreoTheme,
   Box,
   NavItemExpandableSubMenu,
-  ImageChoreo
+  ImageChoreoAIWelcome,
 } from '@open-choreo/design-system';
 import React, { useState } from 'react';
 import { Header, Sidebar, ContentArea, Footer } from './components';
@@ -50,7 +50,7 @@ export const MainLayout = React.forwardRef<HTMLDivElement, MainLayoutProps>(
           isSidebarOpen={isSidebarOpen}
           onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
         >
-          <ImageChoreo height={30} width={140} />
+          <ImageChoreoAIWelcome transform='scale(0.5)' width={80} height={80} />
           {header}
         </Header>
 

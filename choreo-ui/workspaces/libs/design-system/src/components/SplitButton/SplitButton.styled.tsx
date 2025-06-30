@@ -12,7 +12,6 @@ export const StyledSplitButton: ComponentType<StyledSplitButtonProps> = styled(
   alignItems: 'center',
   cursor: disabled ? 'not-allowed' : 'default',
   opacity: disabled ? 0.5 : 1,
-  pointerEvents: disabled ? 'none' : 'auto',
   filter: disabled ? 'saturate(0.3) brightness(1.1)' : 'none',
   fontFamily: theme.typography.fontFamily,
   splitButton: {},

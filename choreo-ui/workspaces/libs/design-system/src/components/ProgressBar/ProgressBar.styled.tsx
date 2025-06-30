@@ -37,7 +37,6 @@ export const StyledProgressBar: ComponentType<StyledProgressBarProps> = styled(
   ({ disabled, theme, size = 'medium', color = 'primary' }) => ({
     opacity: disabled ? 0.5 : 1,
     cursor: disabled ? 'not-allowed' : 'pointer',
-    pointerEvents: disabled ? 'none' : 'auto',
     backgroundColor:
       color === 'primary'
         ? theme.palette.primary.light

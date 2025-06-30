@@ -1,9 +1,9 @@
 import { StoryFn } from '@storybook/react';
-import ImagePreview from './ImagePreview';
+import IconsPreview from './ImagePreview';
 import { Box } from '@mui/material'; // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: 'Extras/Images',
-  component: ImagePreview,
+  component: IconsPreview,
   argTypes: {
     fontSize: {
       control: {
@@ -28,11 +28,11 @@ export default {
 }; // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template: StoryFn = (args) => (
   <Box height={1} width={1} display="flex">
-    <ImagePreview {...args} />
+    <IconsPreview {...args} />
   </Box>
 );
-export const ImagePreviewList = Template.bind({}) as StoryFn<
-  typeof ImagePreview
+export const IconPreviewList = Template.bind({}) as StoryFn<
+  typeof IconsPreview
 >;
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
-ImagePreviewList.args = {};
+IconPreviewList.args = {};
