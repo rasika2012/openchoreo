@@ -6,11 +6,12 @@ import {
   Typography,
   useChoreoTheme,
 } from '@open-choreo/design-system';
+import { FormattedMessage } from 'react-intl';
 
 export interface ErrorPageProps {
   image: React.ReactNode;
-  title: string;
-  description: string;
+  title: React.ReactNode;
+  description: React.ReactNode;
 }
 
 export function ErrorPage(props: ErrorPageProps) {
@@ -24,6 +25,7 @@ export function ErrorPage(props: ErrorPageProps) {
       alignItems="center"
       justifyContent="center"
       gap={theme.spacing(4)}
+      height="50vh"
     >
       {image}
       <Typography variant="h2">{title}</Typography>
@@ -41,22 +43,22 @@ export interface PresetErrorPageProps {
 function getTitle(code: 'default' | '404' | '500') {
   switch (code) {
     case 'default':
-      return 'Something went wrong';
+      return <FormattedMessage id="views.errorPage.default.title" defaultMessage="Something went wrong" />;
     case '404':
-      return 'Page not found';
+      return <FormattedMessage id="views.errorPage.404.title" defaultMessage="Page not found" />;
     case '500':
-      return 'Server error';
+      return <FormattedMessage id="views.errorPage.500.title" defaultMessage="Server error" />;
   }
 }
 
 function getDescription(code: 'default' | '404' | '500') {
   switch (code) {
     case 'default':
-      return 'An unexpected error occurred. Please try again later.';
+      return <FormattedMessage id="views.errorPage.default.description" defaultMessage="An unexpected error occurred. Please try again later." />;
     case '404':
-      return 'The page you are looking for does not exist.';
+      return <FormattedMessage id="views.errorPage.404.description" defaultMessage="The page you are looking for does not exist." />;
     case '500':
-      return 'We are experiencing technical difficulties. Please try again in a few minutes.';
+      return <FormattedMessage id="views.errorPage.500.description" defaultMessage="We are experiencing technical difficulties. Please try again in a few minutes." />;
   }
 }
 
