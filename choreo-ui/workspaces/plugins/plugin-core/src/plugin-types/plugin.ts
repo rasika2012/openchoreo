@@ -1,3 +1,4 @@
+import { Level } from "@open-choreo/design-system";
 import { ReactNode, type ComponentType, type LazyExoticComponent } from "react";
 
 export enum PluginExtensionType {
@@ -38,7 +39,8 @@ export interface PluginExtensionNavigation {
 
 export interface PluginExtensionPage {
   type: PluginExtensionType.PAGE;
-  path: string;
+  extentionPointId: string | Level;
+  pathPattern: string;
   component: ComponentType | LazyExoticComponent<ComponentType>;
 }
 
