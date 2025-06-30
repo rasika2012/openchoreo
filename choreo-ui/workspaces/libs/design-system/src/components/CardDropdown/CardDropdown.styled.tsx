@@ -1,4 +1,4 @@
-import { Box, BoxProps, styled } from '@mui/material';
+import { alpha, Box, BoxProps, styled } from '@mui/material';
 import { ComponentType } from 'react';
 
 export interface StyledCardDropdownProps {
