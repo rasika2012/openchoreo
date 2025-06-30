@@ -2,7 +2,7 @@ import {
   useChoreoTheme,
   Box,
   NavItemExpandableSubMenu,
-  ImageChoreo
+  ImageChoreo,
 } from '@open-choreo/design-system';
 import React, { useState } from 'react';
 import { Header, Sidebar, ContentArea, Footer } from './components';
