@@ -26,7 +26,7 @@ export function PageLayout({ testId, children, title, description, backUrl, back
       {backUrl && <Button variant="link" href={backUrl} startIcon={<ArrowLeftLongIcon />} testId={`page-layout-back-button-${testId}`}>
         {backButtonText ?? "Back to previous page"}
       </Button>}
-      <Box display="flex" flexDirection="column" gap={16}>
+      <Box display="flex" flexDirection="column" gap={16} flexGrow={1} width="100%">
         <Box display="flex" flexDirection="column" gap={2}>
           <Typography variant="h2">{title}</Typography>
           {description && <Typography variant="body1">{description}</Typography>}
