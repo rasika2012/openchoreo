@@ -31,10 +31,11 @@ export const CardDropdownMenuItemCreate = React.forwardRef<
           alignItems: 'center',
           display: 'flex',
         })}
+        className="createIcon"
       >
         <Add fontSize="inherit" />
       </Box>
-      <Box>{createText}</Box>
+      <Box className="createText">{createText}</Box>
     </CardDropdownMenuItem>
   );
 });
