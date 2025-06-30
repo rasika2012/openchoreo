@@ -1,5 +1,5 @@
 export const defaultConfig = {
-    baseUrl: 'http://localhost:4000',
+    baseUrl: 'http://localhost:3001',
     headers: {
         'Content-Type': 'application/json',
     },

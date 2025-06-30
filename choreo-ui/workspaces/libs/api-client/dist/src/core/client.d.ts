@@ -1,8 +1,9 @@
 import { ApiConfig } from './config';
+import { GeneralApi } from '../api/general';
 import { ProjectsApi } from '../api/projects';
 import { ComponentsApi } from '../api/components';
-import { OrganizationApi } from '../api/organization';
-export interface ChoreoApiClient extends ProjectsApi, ComponentsApi, OrganizationApi {
+import { DeploymentsApi } from '../api/deployments';
+export interface ChoreoApiClient extends GeneralApi, ProjectsApi, ComponentsApi, DeploymentsApi {
     config: ApiConfig;
     setConfig(config: Partial<ApiConfig>): void;
 }
@@ -14,9 +15,10 @@ export declare class ChoreoClient implements ChoreoApiClient {
      * @param config - Partial configuration to merge with current config
      */
     setConfig(config: Partial<ApiConfig>): void;
-    listProjects: (orgName: string) => Promise<import("..").ProjectList>;
-    getProject: (orgName: string, projectName: string) => Promise<import("..").Project>;
-    listProjectComponents: (orgName: string, projectName: string) => Promise<import("..").ComponentList>;
-    getComponent: (orgName: string, projectName: string, componentName: string) => Promise<import("..").Component>;
-    listOrganizations: () => Promise<import("..").OrganizationList>;
+    listEndpoints: (config?: ApiConfig) => Promise<import("..").EndpointsResponse>;
+    listProjects: (config?: ApiConfig) => Promise<import("..").ProjectList>;
+    getProject: (projectName: string, config?: ApiConfig) => Promise<import("..").Project>;
+    listProjectComponents: (projectName: string, config?: ApiConfig) => Promise<import("..").ComponentList>;
+    listComponentDeployments: (projectName: string, componentName: string, config?: ApiConfig) => Promise<import("..").DeploymentList>;
+    getDeployment: (projectName: string, componentName: string, deploymentName: string, config?: ApiConfig) => Promise<import("..").Deployment>;
 }

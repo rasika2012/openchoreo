@@ -1,7 +1,6 @@
 import { ApiConfig } from '../core/config';
-import { Component, ComponentList } from '../types/types';
+import { ComponentList } from '../types/types';
 export interface ComponentsApi {
-    listProjectComponents(orgName: string, projectName: string, config?: ApiConfig): Promise<ComponentList>;
-    getComponent(orgName: string, projectName: string, componentName: string, config?: ApiConfig): Promise<Component>;
+    listProjectComponents(projectName: string, config?: ApiConfig): Promise<ComponentList>;
 }
 export declare const componentsApi: ComponentsApi;
