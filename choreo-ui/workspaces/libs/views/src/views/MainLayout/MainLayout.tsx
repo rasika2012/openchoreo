@@ -53,7 +53,6 @@ export const MainLayout = React.forwardRef<HTMLDivElement, MainLayoutProps>(
           <ImageChoreo height={30} width={140} />
           {header}
         </Header>
-
         <Box flexGrow={1} flexDirection="row" display="flex" overflow="hidden">
           {menuItems && (
             <Sidebar

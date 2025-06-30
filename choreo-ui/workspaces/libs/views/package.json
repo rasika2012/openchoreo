@@ -29,7 +29,9 @@
     "build-storybook": "storybook build",
     "clean": "rm -rf dist",
     "copy-assets": "find src -type f \\( -name '*.css' -o -name '*.scss' -o -name '*.less' -o -name '*.woff*' -o -name '*.ttf' -o -name '*.eot' \\) -exec sh -c 'mkdir -p dist/$(dirname {}| sed \"s|^src||\") && cp {} dist/$(dirname {}| sed \"s|^src||\")/$(basename {})' \\;",
-    "build": "npm run clean && tsc -project tsconfig.lib.json && npm run copy-assets"
+    "build": "npm run clean && tsc -project tsconfig.lib.json && npm run copy-assets",
+    "dev": "npm run clean && tsc -project tsconfig.lib.json  --watch && npm run copy-assets",
+    "i18n": "formatjs extract 'src/**/*.{ts,tsx,js,jsx}' --out-file 'src/lang/en.json' --ignore '**/node_modules/**' --ignore '**/*.d.ts' --ignore '**/vite-env.d.ts' --format simple --throws"
   },
   "keywords": [],
   "author": "",
@@ -76,7 +78,8 @@
     "globals": "~16.2.0",
     "glob": "^10.3.10",
     "lodash": "^4.17.21",
-    "@types/lodash": "^4.17.17"
+    "@types/lodash": "^4.17.17",
+    "@formatjs/cli": "~6.7.2"
   },
   "peerDependencies": {
     "react": "^19.1.0",
@@ -95,6 +98,7 @@
     "less": "^4.3.0",
     "@open-choreo/design-system": "workspace:*",
     "@eslint/eslintrc": "~3.3.1",
-    "react-router": "~7.6.2"
+    "react-router": "~7.6.2",
+    "react-intl": "~7.1.11"
   }
 }
