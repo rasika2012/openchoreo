@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint . --config ./eslint.config.js",
     "preview": "vite preview",
-    "mock-server":  "prism mock ./specs/api-server-openapi.yaml"
+    "mock-server":  "prism mock ./specs/api-server-openapi.yaml",
+    "i18n": "formatjs extract 'src/**/*.{ts,tsx,js,jsx}' --out-file 'src/lang/en.json' --ignore '**/node_modules/**' --ignore '**/*.d.ts' --ignore '**/vite-env.d.ts' --format simple --throws"
   },
   "dependencies": {
     "react": "^19.1.0",
@@ -29,7 +30,8 @@
     "@open-choreo/plugin-top-level-selector": "workspace:*",
     "@open-choreo/plugin-overview": "workspace:*",
     "@open-choreo/top-right-menu": "workspace:*",
-    "@open-choreo/api-client": "workspace:*"
+    "@open-choreo/api-client": "workspace:*",
+    "react-intl": "~7.1.11"
   },
   "devDependencies": {
     "@eslint/js": "~9.28.0",
@@ -46,6 +48,7 @@
     "eslint-plugin-prettier": "~5.4.1",
     "lodash": "^4.17.21",
     "@types/lodash": "^4.17.17",
-    "@stoplight/prism-cli": "~5.14.2"
+    "@stoplight/prism-cli": "~5.14.2",
+    "@formatjs/cli": "~6.7.2"
   }
 }
