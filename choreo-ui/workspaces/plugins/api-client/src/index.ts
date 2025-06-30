@@ -8,5 +8,4 @@ export const apiClientPlugin = {
   extensions: [provider],
 } as PluginManifest;
 
-// export * from "./hooks";
-// export * from "./providers";
+export * from "./hooks";
