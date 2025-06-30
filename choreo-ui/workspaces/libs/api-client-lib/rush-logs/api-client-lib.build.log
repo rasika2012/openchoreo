@@ -1,4 +1,4 @@
-Invoking: rushx clean && tsc -project tsconfig.json 
+Invoking: npm run clean && tsc -project tsconfig.json 
 
 > @open-choreo/api-client-lib@1.0.0 clean
 > rm -rf dist
