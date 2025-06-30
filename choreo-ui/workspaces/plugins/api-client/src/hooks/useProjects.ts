@@ -9,10 +9,15 @@ export const useProjectList = () => {
   });
 };
 
-export const useProject = (projectId: string) => {
+export const useProject = (projectId?: string) => {
   const client = useClient();
   return useQuery({
     queryKey: ["project", projectId],
-    queryFn: () => client.getProject(projectId),
+    queryFn: () => {
+      if (projectId) {
+        return client.getProject(projectId);
+      }
+      return null;
+    },
   });
 };

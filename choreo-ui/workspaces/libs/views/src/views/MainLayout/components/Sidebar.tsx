@@ -31,6 +31,7 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
       <Box height="100%" display="flex" position="relative" ref={ref}>
         {(!isMobile && !isExpandSaved) && <Box width={theme.spacing(8)} />}
         <Box
+          zIndex={1}
           backgroundColor={theme.pallet.primary.main}
           position={isMobile || !isExpandSaved ? 'absolute' : 'relative'}
           transition={theme.transitions.create(['display', 'width'], {

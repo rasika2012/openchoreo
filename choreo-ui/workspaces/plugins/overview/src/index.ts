@@ -1,10 +1,10 @@
 import { type PluginManifest } from "@open-choreo/plugin-core";
-
-import { navigation, navigation2 } from "./nav-items";
-import { page } from "./pages";
+import { navigation } from "./nav-items";
+import { orgOverview } from "./OrgOverview";
+import { projectOverview } from "./ProjectOverview";
 
 export const overviewPlugin = {
   name: "Overview",
   description: "Overview plugin",
-  extensions: [navigation, navigation2, page],
+  extensions: [navigation, orgOverview, projectOverview],
 } as PluginManifest;
