@@ -4,7 +4,7 @@ import { ComponentType } from 'react';
 
 export const StyledButton: ComponentType<ButtonProps> = styled(
   Button
-)<ButtonProps>(({ theme }) => ({
+)<ButtonProps>(({ theme, disabled }) => ({
   // Common styles
   boxShadow: `0 1px 2px ${alpha(theme.palette.common.black, 0.15)}`,
   borderRadius: 5,
@@ -15,6 +15,7 @@ export const StyledButton: ComponentType<ButtonProps> = styled(
   fontSize: theme.spacing(1.625),
   lineHeight: `${theme.spacing(3)}px`,
   textTransform: 'none',
+  pointerEvents: disabled ? 'none' : 'auto',
 
   '&.Mui-disabled': {
     opacity: 0.5,

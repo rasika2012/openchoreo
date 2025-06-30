@@ -18,7 +18,7 @@ export const StyledIconButton = styled(IconButton, {
   disabled,
 }: {
   theme: Theme;
-  size?: 'small' | 'medium' | 'large' | 'tiny';
+  size?: 'small' | 'medium' | 'tiny';
   color?:
     | 'default'
     | 'primary'
@@ -42,10 +42,10 @@ export const StyledIconButton = styled(IconButton, {
         fontSize: theme.spacing(2.5),
       },
     },
-    large: {
-      padding: theme.spacing(1.5),
-      '& > *:first-of-type': {
-        fontSize: theme.spacing(3),
+    tiny: {
+      padding: theme.spacing(0.625),
+      '& svg': {
+        fontSize: theme.spacing(1.375),
       },
     },
   };
@@ -120,6 +120,8 @@ export const StyledIconButton = styled(IconButton, {
     cursor: disabled ? 'not-allowed' : 'pointer',
     '&.Mui-disabled': {
       opacity: 0.5,
+      cursor: 'not-allowed',
+      pointerEvents: 'none' as const,
     },
     '&:focus-visible': {
       boxShadow: getFocusShadow(theme),
