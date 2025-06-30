@@ -25,6 +25,13 @@ paths:
                     type: array
                     items:
                       type: string
+              example:
+                paths:
+                  - "/api/v1/projects"
+                  - "/api/v1/projects/{project-name}"
+                  - "/api/v1/projects/{project-name}/components"
+                  - "/api/v1/projects/{project-name}/components/{component-name}/deployments"
+                  - "/api/v1/projects/{project-name}/components/{component-name}/deployments/{deployment-name}"
 
   /api/v1/projects:
     get:
@@ -37,6 +44,55 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProjectList'
+              example:
+                apiVersion: "core.choreo.dev/v1"
+                kind: "ProjectList"
+                items:
+                  - apiVersion: "core.choreo.dev/v1"
+                    kind: "Project"
+                    metadata:
+                      annotations:
+                        core.choreo.dev/description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                        core.choreo.dev/display-name: "E-commerce Platform"
+                      name: "ecommerce-platform"
+                      namespace: "default"
+                      labels:
+                        core.choreo.dev/name: "ecommerce-platform"
+                        core.choreo.dev/organization: "acme-corp"
+                    spec:
+                      deploymentPipelineRef: "pipeline-ecommerce-v1"
+                    status:
+                      conditions:
+                        - lastTransitionTime: "2024-01-15T10:30:00Z"
+                          message: "Project is ready"
+                          observedGeneration: 1
+                          reason: "Ready"
+                          status: "True"
+                          type: "Ready"
+                  - apiVersion: "core.choreo.dev/v1"
+                    kind: "Project"
+                    metadata:
+                      annotations:
+                        core.choreo.dev/description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+                        core.choreo.dev/display-name: "Mobile App Backend"
+                      name: "mobile-backend"
+                      namespace: "default"
+                      labels:
+                        core.choreo.dev/name: "mobile-backend"
+                        core.choreo.dev/organization: "acme-corp"
+                    spec:
+                      deploymentPipelineRef: "pipeline-mobile-v2"
+                    status:
+                      conditions:
+                        - lastTransitionTime: "2024-01-14T15:45:00Z"
+                          message: "Project is ready"
+                          observedGeneration: 1
+                          reason: "Ready"
+                          status: "True"
+                          type: "Ready"
+                metadata:
+                  continue: ""
+                  resourceVersion: "12345"
 
   /api/v1/projects/{project-name}:
     get:
@@ -48,6 +104,7 @@ paths:
           required: true
           schema:
             type: string
+          example: "ecommerce-platform"
       responses:
         '200':
           description: Project details
@@ -55,6 +112,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
+              example:
+                apiVersion: "core.choreo.dev/v1"
+                kind: "Project"
+                metadata:
+                  annotations:
+                    core.choreo.dev/description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+                    core.choreo.dev/display-name: "E-commerce Platform"
+                  name: "ecommerce-platform"
+                  namespace: "default"
+                  labels:
+                    core.choreo.dev/name: "ecommerce-platform"
+                    core.choreo.dev/organization: "acme-corp"
+                spec:
+                  deploymentPipelineRef: "pipeline-ecommerce-v1"
+                status:
+                  conditions:
+                    - lastTransitionTime: "2024-01-15T10:30:00Z"
+                      message: "Project is ready and all components are deployed successfully"
+                      observedGeneration: 1
+                      reason: "Ready"
+                      status: "True"
+                      type: "Ready"
 
   /api/v1/projects/{project-name}/components:
     get:
@@ -66,6 +145,7 @@ paths:
           required: true
           schema:
             type: string
+          example: "ecommerce-platform"
       responses:
         '200':
           description: List of components
@@ -73,6 +153,120 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ComponentList'
+              example:
+                apiVersion: "core.choreo.dev/v1"
+                kind: "ComponentList"
+                items:
+                  - apiVersion: "core.choreo.dev/v1"
+                    kind: "Component"
+                    metadata:
+                      annotations:
+                        core.choreo.dev/description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+                        core.choreo.dev/display-name: "User Service"
+                      name: "user-service"
+                      namespace: "default"
+                      labels:
+                        core.choreo.dev/name: "user-service"
+                        core.choreo.dev/organization: "acme-corp"
+                        core.choreo.dev/project: "ecommerce-platform"
+                    spec:
+                      source:
+                        gitRepository:
+                          url: "https://github.com/acme-corp/user-service.git"
+                        containerRegistry:
+                          imageName: "acme-corp/user-service:latest"
+                      type: "service"
+                    status:
+                      conditions:
+                        - lastTransitionTime: "2024-01-15T11:00:00Z"
+                          message: "Component is ready"
+                          observedGeneration: 1
+                          reason: "Ready"
+                          status: "True"
+                          type: "Ready"
+                  - apiVersion: "core.choreo.dev/v1"
+                    kind: "Component"
+                    metadata:
+                      annotations:
+                        core.choreo.dev/description: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                        core.choreo.dev/display-name: "Payment Gateway"
+                      name: "payment-gateway"
+                      namespace: "default"
+                      labels:
+                        core.choreo.dev/name: "payment-gateway"
+                        core.choreo.dev/organization: "acme-corp"
+                        core.choreo.dev/project: "ecommerce-platform"
+                    spec:
+                      source:
+                        gitRepository:
+                          url: "https://github.com/acme-corp/payment-gateway.git"
+                        containerRegistry:
+                          imageName: "acme-corp/payment-gateway:latest"
+                      type: "service"
+                    status:
+                      conditions:
+                        - lastTransitionTime: "2024-01-15T11:15:00Z"
+                          message: "Component is ready"
+                          observedGeneration: 1
+                          reason: "Ready"
+                          status: "True"
+                          type: "Ready"
+                metadata:
+                  continue: ""
+                  resourceVersion: "12346"
+  /api/v1/projects/{project-name}/components/{component-name}:
+    get:
+      summary: Get component details
+      description: Returns details of a specific component
+      parameters:
+        - name: project-name
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "ecommerce-platform"
+        - name: component-name
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "user-service"
+      responses:
+        '200':
+          description: Component details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+              example:
+                apiVersion: "core.choreo.dev/v1"
+                kind: "Component"
+                metadata:
+                  annotations:
+                    core.choreo.dev/description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+                    core.choreo.dev/display-name: "User Service"
+                  name: "user-service"
+                  namespace: "default"
+                  labels:
+                    core.choreo.dev/name: "user-service"
+                    core.choreo.dev/organization: "acme-corp"
+                    core.choreo.dev/project: "ecommerce-platform"
+                spec:
+                  source:
+                    gitRepository:
+                      url: "https://github.com/acme-corp/user-service.git"
+                    containerRegistry:
+                      imageName: "acme-corp/user-service:latest"
+                      imageTag: "latest"
+                      imagePullPolicy: "Always"
+                      imagePullSecret: "acme-corp-registry-secret"
+                      imagePullSecretName: "acme-corp-registry-secret"
+                      imagePullSecretNamespace: "default"
+                      imagePullSecretServiceAccount: "default"
+                      imagePullSecretServiceAccountNamespace: "default"
+                      imagePullSecretServiceAccountName: "default"
+                      imagePullSecretServiceAccountNamespace: "default"
+                      imagePullSecretServiceAccountName: "default"
 
   /api/v1/projects/{project-name}/components/{component-name}/deployments:
     get:
@@ -84,11 +278,13 @@ paths:
           required: true
           schema:
             type: string
+          example: "ecommerce-platform"
         - name: component-name
           in: path
           required: true
           schema:
             type: string
+          example: "user-service"
       responses:
         '200':
           description: List of deployments
@@ -96,6 +292,61 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeploymentList'
+              example:
+                apiVersion: "core.choreo.dev/v1"
+                kind: "DeploymentList"
+                items:
+                  - apiVersion: "core.choreo.dev/v1"
+                    kind: "Deployment"
+                    metadata:
+                      annotations:
+                        core.choreo.dev/display-name: "User Service Production"
+                      name: "user-service-prod"
+                      namespace: "default"
+                      labels:
+                        core.choreo.dev/component: "user-service"
+                        core.choreo.dev/deployment-track: "production"
+                        core.choreo.dev/environment: "production"
+                        core.choreo.dev/name: "user-service-prod"
+                        core.choreo.dev/organization: "acme-corp"
+                        core.choreo.dev/project: "ecommerce-platform"
+                    spec:
+                      deploymentArtifactRef: "artifact-user-service-v1.2.0"
+                    status:
+                      conditions:
+                        - lastTransitionTime: "2024-01-15T12:00:00Z"
+                          message: "Deployment is running successfully"
+                          observedGeneration: 1
+                          reason: "Running"
+                          status: "True"
+                          type: "Ready"
+                  - apiVersion: "core.choreo.dev/v1"
+                    kind: "Deployment"
+                    metadata:
+                      annotations:
+                        core.choreo.dev/display-name: "User Service Staging"
+                      name: "user-service-staging"
+                      namespace: "default"
+                      labels:
+                        core.choreo.dev/component: "user-service"
+                        core.choreo.dev/deployment-track: "staging"
+                        core.choreo.dev/environment: "staging"
+                        core.choreo.dev/name: "user-service-staging"
+                        core.choreo.dev/organization: "acme-corp"
+                        core.choreo.dev/project: "ecommerce-platform"
+                    spec:
+                      deploymentArtifactRef: "artifact-user-service-v1.3.0-beta"
+                    status:
+                      conditions:
+                        - lastTransitionTime: "2024-01-15T13:30:00Z"
+                          message: "Deployment is running successfully"
+                          observedGeneration: 1
+                          reason: "Running"
+                          status: "True"
+                          type: "Ready"
+                metadata:
+                  continue: ""
+                  resourceVersion: "12347"
 
   /api/v1/projects/{project-name}/components/{component-name}/deployments/{deployment-name}:
     get:
@@ -107,16 +358,19 @@ paths:
           required: true
           schema:
             type: string
+          example: "ecommerce-platform"
         - name: component-name
           in: path
           required: true
           schema:
             type: string
+          example: "user-service"
         - name: deployment-name
           in: path
           required: true
           schema:
             type: string
+          example: "user-service-prod"
       responses:
         '200':
           description: Deployment details
@@ -124,6 +378,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Deployment'
+              example:
+                apiVersion: "core.choreo.dev/v1"
+                kind: "Deployment"
+                metadata:
+                  annotations:
+                    core.choreo.dev/display-name: "User Service Production"
+                  name: "user-service-prod"
+                  namespace: "default"
+                  labels:
+                    core.choreo.dev/component: "user-service"
+                    core.choreo.dev/deployment-track: "production"
+                    core.choreo.dev/environment: "production"
+                    core.choreo.dev/name: "user-service-prod"
+                    core.choreo.dev/organization: "acme-corp"
+                    core.choreo.dev/project: "ecommerce-platform"
+                spec:
+                  deploymentArtifactRef: "artifact-user-service-v1.2.0"
+                status:
+                  conditions:
+                    - lastTransitionTime: "2024-01-15T12:00:00Z"
+                      message: "Deployment is running successfully with 3 replicas"
+                      observedGeneration: 1
+                      reason: "Running"
+                      status: "True"
+                      type: "Ready"
 
 components:
   schemas:
@@ -144,24 +423,31 @@ components:
               properties:
                 core.choreo.dev/description:
                   type: string
+                  example: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                 core.choreo.dev/display-name:
                   type: string
+                  example: "E-commerce Platform"
             name:
               type: string
+              example: "ecommerce-platform"
             namespace:
               type: string
+              example: "default"
             labels:
               type: object
               properties:
                 core.choreo.dev/name:
                   type: string
+                  example: "ecommerce-platform"
                 core.choreo.dev/organization:
                   type: string
+                  example: "acme-corp"
         spec:
           type: object
           properties:
             deploymentPipelineRef:
               type: string
+              example: "pipeline-ecommerce-v1"
         status:
           type: object
           properties:
@@ -188,8 +474,10 @@ components:
           properties:
             continue:
               type: string
+              example: ""
             resourceVersion:
               type: string
+              example: "12345"
 
     Component:
       type: object
@@ -208,21 +496,28 @@ components:
               properties:
                 core.choreo.dev/description:
                   type: string
+                  example: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
                 core.choreo.dev/display-name:
                   type: string
+                  example: "User Service"
             name:
               type: string
+              example: "user-service"
             namespace:
               type: string
+              example: "default"
             labels:
               type: object
               properties:
                 core.choreo.dev/name:
                   type: string
+                  example: "user-service"
                 core.choreo.dev/organization:
                   type: string
+                  example: "acme-corp"
                 core.choreo.dev/project:
                   type: string
+                  example: "ecommerce-platform"
         spec:
           type: object
           properties:
@@ -234,13 +529,16 @@ components:
                   properties:
                     url:
                       type: string
+                      example: "https://github.com/acme-corp/user-service.git"
                 containerRegistry:
                   type: object
                   properties:
                     imageName:
                       type: string
+                      example: "acme-corp/user-service:latest"
             type:
               type: string
+              example: "service"
         status:
           type: object
           properties:
@@ -267,8 +565,10 @@ components:
           properties:
             continue:
               type: string
+              example: ""
             resourceVersion:
               type: string
+              example: "12346"
 
     Deployment:
       type: object
@@ -287,30 +587,40 @@ components:
               properties:
                 core.choreo.dev/display-name:
                   type: string
+                  example: "User Service Production"
             name:
               type: string
+              example: "user-service-prod"
             namespace:
               type: string
+              example: "default"
             labels:
               type: object
               properties:
                 core.choreo.dev/component:
                   type: string
+                  example: "user-service"
                 core.choreo.dev/deployment-track:
                   type: string
+                  example: "production"
                 core.choreo.dev/environment:
                   type: string
+                  example: "production"
                 core.choreo.dev/name:
                   type: string
+                  example: "user-service-prod"
                 core.choreo.dev/organization:
                   type: string
+                  example: "acme-corp"
                 core.choreo.dev/project:
                   type: string
+                  example: "ecommerce-platform"
         spec:
           type: object
           properties:
             deploymentArtifactRef:
               type: string
+              example: "artifact-user-service-v1.2.0"
         status:
           type: object
           properties:
@@ -337,8 +647,10 @@ components:
           properties:
             continue:
               type: string
+              example: ""
             resourceVersion:
               type: string
+              example: "12347"
 
     Condition:
       type: object
@@ -346,13 +658,19 @@ components:
         lastTransitionTime:
           type: string
           format: date-time
+          example: "2024-01-15T12:00:00Z"
         message:
           type: string
+          example: "Deployment is running successfully"
         observedGeneration:
           type: integer
+          example: 1
         reason:
           type: string
+          example: "Running"
         status:
           type: string
+          example: "True"
         type:
-          type: string 
+          type: string
+          example: "Ready" 

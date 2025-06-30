@@ -1,58 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   StyledPopover,
   StyledTopLevelSelector,
 } from './TopLevelSelector.styled';
-import {
-  Box,
-  Divider,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Typography,
-} from '@mui/material';
-import { AddIcon, ChevronDownIcon, CloseIcon } from '@design-system/Icons';
-import { Button } from '../../components/Button';
-import { IconButton, SearchBar } from '@design-system/components';
-
-export enum Level {
-  ORGANIZATION = 'organization',
-  PROJECT = 'project',
-  COMPONENT = 'component',
-}
-
-export interface LevelItem {
-  label: string;
-  id: string;
-}
+import { Box } from '@mui/material';
+import { SelectorHeader, SelectorContent, PopoverContent } from './components';
+import { LevelItem, Level } from './utils';
 
 export interface TopLevelSelectorProps {
   className?: string;
   items: LevelItem[];
-  recentItems: LevelItem[];
+  recentItems?: LevelItem[];
   selectedItem: LevelItem;
   level: Level;
   isHighlighted?: boolean;
   disabled?: boolean;
   onSelect: (item: LevelItem) => void;
-  onClick?: (level: Level) => void;
+  onClick: (level: Level) => void;
   onClose?: () => void;
+  onCreateNew?: () => void;
 }
 
-const getLevelLabel = (level: Level) => {
-  switch (level) {
-    case Level.ORGANIZATION:
-      return 'Organization';
-    case Level.PROJECT:
-      return 'Project';
-    case Level.COMPONENT:
-      return 'Component';
-  }
-};
-
 /**
- * TopLevelSelector component
+ * TopLevelSelector component for selecting items at different levels (Organization, Project, Component)
  * @component
  */
 export const TopLevelSelector = React.forwardRef<
@@ -61,15 +31,17 @@ export const TopLevelSelector = React.forwardRef<
 >(
   (
     {
-      items,
+      items = [],
       selectedItem,
       onSelect,
-      isHighlighted,
-      disabled,
+      isHighlighted = false,
+      disabled = false,
       onClick,
       level,
       recentItems = [],
       onClose,
+      onCreateNew,
+      className,
     },
     ref
   ) => {
@@ -77,26 +49,39 @@ export const TopLevelSelector = React.forwardRef<
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const open = Boolean(anchorEl);
 
-    const handleClick = () => {
+    const handleClick = useCallback(() => {
       if (!disabled) {
         onClick?.(level);
       }
-    };
+    }, [disabled, onClick, level]);
 
-    const handleSelect = (item: LevelItem) => {
+    const handleSelect = useCallback((item: LevelItem) => {
       if (!disabled) {
         onSelect(item);
+        setAnchorEl(null);
       }
-    };
+    }, [disabled, onSelect]);
 
-    const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const handleOpen = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      event.preventDefault();
       setAnchorEl(event.currentTarget);
-    };
+    }, []);
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
       setAnchorEl(null);
+      setSearch('');
       onClose?.();
-    };
+    }, [onClose]);
+
+    const handleSearchChange = useCallback((value: string) => {
+      setSearch(value);
+    }, []);
+
+    const handleCreateNew = useCallback(() => {
+      onCreateNew?.();
+      setAnchorEl(null);
+    }, [onCreateNew]);
 
     return (
       <StyledTopLevelSelector
@@ -105,40 +90,18 @@ export const TopLevelSelector = React.forwardRef<
         disabled={disabled}
         variant="outlined"
         isHighlighted={isHighlighted}
+        className={className}
+        role="button"
+        tabIndex={disabled ? -1 : 0}
+        aria-label={`${level} selector`}
+        aria-expanded={open}
+        aria-haspopup="listbox"
       >
         <Box display="flex" flexDirection="column">
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            flexGrow={1}
-          >
-            <Typography variant="body2" fontSize={11} color="text.secondary">
-              {getLevelLabel(level)}
-            </Typography>
-            <IconButton
-              size="tiny"
-              color="secondary"
-              disableRipple
-              onClick={handleClose}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          </Box>
-          <Box display="flex" alignItems="center" gap={1} marginRight={5}>
-            <Typography
-              variant="body1"
-              fontSize={14}
-              fontWeight={450}
-              color="text.primary"
-            >
-              Sample Project
-            </Typography>
-            <IconButton size="tiny" disableRipple onClick={handleOpen}>
-              <ChevronDownIcon />
-            </IconButton>
-          </Box>
+          <SelectorHeader level={level} onClose={onClose} />
+          <SelectorContent selectedItem={selectedItem} onOpen={handleOpen} disableMenu={items.length === 0} />
         </Box>
+
         <StyledPopover
           id={`${level}-popover`}
           open={open}
@@ -148,64 +111,23 @@ export const TopLevelSelector = React.forwardRef<
             vertical: 'bottom',
             horizontal: 'left',
           }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          role="listbox"
+          aria-label={`${level} options`}
         >
-          <Box display="flex" flexDirection="column" gap={1} p={1}>
-            <SearchBar
-              inputValue={search}
-              onChange={(value: string) => setSearch(value)}
-              testId="top-level-selector-search"
-              placeholder="Search"
-            />
-            <Box display="flex" gap={1}>
-              <Button variant="text" startIcon={<AddIcon fontSize="inherit" />}>
-                Create Component
-              </Button>
-            </Box>
-            {recentItems && recentItems.length > 0 && (
-              <>
-                <Divider />
-                <Box display="flex" flexDirection="column">
-                  <Typography variant="body2" color="text.secondary">
-                    Recent
-                  </Typography>
-                  <List>
-                    {recentItems.map((item) => (
-                      <ListItem disablePadding key={item.id}>
-                        <ListItemButton
-                          onClick={() => handleSelect(item)}
-                          selected={item.id === selectedItem.id}
-                        >
-                          <ListItemText primary={item.label} />
-                        </ListItemButton>
-                      </ListItem>
-                    ))}
-                  </List>
-                </Box>
-              </>
-            )}
-            {items && items.length > 0 && (
-              <>
-                <Divider />
-                <Box display="flex" flexDirection="column">
-                  <Typography variant="body2" color="text.secondary">
-                    All {getLevelLabel(level)}s
-                  </Typography>
-                  <List>
-                    {items.map((item) => (
-                      <ListItem disablePadding key={item.id}>
-                        <ListItemButton
-                          onClick={() => handleSelect(item)}
-                          selected={item.id === selectedItem.id}
-                        >
-                          <ListItemText primary={item.label} />
-                        </ListItemButton>
-                      </ListItem>
-                    ))}
-                  </List>
-                </Box>
-              </>
-            )}
-          </Box>
+          <PopoverContent
+            search={search}
+            onSearchChange={handleSearchChange}
+            recentItems={recentItems}
+            items={items}
+            selectedItem={selectedItem}
+            onSelect={handleSelect}
+            onCreateNew={handleCreateNew}
+            level={level}
+          />
         </StyledPopover>
       </StyledTopLevelSelector>
     );

@@ -3,6 +3,7 @@ import { useComponent, useComponentList } from "../hooks";
 import { UseQueryResult } from "@tanstack/react-query";
 import { Component, ComponentList, Project, ProjectList } from "@open-choreo/api-client-lib";
 import { useProject, useProjectList } from "../hooks/useProjects";
+import { useComponentHandle, useProjectHandle } from "@open-choreo/plugin-core";
 
 export interface GlobalState {
     componentQueryResult: UseQueryResult<Component, Error> | null;
@@ -19,10 +20,13 @@ export const GlobalStateContext = createContext<GlobalState>({
 });
 
 export function GlobalStateProvider({ children }: { children: React.ReactNode }) {
-    const componentQueryResult = useComponent('dummy_id_prj', 'id_cmp');
-    const componentListQueryResult = useComponentList('dummy_id_prj');
+    const projectHandle = useProjectHandle();
+    const componentHandle = useComponentHandle();
+
+    const componentQueryResult = useComponent(projectHandle, componentHandle);
+    const componentListQueryResult = useComponentList(projectHandle);
     const projectListQueryResult = useProjectList();
-    const projectQueryResult = useProject('dummy_id_prj');
+    const projectQueryResult = useProject(projectHandle);
 
     return (
         <GlobalStateContext.Provider value={{ componentQueryResult, componentListQueryResult, projectListQueryResult, projectQueryResult }}>
