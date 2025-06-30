@@ -29,7 +29,7 @@ export const CardDropdown = React.forwardRef<HTMLDivElement, CardDropdownProps>(
       text,
       active = false,
       testId,
-      size = 'large',
+      size = 'medium',
       fullHeight = false,
       ...props
     },
@@ -81,9 +81,9 @@ export const CardDropdown = React.forwardRef<HTMLDivElement, CardDropdownProps>(
           aria-describedby={id}
           onClick={handleClick}
           data-cyid={`${testId}-card-button`}
-          data-button-root-active={active}
-          data-button-root-full-height={fullHeight}
           data-card-dropdown-size={size}
+          data-button-root-full-height={fullHeight}
+          data-button-root-active={active}
           {...props}
         >
           <Box className="startIcon">{icon}</Box>
