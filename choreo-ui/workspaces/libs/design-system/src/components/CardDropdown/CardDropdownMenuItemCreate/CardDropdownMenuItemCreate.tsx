@@ -1,0 +1,43 @@
+import { Box } from '@mui/material';
+import React from 'react';
+import Add from '@design-system/Icons/generated/Add';
+import CardDropdownMenuItem from '../CardDropdownMenuItem';
+
+export interface CardDropdownMenuItemCreateProps {
+  createText: string;
+  testId: string;
+  onClick?: React.MouseEventHandler<HTMLLIElement>;
+  disabled?: boolean;
+}
+
+export const CardDropdownMenuItemCreate = React.forwardRef<
+  HTMLLIElement,
+  CardDropdownMenuItemCreateProps
+>(({ createText, onClick, disabled = false, testId }) => {
+  return (
+    <CardDropdownMenuItem
+      onClick={onClick}
+      data-cyid={`${testId}-menu-action`}
+      disabled={disabled}
+      sx={(theme) => ({
+        color: theme.palette.primary.main,
+        alignItems: 'center',
+      })}
+    >
+      <Box
+        sx={(theme) => ({
+          marginRight: theme.spacing(1),
+          fontSize: theme.spacing(1.5),
+          alignItems: 'center',
+          display: 'flex',
+        })}
+        className="createIcon"
+      >
+        <Add fontSize="inherit" />
+      </Box>
+      <Box className="createText">{createText}</Box>
+    </CardDropdownMenuItem>
+  );
+});
+
+CardDropdownMenuItemCreate.displayName = 'CardDropdownMenuItemCreate';

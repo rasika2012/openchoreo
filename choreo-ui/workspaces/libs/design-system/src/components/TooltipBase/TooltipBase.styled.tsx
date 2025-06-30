@@ -1,7 +1,9 @@
 import { styled, Tooltip, TooltipProps } from '@mui/material';
 import { ComponentType } from 'react';
 
-export interface StyledTooltipBaseProps extends TooltipProps {}
+export interface StyledTooltipBaseProps extends TooltipProps {
+  disabled?: boolean;
+}
 
 export const StyledTooltipBase: ComponentType<StyledTooltipBaseProps> = styled(
   Tooltip,
