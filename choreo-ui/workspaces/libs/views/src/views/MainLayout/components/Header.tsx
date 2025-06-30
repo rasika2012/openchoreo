@@ -40,7 +40,9 @@ export const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
             )}
           </IconButton>
         )}
-        {children}
+        <Box flexGrow={1} overflow='hidden' display='flex' alignItems='center'>
+          {children}
+        </Box>
       </Box>
     );
   }
