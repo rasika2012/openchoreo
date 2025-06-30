@@ -62,9 +62,16 @@ export const CardDropdown = React.forwardRef<HTMLDivElement, CardDropdownProps>(
     const id = open ? 'card-popover' : undefined;
 
     const handleMenuItemClick =
-      (onClick: Function) => (event: React.MouseEvent<HTMLButtonElement>) => {
+      (
+        onClick:
+          | ((event: React.MouseEvent<HTMLButtonElement>) => void)
+          | undefined
+      ) =>
+      (event: React.MouseEvent<HTMLButtonElement>) => {
         handleClose();
-        onClick(event);
+        if (onClick) {
+          onClick(event);
+        }
       };
 
     return (
