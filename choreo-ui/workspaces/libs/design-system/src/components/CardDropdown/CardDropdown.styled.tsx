@@ -7,9 +7,7 @@ export interface StyledCardDropdownProps {
 
 export const StyledCardDropdown: ComponentType<
   StyledCardDropdownProps & BoxProps
-> = styled(Box)<BoxProps & StyledCardDropdownProps>(({ disabled, theme }) => ({
-  opacity: disabled ? 0.5 : 1,
-  cursor: disabled ? 'not-allowed' : 'pointer',
+> = styled(Box)<BoxProps & StyledCardDropdownProps>(({ theme }) => ({
   backgroundColor: theme.palette.common.white, // From CardButton
   display: 'flex',
   flexDirection: 'row',
