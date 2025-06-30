@@ -132,6 +132,5 @@ export const StyledAvatar: ComponentType<AvatarProps> = styled(
     width,
     height,
     boxShadow: theme.shadows[1],
-    pointerEvents: disabled ? 'none' : ('auto' as const),
   };
 });
