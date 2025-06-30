@@ -7,6 +7,7 @@ import { CardDropdownMenuItemCreate } from './CardDropdownMenuItemCreate/CardDro
 import CardDropdownMenuItem from './CardDropdownMenuItem';
 import NoData from '@design-system/Images/generated/NoData';
 import { useState } from 'react';
+import { NoDataMessage } from '../NoDataMessage';
 
 const meta: Meta<typeof CardDropdown> = {
   title: 'Choreo DS/CardDropdown',
@@ -121,7 +122,7 @@ export const Default: Story = {
                   <Typography variant="h5">No data message</Typography>
                 </Box>
               </Grid>
-              <Grid size={{ xs: 12, md: 6 }}>
+              <Grid size={{ xs: 12, md: 12 }}>
                 <CardDropdown
                   icon={<Bitbucket />}
                   text="Authorized Via bitbucket"
@@ -131,12 +132,11 @@ export const Default: Story = {
                   testId="bitbucket"
                   fullHeight
                 >
-                  {/* <NoDataMessage
-                  size="sm"
-                  message="No App passwords are configured. Contact the admin for assistance."
-                  testId="card-dropdown"
-                /> */}
-                  <NoData />
+                  <NoDataMessage
+                    size="sm"
+                    message="No App passwords are configured. Contact the admin for assistance."
+                    testId="card-dropdown"
+                  />
                 </CardDropdown>
               </Grid>
             </Grid>
