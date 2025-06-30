@@ -37,15 +37,16 @@ export interface BoxProps {
   maxWidth?: string | number;
   flexGrow?: string | number;
   justifyContent?:
-    | 'flex-start'
-    | 'flex-end'
-    | 'center'
-    | 'space-between'
-    | 'space-around'
-    | 'space-evenly';
+  | 'flex-start'
+  | 'flex-end'
+  | 'center'
+  | 'space-between'
+  | 'space-around'
+  | 'space-evenly';
   alignItems?: 'flex-start' | 'flex-end' | 'center' | 'baseline' | 'stretch';
   position?: 'static' | 'relative' | 'absolute' | 'fixed' | 'sticky';
   gap?: string | number;
+  zIndex?: string | number;
 }
 
 function getBorder(border: BoxProps['border']) {
@@ -88,6 +89,7 @@ export const StyledBox: ComponentType<BoxProps> = styled(Box)<BoxProps>(
     gap,
     justifyContent,
     alignItems,
+    zIndex,
   }) => ({
     transition: transition,
     backgroundColor: backgroundColor,
@@ -117,5 +119,6 @@ export const StyledBox: ComponentType<BoxProps> = styled(Box)<BoxProps>(
     gap: gap,
     justifyContent: justifyContent,
     alignItems: alignItems,
+    zIndex: zIndex,
   })
 );

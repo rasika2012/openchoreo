@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from "react";
-import { PluginManifest } from "../../../plugin-types";
+import { PluginManifest } from "../../plugin-types";
 
 export interface PluginProviderValue {
   pluginRegistry: PluginManifest[];
