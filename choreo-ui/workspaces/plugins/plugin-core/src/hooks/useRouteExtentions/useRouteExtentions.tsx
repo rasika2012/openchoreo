@@ -20,7 +20,7 @@ export function useRouteExtentions() {
         {pageEntries.map((page) => (
           <Route
             key={page.path}
-            path={page.path + "/:subpath"}
+            path={page.path}
             element={page.element}
           />
         ))}
