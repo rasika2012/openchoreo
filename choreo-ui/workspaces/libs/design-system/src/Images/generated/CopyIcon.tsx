@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
- 
+/* eslint-disable max-len */
 
 import * as React from 'react';
 
@@ -7,7 +7,7 @@ import * as React from 'react';
 export default function (props: React.SVGProps<SVGSVGElement>){
   return (
     <svg {...props}>
-      <g><React.Fragment><defs></defs><g data-name="Icon/12/Plus"><g data-name="Group 80"><path fill="#cbcedb" d="M2 12a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2Zm0-2h5V5H2Zm8.007-1.884L10 8V3a1 1 0 0 0-.883-.993L9 2H5A1 1 0 0 1 4.883.006L5 0h4a3 3 0 0 1 3 2.823V8a1 1 0 0 1-1.993.116" data-name="Combined Shape" transform="translate(10 10)" /><g data-name="Mask Group 80" transform="translate(10 10)"><path fill="#8c91a3" d="M0 0H12V12H0z" /></g></g></g></React.Fragment></g>
+      <g><svg viewBox="0 0 16 16"><path fill="#8d91a3" d="M2.5 16A2.5 2.5 0 0 1 0 13.5v-8A2.5 2.5 0 0 1 2.5 3H3v-.5A2.5 2.5 0 0 1 5.335.005L5.5 0h8a2.5 2.5 0 0 1 2.495 2.336L16 2.5v8a2.5 2.5 0 0 1-2.335 2.5H13v.5a2.5 2.5 0 0 1-2.5 2.5ZM1 5.5v8A1.5 1.5 0 0 0 2.5 15h8a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 10.5 4h-8A1.5 1.5 0 0 0 1 5.5m3.007-3.145L4 2.5V3h6.5A2.5 2.5 0 0 1 13 5.5V12h.5a1.5 1.5 0 0 0 1.493-1.355L15 10.5v-8a1.5 1.5 0 0 0-1.355-1.493L13.5 1h-8a1.5 1.5 0 0 0-1.493 1.355M6 12.5V10H3.5a.5.5 0 0 1 0-1H6V6.5a.5.5 0 1 1 1 0V9h2.5a.5.5 0 0 1 0 1H7v2.5a.5.5 0 1 1-1 0" /></svg></g>
     </svg>
   )
 }
