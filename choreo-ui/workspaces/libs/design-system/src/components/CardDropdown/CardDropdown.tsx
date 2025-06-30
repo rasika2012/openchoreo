@@ -86,13 +86,15 @@ export const CardDropdown = React.forwardRef<HTMLDivElement, CardDropdownProps>(
           data-button-root-active={active}
           {...props}
         >
-          {icon}
+          <Box className="startIcon">{icon}</Box>
           <Box>{text}</Box>
-          {open ? (
-            <ChevronUp fontSize="inherit" />
-          ) : (
-            <ChevronDown fontSize="inherit" />
-          )}
+          <Box className="endIcon">
+            {open ? (
+              <ChevronUp fontSize="inherit" />
+            ) : (
+              <ChevronDown fontSize="inherit" />
+            )}
+          </Box>
         </StyledCardDropdown>
         <Popover
           id={id}
