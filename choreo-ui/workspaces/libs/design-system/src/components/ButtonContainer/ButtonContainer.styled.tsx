@@ -42,5 +42,6 @@ export const StyledButtonContainer: React.ComponentType<
       backgroundColor: 'inherit',
       color: 'inherit',
     },
+    pointerEvents: disabled ? 'none' : 'auto',
   };
 });
