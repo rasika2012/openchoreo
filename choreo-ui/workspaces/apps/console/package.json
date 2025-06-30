@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint . --config ./eslint.config.js",
     "preview": "vite preview",
-    "mock-server":  "prism mock ./specs/api-server-openapi.yaml",
+    "mock-server":  "prism mock ./specs/api-server-openapi.yaml --port 3001",
     "i18n": "formatjs extract 'src/**/*.{ts,tsx,js,jsx}' --out-file 'src/lang/en.json' --ignore '**/node_modules/**' --ignore '**/*.d.ts' --ignore '**/vite-env.d.ts' --format simple --throws"
   },
   "dependencies": {
