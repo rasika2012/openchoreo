@@ -2,8 +2,7 @@ import {
     type PluginExtension,
     PluginExtensionType,
 } from "@open-choreo/plugin-core";
-import React from "react";
-const ApiClientProvider = React.lazy(() => import("./ApiClientProvider"));
+import ApiClientProvider from "./ApiClientProvider";
 
 export const provider: PluginExtension = {
     type: PluginExtensionType.PROVIDER,
