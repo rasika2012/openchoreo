@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ErrorPage } from './ErrorPage';
-import { ImageDefaultError, Image404NotFound, ImageConsoleError } from '@open-choreo/design-system';
+import {
+  ImageDefaultError,
+  Image404NotFound,
+  ImageConsoleError,
+} from '@open-choreo/design-system';
 
 const meta: Meta<typeof ErrorPage> = {
   title: 'Choreo Views/ErrorPage',
@@ -53,6 +57,7 @@ export const ServerError: Story = {
   args: {
     image: <ImageConsoleError />,
     title: 'Server Error',
-    description: 'We are experiencing technical difficulties. Please try again in a few minutes.',
+    description:
+      'We are experiencing technical difficulties. Please try again in a few minutes.',
   },
 };
