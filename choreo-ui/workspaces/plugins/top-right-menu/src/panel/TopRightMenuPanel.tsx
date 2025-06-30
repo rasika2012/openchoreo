@@ -1,4 +1,4 @@
-import { Box, Typography, useChoreoTheme } from "@open-choreo/design-system";
+import { Avatar, Box, Typography, useChoreoTheme } from "@open-choreo/design-system";
 import React from "react";
 
 const TopRightMenuPanel: React.FC = () => {
@@ -20,7 +20,7 @@ const TopRightMenuPanel: React.FC = () => {
         alignItems="center"
         padding={theme.spacing(0.5)}
       >
-        <Typography variant="h4">TopRightMenu</Typography>
+        <Avatar>R</Avatar>
       </Box>
     </Box>
   );
