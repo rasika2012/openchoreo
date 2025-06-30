@@ -8,3 +8,11 @@ export const useComponent = (prorjectId: string, componentId: string) => {
     queryFn: () => client.getComponent(prorjectId, componentId),
   });
 };
+
+export const useComponentList = (projectId: string) => {
+  const client = useClient();
+  return useQuery({
+    queryKey: ["componentList", projectId],
+    queryFn: () => client.listProjectComponents(projectId),
+  });
+};
