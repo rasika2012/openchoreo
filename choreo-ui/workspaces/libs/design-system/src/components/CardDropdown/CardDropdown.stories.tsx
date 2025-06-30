@@ -22,7 +22,7 @@ export const Default: Story = {
   args: {
     children: 'CardDropdown Content',
   },
-  render: function RenderCardDropdown(args) {
+  render: function RenderCardDropdown(_args) {
     const [selectedItem, setSelectedItem] = useState(0);
     const handleCreate = () => {};
 
