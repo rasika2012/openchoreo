@@ -34,7 +34,7 @@ export const Default: Story = {
         <Card testId="dropdown">
           <CardContent>
             <Grid container spacing={3}>
-              <Grid size={{ xs: 12, md: 6 }}>
+              <Grid size={{ xs: 12, md: 12 }}>
                 <CardDropdown
                   icon={<Bitbucket />}
                   text="Authorized Via bitbucket"

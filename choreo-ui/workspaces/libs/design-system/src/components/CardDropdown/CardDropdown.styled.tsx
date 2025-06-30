@@ -10,16 +10,18 @@ export const StyledCardDropdown: ComponentType<
 > = styled(Box)<BoxProps & StyledCardDropdownProps>(({ disabled, theme }) => ({
   opacity: disabled ? 0.5 : 1,
   cursor: disabled ? 'not-allowed' : 'pointer',
-  backgroundColor: theme.palette.common.white,
+  backgroundColor: theme.palette.common.white, // From CardButton
   display: 'flex',
   flexDirection: 'row',
-  padding: theme.spacing(1.75),
+  padding: theme.spacing(1.75), // From CardButton
   boxShadow: 'none',
-  borderRadius: 8,
-  border: `1px solid ${theme.palette.grey[100]}`,
-  color: theme.palette.text.primary,
-  justifyContent: 'flex-start',
-  alignItems: 'center',
+  borderRadius: 8, // From CardButton
+  border: `1px solid ${theme.palette.grey[100]}`, // From CardButton
+  color: theme.palette.text.primary, // From CardButton
+  justifyContent: 'flex-start', // From CardButton
+  alignItems: 'center', // Added for better vertical alignment
+
+  // Hover styles from CardButton
   '&:hover': {
     backgroundColor: theme.palette.common.white,
     borderColor: theme.palette.grey[200],
@@ -28,7 +30,7 @@ export const StyledCardDropdown: ComponentType<
   '& .popoverPaper': {
     border: `1px solid ${theme.palette.grey[100]}`,
     marginTop: theme.spacing(0.5),
-    borderRadius: 8,
+    borderRadius: 8, // Match the button's border radius
   },
 
   '&[data-button-root-active="true"]': {
@@ -45,21 +47,23 @@ export const StyledCardDropdown: ComponentType<
   '&[data-button-root-full-height="true"]': {
     height: '100%',
   },
+
+  // Size specific styles for the icon
   '&[data-card-dropdown-size="small"]': {
-    padding: theme.spacing(1.25),
+    padding: theme.spacing(1.25), // Smaller padding for small size
     '& .startIcon': {
-      width: theme.spacing(4),
-      height: theme.spacing(4),
+      width: theme.spacing(4), // 32px
+      height: theme.spacing(4), // 32px
       minWidth: theme.spacing(4),
       minHeight: theme.spacing(4),
     },
   },
 
   '&[data-card-dropdown-size="medium"]': {
-    padding: theme.spacing(1.5),
+    padding: theme.spacing(1.5), // Medium padding
     '& .startIcon': {
-      width: theme.spacing(5),
-      height: theme.spacing(5),
+      width: theme.spacing(5), // 40px
+      height: theme.spacing(5), // 40px
       minWidth: theme.spacing(5),
       minHeight: theme.spacing(5),
     },
@@ -68,26 +72,32 @@ export const StyledCardDropdown: ComponentType<
   '&[data-card-dropdown-size="large"]': {
     minHeight: theme.spacing(5.5),
     '& .startIcon': {
-      width: theme.spacing(6),
-      height: theme.spacing(6),
+      width: theme.spacing(6), // 48px
+      height: theme.spacing(6), // 48px
       minWidth: theme.spacing(6),
       minHeight: theme.spacing(6),
     },
   },
+
+  // Text styles
   '& > Box:nth-of-type(2)': {
-    fontWeight: 600,
+    fontWeight: 600, // From CardButton
     lineHeight: `${theme.spacing(3)}px`,
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
   },
+
+  // End icon styles
   '& .endIcon': {
     display: 'flex',
     justifyContent: 'flex-end',
     flexGrow: 1,
-    alignItems: 'center',
-    fontSize: theme.spacing(1.5),
+    alignItems: 'center', // Changed to center for better alignment
+    fontSize: theme.spacing(1.5), // From CardButton
   },
+
+  // Start icon styles
   '& .startIcon': {
     margin: 0,
     marginRight: theme.spacing(2),
@@ -103,11 +113,15 @@ export const StyledCardDropdown: ComponentType<
       objectFit: 'contain',
     },
   },
+
+  // Popover menu styling
   '& .MuiPopover-paper': {
     marginTop: theme.spacing(0.5),
     boxShadow: theme.shadows[3],
     border: `1px solid ${theme.palette.grey[100]}`,
   },
+
+  // Menu item styling
   '& .MuiMenuItem-root': {
     lineHeight: `${theme.spacing(3)}px`,
     padding: theme.spacing(1, 2),
