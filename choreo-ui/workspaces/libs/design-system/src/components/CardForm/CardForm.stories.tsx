@@ -41,6 +41,7 @@ const CardFormStory = (args: any) => {
           testId="card-form-heading"
           title="Create API Proxy"
           onClose={() => {}}
+          isForm={true}
         />
         <CardContent>
           <Box maxWidth="30rem">
@@ -65,20 +66,20 @@ const CardFormStory = (args: any) => {
         <CardContent>
           <ButtonContainer align="left" testId="card-form">
             <Button
-              onClick={() => {}}
-              variant="contained"
-              color="secondary"
-              testId="btn-back"
-            >
-              Back
-            </Button>
-            <Button
               variant="contained"
               color="primary"
               onClick={() => {}}
               testId="btn-create"
             >
               Create
+            </Button>
+            <Button
+              onClick={() => {}}
+              variant="contained"
+              color="secondary"
+              testId="btn-back"
+            >
+              Back
             </Button>
           </ButtonContainer>
         </CardContent>
