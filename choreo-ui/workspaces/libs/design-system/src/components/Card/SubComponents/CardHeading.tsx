@@ -47,7 +47,7 @@ export function CardHeading(props: CardHeadingProps) {
           isForm={isForm}
           onClick={onClose}
           testId="btn-close"
-          endIcon={<CloseIcon fontSize="small" />}
+          endIcon={<CloseIcon />}
         >
           Close
         </Button>
