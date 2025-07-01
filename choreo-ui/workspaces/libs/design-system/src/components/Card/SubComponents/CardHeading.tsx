@@ -3,24 +3,32 @@ import { Box, Typography, styled } from '@mui/material';
 import { Button } from '../../Button';
 import { CloseIcon } from '@design-system/Icons';
 
-const StyledCardHeading = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  // padding: theme.spacing(2),
-  padding: theme.spacing(5, 5, 0, 5),
-  borderBottom: `1px solid ${theme.palette.divider}`,
-}));
+const StyledCardHeading = styled(Box)<{ isForm?: boolean }>(
+  ({ theme, isForm }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    // padding: theme.spacing(2),
+    padding: theme.spacing(5, 5, 0, 5),
+    borderBottom: isForm ? `1px solid ${theme.palette.divider}` : 'none',
+    '& .btn-close': {
+      '&:hover': {
+        backgroundColor: theme.palette.grey[100],
+      },
+    },
+  })
+);
 
 interface CardHeadingProps {
   title: React.ReactNode | string;
   onClose?: () => void;
   testId: string;
   size?: 'small' | 'medium' | 'large';
+  isForm?: boolean;
 }
 
 export function CardHeading(props: CardHeadingProps) {
-  const { title, onClose, testId, size = 'medium' } = props;
+  const { title, onClose, testId, size = 'medium', isForm } = props;
 
   return (
     <StyledCardHeading data-cyid={`${testId}-card-heading`}>
@@ -35,9 +43,11 @@ export function CardHeading(props: CardHeadingProps) {
         <Button
           color="secondary"
           variant="text"
+          className="btn-close"
+          isForm={isForm}
           onClick={onClose}
           testId="btn-close"
-          endIcon={<CloseIcon />}
+          endIcon={<CloseIcon fontSize="small" />}
         >
           Close
         </Button>
