@@ -1,10 +1,11 @@
 import {
   Box,
+  Level,
 } from "@open-choreo/design-system";
 import { MainLayout as BaseMainLayout } from "@open-choreo/common-views";
 import { useMemo, useCallback } from "react";
-import { useLocation } from "react-router";
-import { ExtentionMounter, useHomePath, useMainNavExtentions, useOrgHandle } from "@open-choreo/plugin-core";
+import { matchPath, useLocation } from "react-router";
+import { ExtentionMounter, useComponentHandle, useHomePath, useMainNavExtentions, useOrgHandle, useProjectHandle } from "@open-choreo/plugin-core";
 import React from "react";
 
 interface MainLayoutProps {
@@ -35,58 +36,75 @@ const LayoutRightSidebar = React.memo(() => (
 
 export function MainLayout({ children }: MainLayoutProps) {
   const location = useLocation();
-  const navigationEntries = useMainNavExtentions();
   const homePath = useHomePath();
   const orgHandle = useOrgHandle();
+  const projectHandle = useProjectHandle();
+  const componentHandle = useComponentHandle();
 
-  console.log(orgHandle, homePath, navigationEntries, "orgHandle");
+  const navigationEntriesProject = useMainNavExtentions(Level.PROJECT, homePath);
+  const navigationEntriesComponent = useMainNavExtentions(Level.COMPONENT, homePath);
+  const navigationEntriesOrg = useMainNavExtentions(Level.ORGANIZATION, homePath);
+
+  const navigationEntries = useMemo(() => {
+    if (componentHandle) {
+      return navigationEntriesComponent;
+    } else if (projectHandle) {
+      return navigationEntriesProject;
+    } else if (orgHandle) {
+      return navigationEntriesOrg;
+    }
+    return [];
+  }, [componentHandle, projectHandle, orgHandle, navigationEntriesComponent, navigationEntriesProject, navigationEntriesOrg]);
+
+
+
 
   // Memoize the processed menu items to prevent unnecessary re-computations
   const processedMenuItems = useMemo(() => {
     if (!orgHandle || !navigationEntries?.length) {
       return [];
     }
-
     return navigationEntries.map(mainEntry => ({
       ...mainEntry,
-      href: typeof mainEntry.href === 'string' ? homePath + mainEntry.href : undefined,
+      href: typeof mainEntry.href === 'string' ? mainEntry.href : undefined,
       subMenuItems: mainEntry?.subMenuItems?.map(subEntry => ({
         ...subEntry,
-        href: typeof subEntry.href === 'string' ? homePath + mainEntry.href + subEntry.href : undefined,
+        href: typeof subEntry.href === 'string' ? subEntry.href : undefined,
       }))
     }));
   }, [orgHandle, navigationEntries, homePath]);
 
-  // Memoize the selected menu item calculation to avoid unnecessary re-renders
   const selectedMenuItem = useMemo(() => {
-    const currentPath = location.pathname;
+    if (!navigationEntries?.length) {
+      return "";
+    }
 
-    // First check if any submenu item matches the current path
+    // First, check for submenu matches
     for (const entry of navigationEntries) {
-      if (entry.subMenuItems) {
-        const matchingSubmenu = entry.subMenuItems.find(submenu => submenu.href === currentPath);
+      if (entry.subMenuItems?.length) {
+        const matchingSubmenu = entry.subMenuItems.find(submenu =>
+          matchPath(submenu.pathPattern, location.pathname)
+        );
         if (matchingSubmenu) {
           return matchingSubmenu.id;
         }
       }
     }
 
-    // If no submenu matches, check if any main menu item matches
-    const matchingEntry = navigationEntries.find(entry => entry.href === currentPath);
-    if (matchingEntry) {
-      return matchingEntry.id;
-    }
+    // Then check for main menu matches
+    const matchingEntry = navigationEntries.find(entry =>
+      matchPath(entry.pathPattern, location.pathname)
+    );
 
-    // Fallback to first navigation entry if no match found
-    return navigationEntries?.[0]?.id;
+    return matchingEntry?.id ?? "";
   }, [location.pathname, navigationEntries]);
 
   // Memoize the menu item click handler
-  const handleMenuItemClick = useCallback((menuId: string) => {
+  const handleMenuItemClick = useCallback((_menuId: string) => {
     // This function can be extended with additional logic if needed
     // For now, it's just a placeholder since the BaseMainLayout handles the selection
   }, []);
-  console.log(processedMenuItems, "processedMenuItems");
+
   return (
     <BaseMainLayout
       footer={<LayoutFooter />}
