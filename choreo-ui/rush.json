@@ -478,5 +478,9 @@
     {
       "packageName": "@open-choreo/api-client",
       "projectFolder": "workspaces/plugins/api-client"
+    },
+    {
+      "packageName": "@open-choreo/resource-list",
+      "projectFolder": "workspaces/plugins/resource-list"
     }  ]
 }
