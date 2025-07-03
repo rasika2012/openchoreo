@@ -10,9 +10,19 @@ export enum PathsPatterns {
   COMPONENT_LEVEL = `${BasePathPatterns.COMPONENT_LEVEL}/*`,
 }
 
-export const genaratePath = (params: { orgHandle?: string, projectHandle?: string, componentHandle?: string, subPath?: string }, searchParams: Record<string, string> = {}) => {
+export const genaratePath = (
+  params: {
+    orgHandle?: string;
+    projectHandle?: string;
+    componentHandle?: string;
+    subPath?: string;
+  },
+  searchParams: Record<string, string> = {},
+) => {
   const { orgHandle, projectHandle, componentHandle, subPath } = params;
-  const searchParamsString = Object.entries(searchParams).map(([key, value]) => `${key}=${value}`).join("&");
+  const searchParamsString = Object.entries(searchParams)
+    .map(([key, value]) => `${key}=${value}`)
+    .join("&");
   if (componentHandle) {
     return `/organization/${orgHandle}/project/${projectHandle}/component/${componentHandle}${subPath ? `/${subPath}` : ""}?${searchParamsString}`;
   } else if (projectHandle) {
@@ -20,6 +30,6 @@ export const genaratePath = (params: { orgHandle?: string, projectHandle?: strin
   } else if (orgHandle) {
     return `/organization/${orgHandle}${subPath ? `/${subPath}` : ""}?${searchParamsString}`;
   }
-}
+};
 
-export const defaultPath = 'organization/default';
+export const defaultPath = "organization/default";
