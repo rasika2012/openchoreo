@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router";
 import { PluginProvider } from "@open-choreo/plugin-core";
 import { getPluginRegistry } from "./plugins/index.ts";
 import React from "react";
+import { FullPageLoader } from "@open-choreo/common-views";
 
 // Lazy load the App component
 const App = React.lazy(() => import("./App.tsx"));
@@ -17,7 +18,7 @@ async function initializeApp() {
     <StrictMode>
       <PluginProvider pluginRegistry={pluginRegistry}>
         <BrowserRouter basename="/">
-          <Suspense fallback={<div>Loading application...</div>}>
+          <Suspense fallback={<FullPageLoader />}>
             <App />
           </Suspense>
         </BrowserRouter>

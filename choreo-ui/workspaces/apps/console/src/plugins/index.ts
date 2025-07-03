@@ -5,17 +5,18 @@ import { apiClientPlugin } from '@open-choreo/api-client';
 const overviewPlugin = () => import('@open-choreo/plugin-overview').then(module => module.overviewPlugin);
 const levelSelectorPlugin = () => import('@open-choreo/plugin-top-level-selector').then(module => module.levelSelectorPlugin);
 const topRightMenuPlugin = () => import('@open-choreo/top-right-menu').then(module => module.topRightMenuPlugin);
-// const apiClientPlugin = () => import('@open-choreo/api-client').then(module => module.apiClientPlugin);
+const resourceListingPlugin = () => import('../../../../plugins/resource-list/dist').then(module => module.resourceListingPlugin);
 
 // Export the plugin registry as a function that returns promises
 export const getPluginRegistry = async (): Promise<PluginManifest[]> => {
-  const [overview, levelSelector, topRightMenu] = await Promise.all([
+  const [overview, levelSelector, topRightMenu, resourceListing] = await Promise.all([
     overviewPlugin(),
     levelSelectorPlugin(),
-    topRightMenuPlugin()
+    topRightMenuPlugin(),
+    resourceListingPlugin()
   ]);
   
-  return [overview, levelSelector, topRightMenu, apiClientPlugin];
+  return [overview, levelSelector, topRightMenu, apiClientPlugin, resourceListing];
 };
 
 // For backward compatibility, export a synchronous version that loads plugins on demand

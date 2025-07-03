@@ -3,7 +3,8 @@ Invoking: npm run clean && tsc -project tsconfig.lib.json && npm run copy-assets
 > @open-choreo/common-views@1.0.0 clean
 > rm -rf dist
 
-
-> @open-choreo/common-views@1.0.0 copy-assets
-> find src -type f \( -name '*.css' -o -name '*.scss' -o -name '*.less' -o -name '*.woff*' -o -name '*.ttf' -o -name '*.eot' \) -exec sh -c 'mkdir -p dist/$(dirname {}| sed "s|^src||") && cp {} dist/$(dirname {}| sed "s|^src||")/$(basename {})' \;
-
+src/views/MainLayout/components/Sidebar.tsx(76,19): error TS2322: Type '{ href: string | undefined; id: string; title: string; selectedIcon: ReactNode; icon: ReactNode; onClick: (id: string) => void; isExpanded: boolean; selectedKey: string | undefined; subMenuItems: NavItemBase[] | undefined; pathPattern: any; }' is not assignable to type 'IntrinsicAttributes & MenuMenuItemProps'.
+  Property 'pathPattern' does not exist on type 'IntrinsicAttributes & MenuMenuItemProps'.
+src/views/MainLayout/components/Sidebar.tsx(76,37): error TS2339: Property 'pathPattern' does not exist on type 'NavItemExpandableSubMenu'.
+src/views/MainLayout/components/Sidebar.tsx(95,15): error TS2322: Type '{ id: string; title: string; selectedIcon: Element; icon: Element; onClick: () => void; isExpanded: boolean; pathPattern: string; }' is not assignable to type 'IntrinsicAttributes & MenuMenuItemProps'.
+  Property 'pathPattern' does not exist on type 'IntrinsicAttributes & MenuMenuItemProps'.
