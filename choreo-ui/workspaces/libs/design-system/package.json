@@ -41,7 +41,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0 license",
   "description": "",
   "dependencies": {
     "clsx": "~2.1.1",
