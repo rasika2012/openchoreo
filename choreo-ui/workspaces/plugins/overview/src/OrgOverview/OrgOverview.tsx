@@ -1,4 +1,4 @@
-import { PageLayout, PresetErrorPage, ResourceTable } from "@open-choreo/common-views";
+import { FullPageLoader, PageLayout, PresetErrorPage, ResourceTable } from "@open-choreo/common-views";
 import { useGlobalState } from "@open-choreo/api-client";
 import { useHomePath, useUrlParams } from "@open-choreo/plugin-core";
 import React from "react";
@@ -8,11 +8,10 @@ import { Route, Routes } from "react-router";
 
 const OrgOverview: React.FC = () => {
     const { projectListQueryResult } = useGlobalState();
-    const { orgHandle, projectHandle, componentHandle } = useUrlParams();
     const homePath = useHomePath();
 
     if (projectListQueryResult?.isLoading) {
-        return <PresetErrorPage preset="500" />;
+        return <FullPageLoader />;
     }
 
     if (!projectListQueryResult?.data) {
@@ -29,7 +28,7 @@ const OrgOverview: React.FC = () => {
     }));
 
     return (
-        <PageLayout testId="overview-page" title={"Projects"}>
+        <PageLayout testId="overview-page" title={"All Projects"}>
             <ResourceTable resources={project} />
         </PageLayout>
     );

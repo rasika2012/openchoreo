@@ -23,6 +23,7 @@
     "@open-choreo/plugin-overview": "workspace:*",
     "@open-choreo/top-right-menu": "workspace:*",
     "@open-choreo/api-client": "workspace:*",
+    "@open-choreo/resource-list": "workspace:*",
     "react-intl": "~7.1.11"
   },
   "devDependencies": {
