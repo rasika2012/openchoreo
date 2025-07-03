@@ -55,10 +55,6 @@ export interface AvatarProps {
    * The sx prop for custom styles
    */
   sx?: React.CSSProperties;
-  /**
-   * Additional props for MUI Avatar
-   */
-  [key: string]: any;
 }
 
 export const StyledAvatar: ComponentType<AvatarProps> = styled(

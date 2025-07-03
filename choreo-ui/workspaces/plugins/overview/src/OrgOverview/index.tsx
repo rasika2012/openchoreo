@@ -10,5 +10,5 @@ export const orgOverview: PluginExtension = {
   type: PluginExtensionType.PAGE,
   extentionPointId: Level.ORGANIZATION,
   component: OrgOverview,
-  pathPattern: "/",
+  pathPattern: "",
 };

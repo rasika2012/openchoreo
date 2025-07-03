@@ -22,6 +22,7 @@ export interface PluginExtensionSubmenu {
     | ComponentType<{ className?: string }>
     | LazyExoticComponent<ComponentType<{ className?: string }>>;
   path?: string;
+  pathPattern?: string;
 }
 
 export interface PluginExtensionNavigation {
@@ -34,6 +35,8 @@ export interface PluginExtensionNavigation {
     | ComponentType<{ className?: string }>
     | LazyExoticComponent<ComponentType<{ className?: string }>>;
   path?: string;
+  pathPattern?: string;
+  extentionPointId?: string | Level;
   submenu?: PluginExtensionSubmenu[];
 }
 
@@ -59,6 +62,7 @@ export interface PluginExtensionProvider {
     | ComponentType<{ children: ReactNode }>
     | LazyExoticComponent<ComponentType<{ children: ReactNode }>>;
 }
+
 export type PluginExtension =
   | PluginExtensionNavigation
   | PluginExtensionPage
