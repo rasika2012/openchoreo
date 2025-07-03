@@ -1,16 +1,11 @@
-import { StrictMode, Suspense } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { BrowserRouter } from "react-router";
 import { PluginProvider } from "@open-choreo/plugin-core";
 import { getPluginRegistry } from "./plugins/index.ts";
-import React from "react";
-import { FullPageLoader } from "@open-choreo/common-views";
+import App from "./App.tsx";
 
-// Lazy load the App component
-const App = React.lazy(() => import("./App.tsx"));
-
-// Async function to initialize the app
 async function initializeApp() {
   const pluginRegistry = await getPluginRegistry();
 
@@ -18,9 +13,7 @@ async function initializeApp() {
     <StrictMode>
       <PluginProvider pluginRegistry={pluginRegistry}>
         <BrowserRouter basename="/">
-          <Suspense fallback={<FullPageLoader />}>
-            <App />
-          </Suspense>
+          <App />
         </BrowserRouter>
       </PluginProvider>
     </StrictMode>,

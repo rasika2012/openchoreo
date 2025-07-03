@@ -27,7 +27,9 @@ const LayoutHeader = React.memo(() => (
 ));
 
 const LayoutFooter = React.memo(() => (
-  <Box>Footer</Box>
+  <Box>
+    <ExtentionMounter extentionPointId="footer" />
+  </Box>
 ));
 
 const LayoutRightSidebar = React.memo(() => (
