@@ -7,7 +7,6 @@ import React from "react";
 
 const ComponentOverview = React.lazy(() => import("./ComponentOverview"));
 
-
 export const componentOverview: PluginExtension = {
   type: PluginExtensionType.PAGE,
   extentionPointId: Level.COMPONENT,

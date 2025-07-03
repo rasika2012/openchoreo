@@ -1,6 +1,6 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { PluginExtensionPage, PluginExtensionType } from "../../plugin-types";
-import { Navigate, Route, Routes } from "react-router";
+import { Route, Routes } from "react-router";
 import { usePluginRegistry } from "../../Providers";
 import { PresetErrorPage } from "@open-choreo/common-views";
 
@@ -15,7 +15,11 @@ export function PageExtentionsMounter(props: PageExtentionsMounterProps) {
   const routes = useMemo(() => {
     const pageEntriesOrgLevel = pluginRegistry.flatMap((plugin) =>
       plugin.extensions
-        .filter((entry) => entry.type === PluginExtensionType.PAGE && entry.extentionPointId === extentionPointId)
+        .filter(
+          (entry) =>
+            entry.type === PluginExtensionType.PAGE &&
+            entry.extentionPointId === extentionPointId,
+        )
         .map((entry: PluginExtensionPage) => ({
           path: entry.pathPattern,
           element: <entry.component />,
@@ -25,13 +29,8 @@ export function PageExtentionsMounter(props: PageExtentionsMounterProps) {
     return (
       <Routes>
         {pageEntriesOrgLevel.map(({ element, path }) => (
-          <Route
-            key={path}
-            path={path}
-            element={element}
-          />
-        )
-        )}
+          <Route key={path} path={path} element={element} />
+        ))}
         <Route path="*" element={<PresetErrorPage preset="404" />} />
       </Routes>
     );

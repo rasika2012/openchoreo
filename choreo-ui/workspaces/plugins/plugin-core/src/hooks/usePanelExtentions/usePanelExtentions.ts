@@ -1,8 +1,5 @@
 import { useMemo } from "react";
-import {
-  PluginExtensionType,
-  PluginExtensionPanel,
-} from "../../plugin-types";
+import { PluginExtensionType, PluginExtensionPanel } from "../../plugin-types";
 import { usePluginRegistry } from "../../Providers";
 
 export function usePanelExtentions(extentionPointId: string) {

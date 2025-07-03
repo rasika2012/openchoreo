@@ -19,6 +19,7 @@ export function MenuItem({
   title,
   selectedIcon,
   href,
+  pathPattern,
 }: MenuMenuItemProps) {
   return (
     <NavItemExpandable
@@ -32,6 +33,7 @@ export function MenuItem({
       isExpanded={isExpanded}
       subMenuItems={subMenuItems}
       disabled={disabled}
+      pathPattern={pathPattern}
     />
   );
 }
