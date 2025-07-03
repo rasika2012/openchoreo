@@ -33,7 +33,7 @@ export const CardDropdown = React.forwardRef<HTMLDivElement, CardDropdownProps>(
       fullHeight = false,
       ...props
     },
-    ref
+    _ref
   ) => {
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
       null
