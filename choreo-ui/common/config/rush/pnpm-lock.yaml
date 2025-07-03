@@ -11,9 +11,6 @@ importers:
 
   ../../workspaces/apps/console:
     dependencies:
-      "@eslint/eslintrc":
-        specifier: ~3.3.1
-        version: 3.3.1
       "@open-choreo/api-client":
         specifier: workspace:*
         version: link:../../plugins/api-client
@@ -35,27 +32,6 @@ importers:
       "@open-choreo/top-right-menu":
         specifier: workspace:*
         version: link:../../plugins/top-right-menu
-      "@types/lodash":
-        specifier: ~4.17.17
-        version: 4.17.19
-      "@typescript-eslint/eslint-plugin":
-        specifier: ~8.33.1
-        version: 8.33.1(@typescript-eslint/parser@8.33.1(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
-      "@typescript-eslint/parser":
-        specifier: ~8.33.1
-        version: 8.33.1(eslint@9.28.0)(typescript@5.8.3)
-      eslint-plugin-import:
-        specifier: ~2.31.0
-        version: 2.31.0(eslint@9.28.0)
-      eslint-plugin-jest-dom:
-        specifier: ~5.5.0
-        version: 5.5.0(@testing-library/dom@10.4.0)(eslint@9.28.0)
-      eslint-plugin-react:
-        specifier: ~7.37.5
-        version: 7.37.5(eslint@9.28.0)
-      eslint-plugin-testing-library:
-        specifier: ~7.4.0
-        version: 7.4.0(eslint@9.28.0)(typescript@5.8.3)
       lodash:
         specifier: ~4.17.21
         version: 4.17.21
@@ -72,6 +48,9 @@ importers:
         specifier: ~7.6.2
         version: 7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
     devDependencies:
+      "@eslint/eslintrc":
+        specifier: ~3.3.1
+        version: 3.3.1
       "@eslint/js":
         specifier: ~9.28.0
         version: 9.28.0
@@ -81,27 +60,48 @@ importers:
       "@stoplight/prism-cli":
         specifier: ~5.14.2
         version: 5.14.2
+      "@types/lodash":
+        specifier: ~4.17.17
+        version: 4.17.19
       "@types/react":
         specifier: ^19.1.2
         version: 19.1.8
       "@types/react-dom":
         specifier: ^19.1.2
         version: 19.1.6(@types/react@19.1.8)
+      "@typescript-eslint/eslint-plugin":
+        specifier: ~8.33.1
+        version: 8.33.1(@typescript-eslint/parser@8.33.1(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
+      "@typescript-eslint/parser":
+        specifier: ~8.33.1
+        version: 8.33.1(eslint@9.28.0)(typescript@5.8.3)
       "@vitejs/plugin-react":
         specifier: ^4.4.1
         version: 4.6.0(vite@6.3.5(@types/node@22.15.34)(less@4.3.0))
       eslint:
         specifier: ~9.28.0
         version: 9.28.0
+      eslint-plugin-import:
+        specifier: ~2.31.0
+        version: 2.31.0(eslint@9.28.0)
+      eslint-plugin-jest-dom:
+        specifier: ~5.5.0
+        version: 5.5.0(@testing-library/dom@10.4.0)(eslint@9.28.0)
       eslint-plugin-prettier:
         specifier: ~5.4.1
         version: 5.4.1(eslint-config-prettier@10.1.5(eslint@9.28.0))(eslint@9.28.0)(prettier@3.6.2)
+      eslint-plugin-react:
+        specifier: ~7.37.5
+        version: 7.37.5(eslint@9.28.0)
       eslint-plugin-react-hooks:
         specifier: ~5.2.0
         version: 5.2.0(eslint@9.28.0)
       eslint-plugin-react-refresh:
         specifier: ^0.4.19
         version: 0.4.20(eslint@9.28.0)
+      eslint-plugin-testing-library:
+        specifier: ~7.4.0
+        version: 7.4.0(eslint@9.28.0)(typescript@5.8.3)
       globals:
         specifier: ~16.2.0
         version: 16.2.0
@@ -190,24 +190,12 @@ importers:
 
   ../../workspaces/libs/design-system:
     dependencies:
-      "@babel/generator":
-        specifier: ^7.27.3
-        version: 7.27.5
-      "@babel/parser":
-        specifier: ^7.27.3
-        version: 7.27.7
-      "@babel/traverse":
-        specifier: ^7.27.3
-        version: 7.27.7
       "@emotion/react":
         specifier: ~11.14.0
         version: 11.14.0(@types/react@19.1.8)(react@19.1.0)
       "@emotion/styled":
         specifier: ~11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
-      "@eslint/eslintrc":
-        specifier: ~3.3.1
-        version: 3.3.1
       "@fontsource/roboto":
         specifier: ~5.2.5
         version: 5.2.6
@@ -217,15 +205,9 @@ importers:
       "@mui/material":
         specifier: ~7.1.0
         version: 7.1.2(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      "@testing-library/dom":
-        specifier: ^10.4.0
-        version: 10.4.0
       clsx:
         specifier: ~2.1.1
         version: 2.1.1
-      less:
-        specifier: ^4.3.0
-        version: 4.3.0
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
@@ -235,10 +217,19 @@ importers:
       react-router:
         specifier: ~7.6.2
         version: 7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      storybook-dark-mode:
-        specifier: ~4.0.2
-        version: 4.0.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(storybook@8.6.14(prettier@3.6.2))
     devDependencies:
+      "@babel/generator":
+        specifier: ^7.27.3
+        version: 7.27.5
+      "@babel/parser":
+        specifier: ^7.27.3
+        version: 7.27.7
+      "@babel/traverse":
+        specifier: ^7.27.3
+        version: 7.27.7
+      "@eslint/eslintrc":
+        specifier: ~3.3.1
+        version: 3.3.1
       "@eslint/js":
         specifier: ~9.28.0
         version: 9.28.0
@@ -266,6 +257,9 @@ importers:
       "@storybook/test":
         specifier: ^8.6.13
         version: 8.6.14(storybook@8.6.14(prettier@3.6.2))
+      "@testing-library/dom":
+        specifier: ^10.4.0
+        version: 10.4.0
       "@testing-library/jest-dom":
         specifier: ^6.6.3
         version: 6.6.3
@@ -332,6 +326,9 @@ importers:
       jsdom:
         specifier: ^26.1.0
         version: 26.1.0
+      less:
+        specifier: ^4.3.0
+        version: 4.3.0
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -353,6 +350,9 @@ importers:
       storybook:
         specifier: ^8.6.13
         version: 8.6.14(prettier@3.6.2)
+      storybook-dark-mode:
+        specifier: ~4.0.2
+        version: 4.0.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(storybook@8.6.14(prettier@3.6.2))
       svgo:
         specifier: ~3.3.2
         version: 3.3.2
@@ -380,6 +380,25 @@ importers:
 
   ../../workspaces/libs/views:
     dependencies:
+      "@fontsource/roboto":
+        specifier: ~5.2.5
+        version: 5.2.6
+      "@open-choreo/design-system":
+        specifier: workspace:*
+        version: link:../design-system
+      clsx:
+        specifier: ~2.1.1
+        version: 2.1.1
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
+      react-intl:
+        specifier: ~7.1.11
+        version: 7.1.11(react@19.1.0)(typescript@5.8.3)
+      react-router:
+        specifier: ~7.6.2
+        version: 7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+    devDependencies:
       "@babel/generator":
         specifier: ^7.27.3
         version: 7.27.5
@@ -392,34 +411,6 @@ importers:
       "@eslint/eslintrc":
         specifier: ~3.3.1
         version: 3.3.1
-      "@fontsource/roboto":
-        specifier: ~5.2.5
-        version: 5.2.6
-      "@open-choreo/design-system":
-        specifier: workspace:*
-        version: link:../design-system
-      "@testing-library/dom":
-        specifier: ^10.4.0
-        version: 10.4.0
-      clsx:
-        specifier: ~2.1.1
-        version: 2.1.1
-      less:
-        specifier: ^4.3.0
-        version: 4.3.0
-      react-dom:
-        specifier: ^19.1.0
-        version: 19.1.0(react@19.1.0)
-      react-intl:
-        specifier: ~7.1.11
-        version: 7.1.11(react@19.1.0)(typescript@5.8.3)
-      react-router:
-        specifier: ~7.6.2
-        version: 7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      storybook-dark-mode:
-        specifier: ~4.0.2
-        version: 4.0.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(storybook@8.6.14(prettier@3.6.2))
-    devDependencies:
       "@eslint/js":
         specifier: ~9.28.0
         version: 9.28.0
@@ -447,6 +438,9 @@ importers:
       "@storybook/test":
         specifier: ^8.6.13
         version: 8.6.14(storybook@8.6.14(prettier@3.6.2))
+      "@testing-library/dom":
+        specifier: ^10.4.0
+        version: 10.4.0
       "@testing-library/jest-dom":
         specifier: ^6.6.3
         version: 6.6.3
@@ -510,6 +504,9 @@ importers:
       jsdom:
         specifier: ^26.1.0
         version: 26.1.0
+      less:
+        specifier: ^4.3.0
+        version: 4.3.0
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -528,6 +525,9 @@ importers:
       storybook:
         specifier: ^8.6.13
         version: 8.6.14(prettier@3.6.2)
+      storybook-dark-mode:
+        specifier: ~4.0.2
+        version: 4.0.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(storybook@8.6.14(prettier@3.6.2))
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -549,9 +549,6 @@ importers:
 
   ../../workspaces/plugins/api-client:
     dependencies:
-      "@eslint/eslintrc":
-        specifier: ~3.3.1
-        version: 3.3.1
       "@fontsource/roboto":
         specifier: ~5.2.5
         version: 5.2.6
@@ -570,30 +567,9 @@ importers:
       "@tanstack/react-query":
         specifier: ~5.81.5
         version: 5.81.5(react@19.1.0)
-      "@types/lodash":
-        specifier: ~4.17.17
-        version: 4.17.19
-      "@typescript-eslint/eslint-plugin":
-        specifier: ~8.33.1
-        version: 8.33.1(@typescript-eslint/parser@8.33.1(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
-      "@typescript-eslint/parser":
-        specifier: ~8.33.1
-        version: 8.33.1(eslint@9.28.0)(typescript@5.8.3)
       clsx:
         specifier: ~2.1.1
         version: 2.1.1
-      eslint-plugin-import:
-        specifier: ~2.31.0
-        version: 2.31.0(eslint@9.28.0)
-      eslint-plugin-jest-dom:
-        specifier: ~5.5.0
-        version: 5.5.0(@testing-library/dom@10.4.0)(eslint@9.28.0)
-      eslint-plugin-react:
-        specifier: ~7.37.5
-        version: 7.37.5(eslint@9.28.0)
-      eslint-plugin-testing-library:
-        specifier: ~7.4.0
-        version: 7.4.0(eslint@9.28.0)(typescript@5.8.3)
       lodash:
         specifier: ~4.17.21
         version: 4.17.21
@@ -610,6 +586,9 @@ importers:
         specifier: ~7.6.2
         version: 7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
     devDependencies:
+      "@eslint/eslintrc":
+        specifier: ~3.3.1
+        version: 3.3.1
       "@eslint/js":
         specifier: ~9.28.0
         version: 9.28.0
@@ -619,24 +598,45 @@ importers:
       "@tanstack/eslint-plugin-query":
         specifier: ~5.81.2
         version: 5.81.2(eslint@9.28.0)(typescript@5.8.3)
+      "@types/lodash":
+        specifier: ~4.17.17
+        version: 4.17.19
       "@types/react":
         specifier: ^19.1.2
         version: 19.1.8
       "@types/react-dom":
         specifier: ^19.1.2
         version: 19.1.6(@types/react@19.1.8)
+      "@typescript-eslint/eslint-plugin":
+        specifier: ~8.33.1
+        version: 8.33.1(@typescript-eslint/parser@8.33.1(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
+      "@typescript-eslint/parser":
+        specifier: ~8.33.1
+        version: 8.33.1(eslint@9.28.0)(typescript@5.8.3)
       eslint:
         specifier: ~9.28.0
         version: 9.28.0
+      eslint-plugin-import:
+        specifier: ~2.31.0
+        version: 2.31.0(eslint@9.28.0)
+      eslint-plugin-jest-dom:
+        specifier: ~5.5.0
+        version: 5.5.0(@testing-library/dom@10.4.0)(eslint@9.28.0)
       eslint-plugin-prettier:
         specifier: ~5.4.1
         version: 5.4.1(eslint-config-prettier@10.1.5(eslint@9.28.0))(eslint@9.28.0)(prettier@3.6.2)
+      eslint-plugin-react:
+        specifier: ~7.37.5
+        version: 7.37.5(eslint@9.28.0)
       eslint-plugin-react-hooks:
         specifier: ~5.2.0
         version: 5.2.0(eslint@9.28.0)
       eslint-plugin-react-refresh:
         specifier: ^0.4.19
         version: 0.4.20(eslint@9.28.0)
+      eslint-plugin-testing-library:
+        specifier: ~7.4.0
+        version: 7.4.0(eslint@9.28.0)(typescript@5.8.3)
       globals:
         specifier: ~16.2.0
         version: 16.2.0
@@ -649,9 +649,6 @@ importers:
 
   ../../workspaces/plugins/overview:
     dependencies:
-      "@eslint/eslintrc":
-        specifier: ~3.3.1
-        version: 3.3.1
       "@fontsource/roboto":
         specifier: ~5.2.5
         version: 5.2.6
@@ -667,30 +664,9 @@ importers:
       "@open-choreo/plugin-core":
         specifier: workspace:*
         version: link:../plugin-core
-      "@types/lodash":
-        specifier: ~4.17.17
-        version: 4.17.19
-      "@typescript-eslint/eslint-plugin":
-        specifier: ~8.33.1
-        version: 8.33.1(@typescript-eslint/parser@8.33.1(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
-      "@typescript-eslint/parser":
-        specifier: ~8.33.1
-        version: 8.33.1(eslint@9.28.0)(typescript@5.8.3)
       clsx:
         specifier: ~2.1.1
         version: 2.1.1
-      eslint-plugin-import:
-        specifier: ~2.31.0
-        version: 2.31.0(eslint@9.28.0)
-      eslint-plugin-jest-dom:
-        specifier: ~5.5.0
-        version: 5.5.0(@testing-library/dom@10.4.0)(eslint@9.28.0)
-      eslint-plugin-react:
-        specifier: ~7.37.5
-        version: 7.37.5(eslint@9.28.0)
-      eslint-plugin-testing-library:
-        specifier: ~7.4.0
-        version: 7.4.0(eslint@9.28.0)(typescript@5.8.3)
       lodash:
         specifier: ~4.17.21
         version: 4.17.21
@@ -707,30 +683,54 @@ importers:
         specifier: ~7.6.2
         version: 7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
     devDependencies:
+      "@eslint/eslintrc":
+        specifier: ~3.3.1
+        version: 3.3.1
       "@eslint/js":
         specifier: ~9.28.0
         version: 9.28.0
       "@formatjs/cli":
         specifier: ~6.7.2
         version: 6.7.2(@vue/compiler-core@3.5.17)
+      "@types/lodash":
+        specifier: ~4.17.17
+        version: 4.17.19
       "@types/react":
         specifier: ^19.1.2
         version: 19.1.8
       "@types/react-dom":
         specifier: ^19.1.2
         version: 19.1.6(@types/react@19.1.8)
+      "@typescript-eslint/eslint-plugin":
+        specifier: ~8.33.1
+        version: 8.33.1(@typescript-eslint/parser@8.33.1(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
+      "@typescript-eslint/parser":
+        specifier: ~8.33.1
+        version: 8.33.1(eslint@9.28.0)(typescript@5.8.3)
       eslint:
         specifier: ~9.28.0
         version: 9.28.0
+      eslint-plugin-import:
+        specifier: ~2.31.0
+        version: 2.31.0(eslint@9.28.0)
+      eslint-plugin-jest-dom:
+        specifier: ~5.5.0
+        version: 5.5.0(@testing-library/dom@10.4.0)(eslint@9.28.0)
       eslint-plugin-prettier:
         specifier: ~5.4.1
         version: 5.4.1(eslint-config-prettier@10.1.5(eslint@9.28.0))(eslint@9.28.0)(prettier@3.6.2)
+      eslint-plugin-react:
+        specifier: ~7.37.5
+        version: 7.37.5(eslint@9.28.0)
       eslint-plugin-react-hooks:
         specifier: ~5.2.0
         version: 5.2.0(eslint@9.28.0)
       eslint-plugin-react-refresh:
         specifier: ^0.4.19
         version: 0.4.20(eslint@9.28.0)
+      eslint-plugin-testing-library:
+        specifier: ~7.4.0
+        version: 7.4.0(eslint@9.28.0)(typescript@5.8.3)
       globals:
         specifier: ~16.2.0
         version: 16.2.0
@@ -743,36 +743,12 @@ importers:
 
   ../../workspaces/plugins/plugin-core:
     dependencies:
-      "@eslint/eslintrc":
-        specifier: ~3.3.1
-        version: 3.3.1
       "@open-choreo/common-views":
         specifier: workspace:*
         version: link:../../libs/views
       "@open-choreo/design-system":
         specifier: workspace:*
         version: link:../../libs/design-system
-      "@types/lodash":
-        specifier: ~4.17.17
-        version: 4.17.19
-      "@typescript-eslint/eslint-plugin":
-        specifier: ~8.33.1
-        version: 8.33.1(@typescript-eslint/parser@8.33.1(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
-      "@typescript-eslint/parser":
-        specifier: ~8.33.1
-        version: 8.33.1(eslint@9.28.0)(typescript@5.8.3)
-      eslint-plugin-import:
-        specifier: ~2.31.0
-        version: 2.31.0(eslint@9.28.0)
-      eslint-plugin-jest-dom:
-        specifier: ~5.5.0
-        version: 5.5.0(@testing-library/dom@10.4.0)(eslint@9.28.0)
-      eslint-plugin-react:
-        specifier: ~7.37.5
-        version: 7.37.5(eslint@9.28.0)
-      eslint-plugin-testing-library:
-        specifier: ~7.4.0
-        version: 7.4.0(eslint@9.28.0)(typescript@5.8.3)
       lodash:
         specifier: ~4.17.21
         version: 4.17.21
@@ -789,30 +765,54 @@ importers:
         specifier: ~7.6.2
         version: 7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
     devDependencies:
+      "@eslint/eslintrc":
+        specifier: ~3.3.1
+        version: 3.3.1
       "@eslint/js":
         specifier: ~9.28.0
         version: 9.28.0
       "@formatjs/cli":
         specifier: ~6.7.2
         version: 6.7.2(@vue/compiler-core@3.5.17)
+      "@types/lodash":
+        specifier: ~4.17.17
+        version: 4.17.19
       "@types/react":
         specifier: ^19.1.2
         version: 19.1.8
       "@types/react-dom":
         specifier: ^19.1.2
         version: 19.1.6(@types/react@19.1.8)
+      "@typescript-eslint/eslint-plugin":
+        specifier: ~8.33.1
+        version: 8.33.1(@typescript-eslint/parser@8.33.1(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
+      "@typescript-eslint/parser":
+        specifier: ~8.33.1
+        version: 8.33.1(eslint@9.28.0)(typescript@5.8.3)
       eslint:
         specifier: ~9.28.0
         version: 9.28.0
+      eslint-plugin-import:
+        specifier: ~2.31.0
+        version: 2.31.0(eslint@9.28.0)
+      eslint-plugin-jest-dom:
+        specifier: ~5.5.0
+        version: 5.5.0(@testing-library/dom@10.4.0)(eslint@9.28.0)
       eslint-plugin-prettier:
         specifier: ~5.4.1
         version: 5.4.1(eslint-config-prettier@10.1.5(eslint@9.28.0))(eslint@9.28.0)(prettier@3.6.2)
+      eslint-plugin-react:
+        specifier: ~7.37.5
+        version: 7.37.5(eslint@9.28.0)
       eslint-plugin-react-hooks:
         specifier: ~5.2.0
         version: 5.2.0(eslint@9.28.0)
       eslint-plugin-react-refresh:
         specifier: ^0.4.19
         version: 0.4.20(eslint@9.28.0)
+      eslint-plugin-testing-library:
+        specifier: ~7.4.0
+        version: 7.4.0(eslint@9.28.0)(typescript@5.8.3)
       globals:
         specifier: ~16.2.0
         version: 16.2.0
@@ -825,12 +825,12 @@ importers:
 
   ../../workspaces/plugins/top-level-selector:
     dependencies:
-      "@eslint/eslintrc":
-        specifier: ~3.3.1
-        version: 3.3.1
       "@fontsource/roboto":
         specifier: ~5.2.5
         version: 5.2.6
+      "@open-choreo/api-client":
+        specifier: workspace:*
+        version: link:../api-client
       "@open-choreo/common-views":
         specifier: workspace:*
         version: link:../../libs/views
@@ -840,30 +840,9 @@ importers:
       "@open-choreo/plugin-core":
         specifier: workspace:*
         version: link:../plugin-core
-      "@types/lodash":
-        specifier: ~4.17.17
-        version: 4.17.19
-      "@typescript-eslint/eslint-plugin":
-        specifier: ~8.33.1
-        version: 8.33.1(@typescript-eslint/parser@8.33.1(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
-      "@typescript-eslint/parser":
-        specifier: ~8.33.1
-        version: 8.33.1(eslint@9.28.0)(typescript@5.8.3)
       clsx:
         specifier: ~2.1.1
         version: 2.1.1
-      eslint-plugin-import:
-        specifier: ~2.31.0
-        version: 2.31.0(eslint@9.28.0)
-      eslint-plugin-jest-dom:
-        specifier: ~5.5.0
-        version: 5.5.0(@testing-library/dom@10.4.0)(eslint@9.28.0)
-      eslint-plugin-react:
-        specifier: ~7.37.5
-        version: 7.37.5(eslint@9.28.0)
-      eslint-plugin-testing-library:
-        specifier: ~7.4.0
-        version: 7.4.0(eslint@9.28.0)(typescript@5.8.3)
       lodash:
         specifier: ~4.17.21
         version: 4.17.21
@@ -880,30 +859,54 @@ importers:
         specifier: ~7.6.2
         version: 7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
     devDependencies:
+      "@eslint/eslintrc":
+        specifier: ~3.3.1
+        version: 3.3.1
       "@eslint/js":
         specifier: ~9.28.0
         version: 9.28.0
       "@formatjs/cli":
         specifier: ~6.7.2
         version: 6.7.2(@vue/compiler-core@3.5.17)
+      "@types/lodash":
+        specifier: ~4.17.17
+        version: 4.17.19
       "@types/react":
         specifier: ^19.1.2
         version: 19.1.8
       "@types/react-dom":
         specifier: ^19.1.2
         version: 19.1.6(@types/react@19.1.8)
+      "@typescript-eslint/eslint-plugin":
+        specifier: ~8.33.1
+        version: 8.33.1(@typescript-eslint/parser@8.33.1(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
+      "@typescript-eslint/parser":
+        specifier: ~8.33.1
+        version: 8.33.1(eslint@9.28.0)(typescript@5.8.3)
       eslint:
         specifier: ~9.28.0
         version: 9.28.0
+      eslint-plugin-import:
+        specifier: ~2.31.0
+        version: 2.31.0(eslint@9.28.0)
+      eslint-plugin-jest-dom:
+        specifier: ~5.5.0
+        version: 5.5.0(@testing-library/dom@10.4.0)(eslint@9.28.0)
       eslint-plugin-prettier:
         specifier: ~5.4.1
         version: 5.4.1(eslint-config-prettier@10.1.5(eslint@9.28.0))(eslint@9.28.0)(prettier@3.6.2)
+      eslint-plugin-react:
+        specifier: ~7.37.5
+        version: 7.37.5(eslint@9.28.0)
       eslint-plugin-react-hooks:
         specifier: ~5.2.0
         version: 5.2.0(eslint@9.28.0)
       eslint-plugin-react-refresh:
         specifier: ^0.4.19
         version: 0.4.20(eslint@9.28.0)
+      eslint-plugin-testing-library:
+        specifier: ~7.4.0
+        version: 7.4.0(eslint@9.28.0)(typescript@5.8.3)
       globals:
         specifier: ~16.2.0
         version: 16.2.0
@@ -916,9 +919,6 @@ importers:
 
   ../../workspaces/plugins/top-right-menu:
     dependencies:
-      "@eslint/eslintrc":
-        specifier: ~3.3.1
-        version: 3.3.1
       "@fontsource/roboto":
         specifier: ~5.2.5
         version: 5.2.6
@@ -931,30 +931,9 @@ importers:
       "@open-choreo/plugin-core":
         specifier: workspace:*
         version: link:../plugin-core
-      "@types/lodash":
-        specifier: ~4.17.17
-        version: 4.17.19
-      "@typescript-eslint/eslint-plugin":
-        specifier: ~8.33.1
-        version: 8.33.1(@typescript-eslint/parser@8.33.1(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
-      "@typescript-eslint/parser":
-        specifier: ~8.33.1
-        version: 8.33.1(eslint@9.28.0)(typescript@5.8.3)
       clsx:
         specifier: ~2.1.1
         version: 2.1.1
-      eslint-plugin-import:
-        specifier: ~2.31.0
-        version: 2.31.0(eslint@9.28.0)
-      eslint-plugin-jest-dom:
-        specifier: ~5.5.0
-        version: 5.5.0(@testing-library/dom@10.4.0)(eslint@9.28.0)
-      eslint-plugin-react:
-        specifier: ~7.37.5
-        version: 7.37.5(eslint@9.28.0)
-      eslint-plugin-testing-library:
-        specifier: ~7.4.0
-        version: 7.4.0(eslint@9.28.0)(typescript@5.8.3)
       lodash:
         specifier: ~4.17.21
         version: 4.17.21
@@ -971,30 +950,54 @@ importers:
         specifier: ~7.6.2
         version: 7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
     devDependencies:
+      "@eslint/eslintrc":
+        specifier: ~3.3.1
+        version: 3.3.1
       "@eslint/js":
         specifier: ~9.28.0
         version: 9.28.0
       "@formatjs/cli":
         specifier: ~6.7.2
         version: 6.7.2(@vue/compiler-core@3.5.17)
+      "@types/lodash":
+        specifier: ~4.17.17
+        version: 4.17.19
       "@types/react":
         specifier: ^19.1.2
         version: 19.1.8
       "@types/react-dom":
         specifier: ^19.1.2
         version: 19.1.6(@types/react@19.1.8)
+      "@typescript-eslint/eslint-plugin":
+        specifier: ~8.33.1
+        version: 8.33.1(@typescript-eslint/parser@8.33.1(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
+      "@typescript-eslint/parser":
+        specifier: ~8.33.1
+        version: 8.33.1(eslint@9.28.0)(typescript@5.8.3)
       eslint:
         specifier: ~9.28.0
         version: 9.28.0
+      eslint-plugin-import:
+        specifier: ~2.31.0
+        version: 2.31.0(eslint@9.28.0)
+      eslint-plugin-jest-dom:
+        specifier: ~5.5.0
+        version: 5.5.0(@testing-library/dom@10.4.0)(eslint@9.28.0)
       eslint-plugin-prettier:
         specifier: ~5.4.1
         version: 5.4.1(eslint-config-prettier@10.1.5(eslint@9.28.0))(eslint@9.28.0)(prettier@3.6.2)
+      eslint-plugin-react:
+        specifier: ~7.37.5
+        version: 7.37.5(eslint@9.28.0)
       eslint-plugin-react-hooks:
         specifier: ~5.2.0
         version: 5.2.0(eslint@9.28.0)
       eslint-plugin-react-refresh:
         specifier: ^0.4.19
         version: 0.4.20(eslint@9.28.0)
+      eslint-plugin-testing-library:
+        specifier: ~7.4.0
+        version: 7.4.0(eslint@9.28.0)(typescript@5.8.3)
       globals:
         specifier: ~16.2.0
         version: 16.2.0
@@ -1869,10 +1872,10 @@ packages:
         integrity: sha512-4aErSrCR/On/e5G2hDP0wjooqDdauzEbIq8hIkIe5pXV0rtWJZvdCEKL0ykZxex+IxIwBp0eGeV48hQN07dXtw==,
       }
 
-  "@mui/core-downloads-tracker@7.1.2":
+  "@mui/core-downloads-tracker@7.2.0":
     resolution:
       {
-        integrity: sha512-0gLO1PvbJwSYe5ji021tGj6HFqrtEPMGKK4L1zWwRbhzrWWUumUJvMvJUsIgWQIYQsgOnhq9k2Fc1BxLGHDsAg==,
+        integrity: sha512-d49s7kEgI5iX40xb2YPazANvo7Bx0BLg/MNRwv+7BVpZUzXj1DaVCKlQTDex3gy/0jsCb4w7AY2uH4t4AJvSog==,
       }
 
   "@mui/icons-material@7.1.2":
@@ -1912,10 +1915,10 @@ packages:
       "@types/react":
         optional: true
 
-  "@mui/private-theming@7.1.1":
+  "@mui/private-theming@7.2.0":
     resolution:
       {
-        integrity: sha512-M8NbLUx+armk2ZuaxBkkMk11ultnWmrPlN0Xe3jUEaBChg/mcxa5HWIWS1EE4DF36WRACaAHVAvyekWlDQf0PQ==,
+        integrity: sha512-y6N1Yt3T5RMxVFnCh6+zeSWBuQdNDm5/UlM0EAYZzZR/1u+XKJWYQmbpx4e+F+1EpkYi3Nk8KhPiQDi83M3zIw==,
       }
     engines: { node: ">=14.0.0" }
     peerDependencies:
@@ -1925,10 +1928,10 @@ packages:
       "@types/react":
         optional: true
 
-  "@mui/styled-engine@7.1.1":
+  "@mui/styled-engine@7.2.0":
     resolution:
       {
-        integrity: sha512-R2wpzmSN127j26HrCPYVQ53vvMcT5DaKLoWkrfwUYq3cYytL6TQrCH8JBH3z79B6g4nMZZVoaXrxO757AlShaw==,
+        integrity: sha512-yq08xynbrNYcB1nBcW9Fn8/h/iniM3ewRguGJXPIAbHvxEF7Pz95kbEEOAAhwzxMX4okhzvHmk0DFuC5ayvgIQ==,
       }
     engines: { node: ">=14.0.0" }
     peerDependencies:
@@ -1941,10 +1944,10 @@ packages:
       "@emotion/styled":
         optional: true
 
-  "@mui/system@7.1.1":
+  "@mui/system@7.2.0":
     resolution:
       {
-        integrity: sha512-Kj1uhiqnj4Zo7PDjAOghtXJtNABunWvhcRU0O7RQJ7WOxeynoH6wXPcilphV8QTFtkKaip8EiNJRiCD+B3eROA==,
+        integrity: sha512-PG7cm/WluU6RAs+gNND2R9vDwNh+ERWxPkqTaiXQJGIFAyJ+VxhyKfzpdZNk0z0XdmBxxi9KhFOpgxjehf/O0A==,
       }
     engines: { node: ">=14.0.0" }
     peerDependencies:
@@ -1960,10 +1963,10 @@ packages:
       "@types/react":
         optional: true
 
-  "@mui/types@7.4.3":
+  "@mui/types@7.4.4":
     resolution:
       {
-        integrity: sha512-2UCEiK29vtiZTeLdS2d4GndBKacVyxGvReznGXGr+CzW/YhjIX+OHUdCIczZjzcRAgKBGmE9zCIgoV9FleuyRQ==,
+        integrity: sha512-p63yhbX52MO/ajXC7hDHJA5yjzJekvWD3q4YDLl1rSg+OXLczMYPvTuSuviPRCgRX8+E42RXz1D/dz9SxPSlWg==,
       }
     peerDependencies:
       "@types/react": ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -1971,10 +1974,10 @@ packages:
       "@types/react":
         optional: true
 
-  "@mui/utils@7.1.1":
+  "@mui/utils@7.2.0":
     resolution:
       {
-        integrity: sha512-BkOt2q7MBYl7pweY2JWwfrlahhp+uGLR8S+EhiyRaofeRYUWL2YKbSGQvN4hgSN1i8poN0PaUiii1kEMrchvzg==,
+        integrity: sha512-O0i1GQL6MDzhKdy9iAu5Yr0Sz1wZjROH1o3aoztuivdCXqEeQYnEjTDiRLGuFxI9zrUbTHBwobMyQH5sNtyacw==,
       }
     engines: { node: ">=14.0.0" }
     peerDependencies:
@@ -8430,7 +8433,7 @@ snapshots:
 
   "@microsoft/tsdoc@0.15.1": {}
 
-  "@mui/core-downloads-tracker@7.1.2": {}
+  "@mui/core-downloads-tracker@7.2.0": {}
 
   "@mui/icons-material@7.1.2(@mui/material@7.1.2(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)":
     dependencies:
@@ -8443,10 +8446,10 @@ snapshots:
   "@mui/material@7.1.2(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)":
     dependencies:
       "@babel/runtime": 7.27.6
-      "@mui/core-downloads-tracker": 7.1.2
-      "@mui/system": 7.1.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
-      "@mui/types": 7.4.3(@types/react@19.1.8)
-      "@mui/utils": 7.1.1(@types/react@19.1.8)(react@19.1.0)
+      "@mui/core-downloads-tracker": 7.2.0
+      "@mui/system": 7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
+      "@mui/types": 7.4.4(@types/react@19.1.8)
+      "@mui/utils": 7.2.0(@types/react@19.1.8)(react@19.1.0)
       "@popperjs/core": 2.11.8
       "@types/react-transition-group": 4.4.12(@types/react@19.1.8)
       clsx: 2.1.1
@@ -8461,16 +8464,16 @@ snapshots:
       "@emotion/styled": 11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
       "@types/react": 19.1.8
 
-  "@mui/private-theming@7.1.1(@types/react@19.1.8)(react@19.1.0)":
+  "@mui/private-theming@7.2.0(@types/react@19.1.8)(react@19.1.0)":
     dependencies:
       "@babel/runtime": 7.27.6
-      "@mui/utils": 7.1.1(@types/react@19.1.8)(react@19.1.0)
+      "@mui/utils": 7.2.0(@types/react@19.1.8)(react@19.1.0)
       prop-types: 15.8.1
       react: 19.1.0
     optionalDependencies:
       "@types/react": 19.1.8
 
-  "@mui/styled-engine@7.1.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(react@19.1.0)":
+  "@mui/styled-engine@7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(react@19.1.0)":
     dependencies:
       "@babel/runtime": 7.27.6
       "@emotion/cache": 11.14.0
@@ -8483,13 +8486,13 @@ snapshots:
       "@emotion/react": 11.14.0(@types/react@19.1.8)(react@19.1.0)
       "@emotion/styled": 11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
 
-  "@mui/system@7.1.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)":
+  "@mui/system@7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)":
     dependencies:
       "@babel/runtime": 7.27.6
-      "@mui/private-theming": 7.1.1(@types/react@19.1.8)(react@19.1.0)
-      "@mui/styled-engine": 7.1.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(react@19.1.0)
-      "@mui/types": 7.4.3(@types/react@19.1.8)
-      "@mui/utils": 7.1.1(@types/react@19.1.8)(react@19.1.0)
+      "@mui/private-theming": 7.2.0(@types/react@19.1.8)(react@19.1.0)
+      "@mui/styled-engine": 7.2.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(react@19.1.0)
+      "@mui/types": 7.4.4(@types/react@19.1.8)
+      "@mui/utils": 7.2.0(@types/react@19.1.8)(react@19.1.0)
       clsx: 2.1.1
       csstype: 3.1.3
       prop-types: 15.8.1
@@ -8499,16 +8502,16 @@ snapshots:
       "@emotion/styled": 11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
       "@types/react": 19.1.8
 
-  "@mui/types@7.4.3(@types/react@19.1.8)":
+  "@mui/types@7.4.4(@types/react@19.1.8)":
     dependencies:
       "@babel/runtime": 7.27.6
     optionalDependencies:
       "@types/react": 19.1.8
 
-  "@mui/utils@7.1.1(@types/react@19.1.8)(react@19.1.0)":
+  "@mui/utils@7.2.0(@types/react@19.1.8)(react@19.1.0)":
     dependencies:
       "@babel/runtime": 7.27.6
-      "@mui/types": 7.4.3(@types/react@19.1.8)
+      "@mui/types": 7.4.4(@types/react@19.1.8)
       "@types/prop-types": 15.7.15
       clsx: 2.1.1
       prop-types: 15.8.1
