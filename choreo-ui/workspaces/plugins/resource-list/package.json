@@ -14,7 +14,7 @@
     "dev": "tsc -project tsconfig.json  --watch",
     "clean": "rm -rf dist",
     "lint": "eslint --config ./eslint.config.js --fix",
-    "build": "rushx lint && rushx run clean && tsc -project tsconfig.json"
+    "build": "rushx lint && rushx clean && tsc -project tsconfig.json"
   },
   "author": "",
   "license": "ISC",
