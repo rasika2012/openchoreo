@@ -1,5 +1,34 @@
-Invoking: npm run clean && tsc -project tsconfig.json 
+Invoking: rushx lint && rushx clean && tsc -project tsconfig.json 
+Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
 
-> @open-choreo/plugin-overview@1.0.0 clean
-> rm -rf dist
+Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
+> "eslint --config ./eslint.config.js --fix"
+
+
+/Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/workspaces/plugins/overview/src/ComponentOverview/ComponentOverview.tsx
+   5:3   warning  'ResourceTable' is defined but never used      no-unused-vars
+   5:3   warning  'ResourceTable' is defined but never used      @typescript-eslint/no-unused-vars
+   8:23  warning  'useUrlParams' is defined but never used       no-unused-vars
+   8:23  warning  'useUrlParams' is defined but never used       @typescript-eslint/no-unused-vars
+  13:9   warning  'homePath' is assigned a value but never used  no-unused-vars
+  13:9   warning  'homePath' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/workspaces/plugins/overview/src/OrgOverview/OrgOverview.tsx
+   8:23  warning  'useUrlParams' is defined but never used  no-unused-vars
+   8:23  warning  'useUrlParams' is defined but never used  @typescript-eslint/no-unused-vars
+  10:10  warning  'Box' is defined but never used           no-unused-vars
+  10:10  warning  'Box' is defined but never used           @typescript-eslint/no-unused-vars
+  10:15  warning  'Typography' is defined but never used    no-unused-vars
+  10:15  warning  'Typography' is defined but never used    @typescript-eslint/no-unused-vars
+  11:10  warning  'Route' is defined but never used         no-unused-vars
+  11:10  warning  'Route' is defined but never used         @typescript-eslint/no-unused-vars
+  11:17  warning  'Routes' is defined but never used        no-unused-vars
+  11:17  warning  'Routes' is defined but never used        @typescript-eslint/no-unused-vars
+
+✖ 16 problems (0 errors, 16 warnings)
+
+Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
+
+Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
+> "rm -rf dist"
 
