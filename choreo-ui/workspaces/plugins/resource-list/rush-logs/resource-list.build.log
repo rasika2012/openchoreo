@@ -6,12 +6,20 @@ Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
 
 
 /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/workspaces/plugins/resource-list/src/ComponentListPage/ComponentList.tsx
-  2:3  warning  'FullPageLoader' is defined but never used   no-unused-vars
-  2:3  warning  'FullPageLoader' is defined but never used   @typescript-eslint/no-unused-vars
-  4:3  warning  'PresetErrorPage' is defined but never used  no-unused-vars
-  4:3  warning  'PresetErrorPage' is defined but never used  @typescript-eslint/no-unused-vars
+   5:3  warning  'ResourceTable' is defined but never used     no-unused-vars
+   5:3  warning  'ResourceTable' is defined but never used     @typescript-eslint/no-unused-vars
+  22:9  warning  'project' is assigned a value but never used  no-unused-vars
+  22:9  warning  'project' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
-✖ 4 problems (0 errors, 4 warnings)
+/Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/workspaces/plugins/resource-list/src/ComponentListPanel/ComponentListPanel.tsx
+  3:3  warning  'PageLayout' is defined but never used  no-unused-vars
+  3:3  warning  'PageLayout' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/workspaces/plugins/resource-list/src/ComponentListPanel/index.tsx
+  1:10  warning  'Level' is defined but never used  no-unused-vars
+  1:10  warning  'Level' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 8 problems (0 errors, 8 warnings)
 
 Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
 

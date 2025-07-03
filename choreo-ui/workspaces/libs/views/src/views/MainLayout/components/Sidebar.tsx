@@ -64,6 +64,7 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
             {menuItems?.map((item) => (
               <>
                 <MenuItem
+                  pathPattern={item.pathPattern}
                   href={item.href}
                   id={item.id}
                   title={item.title}
@@ -81,6 +82,7 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
             <MenuItem
               id="menu-item-collapse"
               title="Collapse"
+              pathPattern={'/'}
               selectedIcon={<MenuCollapseIcon fontSize="inherit" />}
               icon={
                 isExpandSaved ? (
