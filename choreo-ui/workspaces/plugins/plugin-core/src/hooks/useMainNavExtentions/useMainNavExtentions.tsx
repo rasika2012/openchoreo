@@ -30,7 +30,7 @@ export function useMainNavExtentions(extentionPointId: string | Level, rootPath:
               }) as NavItemExpandableSubMenu,
           ),
       ),
-    [pluginRegistry],
+    [pluginRegistry, extentionPointId, rootPath],
   );
 
   return navigationEntries;

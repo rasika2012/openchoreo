@@ -1,4 +1,4 @@
-import { PageLayout, PresetErrorPage, ResourceTable } from "@open-choreo/common-views";
+import { FullPageLoader, PageLayout, PresetErrorPage, ResourceTable } from "@open-choreo/common-views";
 import { useGlobalState } from "@open-choreo/api-client";
 import { useHomePath, useUrlParams } from "@open-choreo/plugin-core";
 import React from "react";
@@ -8,7 +8,7 @@ const ComponentOverview: React.FC = () => {
     const homePath = useHomePath();
 
     if (componentQueryResult?.isLoading) {
-        return <PresetErrorPage preset="500" />;
+        return <FullPageLoader />;
     }
 
     if (!componentQueryResult?.data) {
