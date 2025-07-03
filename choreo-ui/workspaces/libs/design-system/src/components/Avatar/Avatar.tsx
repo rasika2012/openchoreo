@@ -56,19 +56,21 @@ export interface AvatarProps {
    */
   sx?: React.CSSProperties;
   /**
-   * Additional props for MUI Avatar
+   * The testId for the component
    */
-  [key: string]: any;
+  testId?: string;
+  /**
+   * The ref for the component
+   */
+  ref?: React.RefObject<HTMLDivElement>;
 }
 
-export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
-  ({ children, ...props }, ref) => {
-    return (
-      <StyledAvatar ref={ref} {...props}>
-        {children}
-      </StyledAvatar>
-    );
-  }
-);
+export function Avatar({ children, ...props }: AvatarProps) {
+  return (
+    <StyledAvatar {...props}>
+      {children}
+    </StyledAvatar>
+  );
+}
 
 Avatar.displayName = 'Avatar';
