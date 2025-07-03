@@ -4,7 +4,8 @@ import { defaultPath, ExtentionProviderMounter, PageExtentionsMounter, PathsPatt
 import { IntlProvider } from "react-intl";
 import React from "react";
 import { Navigate, Route, Routes } from "react-router";
-import { PresetErrorPage } from "@open-choreo/common-views";
+import { PresetErrorPage, FullPageLoader } from "@open-choreo/common-views";
+
 
 // Lazy load the MainLayout component
 const MainLayout = React.lazy(() => import("./layouts/MainLayout").then(module => ({ default: module.MainLayout })));
@@ -16,7 +17,7 @@ export default function App() {
       <IntlProvider locale="en">
         <ExtentionProviderMounter extentionPointId="global" >
           <Box width="100vw" height="100vh">
-            <Suspense fallback={<Box display="flex" justifyContent="center" alignItems="center" height="100vh">Loading...</Box>}>
+            <Suspense fallback={<FullPageLoader />}>
               <MainLayout>
                 <Routes>
                   <Route path={PathsPatterns.COMPONENT_LEVEL} element={<PageExtentionsMounter extentionPointId={Level.COMPONENT} />} />
