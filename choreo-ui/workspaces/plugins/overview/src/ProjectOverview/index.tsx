@@ -10,5 +10,5 @@ export const projectOverview: PluginExtension = {
   type: PluginExtensionType.PAGE,
   extentionPointId: Level.PROJECT,
   component: ProjectOverview,
-  pathPattern: "/",
+  pathPattern: "",
 };

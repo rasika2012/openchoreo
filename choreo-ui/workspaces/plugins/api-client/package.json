@@ -13,12 +13,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsc -project tsconfig.json  --watch",
     "clean": "rm -rf dist",
-    "build": "npm run clean && tsc -project tsconfig.json",
-    "lint": "eslint --config ./eslint.config.js",
+    "build": "rushx lint && rushx clean && tsc -project tsconfig.json",
+    "lint": "eslint --config ./eslint.config.js --fix",
     "i18n": "formatjs extract 'src/**/*.{ts,tsx,js,jsx}' --out-file 'src/lang/en.json' --ignore '**/node_modules/**' --ignore '**/*.d.ts' --ignore '**/vite-env.d.ts' --format simple --throws"
   },
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0 license",
   "description": "",
   "dependencies": {
     "@open-choreo/design-system": "workspace:*",

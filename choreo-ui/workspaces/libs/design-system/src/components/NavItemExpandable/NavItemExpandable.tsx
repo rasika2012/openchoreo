@@ -16,6 +16,7 @@ export interface NavItemBase {
   icon: React.ReactNode;
   href?: string;
   selectedIcon: React.ReactNode;
+  pathPattern: string;
 }
 
 export interface NavItemExpandableSubMenu extends NavItemBase {

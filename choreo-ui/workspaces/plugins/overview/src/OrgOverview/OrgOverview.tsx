@@ -29,6 +29,9 @@ const OrgOverview: React.FC = () => {
   if (!projectListQueryResult?.data) {
     return <PresetErrorPage preset="404" />;
   }
+  if (!projectListQueryResult?.data) {
+    return <PresetErrorPage preset="404" />;
+  }
 
   const project = projectListQueryResult.data.items.map((item) => ({
     id: item.metadata.name,
