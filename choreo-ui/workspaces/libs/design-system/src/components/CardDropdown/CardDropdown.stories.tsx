@@ -7,6 +7,7 @@ import { CardDropdownMenuItemCreate } from './CardDropdownMenuItemCreate/CardDro
 import CardDropdownMenuItem from './CardDropdownMenuItem';
 import NoData from '@design-system/Images/generated/NoData';
 import { useState } from 'react';
+import { NoDataMessage } from '../NoDataMessage';
 
 const meta: Meta<typeof CardDropdown> = {
   title: 'Choreo DS/CardDropdown',
@@ -121,7 +122,7 @@ export const Default: Story = {
                   <Typography variant="h5">No data message</Typography>
                 </Box>
               </Grid>
-              <Grid size={{ xs: 12, md: 6 }}>
+              <Grid size={{ xs: 12, md: 12 }}>
                 <CardDropdown
                   icon={<Bitbucket />}
                   text="Authorized Via bitbucket"
@@ -131,72 +132,16 @@ export const Default: Story = {
                   testId="bitbucket"
                   fullHeight
                 >
-                  {/* <NoDataMessage
-                  size="sm"
-                  message="No App passwords are configured. Contact the admin for assistance."
-                  testId="card-dropdown"
-                /> */}
-                  <NoData />
+                  <NoDataMessage
+                    size="sm"
+                    message="No App passwords are configured. Contact the admin for assistance."
+                    testId="card-dropdown"
+                  />
                 </CardDropdown>
               </Grid>
             </Grid>
           </CardContent>
         </Card>
-      </Box>
-    );
-  },
-};
-
-export const Click: Story = {
-  args: {
-    children: 'CardDropdown Content',
-    size: 'medium',
-  },
-  render: function RenderCardDropdown(_args) {
-    const [selectedItem, setSelectedItem] = useState(0);
-    const handleCreate = () => {};
-
-    const handleClick = (selectedNo: number) => {
-      setSelectedItem(selectedNo);
-    };
-    return (
-      <Box p={3}>
-        <Grid size={{ xs: 12, md: 12 }}>
-          <CardDropdown
-            icon={<Bitbucket />}
-            text="Authorized Via bitbucket"
-            testId="bitbucket"
-            size={_args.size}
-            fullHeight
-          >
-            <CardDropdownMenuItemCreate
-              createText="Create"
-              onClick={handleCreate}
-              testId="create"
-            />
-            <CardDropdownMenuItem
-              selected={selectedItem === 1}
-              // button
-              onClick={() => handleClick(1)}
-            >
-              Profile
-            </CardDropdownMenuItem>
-            <CardDropdownMenuItem
-              selected={selectedItem === 2}
-              // button
-              onClick={() => handleClick(2)}
-            >
-              My account
-            </CardDropdownMenuItem>
-            <CardDropdownMenuItem
-              selected={selectedItem === 3}
-              // button
-              onClick={() => handleClick(3)}
-            >
-              Logout
-            </CardDropdownMenuItem>
-          </CardDropdown>
-        </Grid>
       </Box>
     );
   },
