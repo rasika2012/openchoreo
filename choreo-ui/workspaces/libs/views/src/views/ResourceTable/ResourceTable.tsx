@@ -5,7 +5,9 @@ import {
   Card,
   CardContent,
   DataTable,
+  DeleteIcon,
   SearchBar,
+  Tooltip,
 } from '@open-choreo/design-system';
 import { DataTableColumn } from '@open-choreo/design-system/dist/components/DataTable/DataTable';
 import { useState } from 'react';
@@ -37,6 +39,7 @@ export function ResourceTable(props: ResourceTableProps) {
 
   const DeleteBtn = ({ onClick }: any) => (
     <Button color="error" onClick={onClick} size="small" testId="delete-button">
+      <DeleteIcon fontSize="small" />
       Delete
     </Button>
   );
@@ -54,14 +57,24 @@ export function ResourceTable(props: ResourceTableProps) {
         const { id, name } = rowData;
         return (
           <Box display="flex" alignItems="center" gap={8}>
-            {name ? <Avatar /> : <Avatar />}
-            <Box>
-              {name === 'null' || name === null ? (
-                <span>{id}</span>
-              ) : (
-                <span>{name}</span>
-              )}
-            </Box>
+            {name ? (
+              <Tooltip title={name} placement="bottom">
+                <Avatar />
+              </Tooltip>
+            ) : (
+              <Tooltip title={id} placement="bottom">
+                <Avatar />
+              </Tooltip>
+            )}
+            <Tooltip title={name} placement="bottom">
+              <Box>
+                {name === 'null' || name === null ? (
+                  <span>{id}</span>
+                ) : (
+                  <span>{name}</span>
+                )}
+              </Box>
+            </Tooltip>
           </Box>
         );
       },
@@ -70,6 +83,14 @@ export function ResourceTable(props: ResourceTableProps) {
       title: 'Description',
       field: 'description',
       width: '25%',
+      render: (rowData: Resource) => {
+        const { description } = rowData;
+        return (
+          <Tooltip title={description} placement="bottom">
+            <span>{description || 'No description available'}</span>
+          </Tooltip>
+        );
+      },
     },
     {
       title: 'Type',
@@ -92,7 +113,11 @@ export function ResourceTable(props: ResourceTableProps) {
             />
           );
         }
-        return <span>{rowData.lastUpdated}</span>;
+        return rowData.lastUpdated ? (
+          <span>{rowData.lastUpdated}</span>
+        ) : (
+          <span>Not Available</span>
+        );
       },
     },
   ];
