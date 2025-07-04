@@ -9,6 +9,7 @@ import {
 } from '@open-choreo/design-system';
 import { DataTableColumn } from '@open-choreo/design-system/dist/components/DataTable/DataTable';
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 
 export interface Resource {
   id: string;
@@ -26,6 +27,7 @@ export interface ResourceTableProps {
 export function ResourceTable(props: ResourceTableProps) {
   const { resources } = props;
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
   const onSearch = (data: any) => {
     setSearchQuery(data);
   };
@@ -33,15 +35,15 @@ export function ResourceTable(props: ResourceTableProps) {
     console.log('Delete member', idpId, displayName);
   };
 
-  const onRowClick = (rowData: Resource) => {
-    console.log('Row clicked', rowData);
-  };
-
   const DeleteBtn = ({ onClick }: any) => (
     <Button color="error" onClick={onClick} size="small" testId="delete-button">
       Delete
     </Button>
   );
+
+  const handleResourceClick = (resource: Resource) => {
+    navigate(resource.href || '');
+  };
 
   const resourceListColumns: DataTableColumn<Resource>[] = [
     {
@@ -113,7 +115,7 @@ export function ResourceTable(props: ResourceTableProps) {
             searchQuery={searchQuery}
             data={resources}
             totalRows={resources.length}
-            onRowClick={onRowClick}
+            onRowClick={handleResourceClick}
           />
         </CardContent>
       </Card>
