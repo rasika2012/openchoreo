@@ -46,7 +46,7 @@
                     "secondary": "#cbcedb"
                 },
                 "background": {
-                    "default": "#ffffff",
+                    "default": "#f7f8fb",
                     "paper": "#ffffff"
                 }
             }
