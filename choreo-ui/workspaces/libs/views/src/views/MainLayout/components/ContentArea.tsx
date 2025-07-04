@@ -18,6 +18,7 @@ export const ContentArea = React.forwardRef<HTMLDivElement, ContentAreaProps>(
         flexDirection="row"
         display="flex"
         overflow="auto"
+        backgroundColor={theme.pallet.background.default}
       >
         <Box flexGrow={1} height="100%" overflow="auto">
           {children}
