@@ -6,6 +6,7 @@ import {
   ImageMenuProjectColored,
   Tooltip,
   Typography,
+  NoDataMessage,
 } from '@open-choreo/design-system';
 
 export interface Resource {
@@ -140,7 +141,7 @@ export function ResourceList(props: ResourceListProps) {
             </Card>
           ))
         ) : (
-          <Typography variant="body2">No resources found.</Typography>
+          <NoDataMessage />
         )}
       </div>
     </Box>
