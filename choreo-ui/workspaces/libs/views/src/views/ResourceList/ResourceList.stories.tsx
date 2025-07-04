@@ -9,6 +9,7 @@ import {
   Tooltip,
   Typography,
 } from '@open-choreo/design-system';
+import { IntlProvider } from 'react-intl';
 
 const resources: Resource[] = [
   {
@@ -100,6 +101,13 @@ export const Default: Story = {
       </>
     ),
   },
+  render: (args) => {
+    return (
+      <IntlProvider locale="en" messages={{}}>
+        <ResourceList {...args} />
+      </IntlProvider>
+    );
+  },
 };
 
 export const Empty: Story = {
@@ -131,5 +139,12 @@ export const Empty: Story = {
         </Tooltip>
       </>
     ),
+  },
+  render: (args) => {
+    return (
+      <IntlProvider locale="en" messages={{}}>
+        <ResourceList {...args} />
+      </IntlProvider>
+    );
   },
 };
