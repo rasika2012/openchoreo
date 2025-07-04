@@ -41,8 +41,8 @@ export const StyledDataTable: ComponentType<StyledDataTableProps> = styled(
     width: 1,
   },
   '& .noRecordsTextRow': {
-    'text-align': 'center',
-    'vertical-align': 'middle',
+    textAlign: 'center',
+    verticalAlign: 'middle',
     height: '10vh',
   },
   '& .tablePagination': {
