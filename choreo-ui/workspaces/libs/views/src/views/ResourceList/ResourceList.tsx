@@ -8,6 +8,7 @@ import {
   Typography,
   NoDataMessage,
 } from '@open-choreo/design-system';
+import { useNavigate } from 'react-router';
 
 export interface Resource {
   id: string;
@@ -27,6 +28,12 @@ export interface ResourceListProps {
 
 export function ResourceList(props: ResourceListProps) {
   const { resources, cardWidth = 320 } = props;
+  const navigate = useNavigate();
+
+  const handleResourceClick = (resource: Resource) => {
+    navigate(resource.href || '');
+  };
+
   return (
     <Box padding={2}>
       <div
@@ -44,6 +51,7 @@ export function ResourceList(props: ResourceListProps) {
               testId={resource.id}
               boxShadow="dark"
               style={{ width: cardWidth }}
+              onClick={() => handleResourceClick(resource)}
             >
               <CardActionArea testId={resource.id}>
                 <CardContent paddingSize="md">
@@ -69,18 +77,20 @@ export function ResourceList(props: ResourceListProps) {
 
                     {/* Text Container */}
                     <Box width="calc(100% - 64px)" overflow="hidden">
-                      <Tooltip placement="top" title={resource.name}>
-                        <div
-                          style={{
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            marginBottom: '4px',
-                          }}
-                        >
-                          <Typography variant="h6">{resource.name}</Typography>
-                        </div>
-                      </Tooltip>
+                      <div
+                        style={{
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        <Typography variant="h6">
+                          <Tooltip placement="right" title={resource.name}>
+                            {resource.name}
+                          </Tooltip>
+                        </Typography>
+                      </div>
                       <div
                         style={{
                           overflow: 'hidden',
