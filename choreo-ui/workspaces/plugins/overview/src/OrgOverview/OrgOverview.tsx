@@ -2,7 +2,6 @@ import {
   PageLayout,
   PresetErrorPage,
   ResourceList,
-  ResourceTable,
 } from "@open-choreo/common-views";
 import { useGlobalState } from "@open-choreo/api-client";
 import { useHomePath, useUrlParams } from "@open-choreo/plugin-core";
@@ -36,7 +35,9 @@ const OrgOverview: React.FC = () => {
     name: item.metadata.name,
     description: Object.values(item.metadata?.labels || []).join(", "),
     type: item.kind,
-    lastUpdated: "",
+    lastUpdated:
+      item.status.conditions?.[0]?.lastTransitionTime ||
+      new Date().toISOString(),
     href: `${homePath}/project/${item.metadata.name}`,
   }));
 
@@ -48,12 +49,16 @@ const OrgOverview: React.FC = () => {
           <Box display="flex" alignItems="center" gap={4}>
             <TimeIcon fontSize="inherit" />
             <Tooltip
-              title={`Last updated: ${new Date(
+              title={`Last updated: ${
                 project[0].lastUpdated
-              ).toLocaleDateString()}`}
+                  ? new Date(project[0].lastUpdated).toLocaleDateString()
+                  : "Unknown"
+              }`}
             >
               <Typography variant="body1" color="text.secondary">
-                {new Date(project[0].lastUpdated).toLocaleDateString()}
+                {project[0].lastUpdated
+                  ? new Date(project[0].lastUpdated).toLocaleDateString()
+                  : "Unknown"}
               </Typography>
             </Tooltip>
           </Box>
