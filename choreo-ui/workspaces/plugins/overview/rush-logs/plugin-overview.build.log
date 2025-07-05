@@ -1,0 +1,36 @@
+Invoking: rushx lint && rushx clean && tsc -project tsconfig.json 
+Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
+
+Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
+> "eslint --config ./eslint.config.js --fix"
+
+
+/Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/workspaces/plugins/overview/src/OrgOverview/OrgOverview.tsx
+   5:3   warning  'ResourceList' is defined but never used  no-unused-vars
+   5:3   warning  'ResourceList' is defined but never used  @typescript-eslint/no-unused-vars
+  12:3   warning  'useHomePath' is defined but never used   no-unused-vars
+  12:3   warning  'useHomePath' is defined but never used   @typescript-eslint/no-unused-vars
+  14:17  warning  'useMemo' is defined but never used       no-unused-vars
+  14:17  warning  'useMemo' is defined but never used       @typescript-eslint/no-unused-vars
+  14:26  warning  'useState' is defined but never used      no-unused-vars
+  14:26  warning  'useState' is defined but never used      @typescript-eslint/no-unused-vars
+  16:3   warning  'Box' is defined but never used           no-unused-vars
+  16:3   warning  'Box' is defined but never used           @typescript-eslint/no-unused-vars
+  20:3   warning  'SearchBar' is defined but never used     no-unused-vars
+  20:3   warning  'SearchBar' is defined but never used     @typescript-eslint/no-unused-vars
+  21:3   warning  'TimeIcon' is defined but never used      no-unused-vars
+  21:3   warning  'TimeIcon' is defined but never used      @typescript-eslint/no-unused-vars
+  22:3   warning  'Tooltip' is defined but never used       no-unused-vars
+  22:3   warning  'Tooltip' is defined but never used       @typescript-eslint/no-unused-vars
+  23:3   warning  'Typography' is defined but never used    no-unused-vars
+  23:3   warning  'Typography' is defined but never used    @typescript-eslint/no-unused-vars
+  25:10  warning  'useIntl' is defined but never used       no-unused-vars
+  25:10  warning  'useIntl' is defined but never used       @typescript-eslint/no-unused-vars
+
+✖ 20 problems (0 errors, 20 warnings)
+
+Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
+
+Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
+> "rm -rf dist"
+

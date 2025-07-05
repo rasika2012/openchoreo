@@ -1,0 +1,12 @@
+packages:
+  - ../../workspaces/apps/console
+  - ../../workspaces/libs/api-client
+  - ../../workspaces/libs/common-views
+  - ../../workspaces/libs/definitions
+  - ../../workspaces/libs/design-system
+  - ../../workspaces/plugins/choreo-context
+  - ../../workspaces/plugins/overview
+  - ../../workspaces/plugins/plugin-core
+  - ../../workspaces/plugins/resource-list
+  - ../../workspaces/plugins/top-level-selector
+  - ../../workspaces/plugins/top-right-menu

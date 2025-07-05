@@ -1,0 +1,11 @@
+{
+  "node": "20.14.0",
+  "packageManager": "pnpm",
+  "packageManagerVersion": "10.12.1",
+  "rushJsonFolder": "/Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui",
+  "ignoreScripts": false,
+  "pnpmSync": "0.3.0",
+  "npmrcHash": "51603e861d825cfc6e477630d4757bd103059b78",
+  "storePath": "/Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/common/temp/pnpm-store",
+  "workspaces": true
+}

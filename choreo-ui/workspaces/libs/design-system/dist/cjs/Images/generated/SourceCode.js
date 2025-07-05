@@ -1,0 +1,44 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = default_1;
+const jsx_runtime_1 = require("react/jsx-runtime");
+/* eslint-disable prettier/prettier */
+/* eslint-disable max-len */
+const React = __importStar(require("react"));
+function default_1(props) {
+    return ((0, jsx_runtime_1.jsx)("svg", { ...props, children: (0, jsx_runtime_1.jsx)("g", { children: (0, jsx_runtime_1.jsx)(React.Fragment, { children: (0, jsx_runtime_1.jsxs)("svg", { fill: "none", viewBox: "0 0 96 96", children: [(0, jsx_runtime_1.jsx)("circle", { cx: "74", cy: "24", r: "15", stroke: "#F0F1FB", "stroke-width": "2" }), (0, jsx_runtime_1.jsx)("path", { fill: "#F0F1FB", d: "M77.0521 49.3399v-1.8018C77.0521 31.207 63.8702 18 47.8394 18h-.2374c-13.7767 0-25.6498 9.6067-28.5016 23.1748C9.5995 41.8954 2 49.9396 2 59.7877v.6013C2 70.7162 10.3123 79 20.4079 79h55.3396c7.8376 0 14.2507-6.4838 14.2507-14.4093v-.8399c.1186-7.687-5.581-13.8114-12.9447-14.4115z" }), (0, jsx_runtime_1.jsx)("path", { stroke: "#40404B", "stroke-linecap": "round", "stroke-width": "1.3333", d: "M46.8394 16h-.2374c-13.7767 0-25.6498 9.6067-28.5016 23.1748-2.9381.2229-5.6944 1.1461-8.1004 2.6065M3.1841 49C1.792 51.6175 1 54.6086 1 57.7877v.6013c0 3.5243.968 6.8107 2.6447 9.611" }), (0, jsx_runtime_1.jsx)("path", { stroke: "#40404B", "stroke-linecap": "round", d: "M62 82.2492h16.7474c7.8375 0 14.2506-6.4838 14.2506-14.4094V67" }), (0, jsx_runtime_1.jsx)("path", { fill: "#A6B3FF", d: "M47.9744 40.2342 41.044 61.4267c-.0922.2818.0685.5899.3522.6754l2.4719.745 3.3802.9726a.4854.4854 0 0 0 .5998-.3208l6.6923-20.9369c.5884-1.8408-.4218-3.8507-2.2505-4.4772-1.8014-.6173-3.7238.3402-4.3155 2.1494" }), (0, jsx_runtime_1.jsx)("path", { fill: "#5567D5", fillRule: "evenodd", d: "M49.4393 40.9354c.3354-1.0194 1.4209-1.5577 2.4382-1.2091 1.0402.3564 1.6113 1.5022 1.2684 2.5445l-6.5326 19.854-3.7663-1.1542zM41.9095 63.82l-.7722 2.347 1.2482 2.5794 2.4839-1.3215.8064-2.4507zm10.8599-26.9556c-2.5686-.8802-5.3093.479-6.1562 3.0529l-8.416 25.5783c-.1739.5286-.1335 1.1106.1126 1.6191l2.099 4.3375.6894 1.4247 1.3587-.7229 4.1529-2.2095c.4609-.2452.809-.6608.9743-1.1632l8.3878-25.4923c.8659-2.6318-.5761-5.5247-3.2025-6.4246", clipRule: "evenodd" }), (0, jsx_runtime_1.jsx)("path", { stroke: "#A6B3FF", "stroke-linecap": "round", "stroke-width": "3", d: "m33.75 64.3034-8.3371-7.5033a.5.5 0 0 1 0-.7433l8.3371-7.5034" }), (0, jsx_runtime_1.jsx)("path", { stroke: "#A6B3FF", "stroke-linecap": "round", "stroke-width": "3", d: "m58.25 48.5534 8.3371 7.5034a.5.5 0 0 1 0 .7433L58.25 64.3034" })] }) }) }) }));
+}
+//# sourceMappingURL=SourceCode.js.map

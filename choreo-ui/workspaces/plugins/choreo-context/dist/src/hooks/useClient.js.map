@@ -1,0 +1,1 @@
+{"version":3,"file":"useClient.js","sourceRoot":"","sources":["../../../src/hooks/useClient.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,UAAU,EAAE,MAAM,OAAO,CAAC;AACnC,OAAO,EACL,gBAAgB,GAEjB,MAAM,gCAAgC,CAAC;AAExC,MAAM,CAAC,MAAM,SAAS,GAAG,GAAG,EAAE;IAC5B,MAAM,EAAE,SAAS,EAAE,GAAG,UAAU,CAAoB,gBAAgB,CAAC,CAAC;IACtE,OAAO,SAAS,CAAC;AACnB,CAAC,CAAC"}

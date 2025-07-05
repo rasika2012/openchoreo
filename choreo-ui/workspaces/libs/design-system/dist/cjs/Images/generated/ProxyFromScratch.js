@@ -1,0 +1,44 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = default_1;
+const jsx_runtime_1 = require("react/jsx-runtime");
+/* eslint-disable prettier/prettier */
+/* eslint-disable max-len */
+const React = __importStar(require("react"));
+function default_1(props) {
+    return ((0, jsx_runtime_1.jsx)("svg", { ...props, children: (0, jsx_runtime_1.jsx)("g", { children: (0, jsx_runtime_1.jsx)(React.Fragment, { children: (0, jsx_runtime_1.jsxs)("svg", { fill: "none", viewBox: "0 0 48 48", children: [(0, jsx_runtime_1.jsxs)("g", { children: [(0, jsx_runtime_1.jsx)("rect", { width: "40", height: "40", x: "2", y: "7", fill: "#CBCEDB", fillOpacity: ".5", rx: "5" }), (0, jsx_runtime_1.jsx)("path", { fill: "#40404B", fillRule: "evenodd", d: "M17.75 27C15.6789 27 14 28.6789 14 30.75s1.6789 3.75 3.75 3.75h15c1.2426 0 2.25 1.0074 2.25 2.25S33.9926 39 32.75 39h-21a.75.75 0 0 0 0 1.5h21c2.0711 0 3.75-1.6789 3.75-3.75 0-2.0705-1.678-3.7491-3.7483-3.75H17.75c-1.2426 0-2.25-1.0074-2.25-2.25s1.0074-2.25 2.25-2.25h9a.75.75 0 0 0 0-1.5z", clipRule: "evenodd" }), (0, jsx_runtime_1.jsx)("mask", { fill: "white", children: (0, jsx_runtime_1.jsx)("path", { d: "M37.7156 4.9152c2.1623-2.1623 5.6681-2.1623 7.8304 0s2.1624 5.6682 0 7.8305l-15.3639 15.364a4 4 0 0 1-2.6662 1.1683l-5.5169.224c-.5838.0237-1.0635-.4559-1.0397-1.0397l.224-5.5169a4 4 0 0 1 1.1683-2.6662z" }) }), (0, jsx_runtime_1.jsx)("path", { fill: "#A6B3FF", d: "m21.999 29.502.6492 15.9869zm-1.0397-1.0397-15.9869-.6492zm.224-5.5169 15.9868.6492zm6.3326 6.3326-.6492-15.9868zm6.7164-27.846L18.8684 16.796l22.6274 22.6274 15.364-15.3639zm-.567 30.1609 15.364-15.3639L26.4018-6.3985 11.0379 8.9655zm-6.7986-18.3017-5.5169.224 1.2984 31.9737 5.5169-.2241zm10.0794 15.8203.224-5.5169-31.9736-1.2984-.224 5.5169zM21.3498 13.5152c8.7567-.3556 15.9519 6.8397 15.5963 15.5963L4.9724 27.8131c-.403 9.9242 7.7516 18.0788 17.6758 17.6758zM11.0379 8.9655a20 20 0 0 0-5.8414 13.3307L37.17 23.5946a12 12 0 0 1-3.5048 7.9983zm7.8305 7.8305a12 12 0 0 1 7.9983-3.5048l1.2984 31.9736a20 20 0 0 0 13.3307-5.8414zm15.3639-.567c-4.086-4.0861-4.086-10.711 0-14.797l22.6275 22.6275c8.4107-8.4108 8.4107-22.0472 0-30.458zM56.8598-6.3985c-8.4108-8.4107-22.0472-8.4107-30.458 0L49.0293 16.229c-4.0861 4.086-10.7109 4.086-14.797 0z", mask: "url(#b)" })] }), (0, jsx_runtime_1.jsx)("defs", {})] }) }) }) }));
+}
+//# sourceMappingURL=ProxyFromScratch.js.map

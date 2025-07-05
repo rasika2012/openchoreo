@@ -1,0 +1,44 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = default_1;
+const jsx_runtime_1 = require("react/jsx-runtime");
+/* eslint-disable prettier/prettier */
+/* eslint-disable max-len */
+const React = __importStar(require("react"));
+function default_1(props) {
+    return ((0, jsx_runtime_1.jsx)("svg", { ...props, children: (0, jsx_runtime_1.jsx)("g", { children: (0, jsx_runtime_1.jsx)(React.Fragment, { children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 20 20", children: (0, jsx_runtime_1.jsxs)("g", { fill: "none", fillRule: "evenodd", stroke: "none", "stroke-width": "1", transform: "translate(-1283 -119) translate(1283 119)", children: [(0, jsx_runtime_1.jsx)("rect", { width: "20", height: "20", x: "0", y: "0", fill: "#F7F8FB", rx: "10" }), (0, jsx_runtime_1.jsx)("path", { fill: "#E7E7E7", fillRule: "nonzero", d: "M10 0c5.5228 0 10 4.4772 10 10s-4.4772 10-10 10S0 15.5228 0 10 4.4772 0 10 0m0 1c-4.9706 0-9 4.0294-9 9s4.0294 9 9 9 9-4.0294 9-9-4.0294-9-9-9" }), (0, jsx_runtime_1.jsx)("path", { fill: "#40404B", fillRule: "nonzero", d: "M10.58 11.9995c0-.274.0814-.5248.2507-.758s.37-.443.6082-.6297c.2382-.1865.4765-.379.7147-.5713q.3574-.2886.6019-.7172c.163-.2857.2445-.6063.2445-.9562 0-.6938-.2696-1.2593-.8088-1.7024S10.9562 6 10.1097 6q-1.2978 0-2.1066.6647C7.464 7.1077 7.1317 7.6675 7 8.338l1.2163.3381c.1191-.4606.3386-.8337.6583-1.1136s.721-.4197 1.21-.4197q.696 0 1.1098.3498t.4138.9095c0 .239-.0816.4665-.2383.6763-.1567.21-.351.4082-.5768.589a15 15 0 0 0-.6771.5771c-.2257.204-.42.4548-.583.758-.1305.2425-.2087.5037-.2348.7866L9.2878 12zM10 15c.2786 0 .5143-.0942.7071-.2899.1929-.1956.2929-.4347.2929-.7173 0-.2754-.1-.5073-.2929-.703S10.2786 13 10 13s-.5143.0942-.7071.2899C9.1 13.4855 9 13.7174 9 13.9928c0 .2826.1.5217.2929.7173.1928.1957.4285.2899.7071.2899", opacity: ".4972" })] }) }) }) }) }));
+}
+//# sourceMappingURL=Help.js.map

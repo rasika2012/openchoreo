@@ -1,0 +1,26 @@
+Invoking: rushx  clean && rushx  build:esm && rushx  build:cjs && rushx  copy-assets && rushx  transform-paths 
+Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
+
+Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
+> "rm -rf dist"
+
+Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
+
+Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
+> "tsc -project tsconfig.lib.json"
+
+Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
+
+Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
+> "tsc -project tsconfig.lib.json --module CommonJS --outDir dist/cjs"
+
+Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
+
+Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
+> "find src -type f \\( -name '*.css' -o -name '*.scss' -o -name '*.less' -o -name '*.woff*' -o -name '*.ttf' -o -name '*.eot' \\) -exec sh -c 'mkdir -p dist/$(dirname {}| sed \"s|^src||\") && cp {} dist/$(dirname {}| sed \"s|^src||\")/$(basename {})' \\;"
+
+Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
+
+Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
+> "node scripts/transform-paths.js"
+

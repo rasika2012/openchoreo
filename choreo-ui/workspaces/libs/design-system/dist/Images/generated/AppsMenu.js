@@ -1,0 +1,8 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+/* eslint-disable prettier/prettier */
+/* eslint-disable max-len */
+import * as React from 'react';
+export default function (props) {
+    return (_jsx("svg", { ...props, children: _jsx("g", { children: _jsx(React.Fragment, { children: _jsx("svg", { viewBox: "0 0 18 18", children: _jsxs("g", { fill: "#5668D5", fillRule: "evenodd", stroke: "none", "stroke-width": "1", children: [_jsx("path", { d: "M4 12.5c.8284 0 1.5.6716 1.5 1.5s-.6716 1.5-1.5 1.5-1.5-.6716-1.5-1.5.6716-1.5 1.5-1.5m5 0c.8284 0 1.5.6716 1.5 1.5s-.6716 1.5-1.5 1.5-1.5-.6716-1.5-1.5.6716-1.5 1.5-1.5m-5-5c.8284 0 1.5.6716 1.5 1.5s-.6716 1.5-1.5 1.5S2.5 9.8284 2.5 9 3.1716 7.5 4 7.5m5 0c.8284 0 1.5.6716 1.5 1.5s-.6716 1.5-1.5 1.5S7.5 9.8284 7.5 9 8.1716 7.5 9 7.5m-5-5c.8284 0 1.5.6716 1.5 1.5S4.8284 5.5 4 5.5 2.5 4.8284 2.5 4 3.1716 2.5 4 2.5", transform: "translate(-102 -24) translate(102 24)" }), _jsx("path", { d: "M14 12.5c.8284 0 1.5.6716 1.5 1.5s-.6716 1.5-1.5 1.5-1.5-.6716-1.5-1.5.6716-1.5 1.5-1.5m0-5c.8284 0 1.5.6716 1.5 1.5s-.6716 1.5-1.5 1.5-1.5-.6716-1.5-1.5.6716-1.5 1.5-1.5m-5-5c.8284 0 1.5.6716 1.5 1.5S9.8284 5.5 9 5.5 7.5 4.8284 7.5 4 8.1716 2.5 9 2.5m5 0c.8284 0 1.5.6716 1.5 1.5s-.6716 1.5-1.5 1.5-1.5-.6716-1.5-1.5.6716-1.5 1.5-1.5", opacity: ".3", transform: "translate(-102 -24) translate(102 24)" })] }) }) }) }) }));
+}
+//# sourceMappingURL=AppsMenu.js.map

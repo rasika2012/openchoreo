@@ -1,0 +1,8 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+/* eslint-disable prettier/prettier */
+/* eslint-disable max-len */
+import * as React from 'react';
+export default function (props) {
+    return (_jsx("svg", { ...props, children: _jsx("g", { children: _jsx(React.Fragment, { children: _jsxs("svg", { viewBox: "0 0 21 19", children: [_jsxs("defs", { children: [_jsxs("linearGradient", { x1: ".5", x2: ".5", y2: "1", gradientUnits: "objectBoundingBox", children: [_jsx("stop", { offset: "0", "stop-color": "#ea4c4d" }), _jsx("stop", { offset: "1", "stop-color": "#d64142" })] }), _jsxs("filter", { width: "21", height: "19", x: "0", y: "0", filterUnits: "userSpaceOnUse", children: [_jsx("feOffset", { dy: "1" }), _jsx("feGaussianBlur", { result: "blur", stdDeviation: ".5" }), _jsx("feFlood", { "flood-opacity": ".18" }), _jsx("feComposite", { in2: "blur", operator: "in" }), _jsx("feComposite", { in: "SourceGraphic" })] })] }), _jsxs("g", { children: [_jsx("g", { filter: "url(#a)", transform: "translate(1.5 .5) translate(-1.5 -.5)", children: _jsx("path", { fill: "url(#b)", d: "M17.674 12.469 11.022 1.156a2.343 2.343 0 0 0-4.041 0L.33 12.469a2.34 2.34 0 0 0-.03 2.344A2.31 2.31 0 0 0 2.32 16h13.333a2.36 2.36 0 0 0 2.02-3.531Z", transform: "translate(1.5 .5)" }) }), _jsx("path", { fill: "#fff", d: "M0 9a1 1 0 1 1 1 1 1 1 0 0 1-1-1m0-4V1a1 1 0 0 1 2 0v4a1 1 0 0 1-2 0", transform: "translate(1.5 .5) translate(8 4)" })] })] }) }) }) }));
+}
+//# sourceMappingURL=WarningRed.js.map

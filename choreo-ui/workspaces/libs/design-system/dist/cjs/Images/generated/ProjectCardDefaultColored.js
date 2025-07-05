@@ -1,0 +1,8 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = default_1;
+const jsx_runtime_1 = require("react/jsx-runtime");
+function default_1(props) {
+    return ((0, jsx_runtime_1.jsx)("svg", { ...props, children: (0, jsx_runtime_1.jsx)("g", { children: (0, jsx_runtime_1.jsx)("svg", { viewBox: "0 0 32 32", children: (0, jsx_runtime_1.jsx)("path", { fill: "#5567D5", fillRule: "nonzero", stroke: "none", "stroke-width": "1", d: "M16 0c8.8366 0 16 7.1634 16 16s-7.1634 16-16 16S0 24.8366 0 16 7.1634 0 16 0m0 2.0426C8.2915 2.0426 2.0426 8.2916 2.0426 16S8.2916 29.9574 16 29.9574 29.9574 23.7084 29.9574 16 23.7084 2.0426 16 2.0426m0 4.5661c5.1867 0 9.3913 4.2046 9.3913 9.3913S21.1867 25.3913 16 25.3913 6.6087 21.1867 6.6087 16 10.8133 6.6087 16 6.6087m0 1.0435c-4.6104 0-8.3478 3.7374-8.3478 8.3478S11.3896 24.3478 16 24.3478 24.3478 20.6104 24.3478 16 20.6104 7.6522 16 7.6522m0 4.6031c2.0681 0 3.7447 1.6766 3.7447 3.7447S18.068 19.7447 16 19.7447 12.2553 18.068 12.2553 16 13.932 12.2553 16 12.2553m0 2.0426c-.94 0-1.7021.762-1.7021 1.7021s.762 1.7021 1.7021 1.7021 1.7021-.762 1.7021-1.7021-.762-1.7021-1.7021-1.7021", transform: "translate(-160 -225) translate(160 225)" }) }) }) }));
+}
+//# sourceMappingURL=ProjectCardDefaultColored.js.map

@@ -1,0 +1,8 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const jsx_runtime_1 = require("react/jsx-runtime");
+/* eslint-disable prettier/prettier */
+/* eslint-disable max-len */
+const material_1 = require("@mui/material");
+exports.default = (0, material_1.createSvgIcon)((0, jsx_runtime_1.jsx)("path", { fill: "currentColor", fillRule: "evenodd", d: "M24 12c0 6.6274-5.3726 12-12 12S0 18.6274 0 12 5.3726 0 12 0s12 5.3726 12 12ZM12 22.5c5.799 0 10.5-4.701 10.5-10.5S17.799 1.5 12 1.5 1.5 6.201 1.5 12 6.201 22.5 12 22.5Zm5.25-14.7c0-.5799-.4701-1.05-1.05-1.05H7.8c-.5799 0-1.05.4701-1.05 1.05v8.4c0 .5799.4701 1.05 1.05 1.05h8.4c.5799 0 1.05-.4701 1.05-1.05V7.8Zm-9 .45v7.5h7.5v-7.5h-7.5Z", clipRule: "evenodd" }), 'Stop');
+//# sourceMappingURL=Stop.js.map

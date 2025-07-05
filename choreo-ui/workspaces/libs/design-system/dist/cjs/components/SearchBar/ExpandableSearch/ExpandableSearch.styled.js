@@ -1,0 +1,85 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.StyledExpandableSearch = exports.StyledAutofocusField = void 0;
+const material_1 = require("@mui/material");
+exports.StyledAutofocusField = (0, material_1.styled)(material_1.Box)(({ disabled, size = 'medium', theme }) => ({
+    opacity: disabled ? 0.5 : 1,
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    backgroundColor: 'transparent',
+    '& .search': {
+        position: 'relative',
+        width: '100%',
+    },
+    '& .inputRootExpandable': {
+        color: 'inherit',
+        width: '100%',
+    },
+    '& .inputExpandable': {
+        borderRadius: theme.shape.borderRadius,
+        padding: theme.spacing(1, 1, 1, 1),
+        transition: 'all 0.3s',
+        width: '100%',
+        backgroundColor: theme.palette.common.white,
+        height: size === 'small' ? theme.spacing(3.75) : theme.spacing(4.75),
+        boxSizing: 'border-box',
+        '&::placeholder': {
+            color: theme.palette.secondary.main,
+        },
+        '&:focus': {
+            boxShadow: 'none',
+        },
+    },
+    '& .inputSmall': {
+        height: theme.spacing(3.75),
+        '& .MuiSvgIcon-fontSizeSmall': {
+            fontSize: theme.spacing(2),
+        },
+    },
+    '& .inputMedium': {
+        height: theme.spacing(4.75),
+    },
+}));
+exports.StyledExpandableSearch = (0, material_1.styled)(material_1.Box)(({ disabled, direction = 'left', isOpen = false, theme }) => ({
+    opacity: disabled ? 0.5 : 1,
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    backgroundColor: 'transparent',
+    '& .expandableSearchCont': {
+        display: 'flex',
+        alignItems: 'center',
+        border: '1px solid transparent',
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1.5),
+        transition: 'all 0.3s',
+        ...(direction === 'right' && {
+            justifyContent: 'flex-end',
+        }),
+        ...(isOpen && {
+            borderRadius: theme.shape.borderRadius,
+            backgroundColor: theme.palette.common.white,
+            border: `1px solid ${theme.palette.primary.light}`,
+            boxShadow: `0 0 0 2px ${theme.palette.primary.main}, inset 0 2px 2px ${(0, material_1.alpha)(theme.palette.common.black, 0.07)}`,
+            flex: 1,
+        }),
+    },
+    '& .expandableSearchContRight': {
+        justifyContent: 'flex-end',
+    },
+    '& .expandableSearchContOpen': {
+        borderRadius: theme.shape.borderRadius,
+        backgroundColor: theme.palette.common.white,
+        border: `1px solid ${theme.palette.primary.light}`,
+        boxShadow: `0 0 0 2px ${theme.palette.primary.main}, inset 0 2px 2px ${(0, material_1.alpha)(theme.palette.common.black, 0.07)}`,
+        flex: 1,
+    },
+    '& .expandableSearchWrap': {
+        display: 'flex',
+        overflow: 'hidden',
+        maxWidth: 0,
+        transition: 'all 0.3s',
+    },
+    '& .expandableSearchWrapShow': {
+        maxWidth: '100%',
+        flexGrow: 1,
+    },
+}));
+//# sourceMappingURL=ExpandableSearch.styled.js.map

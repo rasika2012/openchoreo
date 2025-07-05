@@ -1,0 +1,8 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { ArrowLeftLongIcon, Box, Button, Typography, useChoreoTheme, } from '@open-choreo/design-system';
+export function PageLayout(_a) {
+    var testId = _a.testId, children = _a.children, title = _a.title, description = _a.description, backUrl = _a.backUrl, backButtonText = _a.backButtonText, actions = _a.actions;
+    var theme = useChoreoTheme();
+    return (_jsxs(Box, { testId: "page-layout-".concat(testId), display: "flex", justifyContent: "flex-start", alignItems: "flex-start", flexDirection: "column", gap: 2, backgroundColor: theme.pallet.background.default, padding: theme.spacing(2), color: theme.pallet.text.primary, children: [backUrl && (_jsx(Button, { variant: "link", href: backUrl, startIcon: _jsx(ArrowLeftLongIcon, {}), testId: "page-layout-back-button-".concat(testId), children: backButtonText !== null && backButtonText !== void 0 ? backButtonText : 'Back to previous page' })), _jsxs(Box, { display: "flex", flexDirection: "column", gap: 16, flexGrow: 1, width: "100%", children: [_jsxs(Box, { display: "flex", flexDirection: "column", gap: 2, children: [_jsxs(Box, { display: "flex", alignItems: "center", gap: 2, children: [_jsx(Typography, { variant: "h2", children: title }), " ", actions && actions] }), description && (_jsx(Typography, { variant: "body1", children: description }))] }), children] })] }));
+}
+//# sourceMappingURL=PageLayout.js.map

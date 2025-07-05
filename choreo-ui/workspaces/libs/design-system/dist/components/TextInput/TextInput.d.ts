@@ -1,0 +1,33 @@
+import React from 'react';
+import { TooltipProps, Typography } from '@mui/material';
+import { StyledTextField } from './TextInput.styled';
+export interface TextInputProps {
+    label?: string;
+    value: string;
+    optional?: boolean;
+    loading?: boolean;
+    tooltip?: React.ReactNode;
+    info?: React.ReactNode;
+    tooltipPlacement?: TooltipProps['placement'];
+    inputTooltip?: React.ReactNode;
+    typography?: React.ComponentProps<typeof Typography>['variant'];
+    helperText?: string;
+    error?: boolean;
+    errorMessage?: string;
+    testId: string;
+    onChange: (text: string) => void;
+    disabled?: boolean;
+    type?: string;
+    readonly?: boolean;
+    actions?: React.ReactNode;
+    multiline?: boolean;
+    rows?: number;
+    rounded?: boolean;
+    className?: string;
+    size?: 'small' | 'medium' | 'large';
+    fullWidth?: boolean;
+    placeholder?: string;
+    endAdornment?: React.ReactNode;
+    InputProps?: React.ComponentProps<typeof StyledTextField>['InputProps'];
+}
+export declare const TextInput: React.ForwardRefExoticComponent<TextInputProps & React.RefAttributes<HTMLDivElement>>;

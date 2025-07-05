@@ -1,0 +1,8 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+/* eslint-disable prettier/prettier */
+/* eslint-disable max-len */
+import * as React from 'react';
+export default function (props) {
+    return (_jsx("svg", { ...props, children: _jsx("g", { children: _jsx(React.Fragment, { children: _jsxs("svg", { viewBox: "0 0 640 480", children: [_jsx("defs", { children: _jsxs("g", { children: [_jsxs("g", { children: [_jsx("path", { d: "m0-1-.3 1 .5.1z" }), _jsx("use", { xlinkHref: "#a", transform: "scale(-1 1)" })] }), _jsxs("g", { children: [_jsx("use", { xlinkHref: "#b", transform: "rotate(72)" }), _jsx("use", { xlinkHref: "#b", transform: "rotate(144)" })] }), _jsx("use", { xlinkHref: "#c", transform: "scale(-1 1)" })] }) }), _jsx("path", { fill: "#039", d: "M0 0h640v480H0z" }), _jsxs("g", { fill: "#fc0", transform: "translate(320 242.3)scale(23.7037)", children: [_jsx("use", { xlinkHref: "#d", width: "100%", height: "100%", y: "-6" }), _jsx("use", { xlinkHref: "#d", width: "100%", height: "100%", y: "6" }), _jsxs("g", { children: [_jsx("use", { xlinkHref: "#d", width: "100%", height: "100%", x: "-6" }), _jsx("use", { xlinkHref: "#d", width: "100%", height: "100%", transform: "rotate(-144 -2.3 -2.1)" }), _jsx("use", { xlinkHref: "#d", width: "100%", height: "100%", transform: "rotate(144 -2.1 -2.3)" }), _jsx("use", { xlinkHref: "#d", width: "100%", height: "100%", transform: "rotate(72 -4.7 -2)" }), _jsx("use", { xlinkHref: "#d", width: "100%", height: "100%", transform: "rotate(72 -5 .5)" })] }), _jsx("use", { xlinkHref: "#e", width: "100%", height: "100%", transform: "scale(-1 1)" })] })] }) }) }) }));
+}
+//# sourceMappingURL=Eu.js.map

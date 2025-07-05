@@ -1,0 +1,42 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+const jsx_runtime_1 = require("react/jsx-runtime");
+/* eslint-disable prettier/prettier */
+/* eslint-disable max-len */
+const material_1 = require("@mui/material");
+const React = __importStar(require("react"));
+exports.default = (0, material_1.createSvgIcon)((0, jsx_runtime_1.jsxs)(React.Fragment, { children: [(0, jsx_runtime_1.jsx)("path", { fill: "currentColor", fillRule: "evenodd", d: "M11.687.2946c.207-.0376.419-.0376.626 0l10.4106 1.8929A1.25 1.25 0 0 1 23.75 3.4173V4.5c0 .6904-.5596 1.25-1.25 1.25h-21C.8096 5.75.25 5.1904.25 4.5V3.4173a1.25 1.25 0 0 1 1.0264-1.2298L11.687.2946Zm.3577 1.4759a.2496.2496 0 0 0-.0894 0L1.75 3.626v.624h20.5v-.624L12.0447 1.7705ZM.25 20.5c0-.6903.5596-1.25 1.25-1.25h21c.6904 0 1.25.5597 1.25 1.25v2c0 .6904-.5596 1.25-1.25 1.25h-21c-.6904 0-1.25-.5596-1.25-1.25v-2Zm1.5.25v1.5h20.5v-1.5H1.75ZM10.9092 17H9.1274l-.7116-1.9519H4.4934L3.7697 17H2l3.3387-9h2.2197l3.3508 9ZM6.4455 9.6883l-1.3927 3.8034h2.7914L6.4455 9.6883ZM11.7484 8h4.0867l-.0122.0063c.9062 0 1.6359.32 2.1954.9603.5595.6401.8392 1.3619.8392 2.1652 0 .8222-.2797 1.5502-.8392 2.1778-.5595.6277-1.3136.9415-2.2562.9415h-2.317V17h-1.6967V8Zm1.6846 4.6883h2.2622l-.0121-.0125c.4439 0 .8027-.1569 1.0825-.4645.2797-.3075.4196-.6653.4196-1.0732 0-.408-.1338-.7657-.4014-1.0732-.2676-.3075-.6021-.4645-1.0095-.4645H13.433v3.0879Z", clipRule: "evenodd" }), (0, jsx_runtime_1.jsx)("path", { fill: "currentColor", d: "M20.2668 17H22V8h-1.7332v9Z" })] }), 'MenuAPIGovernance');
+//# sourceMappingURL=MenuAPIGovernance.js.map

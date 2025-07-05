@@ -1,0 +1,11 @@
+Invoking: rushx lint && rushx clean && tsc -project tsconfig.json 
+Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
+
+Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
+> "eslint --config ./eslint.config.js --fix"
+
+Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
+
+Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
+> "rm -rf dist"
+

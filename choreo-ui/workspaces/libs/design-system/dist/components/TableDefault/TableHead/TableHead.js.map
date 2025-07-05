@@ -1,0 +1,1 @@
+{"version":3,"file":"TableHead.js","sourceRoot":"","sources":["../../../../src/components/TableDefault/TableHead/TableHead.tsx"],"names":[],"mappings":";AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,oBAAoB,CAAC;AAMrD,MAAM,CAAC,MAAM,SAAS,GAA6B,CAAC,KAAK,EAAE,EAAE;IAC3D,OAAO,KAAC,eAAe,OAAK,KAAK,YAAG,KAAK,CAAC,QAAQ,GAAmB,CAAC;AACxE,CAAC,CAAC;AAEF,SAAS,CAAC,WAAW,GAAG,WAAW,CAAC"}

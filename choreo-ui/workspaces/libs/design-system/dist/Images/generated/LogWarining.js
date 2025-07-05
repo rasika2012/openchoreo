@@ -1,0 +1,8 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+/* eslint-disable prettier/prettier */
+/* eslint-disable max-len */
+import * as React from 'react';
+export default function (props) {
+    return (_jsx("svg", { ...props, children: _jsx("g", { children: _jsx(React.Fragment, { children: _jsxs("svg", { viewBox: "0 0 20 20", children: [_jsxs("defs", { children: [_jsxs("linearGradient", { x1: "50%", x2: "50%", y1: "0%", y2: "100%", children: [_jsx("stop", { offset: "0%", "stop-color": "#FFAD52" }), _jsx("stop", { offset: "100%", "stop-color": "#FF9D52" })] }), _jsx("circle", { cx: "9", cy: "9", r: "9" }), _jsxs("filter", { width: "122.2%", height: "122.2%", x: "-11.1%", y: "-5.6%", filterUnits: "objectBoundingBox", children: [_jsx("feOffset", { dy: "1", in: "SourceAlpha", result: "shadowOffsetOuter1" }), _jsx("feGaussianBlur", { in: "shadowOffsetOuter1", result: "shadowBlurOuter1", stdDeviation: ".5" }), _jsx("feColorMatrix", { in: "shadowBlurOuter1", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.180725524 0" })] })] }), _jsxs("g", { fill: "none", fillRule: "evenodd", stroke: "none", "stroke-width": "1", children: [_jsxs("g", { fillRule: "nonzero", transform: "translate(-104 -403) translate(105 403)", children: [_jsx("use", { xlinkHref: "#b", fill: "black", filter: "url(#a)" }), _jsx("use", { xlinkHref: "#b", fill: "url(#c)" })] }), _jsx("path", { fill: "#FFFFFF", d: "M9 12c.5523 0 1 .4477 1 1s-.4477 1-1 1-1-.4477-1-1 .4477-1 1-1m0-8c.5523 0 1 .4477 1 1v4c0 .5523-.4477 1-1 1s-1-.4477-1-1V5c0-.5523.4477-1 1-1", transform: "translate(-104 -403) translate(105 403) matrix(1 0 0 -1 0 18)" })] })] }) }) }) }));
+}
+//# sourceMappingURL=LogWarining.js.map
