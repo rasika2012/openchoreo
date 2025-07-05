@@ -28,6 +28,7 @@ export const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
         display="flex"
         flexDirection="row"
         borderBottom="small"
+        alignItems="center"
         borderColor={theme.pallet.grey[200]}
       >
         {isMobile && (
