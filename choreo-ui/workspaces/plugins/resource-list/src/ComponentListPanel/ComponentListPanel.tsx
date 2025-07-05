@@ -19,7 +19,7 @@ const ComponentListPanel: React.FC = () => {
   if (!componentListQueryResult?.data) {
     return <PresetErrorPage preset="404" />;
   }
-  const project = componentListQueryResult.data.items.map((item) => ({
+  const components = componentListQueryResult?.data?.items?.map((item) => ({
     id: item.metadata.name,
     name: item.metadata.name,
     description: Object.values(item.metadata?.labels || []).join(", "),
@@ -27,7 +27,7 @@ const ComponentListPanel: React.FC = () => {
     lastUpdated: "",
     href: `${homePath}/component/${item.metadata.name}`,
   }));
-  return <ResourceTable resources={project} />;
+  return <ResourceTable resources={components || []} />;
 };
 
 export default ComponentListPanel;

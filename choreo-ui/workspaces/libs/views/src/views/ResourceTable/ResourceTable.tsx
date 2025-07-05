@@ -155,7 +155,7 @@ export function ResourceTable(props: ResourceTableProps) {
                 order={order}
                 orderBy={orderBy}
                 onRequestSort={handleRequestSort}
-                rowCount={resources.length}
+                rowCount={resources?.length}
               />
               <TableBody>
                 {stableSort(resources, getComparator(order, orderBy))
@@ -220,7 +220,7 @@ export function ResourceTable(props: ResourceTableProps) {
           <Box>
             <Pagination
               rowsPerPageOptions={[5, 10, 25]}
-              count={resources.length}
+              count={resources?.length || 0}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}
