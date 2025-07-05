@@ -20,14 +20,14 @@ export interface Resource {
 }
 
 export interface ResourceListProps {
-  resources: Resource[];
+  resources?: Resource[];
   footerResourceListCardLeft?: React.ReactNode;
   footerResourceListCardRight?: React.ReactNode;
   cardWidth?: string | number;
 }
 
 export function ResourceList(props: ResourceListProps) {
-  const { resources, cardWidth = 320 } = props;
+  const { resources = [], cardWidth = 320 } = props;
   const navigate = useNavigate();
 
   const handleResourceClick = (resource: Resource) => {
@@ -44,8 +44,8 @@ export function ResourceList(props: ResourceListProps) {
           gap: 10,
         }}
       >
-        {resources.length > 0 ? (
-          resources.map((resource) => (
+        {resources?.length > 0 ? (
+          resources?.map((resource) => (
             <Card
               key={resource.id}
               testId={resource.id}
