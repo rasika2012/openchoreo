@@ -20,20 +20,34 @@ const StyledCardActionArea = styled(MuiCardActionArea, {
   shouldForwardProp: (prop) => prop !== 'variant' && prop !== 'fullHeight',
 })<{ variant?: 'elevation' | 'outlined'; fullHeight?: boolean }>(
   ({ theme, variant = 'elevation', fullHeight = false }) => ({
-    borderRadius: theme.shape.borderRadius,
-    transition: theme.transitions.create(['box-shadow', 'border-color'], {
-      duration: theme.transitions.duration.short,
-    }),
+    padding: 0,
+    border: `1px solid transparent`,
+    borderRadius: 'inherit',
+    transition: 'all 0.25s',
+    '&:hover': {
+      borderColor: theme.palette.primary.main,
+      backgroundColor: 'transparent',
+      '& .MuiCardActionArea-focusHighlight': {
+        opacity: 0,
+        backgroundColor: `transparent`,
+      },
+    },
+    '&.Mui-disabled': {
+      borderColor: theme.palette.grey[100],
+    },
     ...(variant === 'outlined' && {
-      border: `1px solid ${theme.palette.divider}`,
+      border: `1px solid ${theme.palette.grey[200]}`,
       '&:hover': {
-        borderColor: theme.palette.action.hover,
+        borderColor: theme.palette.primary.main,
+        backgroundColor: 'transparent',
       },
     }),
     ...(variant === 'elevation' && {
       boxShadow: theme.shadows[1],
       '&:hover': {
-        boxShadow: theme.shadows[2],
+        boxShadow: `none`,
+        borderColor: theme.palette.primary.main,
+        backgroundColor: 'transparent',
       },
     }),
     ...(fullHeight && {
@@ -55,7 +69,7 @@ export const CardActionArea = ({
     fullHeight={fullHeight}
     data-cyid={`${testId}-card-action-area`}
     disableRipple
-    sx={sx}
+    sx={sx || { backgroundColor: 'transparent' }}
     {...rest}
   >
     {children}

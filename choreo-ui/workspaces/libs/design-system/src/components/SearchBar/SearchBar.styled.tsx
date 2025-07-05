@@ -24,6 +24,7 @@ export const StyledSearchBar: ComponentType<StyledSearchBarProps> = styled(
   }) => ({
     opacity: disabled ? 0.5 : 1,
     cursor: disabled ? 'not-allowed' : 'pointer',
+    pointerEvents: disabled ? 'none' : 'auto',
     backgroundColor: 'transparent',
 
     '& .search': {

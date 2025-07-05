@@ -8,6 +8,12 @@ export const StyledCard: StyledComponent<CardProps> = styled(
 )<CardProps>(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   border: 'none',
+  '&$disabled': {
+    boxShadow: 'none',
+  },
+  '&.MuiPaper-outlined': {
+    border: `none`,
+  },
   transition: theme.transitions.create(['box-shadow', 'border-color']),
 
   '&[data-border-radius="xs"]': {
@@ -23,6 +29,12 @@ export const StyledCard: StyledComponent<CardProps> = styled(
     borderRadius: theme.spacing(2),
     '&[data-box-shadow]': {
       boxShadow: `0 ${theme.spacing(0.5)} ${theme.spacing(6)} ${alpha(theme.palette.grey[200], 0.5)}`,
+    },
+    '&$boxShadowLight': {
+      boxShadow: `0 5px 50px ${alpha(theme.palette.grey[200], 0.5)}`,
+    },
+    '&$boxShadowDark': {
+      boxShadow: `0 5px 50px ${alpha(theme.palette.grey[200], 0.5)}`,
     },
   },
   '&[data-border-radius="square"]': {
@@ -46,9 +58,5 @@ export const StyledCard: StyledComponent<CardProps> = styled(
 
   '&[data-bg-color="secondary"]': {
     backgroundColor: theme.palette.secondary.light,
-  },
-
-  '&.MuiPaper-outlined': {
-    border: 'none',
   },
 }));

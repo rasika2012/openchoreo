@@ -11,3 +11,5 @@ export const RadioIndicator = React.forwardRef<HTMLDivElement>((props) => {
     />
   );
 });
+
+RadioIndicator.displayName = 'RadioIndicator';

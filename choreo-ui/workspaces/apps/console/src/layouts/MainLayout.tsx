@@ -1,11 +1,15 @@
-import {
-  Box,
-  Level,
-} from "@open-choreo/design-system";
+import { Box, Level } from "@open-choreo/design-system";
 import { MainLayout as BaseMainLayout } from "@open-choreo/common-views";
 import { useMemo, useCallback } from "react";
 import { matchPath, useLocation } from "react-router";
-import { ExtentionMounter, useComponentHandle, useHomePath, useMainNavExtentions, useOrgHandle, useProjectHandle } from "@open-choreo/plugin-core";
+import {
+  ExtentionMounter,
+  useComponentHandle,
+  useHomePath,
+  useMainNavExtentions,
+  useOrgHandle,
+  useProjectHandle,
+} from "@open-choreo/plugin-core";
 import React from "react";
 
 interface MainLayoutProps {
@@ -43,9 +47,18 @@ export function MainLayout({ children }: MainLayoutProps) {
   const projectHandle = useProjectHandle();
   const componentHandle = useComponentHandle();
 
-  const navigationEntriesProject = useMainNavExtentions(Level.PROJECT, homePath);
-  const navigationEntriesComponent = useMainNavExtentions(Level.COMPONENT, homePath);
-  const navigationEntriesOrg = useMainNavExtentions(Level.ORGANIZATION, homePath);
+  const navigationEntriesProject = useMainNavExtentions(
+    Level.PROJECT,
+    homePath
+  );
+  const navigationEntriesComponent = useMainNavExtentions(
+    Level.COMPONENT,
+    homePath
+  );
+  const navigationEntriesOrg = useMainNavExtentions(
+    Level.ORGANIZATION,
+    homePath
+  );
 
   const navigationEntries = useMemo(() => {
     if (componentHandle) {
@@ -56,23 +69,27 @@ export function MainLayout({ children }: MainLayoutProps) {
       return navigationEntriesOrg;
     }
     return [];
-  }, [componentHandle, projectHandle, orgHandle, navigationEntriesComponent, navigationEntriesProject, navigationEntriesOrg]);
-
-
-
+  }, [
+    componentHandle,
+    projectHandle,
+    orgHandle,
+    navigationEntriesComponent,
+    navigationEntriesProject,
+    navigationEntriesOrg,
+  ]);
 
   // Memoize the processed menu items to prevent unnecessary re-computations
   const processedMenuItems = useMemo(() => {
     if (!orgHandle || !navigationEntries?.length) {
       return [];
     }
-    return navigationEntries.map(mainEntry => ({
+    return navigationEntries.map((mainEntry) => ({
       ...mainEntry,
-      href: typeof mainEntry.href === 'string' ? mainEntry.href : undefined,
-      subMenuItems: mainEntry?.subMenuItems?.map(subEntry => ({
+      href: typeof mainEntry.href === "string" ? mainEntry.href : undefined,
+      subMenuItems: mainEntry?.subMenuItems?.map((subEntry) => ({
         ...subEntry,
-        href: typeof subEntry.href === 'string' ? subEntry.href : undefined,
-      }))
+        href: typeof subEntry.href === "string" ? subEntry.href : undefined,
+      })),
     }));
   }, [orgHandle, navigationEntries, homePath]);
 
@@ -84,7 +101,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     // First, check for submenu matches
     for (const entry of navigationEntries) {
       if (entry.subMenuItems?.length) {
-        const matchingSubmenu = entry.subMenuItems.find(submenu =>
+        const matchingSubmenu = entry.subMenuItems.find((submenu) =>
           matchPath(submenu.pathPattern, location.pathname)
         );
         if (matchingSubmenu) {
@@ -94,7 +111,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     }
 
     // Then check for main menu matches
-    const matchingEntry = navigationEntries.find(entry =>
+    const matchingEntry = navigationEntries.find((entry) =>
       matchPath(entry.pathPattern, location.pathname)
     );
 
@@ -119,4 +136,4 @@ export function MainLayout({ children }: MainLayoutProps) {
       {children}
     </BaseMainLayout>
   );
-} 
+}

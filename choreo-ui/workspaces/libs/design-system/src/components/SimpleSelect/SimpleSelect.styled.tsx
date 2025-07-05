@@ -12,6 +12,7 @@ export const StyledSimpleSelect: ComponentType<StyledSimpleSelectProps> =
     ({ disabled, size, isSearchBarItem, theme }) => ({
       opacity: disabled ? 0.5 : 1,
       cursor: disabled ? 'not-allowed' : 'pointer',
+      pointerEvents: disabled ? 'none' : 'auto',
       backgroundColor: 'transparent',
 
       '& .MuiSelect-select': {
