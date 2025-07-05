@@ -1,11 +1,13 @@
-import {
-  Box,
-  Level,
-} from "@open-choreo/design-system";
+import { Box } from "@open-choreo/design-system";
 import { MainLayout as BaseMainLayout } from "@open-choreo/common-views";
 import { useMemo, useCallback } from "react";
-import { matchPath, useLocation } from "react-router";
-import { ExtentionMounter, useComponentHandle, useHomePath, useMainNavExtentions, useOrgHandle, useProjectHandle } from "@open-choreo/plugin-core";
+import { useLocation } from "react-router";
+import {
+  ExtentionMounter,
+  useHomePath,
+  useMainNavExtentions,
+  useOrgHandle,
+} from "@open-choreo/plugin-core";
 import React from "react";
 
 interface MainLayoutProps {
@@ -26,11 +28,7 @@ const LayoutHeader = React.memo(() => (
   </Box>
 ));
 
-const LayoutFooter = React.memo(() => (
-  <Box>
-    <ExtentionMounter extentionPointId="footer" />
-  </Box>
-));
+const LayoutFooter = React.memo(() => <Box>Footer</Box>);
 
 const LayoutRightSidebar = React.memo(() => (
   <ExtentionMounter extentionPointId="sidebar.right" />
@@ -66,13 +64,20 @@ export function MainLayout({ children }: MainLayoutProps) {
     if (!orgHandle || !navigationEntries?.length) {
       return [];
     }
-    return navigationEntries.map(mainEntry => ({
+
+    return navigationEntries.map((mainEntry) => ({
       ...mainEntry,
-      href: typeof mainEntry.href === 'string' ? mainEntry.href : undefined,
-      subMenuItems: mainEntry?.subMenuItems?.map(subEntry => ({
+      href:
+        typeof mainEntry.href === "string"
+          ? homePath + mainEntry.href
+          : undefined,
+      subMenuItems: mainEntry?.subMenuItems?.map((subEntry) => ({
         ...subEntry,
-        href: typeof subEntry.href === 'string' ? subEntry.href : undefined,
-      }))
+        href:
+          typeof subEntry.href === "string"
+            ? homePath + mainEntry.href + subEntry.href
+            : undefined,
+      })),
     }));
   }, [orgHandle, navigationEntries, homePath]);
 
@@ -83,9 +88,9 @@ export function MainLayout({ children }: MainLayoutProps) {
 
     // First, check for submenu matches
     for (const entry of navigationEntries) {
-      if (entry.subMenuItems?.length) {
-        const matchingSubmenu = entry.subMenuItems.find(submenu =>
-          matchPath(submenu.pathPattern, location.pathname)
+      if (entry.subMenuItems) {
+        const matchingSubmenu = entry.subMenuItems.find(
+          (submenu) => submenu.href === currentPath
         );
         if (matchingSubmenu) {
           return matchingSubmenu.id;
@@ -93,10 +98,13 @@ export function MainLayout({ children }: MainLayoutProps) {
       }
     }
 
-    // Then check for main menu matches
-    const matchingEntry = navigationEntries.find(entry =>
-      matchPath(entry.pathPattern, location.pathname)
+    // If no submenu matches, check if any main menu item matches
+    const matchingEntry = navigationEntries.find(
+      (entry) => entry.href === currentPath
     );
+    if (matchingEntry) {
+      return matchingEntry.id;
+    }
 
     return matchingEntry?.id ?? "";
   }, [location.pathname, navigationEntries]);
@@ -119,4 +127,4 @@ export function MainLayout({ children }: MainLayoutProps) {
       {children}
     </BaseMainLayout>
   );
-} 
+}
