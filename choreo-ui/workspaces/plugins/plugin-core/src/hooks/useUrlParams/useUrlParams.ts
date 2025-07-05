@@ -53,7 +53,7 @@ export function useHomePath() {
       const { orgHandle, projectHandle } = projectMatch.params;
       return `/organization/${orgHandle}/project/${projectHandle}`;
     }
-    if (orgMatch.params) {
+    if (orgMatch?.params) {
       const { orgHandle } = orgMatch.params;
       return `/organization/${orgHandle}`;
     }
