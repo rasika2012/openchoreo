@@ -7,6 +7,7 @@ import {
   NavItemExpandableSubMenu,
 } from '@open-choreo/design-system';
 import { MainLayout } from './MainLayout';
+import { Level, LevelSelector } from './components/LevelSelector';
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { useState } from 'react';
@@ -85,8 +86,14 @@ const meta: Meta<typeof MainLayout> = {
 };
 
 export default meta;
+
 type Story = StoryObj<typeof MainLayout>;
 
 export const Layout: Story = {
   render: () => <MainLayoutWithState />,
+};
+
+// story for level selector
+export const TopLevelSelector: StoryObj<typeof LevelSelector> = {
+  render: () => <LevelSelector level={Level.TOP} />,
 };
