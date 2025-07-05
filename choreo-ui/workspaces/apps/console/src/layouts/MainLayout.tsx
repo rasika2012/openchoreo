@@ -1,12 +1,14 @@
-import { Box } from "@open-choreo/design-system";
+import { Box, Level } from "@open-choreo/design-system";
 import { MainLayout as BaseMainLayout } from "@open-choreo/common-views";
 import { useMemo, useCallback } from "react";
-import { useLocation } from "react-router";
+import { matchPath, useLocation } from "react-router";
 import {
   ExtentionMounter,
+  useComponentHandle,
   useHomePath,
   useMainNavExtentions,
   useOrgHandle,
+  useProjectHandle,
 } from "@open-choreo/plugin-core";
 import React from "react";
 
@@ -38,12 +40,13 @@ export function MainLayout({ children }: MainLayoutProps) {
   const location = useLocation();
   const homePath = useHomePath();
   const orgHandle = useOrgHandle();
-  const projectHandle = useProjectHandle();
-  const componentHandle = useComponentHandle();
 
   const navigationEntriesProject = useMainNavExtentions(Level.PROJECT, homePath);
   const navigationEntriesComponent = useMainNavExtentions(Level.COMPONENT, homePath);
   const navigationEntriesOrg = useMainNavExtentions(Level.ORGANIZATION, homePath);
+  const projectHandle = useProjectHandle();
+  const componentHandle = useComponentHandle();
+
 
   const navigationEntries = useMemo(() => {
     if (componentHandle) {
@@ -64,20 +67,13 @@ export function MainLayout({ children }: MainLayoutProps) {
     if (!orgHandle || !navigationEntries?.length) {
       return [];
     }
-
-    return navigationEntries.map((mainEntry) => ({
+    return navigationEntries.map(mainEntry => ({
       ...mainEntry,
-      href:
-        typeof mainEntry.href === "string"
-          ? homePath + mainEntry.href
-          : undefined,
-      subMenuItems: mainEntry?.subMenuItems?.map((subEntry) => ({
+      href: typeof mainEntry.href === 'string' ? mainEntry.href : undefined,
+      subMenuItems: mainEntry?.subMenuItems?.map(subEntry => ({
         ...subEntry,
-        href:
-          typeof subEntry.href === "string"
-            ? homePath + mainEntry.href + subEntry.href
-            : undefined,
-      })),
+        href: typeof subEntry.href === 'string' ? subEntry.href : undefined,
+      }))
     }));
   }, [orgHandle, navigationEntries, homePath]);
 
@@ -88,9 +84,9 @@ export function MainLayout({ children }: MainLayoutProps) {
 
     // First, check for submenu matches
     for (const entry of navigationEntries) {
-      if (entry.subMenuItems) {
-        const matchingSubmenu = entry.subMenuItems.find(
-          (submenu) => submenu.href === currentPath
+      if (entry.subMenuItems?.length) {
+        const matchingSubmenu = entry.subMenuItems.find(submenu =>
+          matchPath(submenu.pathPattern, location.pathname)
         );
         if (matchingSubmenu) {
           return matchingSubmenu.id;
@@ -98,13 +94,10 @@ export function MainLayout({ children }: MainLayoutProps) {
       }
     }
 
-    // If no submenu matches, check if any main menu item matches
-    const matchingEntry = navigationEntries.find(
-      (entry) => entry.href === currentPath
+    // Then check for main menu matches
+    const matchingEntry = navigationEntries.find(entry =>
+      matchPath(entry.pathPattern, location.pathname)
     );
-    if (matchingEntry) {
-      return matchingEntry.id;
-    }
 
     return matchingEntry?.id ?? "";
   }, [location.pathname, navigationEntries]);
