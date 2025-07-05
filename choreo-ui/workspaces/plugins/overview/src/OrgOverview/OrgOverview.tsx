@@ -19,7 +19,6 @@ import { Route, Routes } from "react-router";
 
 const OrgOverview: React.FC = () => {
   const { projectListQueryResult } = useGlobalState();
-  const { orgHandle, projectHandle, componentHandle } = useUrlParams();
   const homePath = useHomePath();
 
   if (projectListQueryResult?.isLoading) {
@@ -30,7 +29,7 @@ const OrgOverview: React.FC = () => {
     return <PresetErrorPage preset="404" />;
   }
 
-  const project = projectListQueryResult.data.items.map((item) => ({
+  const project = projectListQueryResult?.data?.items?.map((item) => ({
     id: item.metadata.name,
     name: item.metadata.name,
     description: Object.values(item.metadata?.labels || []).join(", "),
@@ -50,14 +49,14 @@ const OrgOverview: React.FC = () => {
             <TimeIcon fontSize="inherit" />
             <Tooltip
               title={`Last updated: ${
-                project[0].lastUpdated
-                  ? new Date(project[0].lastUpdated).toLocaleDateString()
+                project?.[0]?.lastUpdated
+                  ? new Date(project?.[0]?.lastUpdated).toLocaleDateString()
                   : "Unknown"
               }`}
             >
               <Typography variant="body1" color="text.secondary">
-                {project[0].lastUpdated
-                  ? new Date(project[0].lastUpdated).toLocaleDateString()
+                {project?.[0]?.lastUpdated
+                  ? new Date(project?.[0]?.lastUpdated).toLocaleDateString()
                   : "Unknown"}
               </Typography>
             </Tooltip>
