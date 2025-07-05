@@ -8,7 +8,11 @@ import {
   ProjectList,
 } from "@open-choreo/api-client-lib";
 import { useProject, useProjectList } from "../hooks/useProjects";
-import { useComponentHandle, useProjectHandle } from "@open-choreo/plugin-core";
+import {
+  useComponentHandle,
+  useOrgHandle,
+  useProjectHandle,
+} from "@open-choreo/plugin-core";
 
 export interface GlobalState {
   componentQueryResult: UseQueryResult<Component, Error> | null;
@@ -31,11 +35,16 @@ export function GlobalStateProvider({
 }) {
   const projectHandle = useProjectHandle();
   const componentHandle = useComponentHandle();
+  const orgName = useOrgHandle();
 
-  const componentQueryResult = useComponent(projectHandle, componentHandle);
-  const componentListQueryResult = useComponentList(projectHandle);
-  const projectListQueryResult = useProjectList();
-  const projectQueryResult = useProject(projectHandle);
+  const componentQueryResult = useComponent(
+    orgName,
+    projectHandle,
+    componentHandle,
+  );
+  const componentListQueryResult = useComponentList(orgName, projectHandle);
+  const projectListQueryResult = useProjectList(orgName);
+  const projectQueryResult = useProject(orgName, projectHandle);
 
   return (
     <GlobalStateContext.Provider
