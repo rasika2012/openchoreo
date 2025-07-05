@@ -1,5 +1,9 @@
 import { useGlobalState } from "@open-choreo/api-client";
-import { FullPageLoader, PageLayout, PresetErrorPage } from "@open-choreo/common-views";
+import {
+  FullPageLoader,
+  PageLayout,
+  PresetErrorPage,
+} from "@open-choreo/common-views";
 import { ExtentionMounter } from "@open-choreo/plugin-core";
 import React from "react";
 
