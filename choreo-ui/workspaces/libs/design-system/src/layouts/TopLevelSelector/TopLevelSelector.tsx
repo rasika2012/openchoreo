@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { StyledPopover, StyledTopLevelSelector } from './TopLevelSelector.styled';
 import { Box, Divider, List, ListItem, ListItemButton, ListItemText, Typography } from '@mui/material';
-import { AddIcon, ChevronDownIcon, CloseIcon, SearchIcon } from '@design-system/Icons';
-import { TextInput } from '../../components/TextInput';
+import { AddIcon, ChevronDownIcon, CloseIcon } from '@design-system/Icons';
 import { Button } from '../../components/Button';
-import { IconButton } from '@design-system/components';
+import { IconButton, SearchBar } from '@design-system/components';
 
 export enum Level {
   ORGANIZATION = 'organization',
@@ -109,12 +108,12 @@ export const TopLevelSelector = React.forwardRef<HTMLDivElement, TopLevelSelecto
           }}
         >
           <Box display="flex" flexDirection="column" gap={1} p={1}>
-            <TextInput
-              value={search}
+            <SearchBar
+              inputValue={search}
               onChange={(value) => setSearch(value)}
               testId="top-level-selector-search"
               placeholder='Search'
-              startIcon={<SearchIcon fontSize="inherit" />}
+            // startIcon={<SearchIcon fontSize="inherit" />}
             />
             <Box display="flex" gap={1}>
               <Button variant="text" startIcon={<AddIcon fontSize="inherit" />} >Create Component</Button>
