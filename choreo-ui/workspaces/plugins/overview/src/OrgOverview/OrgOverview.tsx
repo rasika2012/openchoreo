@@ -33,7 +33,7 @@ const OrgOverview: React.FC = () => {
     return <PresetErrorPage preset="404" />;
   }
 
-  const project = projectListQueryResult.data.items.map((item) => ({
+  const projects = projectListQueryResult?.data?.items?.map((item) => ({
     id: item.metadata.name,
     name: item.metadata.name,
     description: Object.values(item.metadata?.labels || []).join(", "),
