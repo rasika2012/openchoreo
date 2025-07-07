@@ -1,21 +1,19 @@
-import { Level } from "@open-choreo/design-system";
 import {
   type PluginExtension,
-  PluginExtensionType,
+  rootExtensionPoints,
 } from "@open-choreo/plugin-core";
 import React from "react";
 const ComponentListPanel = React.lazy(() => import("./ComponentListPanel"));
+import { projectOverviewExtensionPoint } from "@open-choreo/plugin-overview";
 
 export const componentListPanel: PluginExtension = {
-  type: PluginExtensionType.PANEL,
-  extentionPointId: "component-list-page-body",
+  extentionPoint: projectOverviewExtensionPoint,
   component: ComponentListPanel,
   key: "component-list-panel",
 };
 
 export const projectOverviewComponentListPanel: PluginExtension = {
-  type: PluginExtensionType.PANEL,
-  extentionPointId: "project-overview-page-body",
+  extentionPoint: rootExtensionPoints.projectLevelPage,
   component: ComponentListPanel,
   key: "component-list-project-overview-panel",
 };

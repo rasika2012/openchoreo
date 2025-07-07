@@ -5,8 +5,17 @@ import {
   ResourceTable,
 } from "@open-choreo/common-views";
 import { useGlobalState } from "@open-choreo/api-client";
-import { ExtentionMounter } from "@open-choreo/plugin-core";
+import {
+  ExtentionMounter,
+  PluginExtensionPoint,
+  PluginExtensionType,
+} from "@open-choreo/plugin-core";
 import React from "react";
+
+export const componentListExtensionPoint: PluginExtensionPoint = {
+  id: "component-list-page-body",
+  type: PluginExtensionType.PANEL,
+};
 
 const ComponentList: React.FC = () => {
   const { componentListQueryResult } = useGlobalState();
@@ -15,13 +24,17 @@ const ComponentList: React.FC = () => {
     return <FullPageLoader />;
   }
 
+  if (componentListQueryResult?.error) {
+    return <PresetErrorPage preset="500" />;
+  }
+
   if (!componentListQueryResult?.data) {
     return <PresetErrorPage preset="404" />;
   }
 
   return (
     <PageLayout testId="component-list" title={"Components List"}>
-      <ExtentionMounter extentionPointId={"component-list-page-body"} />
+      <ExtentionMounter extentionPoint={componentListExtensionPoint} />
     </PageLayout>
   );
 };

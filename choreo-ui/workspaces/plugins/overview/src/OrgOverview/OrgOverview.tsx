@@ -4,7 +4,12 @@ import {
   ResourceList,
 } from "@open-choreo/common-views";
 import { useGlobalState } from "@open-choreo/api-client";
-import { useHomePath } from "@open-choreo/plugin-core";
+import {
+  ExtentionMounter,
+  PluginExtensionPoint,
+  PluginExtensionType,
+  useHomePath,
+} from "@open-choreo/plugin-core";
 import React, { useMemo, useState } from "react";
 import {
   Box,
@@ -14,6 +19,11 @@ import {
   Typography,
 } from "@open-choreo/design-system";
 import { useIntl } from "react-intl";
+
+export const orgOverviewExtensionPoint: PluginExtensionPoint = {
+  id: "org-overview-page-body",
+  type: PluginExtensionType.PANEL,
+};
 
 const OrgOverview: React.FC = () => {
   const { projectListQueryResult } = useGlobalState();
@@ -35,7 +45,7 @@ const OrgOverview: React.FC = () => {
           lastUpdated: item.createdAt,
           href: `${homePath}/project/${item.name}`,
         })),
-    [projectListQueryResult?.data?.data.items, search],
+    [projectListQueryResult?.data?.data.items, search, homePath],
   );
 
   if (projectListQueryResult?.isLoading) {
@@ -88,6 +98,7 @@ const OrgOverview: React.FC = () => {
           </Box>
         }
       />
+      <ExtentionMounter extentionPoint={orgOverviewExtensionPoint} />
     </PageLayout>
   );
 };

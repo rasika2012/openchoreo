@@ -4,13 +4,26 @@ import {
   PageLayout,
   PresetErrorPage,
 } from "@open-choreo/common-views";
-import { ExtentionMounter } from "@open-choreo/plugin-core";
+import {
+  ExtentionMounter,
+  PluginExtensionPoint,
+  PluginExtensionType,
+} from "@open-choreo/plugin-core";
 import React from "react";
+
+export const projectOverviewExtensionPoint: PluginExtensionPoint = {
+  id: "project-overview-page-body",
+  type: PluginExtensionType.PANEL,
+};
 
 const ProjectOverview: React.FC = () => {
   const { projectQueryResult } = useGlobalState();
   if (projectQueryResult?.isLoading) {
     return <FullPageLoader />;
+  }
+
+  if (projectQueryResult?.error) {
+    return <PresetErrorPage preset="500" />;
   }
 
   if (!projectQueryResult?.data) {
@@ -20,9 +33,9 @@ const ProjectOverview: React.FC = () => {
   return (
     <PageLayout
       testId="overview-page"
-      title={projectQueryResult?.data?.metadata.name}
+      title={projectQueryResult?.data?.data?.name}
     >
-      <ExtentionMounter extentionPointId={"project-overview-page-body"} />
+      <ExtentionMounter extentionPoint={projectOverviewExtensionPoint} />
     </PageLayout>
   );
 };
