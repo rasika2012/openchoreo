@@ -14,18 +14,14 @@ Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
   13:9   warning  'homePath' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
 /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/workspaces/plugins/overview/src/OrgOverview/OrgOverview.tsx
-  18:10  warning  'Route' is defined but never used                     no-unused-vars
-  18:10  warning  'Route' is defined but never used                     @typescript-eslint/no-unused-vars
-  18:17  warning  'Routes' is defined but never used                    no-unused-vars
-  18:17  warning  'Routes' is defined but never used                    @typescript-eslint/no-unused-vars
-  22:11  warning  'orgHandle' is assigned a value but never used        no-unused-vars
-  22:11  warning  'orgHandle' is assigned a value but never used        @typescript-eslint/no-unused-vars
-  22:22  warning  'projectHandle' is assigned a value but never used    no-unused-vars
-  22:22  warning  'projectHandle' is assigned a value but never used    @typescript-eslint/no-unused-vars
-  22:37  warning  'componentHandle' is assigned a value but never used  no-unused-vars
-  22:37  warning  'componentHandle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   7:23  warning  'useUrlParams' is defined but never used  no-unused-vars
+   7:23  warning  'useUrlParams' is defined but never used  @typescript-eslint/no-unused-vars
+  18:10  warning  'Route' is defined but never used         no-unused-vars
+  18:10  warning  'Route' is defined but never used         @typescript-eslint/no-unused-vars
+  18:17  warning  'Routes' is defined but never used        no-unused-vars
+  18:17  warning  'Routes' is defined but never used        @typescript-eslint/no-unused-vars
 
-✖ 16 problems (0 errors, 16 warnings)
+✖ 12 problems (0 errors, 12 warnings)
 
 Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
 

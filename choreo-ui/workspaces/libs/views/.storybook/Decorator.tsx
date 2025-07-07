@@ -5,6 +5,7 @@ import { useDarkMode } from 'storybook-dark-mode'
 import { ThemeProvider } from '@open-choreo/design-system';
 import './fonts/fonts.css'
 import { BrowserRouter } from 'react-router';
+import { IntlProvider } from 'react-intl';
 
 export const withTheme: Decorator = (Story) => {
   const isDark = useDarkMode();
@@ -12,7 +13,9 @@ export const withTheme: Decorator = (Story) => {
   return (
     <ThemeProvider mode={isDark ? 'dark' : 'light'}>
       <BrowserRouter >
-        <Story />
+        <IntlProvider locale="en">
+          <Story />
+        </IntlProvider>
       </BrowserRouter>
     </ThemeProvider>
   );
