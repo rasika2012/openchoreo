@@ -11,7 +11,7 @@ import {
   PluginExtensionType,
 } from "@open-choreo/plugin-core";
 
-export const componentOverviewExtensionPoint: PluginExtensionPoint = {
+export const componentOverviewMainExtensionPoint: PluginExtensionPoint = {
   id: "component-overview-page-body",
   type: PluginExtensionType.PANEL,
 };
@@ -32,7 +32,7 @@ const ComponentOverview: React.FC = () => {
       title={componentQueryResult.data.metadata.name}
     >
       <div>Component Overview</div>
-      <ExtentionMounter extentionPoint={componentOverviewExtensionPoint} />
+      <ExtentionMounter extentionPoint={componentOverviewMainExtensionPoint} />
     </PageLayout>
   );
 };
