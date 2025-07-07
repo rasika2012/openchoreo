@@ -11,7 +11,7 @@ import {
 } from "@open-choreo/plugin-core";
 import React from "react";
 
-export const projectOverviewExtensionPoint: PluginExtensionPoint = {
+export const projectOverviewMainExtensionPoint: PluginExtensionPoint = {
   id: "project-overview-page-body",
   type: PluginExtensionType.PANEL,
 };
@@ -35,7 +35,7 @@ const ProjectOverview: React.FC = () => {
       testId="overview-page"
       title={projectQueryResult?.data?.data?.name}
     >
-      <ExtentionMounter extentionPoint={projectOverviewExtensionPoint} />
+      <ExtentionMounter extentionPoint={projectOverviewMainExtensionPoint} />
     </PageLayout>
   );
 };

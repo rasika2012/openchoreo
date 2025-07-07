@@ -8,9 +8,12 @@ import { orgOverview } from "./OrgOverview";
 import { projectOverview } from "./ProjectOverview";
 import { componentOverview } from "./ComponentOverview";
 
-export { orgOverviewExtensionPoint } from "./OrgOverview";
-export { projectOverviewExtensionPoint } from "./ProjectOverview";
-export { componentOverviewExtensionPoint } from "./ComponentOverview";
+export {
+  organizationOverviewMainExtensionPoint,
+  organizationOverviewActions,
+} from "./OrgOverview";
+export { projectOverviewMainExtensionPoint } from "./ProjectOverview";
+export { componentOverviewMainExtensionPoint } from "./ComponentOverview";
 
 export const overviewPlugin = {
   name: "Overview",
