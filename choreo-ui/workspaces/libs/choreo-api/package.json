@@ -1,5 +1,5 @@
 {
-  "name": "@open-choreo/api-client-lib",
+  "name": "@open-choreo/choreo-api",
   "version": "1.0.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -13,7 +13,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsc -project tsconfig.json  --watch",
     "clean": "rm -rf dist",
-    "build": "npm run clean && tsc -project tsconfig.json",
+    "build": "rushx clean && tsc -project tsconfig.json",
     "lint": "eslint --config ./eslint.config.js",
     "i18n": "formatjs extract 'src/**/*.{ts,tsx,js,jsx}' --out-file 'src/lang/en.json' --ignore '**/node_modules/**' --ignore '**/*.d.ts' --ignore '**/vite-env.d.ts' --format simple --throws"
   },

@@ -1,9 +1,11 @@
-Invoking: npm run clean && tsc -project tsconfig.lib.json && npm run copy-assets 
+Invoking: rushx clean && tsc -project tsconfig.lib.json && rushx copy-assets 
+Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
 
-> @open-choreo/common-views@1.0.0 clean
-> rm -rf dist
+Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
+> "rm -rf dist"
 
+Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
 
-> @open-choreo/common-views@1.0.0 copy-assets
-> find src -type f \( -name '*.css' -o -name '*.scss' -o -name '*.less' -o -name '*.woff*' -o -name '*.ttf' -o -name '*.eot' \) -exec sh -c 'mkdir -p dist/$(dirname {}| sed "s|^src||") && cp {} dist/$(dirname {}| sed "s|^src||")/$(basename {})' \;
+Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
+> "find src -type f \\( -name '*.css' -o -name '*.scss' -o -name '*.less' -o -name '*.woff*' -o -name '*.ttf' -o -name '*.eot' \\) -exec sh -c 'mkdir -p dist/$(dirname {}| sed \"s|^src||\") && cp {} dist/$(dirname {}| sed \"s|^src||\")/$(basename {})' \\;"
 

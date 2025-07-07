@@ -29,7 +29,7 @@ function generatePackageJson(pluginName) {
     "dev": "tsc -project tsconfig.json  --watch",
     "clean": "rm -rf dist",
     "lint": "eslint --config ./eslint.config.js",
-    "build": "npm run clean && tsc -project tsconfig.json"
+    "build": "rushx clean && rushx lint --fix && tsc -project tsconfig.json"
   },
   "author": "",
   "license": "ISC",
@@ -166,13 +166,12 @@ export const ${pluginName[0].toLowerCase() + pluginName.slice(1)}Plugin = {
 function generatePanelIndex(pluginName) {
     const pluginKey = pluginName.toLowerCase().replace(/([A-Z])/g, '-$1').toLowerCase();
     
-    return `import { type PluginExtension, PluginExtensionType } from "@open-choreo/plugin-core";
+    return `import { type PluginExtension,  rootExtensionPoints } from "@open-choreo/plugin-core";
 import React from "react";
 const ${pluginName}Panel = React.lazy(() => import("./${pluginName}Panel"));
 
 export const panel: PluginExtension = {
-    type: PluginExtensionType.PANEL,
-    extentionPointId: "header.left",
+    extentionPoint: rootExtensionPoints.headerLeft,
     key: "${pluginKey}",
     component: ${pluginName}Panel,
 };`;

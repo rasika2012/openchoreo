@@ -119,7 +119,7 @@ importers:
         specifier: ^6.3.5
         version: 6.3.5(@types/node@22.16.0)(less@4.3.0)
 
-  ../../workspaces/libs/api-client-lib:
+  ../../workspaces/libs/choreo-api:
     dependencies:
       '@eslint/eslintrc':
         specifier: ~3.3.1
@@ -556,9 +556,9 @@ importers:
       '@fontsource/roboto':
         specifier: ~5.2.5
         version: 5.2.6
-      '@open-choreo/api-client-lib':
+      '@open-choreo/choreo-api':
         specifier: workspace:*
-        version: link:../../libs/api-client-lib
+        version: link:../../libs/choreo-api
       '@open-choreo/common-views':
         specifier: workspace:*
         version: link:../../libs/views

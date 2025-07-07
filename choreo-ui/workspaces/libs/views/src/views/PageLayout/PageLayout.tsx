@@ -13,6 +13,7 @@ export interface PageLayoutProps {
   description?: string;
   backUrl?: string;
   backButtonText?: string;
+  actions?: React.ReactNode;
 }
 
 export function PageLayout({
@@ -22,6 +23,7 @@ export function PageLayout({
   description,
   backUrl,
   backButtonText,
+  actions,
 }: PageLayoutProps) {
   const theme = useChoreoTheme();
 
@@ -55,7 +57,9 @@ export function PageLayout({
         width="100%"
       >
         <Box display="flex" flexDirection="column" gap={2}>
-          <Typography variant="h2">{title}</Typography>
+          <Box display="flex" alignItems="center" gap={2}>
+            <Typography variant="h2">{title}</Typography> {actions && actions}
+          </Box>
           {description && (
             <Typography variant="body1">{description}</Typography>
           )}

@@ -1,5 +1,0 @@
-Invoking: npm run clean && tsc -project tsconfig.json 
-
-> @open-choreo/plugin-overview@1.0.0 clean
-> rm -rf dist
-
