@@ -26,6 +26,26 @@ export interface Metadata {
   resourceVersion?: string;
 }
 
+export interface ProjectItem {
+  name: string;
+  orgName: string;
+  deploymentOipeline: string;
+  createdAt: string;
+  status: string;
+}
+
+export interface ProjectListData {
+  items: ProjectItem[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface ProjectList {
+  success: boolean;
+  data: ProjectListData;
+}
+
 export interface Project {
   apiVersion: string;
   kind: string;
@@ -36,13 +56,6 @@ export interface Project {
   status: {
     conditions: Condition[];
   };
-}
-
-export interface ProjectList {
-  apiVersion: string;
-  kind: string;
-  items: Project[];
-  metadata: Metadata;
 }
 
 export interface Component {
