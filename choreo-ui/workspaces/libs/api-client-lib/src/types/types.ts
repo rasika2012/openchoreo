@@ -47,14 +47,13 @@ export interface ProjectList {
 }
 
 export interface Project {
-  apiVersion: string;
-  kind: string;
-  metadata: Metadata;
-  spec: {
-    deploymentPipelineRef?: string;
-  };
-  status: {
-    conditions: Condition[];
+  success: boolean;
+  data: {
+    name: string;
+    orgName: string;
+    deploymentOipeline: string;
+    createdAt: string;
+    status: string;
   };
 }
 
