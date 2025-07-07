@@ -6,7 +6,7 @@ import {
   ComponentList,
   Project,
   ProjectList,
-} from "@open-choreo/api-client-lib";
+} from "@open-choreo/choreo-api";
 import { useProject, useProjectList } from "../hooks/useProjects";
 import {
   useComponentHandle,

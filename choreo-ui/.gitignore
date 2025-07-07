@@ -30,11 +30,10 @@ yarn-error.log*
 *storybook.log
 rush-logs/*
 
-/workspaces/libs/design-system/rush-logs/design-system.build.log
 /workspaces/libs/design-system/.rush/temp/chunked-rush-logs/design-system.build.chunks.jsonl
 /workspaces/libs/design-system/.rush/temp/package-deps_build.json
 /workspaces/apps/console/.rush/temp/chunked-rush-logs/console.build.chunks.jsonl
-/workspaces/libs/views/.rush/temp/package-deps_build.json
-/workspaces/*/*/rush-logs/*.build.log
+*/temp/package-deps_build.json
+*.build.log
 
 
