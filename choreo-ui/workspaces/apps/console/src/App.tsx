@@ -1,6 +1,6 @@
-import { ThemeProvider, Box, Level } from "@open-choreo/design-system";
+import { ThemeProvider, Box } from "@open-choreo/design-system";
 import { Suspense } from "react";
-import { defaultPath, ExtentionProviderMounter, PageExtentionsMounter, PathsPatterns } from "@open-choreo/plugin-core";
+import { defaultPath, ExtentionProviderMounter, PageExtentionsMounter, PathsPatterns, rootExtensionPoints } from "@open-choreo/plugin-core";
 import { IntlProvider } from "react-intl";
 import React from "react";
 import { Navigate, Route, Routes } from "react-router";
@@ -15,16 +15,16 @@ export default function App() {
   return (
     <ThemeProvider mode="light">
       <IntlProvider locale="en">
-        <ExtentionProviderMounter extentionPointId="global" >
+        <ExtentionProviderMounter extentionPoint={rootExtensionPoints.globalProvider} >
           <Box width="100vw" height="100vh">
             <Suspense fallback={<FullPageLoader />}>
               <MainLayout>
                 <Routes>
-                  <Route path={PathsPatterns.COMPONENT_LEVEL} element={<PageExtentionsMounter extentionPointId={Level.COMPONENT} />} />
-                  <Route path={PathsPatterns.PROJECT_LEVEL} element={<PageExtentionsMounter extentionPointId={Level.PROJECT} />} />
-                  <Route path={PathsPatterns.ORG_LEVEL} element={<PageExtentionsMounter extentionPointId={Level.ORGANIZATION} />} />
+                  <Route path={PathsPatterns.COMPONENT_LEVEL} element={<PageExtentionsMounter extentionPoint={rootExtensionPoints.componentLevelPage} />} />
+                  <Route path={PathsPatterns.PROJECT_LEVEL} element={<PageExtentionsMounter extentionPoint={rootExtensionPoints.projectLevelPage} />} />
+                  <Route path={PathsPatterns.ORG_LEVEL} element={<PageExtentionsMounter extentionPoint={rootExtensionPoints.orgLevelPage} />} />
                   <Route path="/" element={<Navigate to={defaultPath} />} />
-                  <Route path={"/*"} element={<PageExtentionsMounter extentionPointId="global" />} />
+                  <Route path={"/*"} element={<PageExtentionsMounter extentionPoint={rootExtensionPoints.globalPage}/>} />
                   <Route path="*" element={<PresetErrorPage preset="404" />} />
                 </Routes>
               </MainLayout>

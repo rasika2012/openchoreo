@@ -1,15 +1,13 @@
-import { Level } from "@open-choreo/design-system";
 import {
   type PluginExtension,
-  PluginExtensionType,
+  rootExtensionPoints,
 } from "@open-choreo/plugin-core";
 import React from "react";
-
-const ComponentOverview = React.lazy(() => import("./ComponentOverview"));
+import ComponentOverview from "./ComponentOverview";
+export { componentOverviewExtensionPoint } from "./ComponentOverview";
 
 export const componentOverview: PluginExtension = {
-  type: PluginExtensionType.PAGE,
-  extentionPointId: Level.COMPONENT,
+  extentionPoint: rootExtensionPoints.componentLevelPage,
   component: ComponentOverview,
   pathPattern: "",
 };

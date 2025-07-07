@@ -4,12 +4,19 @@ import {
   PresetErrorPage,
 } from "@open-choreo/common-views";
 import { useGlobalState } from "@open-choreo/api-client";
-import { useHomePath } from "@open-choreo/plugin-core";
 import React from "react";
+import {
+  ExtentionMounter,
+  PluginExtensionPoint,
+  PluginExtensionType,
+} from "@open-choreo/plugin-core";
 
+export const componentOverviewExtensionPoint: PluginExtensionPoint = {
+  id: "component-overview-page-body",
+  type: PluginExtensionType.PANEL,
+};
 const ComponentOverview: React.FC = () => {
   const { componentQueryResult } = useGlobalState();
-  const homePath = useHomePath();
 
   if (componentQueryResult?.isLoading) {
     return <FullPageLoader />;
@@ -25,6 +32,7 @@ const ComponentOverview: React.FC = () => {
       title={componentQueryResult.data.metadata.name}
     >
       <div>Component Overview</div>
+      <ExtentionMounter extentionPoint={componentOverviewExtensionPoint} />
     </PageLayout>
   );
 };

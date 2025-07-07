@@ -16,6 +16,10 @@ const ComponentListPanel: React.FC = () => {
     return <FullPageLoader />;
   }
 
+  if (componentListQueryResult?.error) {
+    return <PresetErrorPage preset="500" />;
+  }
+
   if (!componentListQueryResult?.data) {
     return <PresetErrorPage preset="404" />;
   }
