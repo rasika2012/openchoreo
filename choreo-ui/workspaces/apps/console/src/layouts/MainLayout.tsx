@@ -1,9 +1,10 @@
-import { Box, Level } from "@open-choreo/design-system";
+import { Box } from "@open-choreo/design-system";
 import { MainLayout as BaseMainLayout } from "@open-choreo/common-views";
 import { useMemo, useCallback } from "react";
 import { matchPath, useLocation } from "react-router";
 import {
   ExtentionMounter,
+  rootExtensionPoints,
   useComponentHandle,
   useHomePath,
   useMainNavExtentions,
@@ -25,15 +26,15 @@ const LayoutHeader = React.memo(() => (
     alignItems="center"
     width="100%"
   >
-    <ExtentionMounter extentionPointId="header.left" />
-    <ExtentionMounter extentionPointId="header.right" />
+    <ExtentionMounter extentionPoint={rootExtensionPoints.headerLeft} />
+    <ExtentionMounter extentionPoint={rootExtensionPoints.headerRight} />
   </Box>
 ));
 
 const LayoutFooter = React.memo(() => <Box>Footer</Box>);
 
 const LayoutRightSidebar = React.memo(() => (
-  <ExtentionMounter extentionPointId="sidebar.right" />
+  <ExtentionMounter extentionPoint={rootExtensionPoints.sidebarRight} />
 ));
 
 export function MainLayout({ children }: MainLayoutProps) {
@@ -41,9 +42,9 @@ export function MainLayout({ children }: MainLayoutProps) {
   const homePath = useHomePath();
   const orgHandle = useOrgHandle();
 
-  const navigationEntriesProject = useMainNavExtentions(Level.PROJECT, homePath);
-  const navigationEntriesComponent = useMainNavExtentions(Level.COMPONENT, homePath);
-  const navigationEntriesOrg = useMainNavExtentions(Level.ORGANIZATION, homePath);
+  const navigationEntriesProject = useMainNavExtentions(rootExtensionPoints.projectNavigation, homePath);
+  const navigationEntriesComponent = useMainNavExtentions(rootExtensionPoints.componentNavigation, homePath);
+  const navigationEntriesOrg = useMainNavExtentions(rootExtensionPoints.orgNavigation, homePath);
   const projectHandle = useProjectHandle();
   const componentHandle = useComponentHandle();
 

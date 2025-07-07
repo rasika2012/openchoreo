@@ -1,13 +1,13 @@
-import { Level, NavItemExpandableSubMenu } from "@open-choreo/design-system";
+import { NavItemExpandableSubMenu } from "@open-choreo/design-system";
 import React, { useMemo } from "react";
 import {
   PluginExtensionNavigation,
-  PluginExtensionType,
+  PluginExtensionPoint,
 } from "../../plugin-types";
 import { usePluginRegistry } from "../../Providers";
 
 export function useMainNavExtentions(
-  extentionPointId: string | Level,
+  extentionPoint: PluginExtensionPoint,
   rootPath: string,
 ) {
   const pluginRegistry = usePluginRegistry();
@@ -17,8 +17,8 @@ export function useMainNavExtentions(
         plugin.extensions
           .filter(
             (entry) =>
-              entry.type === PluginExtensionType.NAVIGATION &&
-              entry.extentionPointId === extentionPointId,
+              entry.extentionPoint.id === extentionPoint.id &&
+              entry.extentionPoint.type === extentionPoint.type,
           )
           .map(
             (entry: PluginExtensionNavigation) =>
@@ -40,7 +40,7 @@ export function useMainNavExtentions(
               }) as NavItemExpandableSubMenu,
           ),
       ),
-    [pluginRegistry, extentionPointId, rootPath],
+    [pluginRegistry, extentionPoint, rootPath],
   );
 
   return navigationEntries;
