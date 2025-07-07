@@ -31,7 +31,10 @@ const LayoutHeader = React.memo(() => (
   </Box>
 ));
 
-const LayoutFooter = React.memo(() => <Box>Footer</Box>);
+const LayoutFooter = React.memo(() => 
+<Box display="flex" flexDirection="row" justifyContent="space-between" alignItems="center" width="100%">
+  <ExtentionMounter extentionPoint={rootExtensionPoints.footer} />
+  </Box>);
 
 const LayoutRightSidebar = React.memo(() => (
   <ExtentionMounter extentionPoint={rootExtensionPoints.sidebarRight} />

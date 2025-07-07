@@ -13,6 +13,9 @@ import {
 import React, { useMemo, useState } from "react";
 import {
   Box,
+  IconButton,
+  RefreshIcon,
+  Rotate,
   SearchBar,
   TimeIcon,
   Tooltip,
@@ -20,8 +23,13 @@ import {
 } from "@open-choreo/design-system";
 import { useIntl } from "react-intl";
 
-export const orgOverviewExtensionPoint: PluginExtensionPoint = {
+export const organizationOverviewMainExtensionPoint: PluginExtensionPoint = {
   id: "org-overview-page-body",
+  type: PluginExtensionType.PANEL,
+};
+
+export const organizationOverviewActions: PluginExtensionPoint = {
+  id: "org-overview-page-actions",
   type: PluginExtensionType.PANEL,
 };
 
@@ -61,21 +69,41 @@ const OrgOverview: React.FC = () => {
       testId="overview-page"
       title={formatMessage({
         id: "overview.orgOverview.title",
-        defaultMessage: "Projects",
+        defaultMessage: "All Projects",
       })}
+      actions={
+        <IconButton
+          size="small"
+          onClick={() => {
+            projectListQueryResult.refetch();
+          }}
+        >
+          <Rotate disabled={!projectListQueryResult.isFetching}>
+            <RefreshIcon fontSize="inherit" />
+          </Rotate>
+        </IconButton>
+      }
     >
-      <Box>
-        <SearchBar
-          inputValue={search}
-          color="secondary"
-          bordered
-          onChange={(value) => setSearch(value)}
-          testId="search-bar"
-          placeholder={formatMessage({
-            id: "overview.orgOverview.searchPlaceholder",
-            defaultMessage: "Search projects",
-          })}
-        />
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        gap={4}
+      >
+        <Box flexGrow={1}>
+          <SearchBar
+            inputValue={search}
+            color="secondary"
+            bordered
+            onChange={(value) => setSearch(value)}
+            testId="search-bar"
+            placeholder={formatMessage({
+              id: "overview.orgOverview.searchPlaceholder",
+              defaultMessage: "Search projects",
+            })}
+          />
+        </Box>
+        <ExtentionMounter extentionPoint={organizationOverviewActions} />
       </Box>
       <ResourceList
         resources={project}
@@ -98,7 +126,9 @@ const OrgOverview: React.FC = () => {
           </Box>
         }
       />
-      <ExtentionMounter extentionPoint={orgOverviewExtensionPoint} />
+      <ExtentionMounter
+        extentionPoint={organizationOverviewMainExtensionPoint}
+      />
     </PageLayout>
   );
 };
