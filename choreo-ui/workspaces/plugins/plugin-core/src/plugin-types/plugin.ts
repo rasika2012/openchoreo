@@ -111,6 +111,10 @@ export const rootExtensionPoints = {
     id: "org-navigation",
     type: PluginExtensionType.NAVIGATION,
   },
+  footer: {
+    id: "footer",
+    type: PluginExtensionType.PANEL,
+  },
 };
 
 export type PluginExtension =

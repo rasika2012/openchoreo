@@ -11,7 +11,7 @@ import {
   IAppStateAction,
   initialState,
 } from "../reducers/appState";
-import { ChoreoClient } from "@open-choreo/api-client-lib";
+import { ChoreoClient } from "@open-choreo/choreo-api";
 import { useBasePath } from "@open-choreo/plugin-core";
 import { GlobalStateProvider } from "./GlobleStateProvider";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
