@@ -24,11 +24,10 @@ interface CardHeadingProps {
   onClose?: () => void;
   testId: string;
   size?: 'small' | 'medium' | 'large';
-  isForm?: boolean;
 }
 
 export function CardHeading(props: CardHeadingProps) {
-  const { title, onClose, testId, size = 'medium', isForm } = props;
+  const { title, onClose, testId, size = 'medium' } = props;
 
   return (
     <StyledCardHeading data-cyid={`${testId}-card-heading`}>
@@ -44,7 +43,6 @@ export function CardHeading(props: CardHeadingProps) {
           color="secondary"
           variant="text"
           className="btn-close"
-          isForm={isForm}
           onClick={onClose}
           testId="btn-close"
           endIcon={<CloseIcon />}

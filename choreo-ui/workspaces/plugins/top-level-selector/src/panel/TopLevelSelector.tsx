@@ -83,9 +83,9 @@ const Panel: React.FC = () => {
         <AnimateSlide show={!!projectName} unmountOnExit>
           <TopLevelSelector
             items={
-              projectList?.items?.map((project) => ({
-                label: project.metadata.name,
-                id: project.metadata.name,
+              projectList?.data.items?.map((project) => ({
+                label: project.name,
+                id: project.name,
               })) || []
             }
             recentItems={[]}
