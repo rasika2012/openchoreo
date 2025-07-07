@@ -14,7 +14,8 @@ export const projectsApi: ProjectsApi = {
    * @returns Promise<ProjectList> - List of all projects
    */
   async listProjects(orgName: string, config?: ApiConfig): Promise<ProjectList> {
-    return apiRequest<ProjectList>(`/api/v1/orgs/${orgName}/projects`, { method: 'GET' }, config);
+    const encodedOrgName = encodeURIComponent(orgName);
+    return apiRequest<ProjectList>(`/api/v1/orgs/${encodedOrgName}/projects`, { method: 'GET' }, config);
   },
 
   /**
@@ -26,6 +27,7 @@ export const projectsApi: ProjectsApi = {
    */
   async getProject(orgName: string, projectName: string, config?: ApiConfig): Promise<Project> {
     const encodedProjectName = encodeURIComponent(projectName);
-    return apiRequest<Project>(`/api/v1/orgs/${orgName}/projects/${encodedProjectName}`, { method: 'GET' }, config);
+    const encodedOrgName = encodeURIComponent(orgName);
+    return apiRequest<Project>(`/api/v1/orgs/${encodedOrgName}/projects/${encodedProjectName}`, { method: 'GET' }, config);
   },
 }; 

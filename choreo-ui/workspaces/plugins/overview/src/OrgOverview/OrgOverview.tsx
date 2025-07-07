@@ -4,22 +4,39 @@ import {
   ResourceList,
 } from "@open-choreo/common-views";
 import { useGlobalState } from "@open-choreo/api-client";
-import { useHomePath, useUrlParams } from "@open-choreo/plugin-core";
-import React from "react";
+import { useHomePath } from "@open-choreo/plugin-core";
+import React, { useMemo, useState } from "react";
 import {
   Box,
-  IconButton,
-  OpenProjectIcon,
-  SettingsIcon,
+  SearchBar,
   TimeIcon,
   Tooltip,
   Typography,
 } from "@open-choreo/design-system";
-import { Route, Routes } from "react-router";
+import { useIntl } from "react-intl";
 
 const OrgOverview: React.FC = () => {
   const { projectListQueryResult } = useGlobalState();
   const homePath = useHomePath();
+  const [search, setSearch] = useState("");
+  const { formatMessage } = useIntl();
+
+  const project = useMemo(
+    () =>
+      projectListQueryResult?.data?.data?.items
+        ?.filter((item) =>
+          item.name.toLowerCase().includes(search.toLowerCase()),
+        )
+        .map((item) => ({
+          id: item.name,
+          name: item.name,
+          description: item.deploymentOipeline,
+          type: item.status,
+          lastUpdated: item.createdAt,
+          href: `${homePath}/project/${item.name}`,
+        })),
+    [projectListQueryResult?.data?.data.items, search],
+  );
 
   if (projectListQueryResult?.isLoading) {
     return <PresetErrorPage preset="500" />;
@@ -29,19 +46,27 @@ const OrgOverview: React.FC = () => {
     return <PresetErrorPage preset="404" />;
   }
 
-  const project = projectListQueryResult?.data?.items?.map((item) => ({
-    id: item.metadata.name,
-    name: item.metadata.name,
-    description: Object.values(item.metadata?.labels || []).join(", "),
-    type: item.kind,
-    lastUpdated:
-      item.status.conditions?.[0]?.lastTransitionTime ||
-      new Date().toISOString(),
-    href: `${homePath}/project/${item.metadata.name}`,
-  }));
-
   return (
-    <PageLayout testId="overview-page" title={"Projects"}>
+    <PageLayout
+      testId="overview-page"
+      title={formatMessage({
+        id: "overview.orgOverview.title",
+        defaultMessage: "Projects",
+      })}
+    >
+      <Box>
+        <SearchBar
+          inputValue={search}
+          color="secondary"
+          bordered
+          onChange={(value) => setSearch(value)}
+          testId="search-bar"
+          placeholder={formatMessage({
+            id: "overview.orgOverview.searchPlaceholder",
+            defaultMessage: "Search projects",
+          })}
+        />
+      </Box>
       <ResourceList
         resources={project}
         footerResourceListCardLeft={
@@ -61,20 +86,6 @@ const OrgOverview: React.FC = () => {
               </Typography>
             </Tooltip>
           </Box>
-        }
-        footerResourceListCardRight={
-          <>
-            <Tooltip title="Open project with vs code">
-              <IconButton color="secondary" size="small">
-                <OpenProjectIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Project settings">
-              <IconButton color="secondary" size="small">
-                <SettingsIcon />
-              </IconButton>
-            </Tooltip>
-          </>
         }
       />
     </PageLayout>
