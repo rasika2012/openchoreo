@@ -7,10 +7,17 @@ export enum PluginExtensionType {
   PANEL = "panel",
   PROVIDER = "provider",
 }
+
+export interface PluginExtensionPoint {
+  id: string;
+  type: PluginExtensionType;
+}
+
 export interface PluginManifest {
   name: string;
   description: string;
   extensions: PluginExtension[];
+  extentionPoints: PluginExtensionPoint[];
 }
 
 export interface PluginExtensionSubmenu {
@@ -26,7 +33,7 @@ export interface PluginExtensionSubmenu {
 }
 
 export interface PluginExtensionNavigation {
-  type: PluginExtensionType.NAVIGATION;
+  extentionPoint: PluginExtensionPoint;
   name: string;
   icon:
     | ComponentType<{ className?: string }>
@@ -36,32 +43,75 @@ export interface PluginExtensionNavigation {
     | LazyExoticComponent<ComponentType<{ className?: string }>>;
   path?: string;
   pathPattern?: string;
-  extentionPointId?: string | Level;
   submenu?: PluginExtensionSubmenu[];
 }
 
 export interface PluginExtensionPage {
-  type: PluginExtensionType.PAGE;
-  extentionPointId: string | Level;
+  extentionPoint: PluginExtensionPoint;
   pathPattern: string;
   component: ComponentType | LazyExoticComponent<ComponentType>;
 }
 
 export interface PluginExtensionPanel {
-  type: PluginExtensionType.PANEL;
-  extentionPointId: string;
+  extentionPoint: PluginExtensionPoint;
   key: string;
   component: ComponentType | LazyExoticComponent<ComponentType>;
 }
 
 export interface PluginExtensionProvider {
-  type: PluginExtensionType.PROVIDER;
-  extentionPointId: string;
+  extentionPoint: PluginExtensionPoint;
   key: string;
   component:
     | ComponentType<{ children: ReactNode }>
     | LazyExoticComponent<ComponentType<{ children: ReactNode }>>;
 }
+
+export const rootExtensionPoints = {
+  globalProvider: {
+    id: "global",
+    type: PluginExtensionType.PROVIDER,
+  },
+  componentLevelPage: {
+    id: "component-level-page",
+    type: PluginExtensionType.PAGE,
+  },
+  projectLevelPage: {
+    id: "project-level-page",
+    type: PluginExtensionType.PAGE,
+  },
+  orgLevelPage: {
+    id: "org-level-page",
+    type: PluginExtensionType.PAGE,
+  },
+  globalPage: {
+    id: "global-page",
+    type: PluginExtensionType.PAGE,
+  },
+  headerLeft: {
+    id: "header-left",
+    type: PluginExtensionType.PANEL,
+  },
+  headerRight: {
+    id: "header-right",
+    type: PluginExtensionType.PANEL,
+  },
+  sidebarRight: {
+    id: "sidebar-right",
+    type: PluginExtensionType.PANEL,
+  },
+  componentNavigation: {
+    id: "component-navigation",
+    type: PluginExtensionType.NAVIGATION,
+  },
+  projectNavigation: {
+    id: "project-navigation",
+    type: PluginExtensionType.NAVIGATION,
+  },
+  orgNavigation: {
+    id: "org-navigation",
+    type: PluginExtensionType.NAVIGATION,
+  },
+};
 
 export type PluginExtension =
   | PluginExtensionNavigation

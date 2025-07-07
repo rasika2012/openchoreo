@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import { PluginExtensionType, PluginExtensionPanel } from "../../plugin-types";
+import { PluginExtensionPanel, PluginExtensionPoint } from "../../plugin-types";
 import { usePluginRegistry } from "../../Providers";
 
-export function usePanelExtentions(extentionPointId: string) {
+export function usePanelExtentions(extentionPoint: PluginExtensionPoint) {
   const pluginRegistry = usePluginRegistry();
   const entries: PluginExtensionPanel[] = useMemo(
     () =>
@@ -10,11 +10,11 @@ export function usePanelExtentions(extentionPointId: string) {
         (plugin) =>
           plugin.extensions.filter(
             (entry) =>
-              entry.type === PluginExtensionType.PANEL &&
-              entry.extentionPointId === extentionPointId,
+              entry.extentionPoint.id === extentionPoint.id &&
+              entry.extentionPoint.type === extentionPoint.type,
           ) as PluginExtensionPanel[],
       ),
-    [pluginRegistry, extentionPointId],
+    [pluginRegistry, extentionPoint],
   );
   return entries;
 }

@@ -1,4 +1,4 @@
-import { Box, Button, ButtonContainer, Card, CardContent, Divider, IconButton, ImageBuilding, LoaderIcon, RefreshIcon, ReloadIcon, Rotate, StopIcon, Typography, useChoreoTheme } from '@open-choreo/design-system';
+import { Box, Button, ButtonContainer, Card, CardContent, Divider, IconButton, RefreshIcon, ReloadIcon, Rotate, StopIcon, Typography, useChoreoTheme } from '@open-choreo/design-system';
 import { FormattedMessage } from 'react-intl';
 
 export interface EnvCardBaseProps {
