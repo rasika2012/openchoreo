@@ -40,7 +40,13 @@ export function ResourceTable(props: ResourceTableProps) {
   };
 
   const DeleteBtn = ({ onClick }: any) => (
-    <Button color="error" onClick={onClick} size="small" testId="delete-button">
+    <Button
+      color="error"
+      onClick={onClick}
+      size="small"
+      variant="outlined"
+      testId="delete-button"
+    >
       <DeleteIcon fontSize="small" />
       Delete
     </Button>
