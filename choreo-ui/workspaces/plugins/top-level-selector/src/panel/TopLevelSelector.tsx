@@ -24,7 +24,7 @@ const Panel: React.FC = () => {
     projectListQueryResult,
   } = useGlobalState();
 
-  const projectName = projectQueryResult?.data?.metadata?.name;
+  const projectName = projectQueryResult?.data?.data?.name;
   const componentName = componentQueryResult?.data?.metadata?.name;
   const projectList = projectListQueryResult?.data;
   const componentList = componentListQueryResult?.data;
@@ -69,7 +69,7 @@ const Panel: React.FC = () => {
       <TopLevelSelector
         items={[]}
         recentItems={[]}
-        selectedItem={{ label: "Default", id: "default" }}
+        selectedItem={{ label: orgHandle, id: "default" }}
         level={Level.ORGANIZATION}
         isHighlighted={!projectName}
         onClick={() => {

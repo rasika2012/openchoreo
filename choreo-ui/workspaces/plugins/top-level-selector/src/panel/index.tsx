@@ -1,13 +1,12 @@
 import {
   type PluginExtension,
-  PluginExtensionType,
+  rootExtensionPoints,
 } from "@open-choreo/plugin-core";
 import React from "react";
 const OverviewPage = React.lazy(() => import("./TopLevelSelector"));
 
 export const panel: PluginExtension = {
-  type: PluginExtensionType.PANEL,
-  extentionPointId: "header.left",
+  extentionPoint: rootExtensionPoints.headerLeft,
   key: "top-level-selector",
   component: OverviewPage,
 };

@@ -1,12 +1,11 @@
 import {
   type PluginExtension,
-  PluginExtensionType,
+  rootExtensionPoints,
 } from "@open-choreo/plugin-core";
 import ApiClientProvider from "./ApiClientProvider";
 
 export const provider: PluginExtension = {
-  type: PluginExtensionType.PROVIDER,
-  extentionPointId: "global",
+  extentionPoint: rootExtensionPoints.globalProvider,
   key: "api-client",
   component: ApiClientProvider,
 };
