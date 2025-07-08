@@ -106,20 +106,20 @@ const OrgOverview: React.FC = () => {
         <ExtentionMounter extentionPoint={organizationOverviewActions} />
       </Box>
       <ResourceList
-        resources={project}
+        resources={projects}
         footerResourceListCardLeft={
           <Box display="flex" alignItems="center" gap={4}>
             <TimeIcon fontSize="inherit" />
             <Tooltip
               title={`Last updated: ${
-                project?.[0]?.lastUpdated
-                  ? new Date(project?.[0]?.lastUpdated).toLocaleDateString()
+                projects[0].lastUpdated
+                  ? new Date(projects[0].lastUpdated).toLocaleDateString()
                   : "Unknown"
               }`}
             >
               <Typography variant="body1" color="text.secondary">
-                {project?.[0]?.lastUpdated
-                  ? new Date(project?.[0]?.lastUpdated).toLocaleDateString()
+                {projects[0].lastUpdated
+                  ? new Date(projects[0].lastUpdated).toLocaleDateString()
                   : "Unknown"}
               </Typography>
             </Tooltip>
