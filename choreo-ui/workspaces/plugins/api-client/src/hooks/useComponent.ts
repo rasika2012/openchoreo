@@ -8,7 +8,7 @@ export const useComponent = (
 ) => {
   const client = useClient();
   return useQuery({
-    queryKey: ["component", prorjectId, componentId],
+    queryKey: ["component", prorjectId, componentId, orgName],
     queryFn: () => {
       if (prorjectId && componentId) {
         return client.getComponent(orgName, prorjectId, componentId);
@@ -21,7 +21,7 @@ export const useComponent = (
 export const useComponentList = (orgName: string, projectId?: string) => {
   const client = useClient();
   return useQuery({
-    queryKey: ["componentList", projectId],
+    queryKey: ["componentList", projectId, orgName],
     queryFn: () => {
       if (projectId) {
         return client.listProjectComponents(orgName, projectId);

@@ -39,7 +39,7 @@ const OrgOverview: React.FC = () => {
   const [search, setSearch] = useState("");
   const { formatMessage } = useIntl();
 
-  const project = useMemo(
+  const projects = useMemo(
     () =>
       projectListQueryResult?.data?.data?.items
         ?.filter((item) =>
@@ -112,13 +112,13 @@ const OrgOverview: React.FC = () => {
             <TimeIcon fontSize="inherit" />
             <Tooltip
               title={`Last updated: ${
-                projects[0].lastUpdated
+                projects[0]?.lastUpdated
                   ? new Date(projects[0].lastUpdated).toLocaleDateString()
                   : "Unknown"
               }`}
             >
               <Typography variant="body1" color="text.secondary">
-                {projects[0].lastUpdated
+                {projects[0]?.lastUpdated
                   ? new Date(projects[0].lastUpdated).toLocaleDateString()
                   : "Unknown"}
               </Typography>
