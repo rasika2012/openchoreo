@@ -5,6 +5,7 @@ import {
 import React from "react";
 const ComponentListPanel = React.lazy(() => import("./ComponentListPanel"));
 import { projectOverviewMainExtensionPoint } from "@open-choreo/plugin-overview";
+import { componentListExtensionPoint } from "../ComponentListPage/ComponentList";
 
 export const componentListPanel: PluginExtension = {
   extentionPoint: projectOverviewMainExtensionPoint,
@@ -13,7 +14,7 @@ export const componentListPanel: PluginExtension = {
 };
 
 export const projectOverviewComponentListPanel: PluginExtension = {
-  extentionPoint: rootExtensionPoints.projectLevelPage,
+  extentionPoint: componentListExtensionPoint,
   component: ComponentListPanel,
   key: "component-list-project-overview-panel",
 };

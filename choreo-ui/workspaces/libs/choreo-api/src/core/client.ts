@@ -1,10 +1,9 @@
 import { ApiConfig, defaultConfig } from './config';
-import { generalApi, GeneralApi } from '../api/general';
 import { projectsApi, ProjectsApi } from '../api/projects';
 import { componentsApi, ComponentsApi } from '../api/components';
-import { deploymentsApi, DeploymentsApi } from '../api/deployments';
+import { organizationApi, OrganizationApi } from '../api/organization';
 
-export interface ChoreoApiClient extends GeneralApi, ProjectsApi, ComponentsApi, DeploymentsApi {
+export interface ChoreoApiClient extends ProjectsApi, ComponentsApi, OrganizationApi {
   config: ApiConfig;
   setConfig(config: Partial<ApiConfig>): void;
 }
@@ -24,9 +23,6 @@ export class ChoreoClient implements ChoreoApiClient {
     this.config = { ...this.config, ...config };
   }
 
-  // General API methods
-  listEndpoints = generalApi.listEndpoints;
-
   // Projects API methods
   listProjects = projectsApi.listProjects;
   getProject = projectsApi.getProject;
@@ -35,7 +31,6 @@ export class ChoreoClient implements ChoreoApiClient {
   listProjectComponents = componentsApi.listProjectComponents;
   getComponent = componentsApi.getComponent;
 
-  // Deployments API methods
-  listComponentDeployments = deploymentsApi.listComponentDeployments;
-  getDeployment = deploymentsApi.getDeployment;
+  // Organization API methods
+  listOrganizations = organizationApi.listOrganizations;
 } 

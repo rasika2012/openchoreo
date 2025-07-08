@@ -22,12 +22,15 @@ const Panel: React.FC = () => {
     componentQueryResult,
     componentListQueryResult,
     projectListQueryResult,
+    organizationListQueryResult,
+    selectedOrganization,
   } = useGlobalState();
 
   const projectName = projectQueryResult?.data?.data?.name;
-  const componentName = componentQueryResult?.data?.metadata?.name;
+  const componentName = componentQueryResult?.data?.data?.name;
   const projectList = projectListQueryResult?.data;
   const componentList = componentListQueryResult?.data;
+  const organizationList = organizationListQueryResult?.data;
 
   const orgHandle = useOrgHandle();
   const projectHandle = useProjectHandle();
@@ -67,9 +70,12 @@ const Panel: React.FC = () => {
       height="100%"
     >
       <TopLevelSelector
-        items={[]}
+        items={organizationList?.data?.items?.map((org) => ({
+          label: org.displayName,
+          id: org.name,
+        }))}
         recentItems={[]}
-        selectedItem={{ label: orgHandle, id: "default" }}
+        selectedItem={{ label: selectedOrganization?.displayName, id: selectedOrganization?.name }}
         level={Level.ORGANIZATION}
         isHighlighted={!projectName}
         onClick={() => {
@@ -106,9 +112,9 @@ const Panel: React.FC = () => {
         <AnimateSlide show={!!componentName} unmountOnExit>
           <TopLevelSelector
             items={
-              componentList?.items?.map((component) => ({
-                label: component.metadata.name,
-                id: component.metadata.name,
+              componentList?.data?.items?.map((component) => ({
+                label: component.name,
+                id: component.name,
               })) || []
             }
             recentItems={[]}
