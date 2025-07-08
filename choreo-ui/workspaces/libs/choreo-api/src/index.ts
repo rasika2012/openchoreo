@@ -7,29 +7,23 @@ export { defaultConfig, ApiError } from './core/config';
 export type { ApiConfig } from './core/config';
 
 // Individual API modules
-export { generalApi } from './api/general';
-export type { GeneralApi } from './api/general';
-
 export { projectsApi } from './api/projects';
 export type { ProjectsApi } from './api/projects';
 
 export { componentsApi } from './api/components';
 export type { ComponentsApi } from './api/components';
 
-export { deploymentsApi } from './api/deployments';
-export type { DeploymentsApi } from './api/deployments';
+export { organizationApi } from './api/organization';
+export type { OrganizationApi } from './api/organization';
 
 // Types
 export type {
-  Condition,
-  Metadata,
+  OrganizationList,
+  OrganizationListData,
   Project,
   ProjectList,
   Component,
   ComponentList,
-  Deployment,
-  DeploymentList,
-  EndpointsResponse,
 } from './types/types';
 
 // Default export

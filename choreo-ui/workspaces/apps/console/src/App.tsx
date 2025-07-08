@@ -1,9 +1,9 @@
 import { ThemeProvider, Box } from "@open-choreo/design-system";
 import { Suspense } from "react";
-import { defaultPath, ExtentionProviderMounter, PageExtentionsMounter, PathsPatterns, rootExtensionPoints } from "@open-choreo/plugin-core";
+import { ExtentionProviderMounter, PageExtentionsMounter, PathsPatterns, rootExtensionPoints } from "@open-choreo/plugin-core";
 import { IntlProvider } from "react-intl";
 import React from "react";
-import { Navigate, Route, Routes } from "react-router";
+import { Route, Routes } from "react-router";
 import { PresetErrorPage, FullPageLoader } from "@open-choreo/common-views";
 
 
@@ -23,7 +23,6 @@ export default function App() {
                   <Route path={PathsPatterns.COMPONENT_LEVEL} element={<PageExtentionsMounter extentionPoint={rootExtensionPoints.componentLevelPage} />} />
                   <Route path={PathsPatterns.PROJECT_LEVEL} element={<PageExtentionsMounter extentionPoint={rootExtensionPoints.projectLevelPage} />} />
                   <Route path={PathsPatterns.ORG_LEVEL} element={<PageExtentionsMounter extentionPoint={rootExtensionPoints.orgLevelPage} />} />
-                  <Route path="/" element={<Navigate to={defaultPath} />} />
                   <Route path={"/*"} element={<PageExtentionsMounter extentionPoint={rootExtensionPoints.globalPage}/>} />
                   <Route path="*" element={<PresetErrorPage preset="404" />} />
                 </Routes>
