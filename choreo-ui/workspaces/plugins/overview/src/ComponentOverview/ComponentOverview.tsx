@@ -29,7 +29,7 @@ const ComponentOverview: React.FC = () => {
   return (
     <PageLayout
       testId="overview-page"
-      title={componentQueryResult.data.metadata.name}
+      title={componentQueryResult.data.data.name}
     >
       <div>Component Overview</div>
       <ExtentionMounter extentionPoint={componentOverviewMainExtensionPoint} />

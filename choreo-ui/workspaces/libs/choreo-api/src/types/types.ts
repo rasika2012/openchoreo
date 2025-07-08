@@ -1,29 +1,22 @@
-export interface Condition {
-  lastTransitionTime: string;
-  message: string;
-  observedGeneration: number;
-  reason: string;
+export interface OrganizationItem {
+  name: string;
+  createdAt: string;
+  description: string;
+  displayName: string;
+  namespace: string;
   status: string;
-  type: string;
 }
 
-export interface Metadata {
-  annotations?: {
-    'core.choreo.dev/description'?: string;
-    'core.choreo.dev/display-name'?: string;
-  };
-  name: string;
-  namespace: string;
-  labels?: {
-    'core.choreo.dev/name'?: string;
-    'core.choreo.dev/organization'?: string;
-    'core.choreo.dev/project'?: string;
-    'core.choreo.dev/component'?: string;
-    'core.choreo.dev/deployment-track'?: string;
-    'core.choreo.dev/environment'?: string;
-  };
-  continue?: string;
-  resourceVersion?: string;
+export interface OrganizationListData {
+  items: OrganizationItem[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface OrganizationList {
+  success: boolean;
+  data: OrganizationListData;
 }
 
 export interface ProjectItem {
@@ -48,61 +41,34 @@ export interface ProjectList {
 
 export interface Project {
   success: boolean;
-  data: {
-    name: string;
-    orgName: string;
-    deploymentOipeline: string;
-    createdAt: string;
-    status: string;
-  };
+  data: ProjectItem;
 }
 
 export interface Component {
-  apiVersion: string;
-  kind: string;
-  metadata: Metadata;
-  spec: {
-    source?: {
-      gitRepository?: {
-        url: string;
-      };
-      containerRegistry?: {
-        imageName: string;
-      };
-    };
-    type?: string;
-  };
-  status: {
-    conditions: Condition[];
-  };
+  success: boolean;
+  data: ComponentItem;
+}
+
+
+export interface ComponentItem {
+  name: string;
+  type: string;
+  projectName: string;
+  orgName: string;
+  repositoryUrl: string;
+  branch: string;
+  createdAt: string;
+  status: string;
+}
+
+export interface ComponentListData {
+  items: ComponentItem[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
 }
 
 export interface ComponentList {
-  apiVersion: string;
-  kind: string;
-  items: Component[];
-  metadata: Metadata;
+  success: boolean;
+  data: ComponentListData;
 }
-
-export interface Deployment {
-  apiVersion: string;
-  kind: string;
-  metadata: Metadata;
-  spec: {
-    deploymentArtifactRef?: string;
-  };
-  status: {
-    conditions: Condition[];
-  };
-}
-
-export interface DeploymentList {
-  apiVersion: string;
-  kind: string;
-  items: Deployment[];
-  metadata: Metadata;
-}
-
-export interface EndpointsResponse {
-  paths: string[];
-} 
