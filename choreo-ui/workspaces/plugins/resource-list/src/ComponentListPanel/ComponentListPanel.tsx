@@ -23,14 +23,16 @@ const ComponentListPanel: React.FC = () => {
   if (!componentListQueryResult?.data) {
     return <PresetErrorPage preset="404" />;
   }
-  const components = componentListQueryResult?.data?.items?.map((item) => ({
-    id: item.metadata.name,
-    name: item.metadata.name,
-    description: Object.values(item.metadata?.labels || []).join(", "),
-    type: item.kind,
-    lastUpdated: "",
-    href: `${homePath}/component/${item.metadata.name}`,
-  }));
+  const components = componentListQueryResult?.data?.data?.items?.map(
+    (item) => ({
+      id: item.name,
+      name: item.name,
+      description: item.type,
+      type: item.type,
+      lastUpdated: item.createdAt,
+      href: `${homePath}/component/${item.name}`,
+    }),
+  );
   return <ResourceTable resources={components || []} />;
 };
 
