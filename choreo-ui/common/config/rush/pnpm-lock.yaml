@@ -926,6 +926,9 @@ importers:
       '@open-choreo/api-client':
         specifier: workspace:*
         version: link:../api-client
+      '@open-choreo/choreo-api':
+        specifier: workspace:*
+        version: link:../../libs/choreo-api
       '@open-choreo/common-views':
         specifier: workspace:*
         version: link:../../libs/views

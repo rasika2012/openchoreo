@@ -20,10 +20,12 @@ export interface OrganizationList {
 }
 
 export interface ProjectItem {
+  createdAt: string;
+  deploymentPipeline: string;
+  description: string;
+  displayName: string;
   name: string;
   orgName: string;
-  deploymentOipeline: string;
-  createdAt: string;
   status: string;
 }
 
@@ -51,9 +53,11 @@ export interface Component {
 
 
 export interface ComponentItem {
+  displayName: string;
   name: string;
   type: string;
   projectName: string;
+  description: string;
   orgName: string;
   repositoryUrl: string;
   branch: string;
@@ -72,3 +76,5 @@ export interface ComponentList {
   success: boolean;
   data: ComponentListData;
 }
+
+export type Resource = OrganizationItem | ProjectItem | ComponentItem;
