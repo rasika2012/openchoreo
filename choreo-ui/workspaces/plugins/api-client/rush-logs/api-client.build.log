@@ -5,10 +5,13 @@ Rush Multi-Project Build Tool 5.153.1 - Node.js 20.14.0 (LTS)
 > "eslint --config ./eslint.config.js --fix"
 
 
+/Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/workspaces/plugins/api-client/src/providers/GlobleStateProvider.tsx
+  69:6  warning  React Hook useEffect has a missing dependency: 'navigate'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
 /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/workspaces/plugins/api-client/src/reducers/appState.ts
   10:3  warning  'SET_SHARED_STATE' is defined but never used  no-unused-vars
 
-✖ 1 problem (0 errors, 1 warning)
+✖ 2 problems (0 errors, 2 warnings)
 
 Found configuration in /Users/rasikamaduranga/WS02/OpenChoreo/openchoreo/choreo-ui/rush.json
 
