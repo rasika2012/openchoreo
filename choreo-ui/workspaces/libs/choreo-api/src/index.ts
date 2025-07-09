@@ -24,7 +24,17 @@ export type {
   ProjectList,
   Component,
   ComponentList,
+  Resource,
 } from './types/types';
+
+export {
+  getResourceDisplayName,
+  getResourceDescription,
+  getResourceCreatedAt,
+  getResourceStatus,
+  getResourceDeploymentPipeline,
+  getResourceName,
+} from './utils/resource';
 
 // Default export
 import { ChoreoClient } from './core/client';
