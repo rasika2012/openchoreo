@@ -4,6 +4,7 @@ import { UseQueryResult } from "@tanstack/react-query";
 import {
   Component,
   ComponentList,
+  getResourceName,
   OrganizationList,
   Project,
   ProjectList,
@@ -15,7 +16,11 @@ import {
   useOrgHandle,
   useProjectHandle,
 } from "@open-choreo/plugin-core";
-import { OrganizationItem } from "@open-choreo/choreo-api/dist/src/types/types";
+import {
+  ComponentItem,
+  OrganizationItem,
+  ProjectItem,
+} from "@open-choreo/choreo-api/dist/src/types/types";
 import { useNavigate } from "react-router";
 
 export interface GlobalState {
@@ -25,6 +30,8 @@ export interface GlobalState {
   projectQueryResult: UseQueryResult<Project, Error> | null;
   organizationListQueryResult: UseQueryResult<OrganizationList, Error> | null;
   selectedOrganization: OrganizationItem | null;
+  selectedProject: ProjectItem | null;
+  selectedComponent: ComponentItem | null;
 }
 
 export const GlobalStateContext = createContext<GlobalState>({
@@ -34,6 +41,8 @@ export const GlobalStateContext = createContext<GlobalState>({
   projectQueryResult: null,
   organizationListQueryResult: null,
   selectedOrganization: null,
+  selectedProject: null,
+  selectedComponent: null,
 });
 
 export function GlobalStateProvider({
@@ -56,8 +65,17 @@ export function GlobalStateProvider({
   const organizationListQueryResult = useOrganizationList();
 
   useEffect(() => {
-    if(!orgHandle &&  organizationListQueryResult.data?.data?.items.length > 0) {
-      navigate(genaratePath({orgHandle: organizationListQueryResult.data.data.items[0].name}));
+    if (
+      !orgHandle &&
+      organizationListQueryResult.data?.data?.items.length > 0
+    ) {
+      navigate(
+        genaratePath({
+          orgHandle: getResourceName(
+            organizationListQueryResult.data?.data?.items[0],
+          ),
+        }),
+      );
     }
   }, [orgHandle, organizationListQueryResult.data]);
 
@@ -66,6 +84,14 @@ export function GlobalStateProvider({
       (org) => org.name === orgHandle,
     );
   }, [organizationListQueryResult, orgHandle]);
+
+  const selectedProject = useMemo(() => {
+    return projectQueryResult?.data?.data;
+  }, [projectQueryResult]);
+
+  const selectedComponent = useMemo(() => {
+    return componentQueryResult?.data?.data;
+  }, [componentQueryResult]);
 
   return (
     <GlobalStateContext.Provider
@@ -76,6 +102,8 @@ export function GlobalStateProvider({
         projectQueryResult,
         organizationListQueryResult,
         selectedOrganization,
+        selectedProject,
+        selectedComponent,
       }}
     >
       {children}
