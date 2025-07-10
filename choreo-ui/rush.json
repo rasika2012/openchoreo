@@ -459,8 +459,8 @@
       "projectFolder": "workspaces/plugins/top-level-selector"
     },
     {
-      "packageName": "@open-choreo/choreo-api",
-      "projectFolder": "workspaces/libs/choreo-api"
+      "packageName": "@open-choreo/api-client",
+      "projectFolder": "workspaces/libs/api-client"
     },
     {
       "packageName": "@open-choreo/common-views",
