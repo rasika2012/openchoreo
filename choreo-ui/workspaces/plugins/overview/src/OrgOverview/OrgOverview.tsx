@@ -48,7 +48,7 @@ const OrgOverview: React.FC = () => {
         .map((item) => ({
           id: item.name,
           name: item.name,
-          description: item.deploymentOipeline,
+          description: item?.description || "",
           type: item.status,
           lastUpdated: item.createdAt,
           href: `${homePath}/project/${item.name}`,
