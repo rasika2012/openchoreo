@@ -1,5 +1,5 @@
 import type { PluginManifest } from '@open-choreo/plugin-core';
-import { apiClientPlugin } from '@open-choreo/api-client';
+import { choreoContextPlugin } from '@open-choreo/choreo-context';
 
 // Lazy load all plugins
 const overviewPlugin = () => import('@open-choreo/plugin-overview').then(module => module.overviewPlugin);
@@ -16,7 +16,7 @@ export const getPluginRegistry = async (): Promise<PluginManifest[]> => {
     resourceListingPlugin()
   ]);
   
-  return [overview, levelSelector, topRightMenu, apiClientPlugin, resourceListing];
+  return [overview, levelSelector, topRightMenu, choreoContextPlugin, resourceListing];
 };
 
 // For backward compatibility, export a synchronous version that loads plugins on demand
