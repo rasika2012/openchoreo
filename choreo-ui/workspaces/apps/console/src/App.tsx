@@ -1,6 +1,6 @@
 import { ThemeProvider, Box } from "@open-choreo/design-system";
 import { Suspense } from "react";
-import { ExtentionProviderMounter, PageExtentionsMounter, PathsPatterns, rootExtensionPoints } from "@open-choreo/plugin-core";
+import { WrapperExtensionMounter, RouteExtensionMounter, PathsPatterns, coreExtensionPoints } from "@open-choreo/plugin-core";
 import { IntlProvider } from "react-intl";
 import React from "react";
 import { Route, Routes } from "react-router";
@@ -15,21 +15,21 @@ export default function App() {
   return (
     <ThemeProvider mode="light">
       <IntlProvider locale="en">
-        <ExtentionProviderMounter extentionPoint={rootExtensionPoints.globalProvider} >
+        <WrapperExtensionMounter extentionPoint={coreExtensionPoints.globalProvider} >
           <Box width="100vw" height="100vh">
             <Suspense fallback={<FullPageLoader />}>
               <MainLayout>
                 <Routes>
-                  <Route path={PathsPatterns.COMPONENT_LEVEL} element={<PageExtentionsMounter extentionPoint={rootExtensionPoints.componentLevelPage} />} />
-                  <Route path={PathsPatterns.PROJECT_LEVEL} element={<PageExtentionsMounter extentionPoint={rootExtensionPoints.projectLevelPage} />} />
-                  <Route path={PathsPatterns.ORG_LEVEL} element={<PageExtentionsMounter extentionPoint={rootExtensionPoints.orgLevelPage} />} />
-                  <Route path={"/*"} element={<PageExtentionsMounter extentionPoint={rootExtensionPoints.globalPage}/>} />
+                  <Route path={PathsPatterns.COMPONENT_LEVEL} element={<RouteExtensionMounter extentionPoint={coreExtensionPoints.componentLevelPage} />} />
+                  <Route path={PathsPatterns.PROJECT_LEVEL} element={<RouteExtensionMounter extentionPoint={coreExtensionPoints.projectLevelPage} />} />
+                  <Route path={PathsPatterns.ORG_LEVEL} element={<RouteExtensionMounter extentionPoint={coreExtensionPoints.orgLevelPage} />} />
+                  <Route path={"/*"} element={<RouteExtensionMounter extentionPoint={coreExtensionPoints.globalPage}/>} />
                   <Route path="*" element={<PresetErrorPage preset="404" />} />
                 </Routes>
               </MainLayout>
             </Suspense>
           </Box>
-        </ExtentionProviderMounter>
+        </WrapperExtensionMounter>
       </IntlProvider>
     </ThemeProvider>
   );
