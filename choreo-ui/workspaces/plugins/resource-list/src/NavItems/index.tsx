@@ -5,7 +5,6 @@ import {
 } from "@open-choreo/plugin-core";
 
 import {
-  Level,
   MenuComponentsFilledIcon,
   MenuComponentsIcon,
 } from "@open-choreo/design-system";

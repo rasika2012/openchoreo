@@ -7,7 +7,7 @@ import {
   useChoreoTheme,
 } from "@open-choreo/design-system";
 import { useGlobalState } from "@open-choreo/choreo-context";
-import { getResourceDisplayName } from "@open-choreo/definitions";
+import { getResourceDisplayName, getResourceName } from "@open-choreo/definitions";
 import {
   genaratePath,
   useComponentHandle,
@@ -30,6 +30,9 @@ const Panel: React.FC = () => {
   const projectDisplayName = getResourceDisplayName(selectedProject);
   const componentDisplayName = getResourceDisplayName(selectedComponent);
   const orgDisplayName = getResourceDisplayName(selectedOrganization);
+  const projectName = getResourceName(selectedProject);
+  const componentName = getResourceName(selectedComponent);
+  const orgName = getResourceName(selectedOrganization);
 
   const projectList = projectListQueryResult?.data;
   const componentList = componentListQueryResult?.data;
@@ -80,7 +83,7 @@ const Panel: React.FC = () => {
         recentItems={[]}
         selectedItem={{
           label: orgDisplayName,
-          id: selectedOrganization?.name,
+          id: orgName,
         }}
         level={Level.ORGANIZATION}
         isHighlighted={!projectDisplayName}
@@ -101,7 +104,7 @@ const Panel: React.FC = () => {
               })) || []
             }
             recentItems={[]}
-            selectedItem={{ label: projectDisplayName, id: projectDisplayName }}
+            selectedItem={{ label: projectDisplayName, id: projectName }}
             isHighlighted={!componentDisplayName}
             level={Level.PROJECT}
             onClose={() => navigate(orgHome)}
@@ -126,7 +129,7 @@ const Panel: React.FC = () => {
             recentItems={[]}
             selectedItem={{
               label: componentDisplayName,
-              id: componentDisplayName,
+              id: componentName,
             }}
             isHighlighted={true}
             level={Level.COMPONENT}
