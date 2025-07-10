@@ -31,7 +31,7 @@
     "copy-assets": "find src -type f \\( -name '*.css' -o -name '*.scss' -o -name '*.less' -o -name '*.woff*' -o -name '*.ttf' -o -name '*.eot' \\) -exec sh -c 'mkdir -p dist/$(dirname {}| sed \"s|^src||\") && cp {} dist/$(dirname {}| sed \"s|^src||\")/$(basename {})' \\;",
     "build": "rushx clean && tsc -project tsconfig.lib.json && rushx copy-assets",
     "dev": "rushx clean && tsc -project tsconfig.lib.json  --watch && rushx copy-assets",
-    "i18n": "formatjs extract 'src/**/*.{ts,tsx,js,jsx}' --out-file 'src/lang/en.json' --ignore '**/node_modules/**' --ignore '**/*.d.ts' --ignore '**/vite-env.d.ts' --format simple --throws"
+    "i18n": "formatjs extract 'src/**/*.{ts,tsx,js,jsx}' --out-file 'lang/en.json' --ignore '**/node_modules/**' --ignore '**/*.d.ts' --ignore '**/vite-env.d.ts' --format simple --throws"
   },
   "keywords": [],
   "author": "",

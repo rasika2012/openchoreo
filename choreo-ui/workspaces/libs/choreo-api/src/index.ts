@@ -1,3 +1,6 @@
+// Export all the types
+export type * from './types/types';
+
 // Main client
 export { ChoreoClient } from './core/client';
 export type { ChoreoApiClient } from './core/client';
