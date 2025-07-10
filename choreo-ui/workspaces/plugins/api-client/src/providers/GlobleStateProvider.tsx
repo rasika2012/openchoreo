@@ -20,7 +20,7 @@ import {
   ComponentItem,
   OrganizationItem,
   ProjectItem,
-} from "@open-choreo/choreo-api/dist/src/types/types";
+} from "@open-choreo/choreo-api";
 import { useNavigate } from "react-router";
 
 export interface GlobalState {
