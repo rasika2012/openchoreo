@@ -5,7 +5,7 @@ A TypeScript API client for the Choreo API Server, built with fetch and organize
 ## Installation
 
 ```bash
-npm install @openchoreo/api-client
+npm install @openchoreo/choreo-api
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ npm install @openchoreo/api-client
 ### Basic Usage
 
 ```typescript
-import { ChoreoClient } from '@openchoreo/api-client';
+import { ChoreoClient } from '@openchoreo/choreo-api';
 
 // Create a client with default configuration
 const client = new ChoreoClient();
@@ -74,7 +74,7 @@ console.log(deployment.metadata.name);
 You can also use individual API modules directly:
 
 ```typescript
-import { projectsApi, componentsApi, deploymentsApi } from '@openchoreo/api-client';
+import { projectsApi, componentsApi, deploymentsApi } from '@openchoreo/choreo-api';
 
 // Use projects API
 const projects = await projectsApi.listProjects();
@@ -91,7 +91,7 @@ const deployments = await deploymentsApi.listComponentDeployments('my-project', 
 The client throws `ApiError` for HTTP errors:
 
 ```typescript
-import { ChoreoClient, ApiError } from '@openchoreo/api-client';
+import { ChoreoClient, ApiError } from '@openchoreo/choreo-api';
 
 const client = new ChoreoClient();
 

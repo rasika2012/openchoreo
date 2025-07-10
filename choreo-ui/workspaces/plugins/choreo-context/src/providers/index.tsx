@@ -6,6 +6,6 @@ import ApiClientProvider from "./ApiClientProvider";
 
 export const provider: PluginExtension = {
   extentionPoint: rootExtensionPoints.globalProvider,
-  key: "api-client",
+  key: "choreo-context",
   component: ApiClientProvider,
 };

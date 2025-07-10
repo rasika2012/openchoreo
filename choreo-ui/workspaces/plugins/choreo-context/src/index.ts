@@ -2,9 +2,9 @@ import { type PluginManifest } from "@open-choreo/plugin-core";
 
 import { provider } from "./providers";
 
-export const apiClientPlugin = {
-  name: "Api Client",
-  description: "Api Client Plugin",
+export const choreoContextPlugin = {
+  name: "Choreo Context",
+  description: "Choreo Context and State Management Plugin",
   extensions: [provider],
 } as PluginManifest;
 
