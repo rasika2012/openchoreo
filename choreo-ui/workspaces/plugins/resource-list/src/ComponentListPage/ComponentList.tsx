@@ -5,13 +5,13 @@ import {
 } from "@open-choreo/common-views";
 import { useGlobalState } from "@open-choreo/choreo-context";
 import {
-  ExtentionMounter,
+  PanelExtensionMounter,
   PluginExtensionPoint,
   PluginExtensionType,
 } from "@open-choreo/plugin-core";
 import React from "react";
 
-export const componentListExtensionPoint: PluginExtensionPoint = {
+export const componentListMainExtensionPoint: PluginExtensionPoint = {
   id: "component-list-page-body",
   type: PluginExtensionType.PANEL,
 };
@@ -33,7 +33,7 @@ const ComponentList: React.FC = () => {
 
   return (
     <PageLayout testId="component-list" title={"Components List"}>
-      <ExtentionMounter extentionPoint={componentListExtensionPoint} />
+      <PanelExtensionMounter extentionPoint={componentListMainExtensionPoint} />
     </PageLayout>
   );
 };

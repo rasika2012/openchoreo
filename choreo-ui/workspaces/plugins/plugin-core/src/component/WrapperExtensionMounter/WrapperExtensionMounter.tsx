@@ -2,12 +2,12 @@ import React, { useCallback } from "react";
 import { useExtentionProviders } from "../../hooks/useProviderExtentions";
 import { PluginExtensionPoint } from "../../plugin-types";
 
-export interface ExtentionProviderMounterProps {
+export interface WrapperExtensionMounterProps {
   extentionPoint: PluginExtensionPoint;
   children: React.ReactNode;
 }
 
-export function ExtentionProviderMounter(props: ExtentionProviderMounterProps) {
+export function WrapperExtensionMounter(props: WrapperExtensionMounterProps) {
   const { extentionPoint, children } = props;
   const extentions = useExtentionProviders(extentionPoint);
   // Create nested providers by reducing the extensions array

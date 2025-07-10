@@ -5,7 +5,7 @@ import {
   PresetErrorPage,
 } from "@open-choreo/common-views";
 import {
-  ExtentionMounter,
+  PanelExtensionMounter,
   PluginExtensionPoint,
   PluginExtensionType,
 } from "@open-choreo/plugin-core";
@@ -35,7 +35,9 @@ const ProjectOverview: React.FC = () => {
       testId="overview-page"
       title={projectQueryResult?.data?.data?.name}
     >
-      <ExtentionMounter extentionPoint={projectOverviewMainExtensionPoint} />
+      <PanelExtensionMounter
+        extentionPoint={projectOverviewMainExtensionPoint}
+      />
     </PageLayout>
   );
 };
