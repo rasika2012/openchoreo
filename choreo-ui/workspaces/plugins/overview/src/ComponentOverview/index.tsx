@@ -2,7 +2,6 @@ import {
   type PluginExtension,
   rootExtensionPoints,
 } from "@open-choreo/plugin-core";
-import React from "react";
 import ComponentOverview from "./ComponentOverview";
 export { componentOverviewMainExtensionPoint } from "./ComponentOverview";
 
