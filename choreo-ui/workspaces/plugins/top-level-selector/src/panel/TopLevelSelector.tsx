@@ -31,7 +31,6 @@ const Panel: React.FC = () => {
   const componentDisplayName = getResourceDisplayName(selectedComponent);
   const orgDisplayName = getResourceDisplayName(selectedOrganization);
 
-  
   const projectList = projectListQueryResult?.data;
   const componentList = componentListQueryResult?.data;
   const organizationList = organizationListQueryResult?.data;
@@ -125,7 +124,10 @@ const Panel: React.FC = () => {
               })) || []
             }
             recentItems={[]}
-            selectedItem={{ label: componentDisplayName, id: componentDisplayName }}
+            selectedItem={{
+              label: componentDisplayName,
+              id: componentDisplayName,
+            }}
             isHighlighted={true}
             level={Level.COMPONENT}
             onClose={() => navigate(projectHome)}
