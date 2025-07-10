@@ -10,7 +10,7 @@ import { componentOverview } from "./ComponentOverview";
 
 export {
   organizationOverviewMainExtensionPoint,
-  organizationOverviewActions,
+  organizationOverviewActionsExtensionPoint,
 } from "./OrgOverview";
 export { projectOverviewMainExtensionPoint } from "./ProjectOverview";
 export { componentOverviewMainExtensionPoint } from "./ComponentOverview";

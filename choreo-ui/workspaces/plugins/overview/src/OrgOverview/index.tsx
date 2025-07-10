@@ -1,14 +1,14 @@
 import {
   type PluginExtension,
-  rootExtensionPoints,
+  coreExtensionPoints,
 } from "@open-choreo/plugin-core";
 import OrgOverview from "./OrgOverview";
 export {
   organizationOverviewMainExtensionPoint,
-  organizationOverviewActions,
+  organizationOverviewActionsExtensionPoint,
 } from "./OrgOverview";
 export const orgOverview: PluginExtension = {
-  extentionPoint: rootExtensionPoints.orgLevelPage,
+  extentionPoint: coreExtensionPoints.orgLevelPage,
   component: OrgOverview,
   pathPattern: "",
 };
