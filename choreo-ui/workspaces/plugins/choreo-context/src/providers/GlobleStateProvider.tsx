@@ -4,13 +4,9 @@ import { UseQueryResult } from "@tanstack/react-query";
 import {
   Component,
   ComponentList,
-  getResourceName,
   OrganizationList,
   Project,
   ProjectList,
-  ComponentItem,
-  OrganizationItem,
-  ProjectItem,
 } from "@open-choreo/api-client";
 import { useProject, useProjectList } from "../hooks/useProjects";
 import {
@@ -20,6 +16,12 @@ import {
   useProjectHandle,
 } from "@open-choreo/plugin-core";
 import { useNavigate } from "react-router";
+import {
+  ComponentItem,
+  getResourceName,
+  OrganizationItem,
+  ProjectItem,
+} from "@open-choreo/definitions";
 
 export interface GlobalState {
   componentQueryResult: UseQueryResult<Component, Error> | null;

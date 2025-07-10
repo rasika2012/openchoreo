@@ -32,7 +32,8 @@
     "@fontsource/roboto": "~5.2.5",
     "react-router": "~7.6.2",
     "react-intl": "~7.1.11",
-    "@open-choreo/api-client": "workspace:*"
+    "@open-choreo/api-client": "workspace:*",
+    "@open-choreo/definitions": "workspace:*"
   },
   "devDependencies": {
     "@eslint/eslintrc": "~3.3.1",
