@@ -1,4 +1,4 @@
-import { useGlobalState } from "@open-choreo/api-client";
+import { useGlobalState } from "@open-choreo/choreo-context";
 import {
   FullPageLoader,
   PageLayout,

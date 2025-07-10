@@ -8,6 +8,9 @@ import {
   OrganizationList,
   Project,
   ProjectList,
+  ComponentItem,
+  OrganizationItem,
+  ProjectItem,
 } from "@open-choreo/choreo-api";
 import { useProject, useProjectList } from "../hooks/useProjects";
 import {
@@ -16,11 +19,6 @@ import {
   useOrgHandle,
   useProjectHandle,
 } from "@open-choreo/plugin-core";
-import {
-  ComponentItem,
-  OrganizationItem,
-  ProjectItem,
-} from "@open-choreo/choreo-api";
 import { useNavigate } from "react-router";
 
 export interface GlobalState {
