@@ -445,6 +445,9 @@ importers:
       '@mui/material':
         specifier: ~7.1.0
         version: 7.1.2(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@open-choreo/definitions':
+        specifier: workspace:*
+        version: link:../definitions
       clsx:
         specifier: ~2.1.1
         version: 2.1.1
@@ -732,6 +735,9 @@ importers:
       '@open-choreo/common-views':
         specifier: workspace:*
         version: link:../../libs/common-views
+      '@open-choreo/definitions':
+        specifier: workspace:*
+        version: link:../../libs/definitions
       '@open-choreo/design-system':
         specifier: workspace:*
         version: link:../../libs/design-system
@@ -960,6 +966,9 @@ importers:
       '@eslint/js':
         specifier: ~9.28.0
         version: 9.28.0
+      '@formatjs/cli':
+        specifier: ~6.7.2
+        version: 6.7.2(@vue/compiler-core@3.5.17)
       '@types/react':
         specifier: ^19.1.2
         version: 19.1.8
@@ -981,6 +990,9 @@ importers:
       globals:
         specifier: ~16.2.0
         version: 16.2.0
+      react-intl:
+        specifier: ~7.1.11
+        version: 7.1.11(react@19.1.0)(typescript@5.8.3)
       typescript:
         specifier: ~5.8.3
         version: 5.8.3

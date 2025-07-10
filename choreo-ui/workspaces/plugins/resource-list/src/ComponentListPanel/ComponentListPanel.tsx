@@ -1,6 +1,5 @@
 import {
   FullPageLoader,
-  PageLayout,
   PresetErrorPage,
   ResourceTable,
 } from "@open-choreo/common-views";

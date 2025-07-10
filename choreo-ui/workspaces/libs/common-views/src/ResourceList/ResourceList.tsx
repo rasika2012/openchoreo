@@ -74,8 +74,6 @@ export function ResourceList(props: ResourceListProps) {
                     >
                       <ImageMenuProjectColored width={48} height={48} />
                     </Box>
-
-                    {/* Text Container */}
                     <Box width="calc(100% - 64px)" overflow="hidden">
                       <div
                         style={{
