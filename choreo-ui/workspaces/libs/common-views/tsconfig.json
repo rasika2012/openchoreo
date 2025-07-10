@@ -8,7 +8,7 @@
       "skipLibCheck": true, // Skips type checking of declaration files.
       "baseUrl": ".", // Sets the base directory for module resolution.
       "paths": {
-        "@common-views/*": ["src/*"],
+        "@open-choreo/common-views/*": ["src/*"],
       },
       /* Bundler mode */
       "moduleResolution": "node", // Specifies how modules are resolved when bundling.
