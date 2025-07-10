@@ -12,9 +12,9 @@ importers:
 
   ../../workspaces/apps/console:
     dependencies:
-      '@open-choreo/api-client':
+      '@open-choreo/choreo-context':
         specifier: workspace:*
-        version: link:../../plugins/api-client
+        version: link:../../plugins/choreo-context
       '@open-choreo/common-views':
         specifier: workspace:*
         version: link:../../libs/common-views
@@ -551,7 +551,7 @@ importers:
         specifier: ~18.0.0
         version: 18.0.0
 
-  ../../workspaces/plugins/api-client:
+  ../../workspaces/plugins/choreo-context:
     dependencies:
       '@fontsource/roboto':
         specifier: ~5.2.5
@@ -656,9 +656,9 @@ importers:
       '@fontsource/roboto':
         specifier: ~5.2.5
         version: 5.2.6
-      '@open-choreo/api-client':
+      '@open-choreo/choreo-context':
         specifier: workspace:*
-        version: link:../api-client
+        version: link:../choreo-context
       '@open-choreo/common-views':
         specifier: workspace:*
         version: link:../../libs/common-views
@@ -835,9 +835,9 @@ importers:
       '@fontsource/roboto':
         specifier: ~5.2.5
         version: 5.2.6
-      '@open-choreo/api-client':
+      '@open-choreo/choreo-context':
         specifier: workspace:*
-        version: link:../api-client
+        version: link:../choreo-context
       '@open-choreo/common-views':
         specifier: workspace:*
         version: link:../../libs/common-views
@@ -923,12 +923,12 @@ importers:
       '@fontsource/roboto':
         specifier: ~5.2.5
         version: 5.2.6
-      '@open-choreo/api-client':
-        specifier: workspace:*
-        version: link:../api-client
       '@open-choreo/choreo-api':
         specifier: workspace:*
         version: link:../../libs/choreo-api
+      '@open-choreo/choreo-context':
+        specifier: workspace:*
+        version: link:../choreo-context
       '@open-choreo/common-views':
         specifier: workspace:*
         version: link:../../libs/common-views

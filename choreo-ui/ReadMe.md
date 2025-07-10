@@ -41,7 +41,7 @@ openchoreo/choreo-ui/
     └── plugins/                        # Plugin modules
         ├── top-right-menu/             # Top right menu plugin
         ├── top-level-selector/         # Top level selector plugin
-        ├── api-client/                 # API client plugin
+        ├── choreo-context/             # Choreo context and state management plugin
         ├── plugin-core/                # Core plugin functionality
         └── ...
 ```

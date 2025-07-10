@@ -465,19 +465,18 @@
     {
       "packageName": "@open-choreo/common-views",
       "projectFolder": "workspaces/libs/common-views"
-    }
-
-,
+    },
     {
       "packageName": "@open-choreo/top-right-menu",
       "projectFolder": "workspaces/plugins/top-right-menu"
     },
     {
-      "packageName": "@open-choreo/api-client",
-      "projectFolder": "workspaces/plugins/api-client"
+      "packageName": "@open-choreo/choreo-context",
+      "projectFolder": "workspaces/plugins/choreo-context"
     },
     {
       "packageName": "@open-choreo/resource-list",
       "projectFolder": "workspaces/plugins/resource-list"
-    }  ]
+    }  
+  ]
 }
