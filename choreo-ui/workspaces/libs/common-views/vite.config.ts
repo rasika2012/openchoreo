@@ -15,7 +15,7 @@ interface VitestConfigExport extends UserConfig {
 export default defineConfig({
   resolve: {
     alias: {
-      '@common-views': path.resolve(__dirname, './src'),
+      '@open-choreo/common-views': path.resolve(__dirname, './src'),
     },
   },
   build: {
