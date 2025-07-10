@@ -5,7 +5,7 @@ import {
 } from "@open-choreo/common-views";
 import { useGlobalState } from "@open-choreo/choreo-context";
 import {
-  ExtentionMounter,
+  PanelExtensionMounter,
   PluginExtensionPoint,
   PluginExtensionType,
   useHomePath,
@@ -28,7 +28,7 @@ export const organizationOverviewMainExtensionPoint: PluginExtensionPoint = {
   type: PluginExtensionType.PANEL,
 };
 
-export const organizationOverviewActions: PluginExtensionPoint = {
+export const organizationOverviewActionsExtensionPoint: PluginExtensionPoint = {
   id: "org-overview-page-actions",
   type: PluginExtensionType.PANEL,
 };
@@ -103,7 +103,9 @@ const OrgOverview: React.FC = () => {
             })}
           />
         </Box>
-        <ExtentionMounter extentionPoint={organizationOverviewActions} />
+        <PanelExtensionMounter
+          extentionPoint={organizationOverviewActionsExtensionPoint}
+        />
       </Box>
       <ResourceList
         resources={projects}
@@ -126,7 +128,7 @@ const OrgOverview: React.FC = () => {
           </Box>
         }
       />
-      <ExtentionMounter
+      <PanelExtensionMounter
         extentionPoint={organizationOverviewMainExtensionPoint}
       />
     </PageLayout>
