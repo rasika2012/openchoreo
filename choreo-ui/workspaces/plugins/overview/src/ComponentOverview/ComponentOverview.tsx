@@ -3,7 +3,7 @@ import {
   PageLayout,
   PresetErrorPage,
 } from "@open-choreo/common-views";
-import { useGlobalState } from "@open-choreo/api-client";
+import { useGlobalState } from "@open-choreo/choreo-context";
 import React from "react";
 import {
   ExtentionMounter,
