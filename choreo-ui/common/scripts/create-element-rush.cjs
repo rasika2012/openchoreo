@@ -69,7 +69,7 @@ function createDirectory(dirPath) {
 
 function getProjectPath(type) {
     if(type === 'layout' || type === 'component') {
-        const projectPath = path.resolve(__dirname, '../../workspaces/libs/design-system/src');
+        const projectPath = path.resolve(__dirname, '../../workspaces/libs/design-system/src', type + 's');
         return projectPath;    
     }
     if(type === 'view') {
@@ -88,7 +88,7 @@ function getProjectPath(type) {
 function createElement({ type, name }) {
     try {
         // Setup paths
-        const baseDir = path.resolve(__dirname, getProjectPath(type), type +'s');
+        const baseDir = path.resolve(__dirname, getProjectPath(type));
         const elementDir = path.join(baseDir, name);
 
         // Create directories
