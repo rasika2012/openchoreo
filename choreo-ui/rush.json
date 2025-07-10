@@ -451,6 +451,10 @@
       "projectFolder": "workspaces/plugins/plugin-core"
     },
     {
+      "packageName": "@open-choreo/definitions",
+      "projectFolder": "workspaces/libs/definitions"
+    },
+    {
       "packageName": "@open-choreo/plugin-overview",
       "projectFolder": "workspaces/plugins/overview"
     },
