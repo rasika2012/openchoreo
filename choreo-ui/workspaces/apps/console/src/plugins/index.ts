@@ -5,7 +5,7 @@ import { apiClientPlugin } from '@open-choreo/api-client';
 const overviewPlugin = () => import('@open-choreo/plugin-overview').then(module => module.overviewPlugin);
 const levelSelectorPlugin = () => import('@open-choreo/plugin-top-level-selector').then(module => module.levelSelectorPlugin);
 const topRightMenuPlugin = () => import('@open-choreo/top-right-menu').then(module => module.topRightMenuPlugin);
-const resourceListingPlugin = () => import('../../../../plugins/resource-list/dist').then(module => module.resourceListingPlugin);
+const resourceListingPlugin = () => import('@open-choreo/resource-list').then(module => module.resourceListingPlugin);
 
 // Export the plugin registry as a function that returns promises
 export const getPluginRegistry = async (): Promise<PluginManifest[]> => {
