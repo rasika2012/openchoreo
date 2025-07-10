@@ -1,7 +1,4 @@
-import {
-  type PluginExtension,
-  rootExtensionPoints,
-} from "@open-choreo/plugin-core";
+import { type PluginExtension } from "@open-choreo/plugin-core";
 import React from "react";
 const ComponentListPanel = React.lazy(() => import("./ComponentListPanel"));
 import { projectOverviewMainExtensionPoint } from "@open-choreo/plugin-overview";
