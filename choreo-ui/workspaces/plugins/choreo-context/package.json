@@ -1,5 +1,5 @@
 {
-  "name": "@open-choreo/api-client",
+  "name": "@open-choreo/choreo-context",
   "version": "1.0.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -19,7 +19,7 @@
   },
   "author": "",
   "license": "Apache-2.0 license",
-  "description": "",
+  "description": "Choreo context and state management utilities",
   "dependencies": {
     "@open-choreo/design-system": "workspace:*",
     "@open-choreo/common-views": "workspace:*",

@@ -6,7 +6,7 @@ import {
   TopLevelSelector,
   useChoreoTheme,
 } from "@open-choreo/design-system";
-import { useGlobalState } from "@open-choreo/api-client";
+import { useGlobalState } from "@open-choreo/choreo-context";
 import { getResourceDisplayName } from "@open-choreo/choreo-api";
 import {
   genaratePath,
