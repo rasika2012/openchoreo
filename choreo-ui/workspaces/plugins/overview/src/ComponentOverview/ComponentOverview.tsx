@@ -10,16 +10,24 @@ import {
   PluginExtensionPoint,
   PluginExtensionType,
 } from "@open-choreo/plugin-core";
+import { getResourceDescription, getResourceDisplayName } from "@open-choreo/definitions";
+import { RefreshIcon } from "@open-choreo/design-system";
+import { Rotate } from "@open-choreo/design-system";
+import { IconButton } from "@open-choreo/design-system";
 
 export const componentOverviewMainExtensionPoint: PluginExtensionPoint = {
   id: "component-overview-page-body",
   type: PluginExtensionType.PANEL,
 };
 const ComponentOverview: React.FC = () => {
-  const { componentQueryResult } = useGlobalState();
+  const { componentQueryResult, selectedComponent } = useGlobalState();
 
   if (componentQueryResult?.isLoading) {
     return <FullPageLoader />;
+  }
+
+  if (componentQueryResult?.error) {
+    return <PresetErrorPage preset="500" />;
   }
 
   if (!componentQueryResult?.data) {
@@ -29,9 +37,21 @@ const ComponentOverview: React.FC = () => {
   return (
     <PageLayout
       testId="overview-page"
-      title={componentQueryResult.data.data.name}
+      title={getResourceDisplayName(selectedComponent)}
+      description={getResourceDescription(selectedComponent)}
+      actions={
+        <IconButton
+          size="small"
+          onClick={() => {
+            componentQueryResult.refetch();
+          }}
+        >
+          <Rotate disabled={!componentQueryResult.isFetching}>
+            <RefreshIcon fontSize="inherit" />
+          </Rotate>
+        </IconButton>
+      }
     >
-      <div>Component Overview</div>
       <PanelExtensionMounter
         extentionPoint={componentOverviewMainExtensionPoint}
       />
