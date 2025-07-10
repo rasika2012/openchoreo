@@ -36,7 +36,7 @@ openchoreo/choreo-ui/
     │   │
     │   ├── views/                      # UI modules and views
     │   │
-    │   └── choreo-api/             # API client library
+    │   └── api-client/             # API client library
     │
     └── plugins/                        # Plugin modules
         ├── top-right-menu/             # Top right menu plugin

@@ -11,7 +11,7 @@ import {
   ComponentItem,
   OrganizationItem,
   ProjectItem,
-} from "@open-choreo/choreo-api";
+} from "@open-choreo/api-client";
 import { useProject, useProjectList } from "../hooks/useProjects";
 import {
   genaratePath,
