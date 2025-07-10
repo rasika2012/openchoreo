@@ -124,7 +124,7 @@ rushx generate-images    # Generate image components
 rushx test               # Run tests
 
 # Common Views
-cd workspaces/libs/views
+cd workspaces/libs/common-views
 rushx build              # Build views library
 rushx storybook          # Start Storybook
 rushx test               # Run tests
