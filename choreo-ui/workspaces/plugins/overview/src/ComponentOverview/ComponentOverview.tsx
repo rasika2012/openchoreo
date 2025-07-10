@@ -6,7 +6,7 @@ import {
 import { useGlobalState } from "@open-choreo/choreo-context";
 import React from "react";
 import {
-  ExtentionMounter,
+  PanelExtensionMounter,
   PluginExtensionPoint,
   PluginExtensionType,
 } from "@open-choreo/plugin-core";
@@ -32,7 +32,9 @@ const ComponentOverview: React.FC = () => {
       title={componentQueryResult.data.data.name}
     >
       <div>Component Overview</div>
-      <ExtentionMounter extentionPoint={componentOverviewMainExtensionPoint} />
+      <PanelExtensionMounter
+        extentionPoint={componentOverviewMainExtensionPoint}
+      />
     </PageLayout>
   );
 };
