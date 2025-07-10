@@ -22,28 +22,28 @@ openchoreo/choreo-ui/
 │   ├── config/                         # Configuration files
 │   │   └── rush/                       # Rush configuration
 │   ├── git-hooks/                      # Git hook scripts
-│   ├── scripts/                        # Common utility scripts
-│   │   ├── create-element-rush.cjs     # Element creation script
-│   │   ├── create-plugin-rush.cjs      # Plugin creation script
-│   │   ├── element-generators.cjs      # Element file generators
-│   │   └── plugin-generators.cjs       # Plugin file generators
+│   └── scripts/                        # Common utility scripts
+│       ├── create-element-rush.cjs     # Element creation script
+│       ├── create-plugin-rush.cjs      # Plugin creation script
+│       ├── element-generators.cjs      # Element file generators
+│       └── plugin-generators.cjs       # Plugin file generators
 └── workspaces/                         # Main development workspace
     ├── apps/                           # Application projects
     │   └── console/                    # Main React shell application
     │
     ├── libs/                           # Shared libraries
     │   ├── design-system/              # UI component library
-    │   │
-    │   ├── views/                      # UI modules and views
-    │   │
-    │   └── api-client/             # API client library
+    │   ├── common-views/               # Shared view components
+    │   ├── api-client/                 # API client library
+    │   └── definitions/                # Type definitions
     │
     └── plugins/                        # Plugin modules
+        ├── plugin-core/                # Core plugin functionality
         ├── top-right-menu/             # Top right menu plugin
         ├── top-level-selector/         # Top level selector plugin
         ├── choreo-context/             # Choreo context and state management plugin
-        ├── plugin-core/                # Core plugin functionality
-        └── ...
+        ├── overview/                   # Overview dashboard plugin
+        └── resource-list/              # Resource list plugin
 ```
 ## Development Workflow
 
