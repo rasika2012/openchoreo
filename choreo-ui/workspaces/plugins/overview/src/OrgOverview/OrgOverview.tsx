@@ -1,4 +1,5 @@
 import {
+  FullPageLoader,
   PageLayout,
   PresetErrorPage,
   ResourceList,
@@ -22,55 +23,33 @@ import {
   Typography,
 } from "@open-choreo/design-system";
 import { useIntl } from "react-intl";
+import { getResourceDescription, getResourceDisplayName } from "@open-choreo/definitions";
 
 export const organizationOverviewMainExtensionPoint: PluginExtensionPoint = {
   id: "org-overview-page-body",
   type: PluginExtensionType.PANEL,
 };
 
-export const organizationOverviewActionsExtensionPoint: PluginExtensionPoint = {
-  id: "org-overview-page-actions",
-  type: PluginExtensionType.PANEL,
-};
-
 const OrgOverview: React.FC = () => {
-  const { projectListQueryResult } = useGlobalState();
-  const homePath = useHomePath();
-  const [search, setSearch] = useState("");
-  const { formatMessage } = useIntl();
+  const { projectListQueryResult, selectedOrganization, organizationListQueryResult } = useGlobalState();
 
-  const projects = useMemo(
-    () =>
-      projectListQueryResult?.data?.data?.items
-        ?.filter((item) =>
-          item.name.toLowerCase().includes(search.toLowerCase()),
-        )
-        .map((item) => ({
-          id: item.name,
-          name: item.name,
-          description: item?.description || "",
-          type: item.status,
-          lastUpdated: item.createdAt,
-          href: `${homePath}/project/${item.name}`,
-        })),
-    [projectListQueryResult?.data?.data.items, search, homePath],
-  );
+  if (organizationListQueryResult?.isLoading) {
+    return <FullPageLoader />;
+  }
 
-  if (projectListQueryResult?.isLoading) {
+  if (organizationListQueryResult?.error) {
     return <PresetErrorPage preset="500" />;
   }
 
-  if (!projectListQueryResult?.data) {
+  if (!organizationListQueryResult?.data) {
     return <PresetErrorPage preset="404" />;
   }
 
   return (
     <PageLayout
       testId="overview-page"
-      title={formatMessage({
-        id: "overview.orgOverview.title",
-        defaultMessage: "All Projects",
-      })}
+      title={getResourceDisplayName(selectedOrganization)}
+      description={getResourceDescription(selectedOrganization)}
       actions={
         <IconButton
           size="small"
@@ -84,50 +63,6 @@ const OrgOverview: React.FC = () => {
         </IconButton>
       }
     >
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        gap={4}
-      >
-        <Box flexGrow={1}>
-          <SearchBar
-            inputValue={search}
-            color="secondary"
-            bordered
-            onChange={(value) => setSearch(value)}
-            testId="search-bar"
-            placeholder={formatMessage({
-              id: "overview.orgOverview.searchPlaceholder",
-              defaultMessage: "Search projects",
-            })}
-          />
-        </Box>
-        <PanelExtensionMounter
-          extentionPoint={organizationOverviewActionsExtensionPoint}
-        />
-      </Box>
-      <ResourceList
-        resources={projects}
-        footerResourceListCardLeft={
-          <Box display="flex" alignItems="center" gap={4}>
-            <TimeIcon fontSize="inherit" />
-            <Tooltip
-              title={`Last updated: ${
-                projects[0]?.lastUpdated
-                  ? new Date(projects[0].lastUpdated).toLocaleDateString()
-                  : "Unknown"
-              }`}
-            >
-              <Typography variant="body1" color="text.secondary">
-                {projects[0]?.lastUpdated
-                  ? new Date(projects[0].lastUpdated).toLocaleDateString()
-                  : "Unknown"}
-              </Typography>
-            </Tooltip>
-          </Box>
-        }
-      />
       <PanelExtensionMounter
         extentionPoint={organizationOverviewMainExtensionPoint}
       />

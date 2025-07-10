@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { CloseIcon } from '@design-system/Icons';
 import { IconButton } from '@design-system/components';
-import { Level } from '../utils';
+import { getLevelLabel, Level } from '../utils';
 
 interface SelectorHeaderProps {
     level: Level;
@@ -20,7 +20,7 @@ export const SelectorHeader: React.FC<SelectorHeaderProps> = ({ level, onClose }
         flexGrow={1}
     >
         <Typography variant="body2" fontSize={11} color="text.secondary">
-            {level}
+            {getLevelLabel(level)}
         </Typography>
         {onClose && (
             <IconButton
