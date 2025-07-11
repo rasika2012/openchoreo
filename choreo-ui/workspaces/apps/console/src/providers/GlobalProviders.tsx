@@ -8,7 +8,7 @@ import { BrowserRouter } from "react-router";
 export const GlobalProviders = async ({ children, pluginRegistry }: { children: React.ReactNode, pluginRegistry: PluginManifest[] }) => {
     return (
         <BrowserRouter basename="/">
-            <PluginProvider pluginRegistry={pluginRegistry}>
+            <PluginProvider pluginRegistry={pluginRegistry} basePath={window.configs.apiServerBaseUrl}>
                 <WrapperExtensionMounter extentionPoint={coreExtensionPoints.globalProvider} >
                     <IntlProvider locale="en">
                         {children}

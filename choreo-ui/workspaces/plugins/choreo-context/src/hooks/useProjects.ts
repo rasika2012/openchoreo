@@ -4,7 +4,7 @@ import { useClient } from "./useClient";
 export const useProjectList = (orgName: string) => {
   const client = useClient();
   return useQuery({
-    queryKey: ["projects", orgName],
+    queryKey: ["projects", orgName, client],
     queryFn: () => client.listProjects(orgName),
   });
 };
@@ -12,7 +12,7 @@ export const useProjectList = (orgName: string) => {
 export const useProject = (orgName: string, projectId?: string) => {
   const client = useClient();
   return useQuery({
-    queryKey: ["project", projectId, orgName],
+    queryKey: ["project", projectId, orgName, client],
     queryFn: () => {
       if (projectId) {
         return client.getProject(orgName, projectId);

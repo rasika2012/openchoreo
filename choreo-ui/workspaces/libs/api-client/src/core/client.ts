@@ -20,17 +20,18 @@ export class ChoreoClient implements ChoreoApiClient {
    * @param config - Partial configuration to merge with current config
    */
   setConfig(config: Partial<ApiConfig>): void {
+    console.log("configs", this.config);
     this.config = { ...this.config, ...config };
   }
 
   // Projects API methods
-  listProjects = projectsApi.listProjects;
-  getProject = projectsApi.getProject;
+  listProjects = (orgName: string) => projectsApi.listProjects(orgName, this.config);
+  getProject = (orgName: string, projectName: string) => projectsApi.getProject(orgName, projectName, this.config);
 
   // Components API methods
-  listProjectComponents = componentsApi.listProjectComponents;
-  getComponent = componentsApi.getComponent;
+  listProjectComponents = (orgName: string, projectName: string) => componentsApi.listProjectComponents(orgName, projectName, this.config);
+  getComponent = (orgName: string, projectName: string, componentName: string) => componentsApi.getComponent(orgName, projectName, componentName, this.config);
 
   // Organization API methods
-  listOrganizations = organizationApi.listOrganizations;
+  listOrganizations = () => organizationApi.listOrganizations(this.config);
 } 
