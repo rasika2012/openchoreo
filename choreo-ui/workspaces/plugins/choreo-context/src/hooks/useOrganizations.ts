@@ -4,7 +4,7 @@ import { useClient } from "./useClient";
 export const useOrganizationList = () => {
   const client = useClient();
   return useQuery({
-    queryKey: ["organizations"],
+    queryKey: ["organizations", client],
     queryFn: () => client.listOrganizations(),
   });
 };
