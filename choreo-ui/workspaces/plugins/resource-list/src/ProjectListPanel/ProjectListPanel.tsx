@@ -1,4 +1,8 @@
-import { FullPageLoader, PresetErrorPage, ResourceList } from "@open-choreo/common-views";
+import {
+  FullPageLoader,
+  PresetErrorPage,
+  ResourceList,
+} from "@open-choreo/common-views";
 import { useGlobalState } from "@open-choreo/choreo-context";
 import {
   PanelExtensionMounter,

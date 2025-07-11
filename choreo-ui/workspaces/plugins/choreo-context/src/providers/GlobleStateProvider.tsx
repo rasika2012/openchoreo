@@ -1,4 +1,10 @@
-import React, { createContext, useEffect, useMemo } from "react";
+import React, {
+  createContext,
+  Dispatch,
+  useEffect,
+  useMemo,
+  useReducer,
+} from "react";
 import { useComponent, useComponentList, useOrganizationList } from "../hooks";
 import { UseQueryResult } from "@tanstack/react-query";
 import {
@@ -22,6 +28,12 @@ import {
   OrganizationItem,
   ProjectItem,
 } from "@open-choreo/definitions";
+import {
+  appStateReducer,
+  IAppState,
+  IAppStateAction,
+  initialState,
+} from "../reducers/appState";
 
 export interface GlobalState {
   componentQueryResult: UseQueryResult<Component, Error> | null;
@@ -32,6 +44,8 @@ export interface GlobalState {
   selectedOrganization: OrganizationItem | null;
   selectedProject: ProjectItem | null;
   selectedComponent: ComponentItem | null;
+  appState: IAppState;
+  dispatch: Dispatch<IAppStateAction>;
 }
 
 export const GlobalStateContext = createContext<GlobalState>({
@@ -43,6 +57,8 @@ export const GlobalStateContext = createContext<GlobalState>({
   selectedOrganization: null,
   selectedProject: null,
   selectedComponent: null,
+  appState: initialState,
+  dispatch: () => {},
 });
 
 export function GlobalStateProvider({
@@ -50,6 +66,8 @@ export function GlobalStateProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const [appState, dispatch] = useReducer(appStateReducer, initialState);
+
   const projectHandle = useProjectHandle();
   const componentHandle = useComponentHandle();
   const orgHandle = useOrgHandle();
@@ -104,6 +122,8 @@ export function GlobalStateProvider({
         selectedOrganization,
         selectedProject,
         selectedComponent,
+        appState,
+        dispatch,
       }}
     >
       {children}
