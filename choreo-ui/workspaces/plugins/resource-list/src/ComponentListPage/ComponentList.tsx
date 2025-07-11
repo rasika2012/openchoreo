@@ -11,9 +11,7 @@ import {
 } from "@open-choreo/plugin-core";
 import React from "react";
 import { useIntl } from "react-intl";
-import { RefreshIcon } from "@open-choreo/design-system";
-import { Rotate } from "@open-choreo/design-system";
-import { IconButton } from "@open-choreo/design-system";
+import { RefreshIcon, Rotate, IconButton } from "@open-choreo/design-system";
 
 export const componentListMainExtensionPoint: PluginExtensionPoint = {
   id: "component-list-page-body",
@@ -24,23 +22,25 @@ const ComponentList: React.FC = () => {
   const { formatMessage } = useIntl();
   const { componentListQueryResult } = useGlobalState();
   return (
-    <PageLayout testId="component-list" 
-    actions={
-      <IconButton
-        size="small"
-        onClick={() => {
-          componentListQueryResult.refetch();
-        }}
-      >
-        <Rotate disabled={!componentListQueryResult.isFetching}>
-          <RefreshIcon fontSize="inherit" />
-        </Rotate>
-      </IconButton>
-    }
-    title={formatMessage({
-      id: "componentListPage.title",
-      defaultMessage: "Components List",
-    })}>
+    <PageLayout
+      testId="component-list"
+      actions={
+        <IconButton
+          size="small"
+          onClick={() => {
+            componentListQueryResult.refetch();
+          }}
+        >
+          <Rotate disabled={!componentListQueryResult.isFetching}>
+            <RefreshIcon fontSize="inherit" />
+          </Rotate>
+        </IconButton>
+      }
+      title={formatMessage({
+        id: "componentListPage.title",
+        defaultMessage: "Components List",
+      })}
+    >
       <PanelExtensionMounter extentionPoint={componentListMainExtensionPoint} />
     </PageLayout>
   );
