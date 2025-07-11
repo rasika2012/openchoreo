@@ -7,7 +7,10 @@ import {
   useChoreoTheme,
 } from "@open-choreo/design-system";
 import { useGlobalState } from "@open-choreo/choreo-context";
-import { getResourceDisplayName, getResourceName } from "@open-choreo/definitions";
+import {
+  getResourceDisplayName,
+  getResourceName,
+} from "@open-choreo/definitions";
 import {
   genaratePath,
   useComponentHandle,
