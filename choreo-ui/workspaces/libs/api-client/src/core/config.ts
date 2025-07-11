@@ -28,7 +28,6 @@ export async function apiRequest<T>(
   config: ApiConfig = defaultConfig
 ): Promise<T> {
   const fullUrl = `${config.baseUrl}${url}`;
-  
   const fetchOptions: RequestInit = {
     ...options,
     headers: {

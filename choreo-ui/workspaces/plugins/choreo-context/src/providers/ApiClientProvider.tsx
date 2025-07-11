@@ -32,14 +32,16 @@ export const ApiClientContext = createContext<IApiClientContext>({
   apiClient: new ChoreoClient(),
 });
 
-const ApiClientPanel: React.FC<ApiClientProviderProps> = (
+const ApiClientProvider: React.FC<ApiClientProviderProps> = (
   props: ApiClientProviderProps,
 ) => {
   const basePath = useBasePath();
+
   const apiClient = useMemo(
     () => new ChoreoClient({ baseUrl: basePath }),
     [basePath],
   );
+
   const queryClient = useMemo(() => new QueryClient(), []);
   const [state, dispatch] = useReducer(appStateReducer, initialState);
 
@@ -52,4 +54,4 @@ const ApiClientPanel: React.FC<ApiClientProviderProps> = (
   );
 };
 
-export default ApiClientPanel;
+export default ApiClientProvider;
