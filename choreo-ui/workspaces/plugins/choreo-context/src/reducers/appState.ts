@@ -1,24 +1,24 @@
 export interface IAppState {
-  sharedState: object | null;
+  colorMode: "light" | "dark";
 }
 
 export const initialState: IAppState = {
-  sharedState: null,
+  colorMode: "light",
 };
 
 export enum ActionType {
-  SET_SHARED_STATE = "SET_SHARED_STATE",
+  SET_COLOR_MODE = "SET_COLOR_MODE",
 }
 
 export type IAppStateAction = {
-  type: ActionType.SET_SHARED_STATE;
-  payload: object;
+  type: ActionType.SET_COLOR_MODE;
+  payload: "light" | "dark";
 };
 
 export const appStateReducer = (state: IAppState, action: IAppStateAction) => {
   switch (action.type) {
-    case ActionType.SET_SHARED_STATE:
-      return { ...state, sharedState: action.payload };
+    case ActionType.SET_COLOR_MODE:
+      return { ...state, colorMode: action.payload };
     default:
       return state;
   }

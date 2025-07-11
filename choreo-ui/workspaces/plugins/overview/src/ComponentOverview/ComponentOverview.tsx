@@ -10,10 +10,11 @@ import {
   PluginExtensionPoint,
   PluginExtensionType,
 } from "@open-choreo/plugin-core";
-import { getResourceDescription, getResourceDisplayName } from "@open-choreo/definitions";
-import { RefreshIcon } from "@open-choreo/design-system";
-import { Rotate } from "@open-choreo/design-system";
-import { IconButton } from "@open-choreo/design-system";
+import {
+  getResourceDescription,
+  getResourceDisplayName,
+} from "@open-choreo/definitions";
+import { RefreshIcon, Rotate, IconButton } from "@open-choreo/design-system";
 
 export const componentOverviewMainExtensionPoint: PluginExtensionPoint = {
   id: "component-overview-page-body",

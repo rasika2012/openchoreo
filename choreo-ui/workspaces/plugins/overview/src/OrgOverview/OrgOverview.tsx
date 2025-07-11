@@ -23,7 +23,10 @@ import {
   Typography,
 } from "@open-choreo/design-system";
 import { useIntl } from "react-intl";
-import { getResourceDescription, getResourceDisplayName } from "@open-choreo/definitions";
+import {
+  getResourceDescription,
+  getResourceDisplayName,
+} from "@open-choreo/definitions";
 
 export const organizationOverviewMainExtensionPoint: PluginExtensionPoint = {
   id: "org-overview-page-body",
@@ -31,7 +34,11 @@ export const organizationOverviewMainExtensionPoint: PluginExtensionPoint = {
 };
 
 const OrgOverview: React.FC = () => {
-  const { projectListQueryResult, selectedOrganization, organizationListQueryResult } = useGlobalState();
+  const {
+    projectListQueryResult,
+    selectedOrganization,
+    organizationListQueryResult,
+  } = useGlobalState();
 
   if (organizationListQueryResult?.isLoading) {
     return <FullPageLoader />;

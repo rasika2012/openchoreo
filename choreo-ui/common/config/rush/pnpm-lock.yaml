@@ -1105,6 +1105,9 @@ importers:
       '@fontsource/roboto':
         specifier: ~5.2.5
         version: 5.2.6
+      '@open-choreo/choreo-context':
+        specifier: workspace:*
+        version: link:../choreo-context
       '@open-choreo/common-views':
         specifier: workspace:*
         version: link:../../libs/common-views
