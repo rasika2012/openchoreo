@@ -17,6 +17,9 @@ export default defineConfig({
   plugins: [
     react()
   ],
+  define: {
+    global: 'globalThis',
+  },
   build: {
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
