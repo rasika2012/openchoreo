@@ -10,10 +10,11 @@ import {
   PluginExtensionType,
 } from "@open-choreo/plugin-core";
 import React from "react";
-import { getResourceDescription, getResourceDisplayName } from "@open-choreo/definitions";
-import { RefreshIcon } from "@open-choreo/design-system";
-import { Rotate } from "@open-choreo/design-system";
-import { IconButton } from "@open-choreo/design-system";
+import {
+  getResourceDescription,
+  getResourceDisplayName,
+} from "@open-choreo/definitions";
+import { RefreshIcon, Rotate, IconButton } from "@open-choreo/design-system";
 
 export const projectOverviewMainExtensionPoint: PluginExtensionPoint = {
   id: "project-overview-page-body",
@@ -21,7 +22,8 @@ export const projectOverviewMainExtensionPoint: PluginExtensionPoint = {
 };
 
 const ProjectOverview: React.FC = () => {
-  const { projectQueryResult,componentListQueryResult, selectedProject } = useGlobalState();
+  const { projectQueryResult, componentListQueryResult, selectedProject } =
+    useGlobalState();
   if (projectQueryResult?.isLoading) {
     return <FullPageLoader />;
   }
