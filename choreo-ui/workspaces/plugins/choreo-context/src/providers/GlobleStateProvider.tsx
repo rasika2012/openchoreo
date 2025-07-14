@@ -28,17 +28,12 @@ export function GlobalStateProvider({
   const navigate = useNavigate();
   const [appState, dispatch] = useReducer(appStateReducer, initialState);
   const orgHandle = useOrgHandle();
-  const {data:organizationList}= useOrganizationList();
+  const { data: organizationList } = useOrganizationList();
   useEffect(() => {
-    if (
-      !orgHandle &&
-      organizationList?.data?.items.length > 0
-    ) {
+    if (!orgHandle && organizationList?.data?.items.length > 0) {
       navigate(
         genaratePath({
-          orgHandle: getResourceName(
-            organizationList?.data?.items[0],
-          ),
+          orgHandle: getResourceName(organizationList?.data?.items[0]),
         }),
       );
     }
