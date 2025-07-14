@@ -36,12 +36,9 @@ const ProjectOverview: React.FC = () => {
   return (
     <ResourcePageLayout
       resource={selectedProject?.data}
-      testId="component-list-page"
+      testId="project-overview-page"
       isRefreshing={isFetching}
       isLoading={isLoading}
-      onRefresh={() => {
-        refetch();
-      }}
     >
       <PanelExtensionMounter
         extentionPoint={projectOverviewMainExtensionPoint}

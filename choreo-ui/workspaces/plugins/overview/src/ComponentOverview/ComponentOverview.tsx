@@ -20,6 +20,7 @@ import {
   IconButton,
   useChoreoTheme,
 } from "@open-choreo/design-system";
+import { ResourcePageLayout } from "@open-choreo/resource-views";
 
 export const componentOverviewMainExtensionPoint: PluginExtensionPoint = {
   id: "component-overview-page-body",
@@ -48,27 +49,16 @@ const ComponentOverview: React.FC = () => {
   }
 
   return (
-    <PageLayout
-      testId="overview-page"
-      title={getResourceDisplayName(selectedComponent?.data)}
-      description={getResourceDescription(selectedComponent?.data)}
-      actions={
-        <IconButton
-          size="small"
-          onClick={() => {
-            refetch();
-          }}
-        >
-          <Rotate disabled={!isFetching} color={theme.pallet.primary.main}>
-            <RefreshIcon fontSize="inherit" />
-          </Rotate>
-        </IconButton>
-      }
+    <ResourcePageLayout
+      resource={selectedComponent?.data}
+      testId="component-overview-page"
+      isRefreshing={isFetching}
+      isLoading={isLoading}
     >
       <PanelExtensionMounter
         extentionPoint={componentOverviewMainExtensionPoint}
-      />
-    </PageLayout>
+      /> 
+    </ResourcePageLayout>
   );
 };
 
