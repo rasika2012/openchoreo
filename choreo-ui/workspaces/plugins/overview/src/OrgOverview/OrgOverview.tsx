@@ -21,6 +21,7 @@ import {
   getResourceDescription,
   getResourceDisplayName,
 } from "@open-choreo/definitions";
+import { ResourcePageLayout } from "@open-choreo/resource-views";
 
 export const organizationOverviewMainExtensionPoint: PluginExtensionPoint = {
   id: "org-overview-page-body",
@@ -50,27 +51,19 @@ const OrgOverview: React.FC = () => {
   }
 
   return (
-    <PageLayout
-      testId="overview-page"
-      title={getResourceDisplayName(selectedOrganization?.data)}
-      description={getResourceDescription(selectedOrganization?.data)}
-      actions={
-        <IconButton
-          size="small"
-          onClick={() => {
-            refetch();
-          }}
-        >
-          <Rotate disabled={!isFetching} color={theme.pallet.primary.main}>
-            <RefreshIcon fontSize="inherit" />
-          </Rotate>
-        </IconButton>
-      }
+    <ResourcePageLayout
+      resource={selectedOrganization?.data}
+      testId="org-overview-page"
+      isRefreshing={isFetching}
+      isLoading={isLoading}
+      onRefresh={() => {
+        refetch();
+      }}
     >
       <PanelExtensionMounter
         extentionPoint={organizationOverviewMainExtensionPoint}
       />
-    </PageLayout>
+    </ResourcePageLayout>
   );
 };
 
