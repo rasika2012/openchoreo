@@ -98,7 +98,7 @@ export function ResourceTable(props: ResourceTableProps) {
         return (
           <Box display="flex" alignItems="center" gap={8} key={id}>
             {enableAvatar && (
-              <Avatar>
+              <Avatar color='secondary'>
                 {name.charAt(0).toUpperCase()}
               </Avatar>
             )}

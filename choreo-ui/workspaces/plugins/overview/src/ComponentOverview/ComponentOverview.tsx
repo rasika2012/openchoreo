@@ -3,7 +3,7 @@ import {
   PageLayout,
   PresetErrorPage,
 } from "@open-choreo/common-views";
-import { useGlobalState } from "@open-choreo/choreo-context";
+import { useSelectedComponent } from "@open-choreo/choreo-context";
 import React from "react";
 import {
   PanelExtensionMounter,
@@ -26,37 +26,40 @@ export const componentOverviewMainExtensionPoint: PluginExtensionPoint = {
   type: PluginExtensionType.PANEL,
 };
 const ComponentOverview: React.FC = () => {
-  const { componentQueryResult, selectedComponent } = useGlobalState();
+  const {
+    data: selectedComponent,
+    isLoading,
+    isError,
+    isFetching,
+    refetch,
+  } = useSelectedComponent();
   const theme = useChoreoTheme();
 
-  if (componentQueryResult?.isLoading) {
+  if (isLoading) {
     return <FullPageLoader />;
   }
 
-  if (componentQueryResult?.error) {
+  if (isError) {
     return <PresetErrorPage preset="500" />;
   }
 
-  if (!componentQueryResult?.data) {
+  if (!selectedComponent) {
     return <PresetErrorPage preset="404" />;
   }
 
   return (
     <PageLayout
       testId="overview-page"
-      title={getResourceDisplayName(selectedComponent)}
-      description={getResourceDescription(selectedComponent)}
+      title={getResourceDisplayName(selectedComponent?.data)}
+      description={getResourceDescription(selectedComponent?.data)}
       actions={
         <IconButton
           size="small"
           onClick={() => {
-            componentQueryResult.refetch();
+            refetch();
           }}
         >
-          <Rotate
-            disabled={!componentQueryResult.isFetching}
-            color={theme.pallet.primary.main}
-          >
+          <Rotate disabled={!isFetching} color={theme.pallet.primary.main}>
             <RefreshIcon fontSize="inherit" />
           </Rotate>
         </IconButton>
