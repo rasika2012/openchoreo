@@ -5,8 +5,15 @@ import {
   useOrgHandle,
   useProjectHandle,
 } from "@open-choreo/plugin-core";
-import React from "react";
+import React, { useMemo } from "react";
 import { ResourceTable } from "@open-choreo/resource-views";
+import {
+  getComponentType,
+  getResourceCreatedAt,
+  getResourceDescription,
+  getResourceDisplayName,
+  getResourceName,
+} from "@open-choreo/definitions";
 
 const ComponentListPanel: React.FC = () => {
   const orgHandle = useOrgHandle();
@@ -15,10 +22,22 @@ const ComponentListPanel: React.FC = () => {
     data: components,
     isLoading,
     isError,
-    isFetching,
     refetch,
   } = useComponentList(orgHandle, projectHandle);
   const homePath = useHomePath();
+
+  const componentList = useMemo(
+    () =>
+      components?.data?.items?.map((item) => ({
+        id: getResourceName(item),
+        name: getResourceDisplayName(item),
+        description: getResourceDescription(item),
+        type: getComponentType(item),
+        lastUpdated: new Date(getResourceCreatedAt(item)),
+        href: `${homePath}/component/${getResourceName(item)}`,
+      })),
+    [components, homePath],
+  );
 
   if (isLoading) {
     return <FullPageLoader />;
@@ -31,14 +50,7 @@ const ComponentListPanel: React.FC = () => {
   if (!components) {
     return <PresetErrorPage preset="404" />;
   }
-  const componentList = components?.data?.items?.map((item) => ({
-    id: item.name,
-    name: item.name,
-    description: item.type,
-    type: item.type,
-    lastUpdated: new Date(item.createdAt),
-    href: `${homePath}/component/${item.name}`,
-  }));
+
   return (
     <ResourceTable
       resources={componentList || []}
