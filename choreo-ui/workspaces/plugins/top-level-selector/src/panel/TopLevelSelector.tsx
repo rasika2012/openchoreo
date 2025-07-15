@@ -71,7 +71,7 @@ const Panel: React.FC = () => {
 
   const navigateToComponent = (component: LevelItem) => {
     navigate(
-      genaratePath({ orgHandle, projectHandle, componentHandle: component.id })
+      genaratePath({ orgHandle, projectHandle, componentHandle: component.id }),
     );
   };
 
