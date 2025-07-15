@@ -57,7 +57,7 @@ const ComponentOverview: React.FC = () => {
     >
       <PanelExtensionMounter
         extentionPoint={componentOverviewMainExtensionPoint}
-      /> 
+      />
     </ResourcePageLayout>
   );
 };

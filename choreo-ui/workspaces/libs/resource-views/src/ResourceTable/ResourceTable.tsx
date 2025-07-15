@@ -174,7 +174,7 @@ export function ResourceTable(props: ResourceTableProps) {
         titleActions={
           <Box display="flex" alignItems="center" gap={theme.spacing(1)}>
             {onRefresh && (
-              <IconButton onClick={onRefresh} size="small" variant="outlined" color="primary"  >
+              <IconButton onClick={onRefresh} size="small" variant="square" testId="resource-table-refresh" color="primary"  >
                 <Rotate disabled={!isLoading}>
                   <RefreshIcon color='primary' />
                 </Rotate>

@@ -91,8 +91,8 @@ const Panel: React.FC = () => {
         }))}
         recentItems={[]}
         selectedItem={{
-          label: selectedOrganization?.displayName,
-          id: selectedOrganization?.name,
+          label: orgDisplayName,
+          id: orgName,
         }}
         level={Level.ORGANIZATION}
         isHighlighted={!projectDisplayName}
@@ -132,7 +132,7 @@ const Panel: React.FC = () => {
             items={
               componentList?.data?.items?.map((component) => ({
                 label: getResourceDisplayName(component),
-                id: component.name,
+                id: getResourceName(component),
               })) || []
             }
             recentItems={[]}
