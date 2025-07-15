@@ -41,6 +41,7 @@ const ComponentList: React.FC = () => {
       actions={
         <IconButton
           size="small"
+          testId="component-list-page-refresh"
           onClick={() => {
             refetch();
           }}

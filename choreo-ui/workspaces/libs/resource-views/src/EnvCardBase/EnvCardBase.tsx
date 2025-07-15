@@ -34,7 +34,7 @@ export function EnvCardBase(props: EnvCardBaseProps) {
             </Button>
           )}
           {onRefresh && (
-            <IconButton disabled={isRefetching} onClick={onRefresh} variant="outlined" color="primary" size="small">
+            <IconButton disabled={isRefetching} onClick={onRefresh} variant="square" testId="envcardbase-refresh" color="primary" size="small">
               <Rotate disabled={!isRefetching}>
                 <RefreshIcon fontSize='inherit'/>
               </Rotate>
