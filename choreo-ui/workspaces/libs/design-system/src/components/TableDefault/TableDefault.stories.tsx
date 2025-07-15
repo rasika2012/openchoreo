@@ -245,11 +245,15 @@ export const Enhanced: Story = {
                     <TableCell padding="checkbox">
                       <Tooltip title="Select all" placement="bottom-start">
                         <Checkbox
-                          indeterminate={selected.length > 0 && selected.length < rows.length}
-                          checked={rows.length > 0 && selected.length === rows.length}
-                          onChange={handleSelectAllClick}
+                          indeterminate={
+                            selected.length > 0 && selected.length < rows.length
+                          }
+                          checked={
+                            rows.length > 0 && selected.length === rows.length
+                          }
+                          // onChange={handleSelectAllClick}
                           disableRipple={true}
-                          inputProps={{ 'aria-label': 'select all desserts' }}
+                          aria-label="select all desserts"
                           testId="table-head"
                         />
                       </Tooltip>
