@@ -41,8 +41,9 @@ const StyledTooltipBase = styled(Tooltip, {
   },
 }));
 
-export const StyledTooltip = React.forwardRef<HTMLDivElement, StyledTooltipProps>(
-  (props, ref) => <StyledTooltipBase {...props} ref={ref} />
-);
+export const StyledTooltip = React.forwardRef<
+  HTMLDivElement,
+  StyledTooltipProps
+>((props, ref) => <StyledTooltipBase {...props} ref={ref} />);
 
 StyledTooltip.displayName = 'StyledTooltip';

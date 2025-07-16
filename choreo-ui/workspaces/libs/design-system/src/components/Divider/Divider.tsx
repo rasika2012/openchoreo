@@ -11,11 +11,14 @@ export interface DividerProps {
  * @component
  */
 export function Divider(props: DividerProps) {
-    const { testId, variant = 'fullWidth', orientation = 'horizontal' } = props;
-    return (
-     <MuiDivider data-testid={testId} variant={variant} orientation={orientation}   />
-    );
+  const { testId, variant = 'fullWidth', orientation = 'horizontal' } = props;
+  return (
+    <MuiDivider
+      data-testid={testId}
+      variant={variant}
+      orientation={orientation}
+    />
+  );
 }
-
 
 Divider.displayName = 'Divider';
