@@ -12,13 +12,8 @@ export interface RotateProps extends React.HTMLAttributes<HTMLDivElement> {
  */
 export const Rotate = React.forwardRef<HTMLDivElement, RotateProps>(
   ({ children, disabled = false, ...props }, ref) => {
-
     return (
-      <StyledRotate
-        ref={ref}
-        disabled={disabled}
-        {...props}
-      >
+      <StyledRotate ref={ref} disabled={disabled} {...props}>
         {children}
       </StyledRotate>
     );
