@@ -132,13 +132,10 @@ export const ExpandableSearch = React.forwardRef<
       isOpen={isSearchShow}
     >
       <Box
-        className={clsx(
-          'expandableSearchCont',
-          {
-            'expandableSearchContOpen': isSearchShow,
-            'expandableSearchCont': !isSearchShow,
-          }
-        )}
+        className={clsx('expandableSearchCont', {
+          expandableSearchContOpen: isSearchShow,
+          expandableSearchCont: !isSearchShow,
+        })}
       >
         {(direction === 'left' || (direction === 'right' && isSearchShow)) && (
           <IconButton
@@ -156,12 +153,9 @@ export const ExpandableSearch = React.forwardRef<
         )}
 
         <Box
-          className={clsx(
-            'expandableSearchWrap',
-            {
-              'expandableSearchWrapShow': isSearchShow,
-            }
-          )}
+          className={clsx('expandableSearchWrap', {
+            expandableSearchWrapShow: isSearchShow,
+          })}
         >
           <InputBase
             inputRef={inputReference}
