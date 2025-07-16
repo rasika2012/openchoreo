@@ -63,7 +63,6 @@ export const StyledTable: ComponentType<
             '&:last-child': {
               borderRight: `1px solid ${theme.palette.primary.light}`,
             },
-
           },
         },
       },
@@ -92,4 +91,3 @@ export const StyledTable: ComponentType<
     },
   }),
 }));
-
