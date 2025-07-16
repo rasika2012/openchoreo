@@ -126,9 +126,7 @@ function useSortData<T>(
  * DataTable component
  * @component
  */
-export const DataTable = <T,>(
-  props: DataTableProps<T>
-) => {
+export const DataTable = <T,>(props: DataTableProps<T>) => {
   const {
     enableFrontendSearch = true,
     isLoading,
@@ -158,14 +156,16 @@ export const DataTable = <T,>(
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [search, setSearch] = React.useState('');
 
-
   const onSearch = (value: string) => {
     setSearch(value);
   };
 
-  const filterData = useCallback(debounce((value: string) => {
-    setDebouncedSearchQuery(value);
-  }, 500), [sortedData]);
+  const filterData = useCallback(
+    debounce((value: string) => {
+      setDebouncedSearchQuery(value);
+    }, 500),
+    [sortedData]
+  );
 
   useEffect(() => {
     filterData(search);
@@ -195,23 +195,34 @@ export const DataTable = <T,>(
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" mb={theme.spacing(2)} gap={theme.spacing(1)}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        mb={theme.spacing(2)}
+        gap={theme.spacing(1)}
+      >
         <Box display="flex" alignItems="center" gap={theme.spacing(1)}>
           {tableTitle && (
-            <Typography variant="h4" color="text.primary">{tableTitle}</Typography>
+            <Typography variant="h4" color="text.primary">
+              {tableTitle}
+            </Typography>
           )}
           {titleActions}
         </Box>
         <Box display="flex" alignItems="center" gap={theme.spacing(1)}>
-          {
-            enableFrontendSearch && (
-              <Box width={theme.spacing(40)}>
-                <ExpandableSearch  direction="right" size='medium' searchString={search}  placeholder='Search..' testId="data-table"  onChange={onSearch} />
-              </Box>
-            )}
-          {
-            actions
-          }
+          {enableFrontendSearch && (
+            <Box width={theme.spacing(40)}>
+              <ExpandableSearch
+                direction="right"
+                size="medium"
+                searchString={search}
+                placeholder="Search.."
+                testId="data-table"
+                onChange={onSearch}
+              />
+            </Box>
+          )}
+          {actions}
         </Box>
       </Box>
       <StyledDataTable ref={ref}>
