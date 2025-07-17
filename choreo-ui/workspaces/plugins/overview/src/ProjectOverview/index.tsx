@@ -9,7 +9,7 @@ export {
 } from "./ProjectOverview";
 
 export const projectOverview: PluginExtension = {
-  extentionPoint: coreExtensionPoints.projectLevelPage,
+  extensionPoint: coreExtensionPoints.projectLevelPage,
   component: ProjectOverview,
   pathPattern: "",
 };

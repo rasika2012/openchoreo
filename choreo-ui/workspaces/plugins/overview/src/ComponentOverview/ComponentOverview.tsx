@@ -40,7 +40,7 @@ const ComponentOverview: React.FC = () => {
       isLoading={isLoading}
     >
       <PanelExtensionMounter
-        extentionPoint={componentOverviewMainExtensionPoint}
+        extensionPoint={componentOverviewMainExtensionPoint}
       />
     </ResourcePageLayout>
   );

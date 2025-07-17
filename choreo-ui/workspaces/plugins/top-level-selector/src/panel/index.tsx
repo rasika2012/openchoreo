@@ -6,7 +6,7 @@ import React from "react";
 const OverviewPage = React.lazy(() => import("./TopLevelSelector"));
 
 export const panel: PluginExtension = {
-  extentionPoint: coreExtensionPoints.headerLeft,
+  extensionPoint: coreExtensionPoints.headerLeft,
   key: "top-level-selector",
   component: OverviewPage,
 };

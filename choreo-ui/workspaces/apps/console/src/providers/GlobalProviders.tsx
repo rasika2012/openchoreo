@@ -9,7 +9,7 @@ export const GlobalProviders = async ({ children, pluginRegistry }: { children: 
     return (
         <BrowserRouter basename="/">
             <PluginProvider pluginRegistry={pluginRegistry} basePath={window.configs.apiServerBaseUrl}>
-                <WrapperExtensionMounter extentionPoint={coreExtensionPoints.globalProvider} >
+                <WrapperExtensionMounter extensionPoint={coreExtensionPoints.globalProvider} >
                     <IntlProvider locale="en">
                         {children}
                     </IntlProvider>
