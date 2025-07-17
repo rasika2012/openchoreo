@@ -10,7 +10,7 @@ import {
 } from "@open-choreo/design-system";
 
 export const componentListNavigation: PluginExtension = {
-  extentionPoint: coreExtensionPoints.projectNavigation,
+  extensionPoint: coreExtensionPoints.projectNavigation,
   icon: () => <MenuComponentsIcon fontSize="inherit" />,
   iconSelected: () => <MenuComponentsFilledIcon fontSize="inherit" />,
   path: "/components",

@@ -9,7 +9,7 @@ import {
 } from "@open-choreo/design-system";
 
 export const projectOverviewNavigation: PluginExtension = {
-  extentionPoint: coreExtensionPoints.projectNavigation,
+  extensionPoint: coreExtensionPoints.projectNavigation,
   icon: () => <MenuOverviewIcon fontSize="inherit" />,
   iconSelected: () => <MenuOverviewFilledIcon fontSize="inherit" />,
   path: "",
@@ -18,7 +18,7 @@ export const projectOverviewNavigation: PluginExtension = {
 };
 
 export const componentOverviewNavigation: PluginExtension = {
-  extentionPoint: coreExtensionPoints.componentNavigation,
+  extensionPoint: coreExtensionPoints.componentNavigation,
   icon: () => <MenuOverviewIcon fontSize="inherit" />,
   iconSelected: () => <MenuOverviewFilledIcon fontSize="inherit" />,
   path: "",
@@ -27,7 +27,7 @@ export const componentOverviewNavigation: PluginExtension = {
 };
 
 export const orgOverviewNavigation: PluginExtension = {
-  extentionPoint: coreExtensionPoints.orgNavigation,
+  extensionPoint: coreExtensionPoints.orgNavigation,
   icon: () => <MenuOverviewIcon fontSize="inherit" />,
   iconSelected: () => <MenuOverviewFilledIcon fontSize="inherit" />,
   path: "",

@@ -5,13 +5,13 @@ import { projectOverviewMainExtensionPoint } from "@open-choreo/plugin-overview"
 import { componentListMainExtensionPoint } from "../ComponentListPage/ComponentList";
 
 export const componentListPanel: PluginExtension = {
-  extentionPoint: projectOverviewMainExtensionPoint,
+  extensionPoint: projectOverviewMainExtensionPoint,
   component: ComponentListPanel,
   key: "component-list-panel",
 };
 
 export const projectOverviewComponentListPanel: PluginExtension = {
-  extentionPoint: componentListMainExtensionPoint,
+  extensionPoint: componentListMainExtensionPoint,
   component: ComponentListPanel,
   key: "component-list-project-overview-panel",
 };

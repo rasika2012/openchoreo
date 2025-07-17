@@ -4,7 +4,7 @@ import { PluginExtension } from "@open-choreo/plugin-core";
 export { organizationOverviewActionsExtensionPoint } from "./ProjectListPanel";
 
 export const projectListPanel: PluginExtension = {
-  extentionPoint: organizationOverviewMainExtensionPoint,
+  extensionPoint: organizationOverviewMainExtensionPoint,
   component: ProjectListPanel,
   key: "project-list-panel",
 };
