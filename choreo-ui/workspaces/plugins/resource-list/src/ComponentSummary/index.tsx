@@ -5,7 +5,7 @@ import React from "react";
 const ComponentSummary = React.lazy(() => import("./ComponentSummary"));
 
 export const componentSummary: PluginExtension = {
-  extentionPoint: projectOverviewSecondaryExtensionPoint,
+  extensionPoint: projectOverviewSecondaryExtensionPoint,
   component: ComponentSummary,
   key: "component-summary",
 };

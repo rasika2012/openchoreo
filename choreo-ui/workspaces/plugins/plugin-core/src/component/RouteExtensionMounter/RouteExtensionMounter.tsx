@@ -4,12 +4,12 @@ import { useRouteExtentions } from "../../hooks";
 import { PresetErrorPage } from "@open-choreo/common-views";
 
 interface RouteExtensionMounterProps {
-  extentionPoint: PluginExtensionPoint;
+  extensionPoint: PluginExtensionPoint;
 }
 
 export function RouteExtensionMounter(props: RouteExtensionMounterProps) {
-  const { extentionPoint } = props;
-  const pageEntriesOrgLevel = useRouteExtentions(extentionPoint);
+  const { extensionPoint } = props;
+  const pageEntriesOrgLevel = useRouteExtentions(extensionPoint);
   return (
     <Routes>
       {pageEntriesOrgLevel.map(({ pathPattern, component: Component }) => (

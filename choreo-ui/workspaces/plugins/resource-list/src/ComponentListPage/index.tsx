@@ -5,7 +5,7 @@ import {
 import ComponentList from "./ComponentList";
 
 export const componentList: PluginExtension = {
-  extentionPoint: coreExtensionPoints.projectLevelPage,
+  extensionPoint: coreExtensionPoints.projectLevelPage,
   component: ComponentList,
   pathPattern: "/components",
 };

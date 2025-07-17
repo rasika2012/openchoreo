@@ -8,7 +8,7 @@ export {
   organizationOverviewSecondaryExtensionPoint,
 } from "./OrgOverview";
 export const orgOverview: PluginExtension = {
-  extentionPoint: coreExtensionPoints.orgLevelPage,
+  extensionPoint: coreExtensionPoints.orgLevelPage,
   component: OrgOverview,
   pathPattern: "",
 };

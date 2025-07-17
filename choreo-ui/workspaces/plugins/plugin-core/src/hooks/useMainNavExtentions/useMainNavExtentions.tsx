@@ -7,7 +7,7 @@ import {
 import { usePluginRegistry } from "../../Providers";
 
 export function useMainNavExtentions(
-  extentionPoint: PluginExtensionPoint,
+  extensionPoint: PluginExtensionPoint,
   rootPath: string,
 ) {
   const pluginRegistry = usePluginRegistry();
@@ -17,8 +17,8 @@ export function useMainNavExtentions(
         plugin.extensions
           .filter(
             (entry) =>
-              entry.extentionPoint.id === extentionPoint.id &&
-              entry.extentionPoint.type === extentionPoint.type,
+              entry.extensionPoint.id === extensionPoint.id &&
+              entry.extensionPoint.type === extensionPoint.type,
           )
           .map(
             (entry: PluginExtensionNavigation) =>
@@ -40,7 +40,7 @@ export function useMainNavExtentions(
               }) as NavItemExpandableSubMenu,
           ),
       ),
-    [pluginRegistry, extentionPoint, rootPath],
+    [pluginRegistry, extensionPoint, rootPath],
   );
 
   return navigationEntries;
