@@ -3,13 +3,13 @@ import { useExtentionProviders } from "../../hooks/useProviderExtentions";
 import { PluginExtensionPoint } from "../../plugin-types";
 
 export interface WrapperExtensionMounterProps {
-  extentionPoint: PluginExtensionPoint;
+  extensionPoint: PluginExtensionPoint;
   children: React.ReactNode;
 }
 
 export function WrapperExtensionMounter(props: WrapperExtensionMounterProps) {
-  const { extentionPoint, children } = props;
-  const extentions = useExtentionProviders(extentionPoint);
+  const { extensionPoint, children } = props;
+  const extentions = useExtentionProviders(extensionPoint);
   // Create nested providers by reducing the extensions array
   const nestedProviders = useCallback(() => {
     return extentions.reduceRight((acc, extension) => {

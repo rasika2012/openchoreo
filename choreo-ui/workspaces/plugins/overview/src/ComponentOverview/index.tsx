@@ -6,7 +6,7 @@ import ComponentOverview from "./ComponentOverview";
 export { componentOverviewMainExtensionPoint } from "./ComponentOverview";
 
 export const componentOverview: PluginExtension = {
-  extentionPoint: coreExtensionPoints.componentLevelPage,
+  extensionPoint: coreExtensionPoints.componentLevelPage,
   component: ComponentOverview,
   pathPattern: "",
 };

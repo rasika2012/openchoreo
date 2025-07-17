@@ -59,13 +59,13 @@ const OrgOverview: React.FC = () => {
       <GridContainer>
         <GridItem size={{ xs: 12, sm: 12, md: 8, lg: 9, xl: 10 }}>
           <PanelExtensionMounter
-            extentionPoint={organizationOverviewMainExtensionPoint}
+            extensionPoint={organizationOverviewMainExtensionPoint}
           />
         </GridItem>
         <GridItem size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 1 }}>
           <Box display="flex" flexDirection="row" gap={theme.spacing(2)}>
             <PanelExtensionMounter
-              extentionPoint={organizationOverviewSecondaryExtensionPoint}
+              extensionPoint={organizationOverviewSecondaryExtensionPoint}
             />
           </Box>
         </GridItem>

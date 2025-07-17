@@ -5,7 +5,7 @@ import {
 } from "../../plugin-types";
 import { usePluginRegistry } from "../../Providers";
 
-export function useExtentionProviders(extentionPoint: PluginExtensionPoint) {
+export function useExtentionProviders(extensionPoint: PluginExtensionPoint) {
   const pluginRegistry = usePluginRegistry();
   const entries: PluginExtensionProvider[] = useMemo(
     () =>
@@ -13,11 +13,11 @@ export function useExtentionProviders(extentionPoint: PluginExtensionPoint) {
         (plugin) =>
           plugin.extensions.filter(
             (entry) =>
-              entry.extentionPoint.id === extentionPoint.id &&
-              entry.extentionPoint.type === extentionPoint.type,
+              entry.extensionPoint.id === extensionPoint.id &&
+              entry.extensionPoint.type === extensionPoint.type,
           ) as PluginExtensionProvider[],
       ),
-    [pluginRegistry, extentionPoint],
+    [pluginRegistry, extensionPoint],
   );
   return entries;
 }

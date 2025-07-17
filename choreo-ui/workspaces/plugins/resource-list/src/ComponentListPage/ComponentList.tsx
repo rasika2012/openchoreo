@@ -56,7 +56,7 @@ const ComponentList: React.FC = () => {
         defaultMessage: "Components List",
       })}
     >
-      <PanelExtensionMounter extentionPoint={componentListMainExtensionPoint} />
+      <PanelExtensionMounter extensionPoint={componentListMainExtensionPoint} />
     </PageLayout>
   );
 };

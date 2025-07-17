@@ -171,7 +171,7 @@ import React from "react";
 const ${pluginName}Panel = React.lazy(() => import("./${pluginName}Panel"));
 
 export const panel: PluginExtension = {
-    extentionPoint: coreExtensionPoints.headerLeft,
+    extensionPoint: coreExtensionPoints.headerLeft,
     key: "${pluginKey}",
     component: ${pluginName}Panel,
 };`;

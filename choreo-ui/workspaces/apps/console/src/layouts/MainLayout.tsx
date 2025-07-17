@@ -26,18 +26,18 @@ const LayoutHeader = React.memo(() => (
     alignItems="center"
     width="100%"
   >
-    <PanelExtensionMounter extentionPoint={coreExtensionPoints.headerLeft} />
-    <PanelExtensionMounter extentionPoint={coreExtensionPoints.headerRight} />
+    <PanelExtensionMounter extensionPoint={coreExtensionPoints.headerLeft} />
+    <PanelExtensionMounter extensionPoint={coreExtensionPoints.headerRight} />
   </Box>
 ));
 
 const LayoutFooter = React.memo(() => 
 <Box display="flex" flexDirection="row" justifyContent="space-between" alignItems="center" width="100%">
-  <PanelExtensionMounter extentionPoint={coreExtensionPoints.footer} />
+  <PanelExtensionMounter extensionPoint={coreExtensionPoints.footer} />
   </Box>);
 
 const LayoutRightSidebar = React.memo(() => (
-  <PanelExtensionMounter extentionPoint={coreExtensionPoints.sidebarRight} />
+  <PanelExtensionMounter extensionPoint={coreExtensionPoints.sidebarRight} />
 ));
 
 export function MainLayout({ children }: MainLayoutProps) {
