@@ -84,7 +84,7 @@ export const ProjectListPanel: React.FC = () => {
           />
         </Box>
         <PanelExtensionMounter
-          extentionPoint={organizationOverviewActionsExtensionPoint}
+          extensionPoint={organizationOverviewActionsExtensionPoint}
         />
       </Box>
       <ResourceList resources={projects} />

@@ -19,10 +19,10 @@ export default function App() {
             <Suspense fallback={<FullPageLoader />}>
               <MainLayout>
                 <Routes>
-                  <Route path={PathsPatterns.COMPONENT_LEVEL} element={<RouteExtensionMounter extentionPoint={coreExtensionPoints.componentLevelPage} />} />
-                  <Route path={PathsPatterns.PROJECT_LEVEL} element={<RouteExtensionMounter extentionPoint={coreExtensionPoints.projectLevelPage} />} />
-                  <Route path={PathsPatterns.ORG_LEVEL} element={<RouteExtensionMounter extentionPoint={coreExtensionPoints.orgLevelPage} />} />
-                  <Route path={"/*"} element={<RouteExtensionMounter extentionPoint={coreExtensionPoints.globalPage} />} />
+                  <Route path={PathsPatterns.COMPONENT_LEVEL} element={<RouteExtensionMounter extensionPoint={coreExtensionPoints.componentLevelPage} />} />
+                  <Route path={PathsPatterns.PROJECT_LEVEL} element={<RouteExtensionMounter extensionPoint={coreExtensionPoints.projectLevelPage} />} />
+                  <Route path={PathsPatterns.ORG_LEVEL} element={<RouteExtensionMounter extensionPoint={coreExtensionPoints.orgLevelPage} />} />
+                  <Route path={"/*"} element={<RouteExtensionMounter extensionPoint={coreExtensionPoints.globalPage} />} />
                   <Route path="*" element={<PresetErrorPage preset="404" />} />
                 </Routes>
               </MainLayout>

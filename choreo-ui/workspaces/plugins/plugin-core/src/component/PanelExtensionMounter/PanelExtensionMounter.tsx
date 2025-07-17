@@ -3,14 +3,14 @@ import { usePanelExtentions } from "../../hooks";
 import { PluginExtensionPoint } from "../../plugin-types";
 
 export interface PanelExtensionMounterCommonProps {
-  extentionPoint: PluginExtensionPoint;
+  extensionPoint: PluginExtensionPoint;
 }
 
 export function PanelExtensionMounter(props: PanelExtensionMounterCommonProps) {
-  const { extentionPoint } = props;
-  const extentions = usePanelExtentions(extentionPoint);
+  const { extensionPoint } = props;
+  const extentions = usePanelExtentions(extensionPoint);
   return (
-    <Box testId={`extention-mounter-${extentionPoint.id}`}>
+    <Box testId={`extention-mounter-${extensionPoint.id}`}>
       {extentions.map((entry) => (
         <entry.component key={entry.key} />
       ))}
