@@ -20,7 +20,8 @@ export { componentOverviewMainExtensionPoint } from "./ComponentOverview";
 
 export const overviewPlugin = {
   name: "Overview",
-  description: "Overview plugin",
+  description:
+    "Overview shows summary of the organization, project and component.",
   extensions: [
     componentOverviewNavigation,
     orgOverviewNavigation,
