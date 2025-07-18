@@ -32,12 +32,9 @@ const Panel: React.FC = () => {
   const orgHandle = useOrgHandle();
   const projectHandle = useProjectHandle();
   const componentHandle = useComponentHandle();
-  const res = useSelectedOrganization();
 
   const { data: selectedOrganization } = useSelectedOrganization();
-
   const { data: selectedProject } = useSelectedProject();
-
   const { data: selectedComponent } = useSelectedComponent();
 
   const { data: organizationList } = useOrganizationList();

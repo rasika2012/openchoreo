@@ -1,5 +1,5 @@
 import type { PluginManifest } from '@open-choreo/plugin-core';
-import { choreoContextPlugin } from '@open-choreo/choreo-context';
+import { choreoContextPlugin } from '@open-choreo/choreo-context'; // TODO: remove from plugins and move to lib
 
 // Lazy load all plugins
 const overviewPlugin = () => import('@open-choreo/plugin-overview').then(module => module.overviewPlugin);
@@ -15,7 +15,6 @@ export const getPluginRegistry = async (): Promise<PluginManifest[]> => {
     topRightMenuPlugin(),
     resourceListingPlugin()
   ]);
-  
   return [overview, levelSelector, topRightMenu, choreoContextPlugin, resourceListing];
 };
 
