@@ -36,7 +36,7 @@ export default defineConfig({
           'common-views': ['@open-choreo/common-views'],
           // Plugin chunks
           'plugin-core': ['@open-choreo/plugin-core'],
-          'plugin-overview': ['@open-choreo/plugin-overview'],
+          'plugin-overview': ['@open-choreo/overviews'],
           'plugin-top-level-selector': ['@open-choreo/plugin-top-level-selector'],
           'plugin-top-right-menu': ['@open-choreo/top-right-menu'],
           'plugin-choreo-context': ['@open-choreo/choreo-context'],

@@ -455,8 +455,8 @@
       "projectFolder": "workspaces/libs/definitions"
     },
     {
-      "packageName": "@open-choreo/plugin-overview",
-      "projectFolder": "workspaces/plugins/overview"
+      "packageName": "@open-choreo/overviews",
+      "projectFolder": "workspaces/plugins/overviews"
     },
     {
       "packageName": "@open-choreo/resource-views",
@@ -483,8 +483,12 @@
       "projectFolder": "workspaces/plugins/choreo-context"
     },
     {
-      "packageName": "@open-choreo/resource-list",
-      "projectFolder": "workspaces/plugins/resource-list"
-    }  
+      "packageName": "@open-choreo/component-listing",
+      "projectFolder": "workspaces/plugins/component-listing"
+    },
+    {
+      "packageName": "@open-choreo/project-listing",
+      "projectFolder": "workspaces/plugins/project-listing"
+    }
   ]
 }

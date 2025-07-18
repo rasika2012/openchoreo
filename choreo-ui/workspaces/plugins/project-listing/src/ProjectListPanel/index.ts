@@ -1,4 +1,4 @@
-import { organizationOverviewMainExtensionPoint } from "@open-choreo/plugin-overview";
+import { organizationOverviewMainExtensionPoint } from "@open-choreo/overviews";
 import { ProjectListPanel } from "./ProjectListPanel";
 import { PluginExtension } from "@open-choreo/plugin-core";
 export { organizationOverviewActionsExtensionPoint } from "./ProjectListPanel";

@@ -26,7 +26,7 @@ export const componentOverviewNavigation: PluginExtension = {
   pathPattern: BasePathPatterns.COMPONENT_LEVEL,
 };
 
-export const orgOverviewNavigation: PluginExtension = {
+export const organizationOverviewNavigation: PluginExtension = {
   extensionPoint: coreExtensionPoints.orgNavigation,
   icon: () => <MenuOverviewIcon fontSize="inherit" />,
   iconSelected: () => <MenuOverviewFilledIcon fontSize="inherit" />,

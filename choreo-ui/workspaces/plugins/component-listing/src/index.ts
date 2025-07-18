@@ -5,18 +5,16 @@ import {
   componentListPanel,
   projectOverviewComponentListPanel,
 } from "./ComponentListPanel";
-import { projectListPanel } from "./ProjectListPanel";
 import { componentSummary } from "./ComponentSummary";
 
-export const resourceListingPlugin = {
-  name: "Resource Listing",
-  description: "Resource Listing Plugin lists the resources in the project",
+export const componentListingPlugin = {
+  name: "Component Listing Plugin",
+  description: "List down selected project's components",
   extensions: [
     componentList,
     componentListNavigation,
     componentListPanel,
     projectOverviewComponentListPanel,
-    projectListPanel,
     componentSummary,
   ],
 } as PluginManifest;

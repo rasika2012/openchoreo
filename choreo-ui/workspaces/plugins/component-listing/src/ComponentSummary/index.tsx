@@ -1,5 +1,5 @@
 import { type PluginExtension } from "@open-choreo/plugin-core";
-import { projectOverviewSecondaryExtensionPoint } from "@open-choreo/plugin-overview";
+import { projectOverviewSecondaryExtensionPoint } from "@open-choreo/overviews";
 import React from "react";
 
 const ComponentSummary = React.lazy(() => import("./ComponentSummary"));
