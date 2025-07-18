@@ -59,7 +59,7 @@ const ProjectOverview: React.FC = () => {
             extensionPoint={projectOverviewMainExtensionPoint}
           />
         </GridItem>
-        <GridItem size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 1 }}>
+        <GridItem size={{ xs: 12, sm: 12, md: 4, lg: 3, xl: 2 }}>
           <Box display="flex" flexDirection="row" gap={theme.spacing(2)}>
             <PanelExtensionMounter
               extensionPoint={projectOverviewSecondaryExtensionPoint}
