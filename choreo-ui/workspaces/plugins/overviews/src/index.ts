@@ -1,17 +1,17 @@
 import { type PluginManifest } from "@open-choreo/plugin-core";
 import {
   componentOverviewNavigation,
-  orgOverviewNavigation,
+  organizationOverviewNavigation,
   projectOverviewNavigation,
 } from "./NavItems";
-import { orgOverview } from "./OrgOverview";
+import { organizationOverview } from "./OrganizationOverview";
 import { projectOverview } from "./ProjectOverview";
 import { componentOverview } from "./ComponentOverview";
 
 export {
   organizationOverviewMainExtensionPoint,
   organizationOverviewSecondaryExtensionPoint,
-} from "./OrgOverview";
+} from "./OrganizationOverview";
 export {
   projectOverviewMainExtensionPoint,
   projectOverviewSecondaryExtensionPoint,
@@ -24,9 +24,9 @@ export const overviewPlugin = {
     "Overview shows summary of the organization, project and component.",
   extensions: [
     componentOverviewNavigation,
-    orgOverviewNavigation,
+    organizationOverviewNavigation,
     projectOverviewNavigation,
-    orgOverview,
+    organizationOverview,
     projectOverview,
     componentOverview,
   ],
