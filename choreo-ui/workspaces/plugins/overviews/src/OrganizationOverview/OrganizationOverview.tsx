@@ -24,7 +24,7 @@ export const organizationOverviewSecondaryExtensionPoint: PluginExtensionPoint =
     type: PluginExtensionType.PANEL,
   };
 
-const OrgOverview: React.FC = () => {
+const OrganizationOverview: React.FC = () => {
   const {
     data: selectedOrganization,
     isLoading,
@@ -63,4 +63,4 @@ const OrgOverview: React.FC = () => {
   );
 };
 
-export default OrgOverview;
+export default OrganizationOverview;
