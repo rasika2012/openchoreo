@@ -21,7 +21,7 @@ export const GlobalProviders = ({
       <ApiClientProvider basePath={window.configs?.apiServerBaseUrl || ""}>
         <PluginProvider pluginRegistry={pluginRegistry}>
           <WrapperExtensionMounter
-            extentionPoint={coreExtensionPoints.globalProvider}
+            extensionPoint={coreExtensionPoints.globalProvider}
           >
             <IntlProvider locale="en">{children}</IntlProvider>
           </WrapperExtensionMounter>
