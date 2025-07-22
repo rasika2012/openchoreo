@@ -1,1 +1,0 @@
-{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../src/OrgOverview/index.tsx"],"names":[],"mappings":"AAAA,OAAO,EAEL,mBAAmB,GACpB,MAAM,0BAA0B,CAAC;AAClC,OAAO,WAAW,MAAM,eAAe,CAAC;AACxC,OAAO,EACL,sCAAsC,EACtC,2CAA2C,GAC5C,MAAM,eAAe,CAAC;AACvB,MAAM,CAAC,MAAM,WAAW,GAAoB;IAC1C,cAAc,EAAE,mBAAmB,CAAC,YAAY;IAChD,SAAS,EAAE,WAAW;IACtB,WAAW,EAAE,EAAE;CAChB,CAAC"}

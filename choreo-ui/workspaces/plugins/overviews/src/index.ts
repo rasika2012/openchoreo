@@ -11,7 +11,7 @@ import { componentOverview } from "./ComponentOverview";
 export {
   organizationOverviewMainExtensionPoint,
   organizationOverviewSecondaryExtensionPoint,
-} from "./OrgOverview";
+} from "./OrganizationOverview";
 export {
   projectOverviewMainExtensionPoint,
   projectOverviewSecondaryExtensionPoint,
