@@ -19,8 +19,7 @@ export const getPluginRegistry = async (): Promise<PluginManifest[]> => {
   ]);
   
   return [overview, levelSelector, topRightMenu,
-    //  choreoContextPlugin,
-     resourceListing];
+     projectListing, componentListing];
 };
 
 // For backward compatibility, export a synchronous version that loads plugins on demand
