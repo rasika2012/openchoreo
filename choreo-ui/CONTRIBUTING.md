@@ -273,6 +273,94 @@ export const providerExtension: PluginExtensionProvider = {
 };
 ```
 
+## Creating Sub-Routes with Custom Extension Points
+
+Sometimes you need to create sub-routes within your main plugin route (e.g., `/builds/:buildId`). This can be achieved by creating custom extension points and using `RouteExtensionMounter`.
+
+### Step 1: Create a Custom Extension Point
+
+In your main page component, define a new extension point:
+
+```typescript
+import { PluginExtensionPoint, PluginExtensionType, RouteExtensionMounter } from "@open-choreo/plugin-core";
+
+// Create a custom extension point for sub-routes
+export const myDetailsExtensionPoint: PluginExtensionPoint = {
+    id: "my-feature-details-route",
+    type: PluginExtensionType.ROUTE,
+};
+```
+
+### Step 2: Mount Route Extensions in Your Main Page
+
+Add `RouteExtensionMounter` to your main page component:
+
+```typescript
+import { RouteExtensionMounter } from "@open-choreo/plugin-core";
+
+const MyMainPage: React.FC = () => {
+    return (
+        <Box>
+            {/* Your main page content */}
+            <Typography variant="h1">My Feature</Typography>
+            
+            {/* Mount sub-route extensions */}
+            <RouteExtensionMounter extensionPoint={myDetailsExtensionPoint} />
+        </Box>
+    );
+};
+```
+
+### Step 3: Create Sub-Route Extension
+
+Create a new extension that mounts to your custom extension point:
+
+```typescript
+// src/feature-detail/index.tsx
+import { type PluginExtensionRoute } from "@open-choreo/plugin-core";
+import { myDetailsExtensionPoint } from "../route/MyMainPage";
+
+const MyDetailPage = React.lazy(() => import("./MyDetailPage"));
+
+export const myDetailRoute: PluginExtensionRoute = {
+  extensionPoint: myDetailsExtensionPoint,
+  pathPattern: ":itemId", // This creates /my-feature/:itemId
+  component: MyDetailPage,
+};
+```
+
+### Step 4: Create the Detail Page Component
+
+```typescript
+// src/feature-detail/MyDetailPage.tsx
+import { useUrlParams } from "@open-choreo/plugin-core";
+
+const MyDetailPage: React.FC = () => {
+    const { subPage: itemId } = useUrlParams();
+    
+    return (
+        <Box>
+            <Typography variant="h1">Details for: {itemId}</Typography>
+            {/* Your detail page content */}
+        </Box>
+    );
+};
+```
+
+### Step 5: Register in Plugin Manifest
+
+Add the sub-route extension to your plugin:
+
+```typescript
+import { myDetailRoute } from "./feature-detail";
+
+export const myPlugin = {
+    name: "My Plugin",
+    description: "Plugin with sub-routes",
+    extensions: [mainRoute, navigation, myDetailRoute], // Add your sub-route
+} as PluginManifest;
+```
+
 ## Development Workflow
 
 ### 1. Create and Build Plugin
