@@ -2,12 +2,11 @@ import {
   Box,
   Card,
   CardContent,
-  ImageNode,
-  ImageReact,
   TableCell,
   TableRow,
   Typography,
 } from '@open-choreo/design-system';
+import * as Images from '@open-choreo/design-system';
 
 export interface ComponentProps {
   type: string;
@@ -19,35 +18,39 @@ export interface ComponentListProps {
   components?: ComponentProps[];
 }
 
+// Mapping of programming language names to their corresponding image components
+const languageImageMap: Record<string, React.ComponentType<any>> = {
+  react: Images.ImageReact,
+  nodejs: Images.ImageNode,
+  python: Images.ImagePython,
+  java: Images.ImageJava,
+  go: Images.ImageGo,
+  ruby: Images.ImageRuby,
+  php: Images.ImagePhp,
+  // Add more languages as needed
+  // typescript: Images.ImageTypeScript,
+  // javascript: Images.ImageJavaScript,
+};
+
 function getIcon(webAppType: string) {
-  switch (webAppType) {
-    case 'react':
-      return (
-        <Box
-          width="20px"
-          height="20px"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <ImageReact fontSize="small" />
-        </Box>
-      );
-    case 'nodejs':
-      return (
-        <Box
-          width="20px"
-          height="20px"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <ImageNode fontSize="small" />
-        </Box>
-      );
-    default:
-      return null;
+  const ImageComponent = languageImageMap[webAppType.toLowerCase()];
+
+  if (ImageComponent) {
+    return (
+      <Box
+        width="20px"
+        height="20px"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <ImageComponent fontSize="small" />
+      </Box>
+    );
   }
+
+  // Fallback for unknown languages
+  return null;
 }
 
 export function ComponentTypes(props: ComponentListProps) {
