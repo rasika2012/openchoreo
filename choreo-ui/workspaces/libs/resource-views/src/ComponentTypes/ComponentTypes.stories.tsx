@@ -17,6 +17,10 @@ export const Default: Story = {
       { type: 'Web Application', webAppType: 'react' },
       { type: 'Web Application', webAppType: 'react' },
       { type: 'Service', webAppType: 'nodejs' },
+      { type: 'Service', webAppType: 'java' },
+      { type: 'Service', webAppType: 'go' },
+      { type: 'Service', webAppType: 'php' },
+      { type: 'Service', webAppType: 'ruby' },
     ],
   },
 };
