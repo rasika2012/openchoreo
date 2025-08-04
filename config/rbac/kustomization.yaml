@@ -58,8 +58,6 @@ resources:
   # if you do not want those helpers be installed with your Project.
   - workload_editor_role.yaml
   - workload_viewer_role.yaml
-  - componentv2_editor_role.yaml
-  - componentv2_viewer_role.yaml
   - configurationgroup_editor_role.yaml
   - configurationgroup_viewer_role.yaml
 # For each CRD, "Editor" and "Viewer" roles are scaffolded by
@@ -94,13 +92,9 @@ resources:
   - api_viewer_role.yaml
   - gitcommitrequest_editor_role.yaml
   - gitcommitrequest_viewer_role.yaml
-  - endpointclass_editor_role.yaml
-  - endpointclass_viewer_role.yaml
-  - endpointv2_editor_role.yaml
-  - endpointv2_viewer_role.yaml
   - buildplane_admin_role.yaml
   - buildplane_editor_role.yaml
   - buildplane_viewer_role.yaml
-  - buildv2_admin_role.yaml
-  - buildv2_editor_role.yaml
-  - buildv2_viewer_role.yaml
+  - build_admin_role.yaml
+  - build_editor_role.yaml
+  - build_viewer_role.yaml

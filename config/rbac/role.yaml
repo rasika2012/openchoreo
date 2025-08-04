@@ -106,17 +106,14 @@ rules:
   - apiclasses
   - apis
   - buildplanes
-  - buildv2s
+  - builds
   - components
-  - componentv2s
   - dataplanes
   - deployableartifacts
   - deploymentpipelines
   - deployments
   - deploymenttracks
-  - endpointclasses
   - endpoints
-  - endpointv2s
   - environments
   - gitcommitrequests
   - organizations
@@ -147,17 +144,14 @@ rules:
   - apiclasses/finalizers
   - apis/finalizers
   - buildplanes/finalizers
-  - buildv2s/finalizers
+  - builds/finalizers
   - components/finalizers
-  - componentv2s/finalizers
   - dataplanes/finalizers
   - deployableartifacts/finalizers
   - deploymentpipelines/finalizers
   - deployments/finalizers
   - deploymenttracks/finalizers
-  - endpointclasses/finalizers
   - endpoints/finalizers
-  - endpointv2s/finalizers
   - environments/finalizers
   - gitcommitrequests/finalizers
   - organizations/finalizers
@@ -182,17 +176,14 @@ rules:
   - apiclasses/status
   - apis/status
   - buildplanes/status
-  - buildv2s/status
+  - builds/status
   - components/status
-  - componentv2s/status
   - dataplanes/status
   - deployableartifacts/status
   - deploymentpipelines/status
   - deployments/status
   - deploymenttracks/status
-  - endpointclasses/status
   - endpoints/status
-  - endpointv2s/status
   - environments/status
   - gitcommitrequests/status
   - organizations/status

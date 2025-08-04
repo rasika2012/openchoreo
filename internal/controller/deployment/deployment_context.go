@@ -125,12 +125,12 @@ func makeHierarchyLabelsForDeploymentTrack(objMeta metav1.ObjectMeta) map[string
 	return hierarchyLabelMap
 }
 
-func (r *Reconciler) findContainerImage(ctx context.Context, component *openchoreov1alpha1.Component,
+func (r *Reconciler) findContainerImage(ctx context.Context, _ *openchoreov1alpha1.Component,
 	deployableArtifact *openchoreov1alpha1.DeployableArtifact, deployment *openchoreov1alpha1.Deployment) (string, error) {
 	if buildRef := deployableArtifact.Spec.TargetArtifact.FromBuildRef; buildRef != nil {
 		if buildRef.Name != "" {
 			// Find the build that the deployable artifact is referring to
-			buildList := &openchoreov1alpha1.BuildV2List{}
+			buildList := &openchoreov1alpha1.BuildList{}
 			listOpts := []client.ListOption{
 				client.InNamespace(deployableArtifact.Namespace),
 				client.MatchingLabels(makeHierarchyLabelsForDeploymentTrack(deployableArtifact.ObjectMeta)),
@@ -157,11 +157,7 @@ func (r *Reconciler) findContainerImage(ctx context.Context, component *openchor
 		if imageRef.Tag == "" {
 			return "", fmt.Errorf("image tag is not provided")
 		}
-		containerRegistry := component.Spec.Source.ContainerRegistry
-		if containerRegistry == nil {
-			return "", fmt.Errorf("container registry is not provided for the component %s/%s", component.Namespace, component.Name)
-		}
-		return fmt.Sprintf("%s:%s", containerRegistry.ImageName, imageRef.Tag), nil
+		return "", nil
 	}
 	return "", fmt.Errorf("one of the build or image reference should be provided")
 }
