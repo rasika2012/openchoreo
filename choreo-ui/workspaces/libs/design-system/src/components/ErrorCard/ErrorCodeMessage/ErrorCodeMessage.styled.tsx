@@ -9,6 +9,7 @@ export const StyledErrorCodeMessage: ComponentType<StyledErrorCodeMessageProps> 
   styled(Box)<StyledErrorCodeMessageProps>(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
+    textAlign: 'center',
 
     '&.errorCodeIcon': {
       color: theme.palette.error.main,

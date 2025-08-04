@@ -14,10 +14,7 @@ export const ErrorCodeMessage: React.FC<ErrorCodeMessageProps> = ({
   testId,
 }) => {
   return (
-    <StyledErrorCodeMessage
-      className="errorCodeMessage"
-      data-cyid={`${testId}-error-code-message`}
-    >
+    <StyledErrorCodeMessage data-cyid={`${testId}-error-code-message`}>
       <Box className="errorCodeIcon">
         <Error fontSize="small" />
       </Box>
