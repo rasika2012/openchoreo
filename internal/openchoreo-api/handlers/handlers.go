@@ -37,29 +37,58 @@ func (h *Handler) Routes() http.Handler {
 	// API versioning
 	v1 := "/api/v1"
 
+	// Apply endpoint (similar to kubectl apply)
+	mux.HandleFunc("POST "+v1+"/apply", h.ApplyResource)
+
+	// Delete endpoint (similar to kubectl delete)
+	mux.HandleFunc("DELETE "+v1+"/delete", h.DeleteResource)
+
 	// Organization endpoints
 	mux.HandleFunc("GET "+v1+"/orgs", h.ListOrganizations)
 	mux.HandleFunc("GET "+v1+"/orgs/{orgName}", h.GetOrganization)
 
-	// Project endpoints
-	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/projects", h.ListProjects)
-	mux.HandleFunc("POST "+v1+"/orgs/{orgName}/projects", h.CreateProject)
-	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/projects/{projectName}", h.GetProject)
-
-	// Component endpoints
-	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/projects/{projectName}/components", h.ListComponents)
-	mux.HandleFunc("POST "+v1+"/orgs/{orgName}/projects/{projectName}/components", h.CreateComponent)
-	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/projects/{projectName}/components/{componentName}", h.GetComponent)
+	// DataPlane endpoints
+	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/dataplanes", h.ListDataPlanes)
+	mux.HandleFunc("POST "+v1+"/orgs/{orgName}/dataplanes", h.CreateDataPlane)
+	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/dataplanes/{dpName}", h.GetDataPlane)
 
 	// Environment endpoints
 	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/environments", h.ListEnvironments)
 	mux.HandleFunc("POST "+v1+"/orgs/{orgName}/environments", h.CreateEnvironment)
 	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/environments/{envName}", h.GetEnvironment)
 
-	// DataPlane endpoints
-	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/dataplanes", h.ListDataPlanes)
-	mux.HandleFunc("POST "+v1+"/orgs/{orgName}/dataplanes", h.CreateDataPlane)
-	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/dataplanes/{dpName}", h.GetDataPlane)
+	// BuildPlane endpoints
+	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/buildplanes", h.ListBuildPlanes)
+	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/build-templates", h.ListBuildTemplates)
+
+	// Project endpoints
+	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/projects", h.ListProjects)
+	mux.HandleFunc("POST "+v1+"/orgs/{orgName}/projects", h.CreateProject)
+	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/projects/{projectName}", h.GetProject)
+	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/projects/{projectName}/deployment-pipeline", h.GetProjectDeploymentPipeline)
+
+	// Component endpoints
+	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/projects/{projectName}/components", h.ListComponents)
+	mux.HandleFunc("POST "+v1+"/orgs/{orgName}/projects/{projectName}/components", h.CreateComponent)
+	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/projects/{projectName}/components/{componentName}", h.GetComponent)
+
+	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/projects/{projectName}/components/{componentName}/bindings", h.GetComponentBinding)
+	mux.HandleFunc("PATCH "+v1+"/orgs/{orgName}/projects/{projectName}/components/{componentName}/bindings/{bindingName}", h.UpdateComponentBinding)
+
+	// This is the promotion endpoint...
+	mux.HandleFunc("POST "+v1+"/orgs/{orgName}/projects/{projectName}/components/{componentName}/promote", h.PromoteComponent)
+
+	// Build endpoints
+	mux.HandleFunc("POST "+v1+"/orgs/{orgName}/projects/{projectName}/components/{componentName}/builds", h.TriggerBuild)
+	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/projects/{projectName}/components/{componentName}/builds", h.ListBuilds)
+
+	// Observer URL endpoints
+	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/projects/{projectName}/components/{componentName}/environments/{environmentName}/observer-url", h.GetComponentObserverURL)
+	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/projects/{projectName}/components/{componentName}/observer-url", h.GetBuildObserverURL)
+
+	// Workload endpoints
+	mux.HandleFunc("POST "+v1+"/orgs/{orgName}/projects/{projectName}/components/{componentName}/workloads", h.CreateWorkload)
+	mux.HandleFunc("GET "+v1+"/orgs/{orgName}/projects/{projectName}/components/{componentName}/workloads", h.GetWorkloads)
 
 	// Apply middleware
 	return logger.LoggerMiddleware(h.logger)(mux)
@@ -68,12 +97,12 @@ func (h *Handler) Routes() http.Handler {
 // Health handles health check requests
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+	_, _ = w.Write([]byte("OK")) // Ignore write errors for health checks
 }
 
 // Ready handles readiness check requests
 func (h *Handler) Ready(w http.ResponseWriter, r *http.Request) {
 	// Add readiness checks (K8s connections, etc.)
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Ready"))
+	_, _ = w.Write([]byte("Ready")) // Ignore write errors for health checks
 }

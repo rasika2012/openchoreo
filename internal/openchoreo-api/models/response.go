@@ -31,8 +31,6 @@ type ProjectResponse struct {
 	OrgName            string    `json:"orgName"`
 	DisplayName        string    `json:"displayName,omitempty"`
 	Description        string    `json:"description,omitempty"`
-	RepositoryURL      string    `json:"repositoryUrl,omitempty"`
-	RepositoryBranch   string    `json:"repositoryBranch,omitempty"`
 	DeploymentPipeline string    `json:"deploymentPipeline,omitempty"`
 	CreatedAt          time.Time `json:"createdAt"`
 	Status             string    `json:"status,omitempty"`
@@ -41,12 +39,11 @@ type ProjectResponse struct {
 // ComponentResponse represents a component in API responses
 type ComponentResponse struct {
 	Name           string                                 `json:"name"`
+	DisplayName    string                                 `json:"displayName,omitempty"`
 	Description    string                                 `json:"description,omitempty"`
 	Type           string                                 `json:"type"`
 	ProjectName    string                                 `json:"projectName"`
 	OrgName        string                                 `json:"orgName"`
-	RepositoryURL  string                                 `json:"repositoryUrl"`
-	Branch         string                                 `json:"branch,omitempty"`
 	CreatedAt      time.Time                              `json:"createdAt"`
 	Status         string                                 `json:"status,omitempty"`
 	Service        *openchoreov1alpha1.ServiceSpec        `json:"service,omitempty"`
@@ -54,6 +51,95 @@ type ComponentResponse struct {
 	ScheduledTask  *openchoreov1alpha1.ScheduledTaskSpec  `json:"scheduledTask,omitempty"`
 	API            *openchoreov1alpha1.APISpec            `json:"api,omitempty"`
 	Workload       *openchoreov1alpha1.WorkloadSpec       `json:"workload,omitempty"`
+	BuildConfig    *BuildConfig                           `json:"buildConfig,omitempty"`
+}
+
+type BindingResponse struct {
+	Name          string        `json:"name"`
+	Type          string        `json:"type"`
+	ComponentName string        `json:"componentName"`
+	ProjectName   string        `json:"projectName"`
+	OrgName       string        `json:"orgName"`
+	Environment   string        `json:"environment"`
+	BindingStatus BindingStatus `json:"status"`
+	// Component-specific binding data
+	ServiceBinding        *ServiceBinding        `json:"serviceBinding,omitempty"`
+	WebApplicationBinding *WebApplicationBinding `json:"webApplicationBinding,omitempty"`
+	ScheduledTaskBinding  *ScheduledTaskBinding  `json:"scheduledTaskBinding,omitempty"`
+}
+
+type BindingStatusType string
+
+const (
+	BindingStatusTypeInProgress BindingStatusType = "InProgress"
+	BindingStatusTypeReady      BindingStatusType = "Active"
+	BindingStatusTypeFailed     BindingStatusType = "Failed"
+	BindingStatusTypeSuspended  BindingStatusType = "Suspended"
+	BindingStatusTypeUndeployed BindingStatusType = "NotYetDeployed"
+)
+
+type BindingStatus struct {
+	Reason           string            `json:"reason"`
+	Message          string            `json:"message"`
+	Status           BindingStatusType `json:"status"`
+	LastTransitioned time.Time         `json:"lastTransitioned"`
+}
+
+type ServiceBinding struct {
+	Endpoints    []EndpointStatus `json:"endpoints"`
+	Image        string           `json:"image,omitempty"`
+	ReleaseState string           `json:"releaseState,omitempty"`
+}
+
+type WebApplicationBinding struct {
+	Endpoints    []EndpointStatus `json:"endpoints"`
+	Image        string           `json:"image,omitempty"`
+	ReleaseState string           `json:"releaseState,omitempty"`
+}
+
+type ScheduledTaskBinding struct {
+	Image        string `json:"image,omitempty"`
+	ReleaseState string `json:"releaseState,omitempty"`
+}
+
+type EndpointStatus struct {
+	Name         string           `json:"name"`
+	Type         string           `json:"type"`
+	Project      *ExposedEndpoint `json:"project,omitempty"`
+	Organization *ExposedEndpoint `json:"organization,omitempty"`
+	Public       *ExposedEndpoint `json:"public,omitempty"`
+}
+
+type ExposedEndpoint struct {
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Scheme   string `json:"scheme,omitempty"`   // gRPC, HTTP, etc.
+	BasePath string `json:"basePath,omitempty"` // For HTTP-based endpoints
+	URI      string `json:"uri,omitempty"`
+}
+
+// DeploymentPipelineResponse represents a deployment pipeline in API responses
+type DeploymentPipelineResponse struct {
+	Name           string          `json:"name"`
+	DisplayName    string          `json:"displayName,omitempty"`
+	Description    string          `json:"description,omitempty"`
+	OrgName        string          `json:"orgName"`
+	CreatedAt      time.Time       `json:"createdAt"`
+	Status         string          `json:"status,omitempty"`
+	PromotionPaths []PromotionPath `json:"promotionPaths,omitempty"`
+}
+
+// PromotionPath represents a promotion path in the deployment pipeline
+type PromotionPath struct {
+	SourceEnvironmentRef  string                 `json:"sourceEnvironmentRef"`
+	TargetEnvironmentRefs []TargetEnvironmentRef `json:"targetEnvironmentRefs"`
+}
+
+// TargetEnvironmentRef represents a target environment reference with approval settings
+type TargetEnvironmentRef struct {
+	Name                     string `json:"name"`
+	RequiresApproval         bool   `json:"requiresApproval,omitempty"`
+	IsManualApprovalRequired bool   `json:"isManualApprovalRequired,omitempty"`
 }
 
 // OrganizationResponse represents an organization in API responses
@@ -97,19 +183,50 @@ type DataPlaneResponse struct {
 	Status                  string    `json:"status,omitempty"`
 }
 
-// Response helper functions
+// BuildPlaneResponse represents a buildplane in API responses
+type BuildPlaneResponse struct {
+	Name                  string    `json:"name"`
+	Namespace             string    `json:"namespace"`
+	DisplayName           string    `json:"displayName,omitempty"`
+	Description           string    `json:"description,omitempty"`
+	KubernetesClusterName string    `json:"kubernetesClusterName"`
+	APIServerURL          string    `json:"apiServerURL"`
+	ObserverURL           string    `json:"observerURL,omitempty"`
+	ObserverUsername      string    `json:"observerUsername,omitempty"`
+	CreatedAt             time.Time `json:"createdAt"`
+	Status                string    `json:"status,omitempty"`
+}
+
+// BuildResponse represents a build in API responses
+type BuildResponse struct {
+	Name          string    `json:"name"`
+	UUID          string    `json:"uuid"`
+	ComponentName string    `json:"componentName"`
+	ProjectName   string    `json:"projectName"`
+	OrgName       string    `json:"orgName"`
+	Commit        string    `json:"commit,omitempty"`
+	Status        string    `json:"status,omitempty"`
+	CreatedAt     time.Time `json:"createdAt"`
+	Image         string    `json:"image,omitempty"`
+}
+
+// BuildTemplateResponse represents a build template (ClusterWorkflowTemplate) in API responses
+type BuildTemplateResponse struct {
+	Name       string                   `json:"name"`
+	Parameters []BuildTemplateParameter `json:"parameters,omitempty"`
+	CreatedAt  time.Time                `json:"createdAt"`
+}
+
+// BuildTemplateParameter represents a parameter of a build template
+type BuildTemplateParameter struct {
+	Name    string `json:"name"`
+	Default string `json:"default,omitempty"`
+}
+
 func SuccessResponse[T any](data T) APIResponse[T] {
 	return APIResponse[T]{
 		Success: true,
 		Data:    data,
-	}
-}
-
-func ErrorResponse(message, code string) APIResponse[any] {
-	return APIResponse[any]{
-		Success: false,
-		Error:   message,
-		Code:    code,
 	}
 }
 
@@ -122,5 +239,13 @@ func ListSuccessResponse[T any](items []T, total, page, pageSize int) APIRespons
 			Page:       page,
 			PageSize:   pageSize,
 		},
+	}
+}
+
+func ErrorResponse(message, code string) APIResponse[any] {
+	return APIResponse[any]{
+		Success: false,
+		Error:   message,
+		Code:    code,
 	}
 }

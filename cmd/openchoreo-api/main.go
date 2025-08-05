@@ -15,6 +15,7 @@ import (
 
 	"golang.org/x/exp/slog"
 
+	kubernetesClient "github.com/openchoreo/openchoreo/internal/clients/kubernetes"
 	k8s "github.com/openchoreo/openchoreo/internal/openchoreo-api/clients"
 	"github.com/openchoreo/openchoreo/internal/openchoreo-api/handlers"
 	"github.com/openchoreo/openchoreo/internal/openchoreo-api/services"
@@ -42,7 +43,7 @@ func main() {
 	}
 
 	// Initialize services
-	services := services.NewServices(k8sClient, baseLogger)
+	services := services.NewServices(k8sClient, kubernetesClient.NewManager(), baseLogger)
 
 	// Initialize HTTP handlers
 	handler := handlers.New(services, baseLogger.With("component", "handlers"))

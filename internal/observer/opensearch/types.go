@@ -81,6 +81,14 @@ type QueryParams struct {
 	Namespace      string   `json:"namespace,omitempty"`
 	Versions       []string `json:"versions,omitempty"`
 	VersionIDs     []string `json:"versionIds,omitempty"`
+	LogType        string   `json:"logType,omitempty"`
+}
+
+// ComponentQueryParams holds component-specific query parameters
+type ComponentQueryParams struct {
+	QueryParams
+	BuildID   string `json:"buildId,omitempty"`
+	BuildUUID string `json:"buildUuid,omitempty"`
 }
 
 // GatewayQueryParams holds gateway-specific query parameters
@@ -176,7 +184,7 @@ func getStringValue(m map[string]interface{}, key string) string {
 func extractLogLevel(log string) string {
 	log = strings.ToUpper(log)
 
-	logLevels := []string{"ERROR", "FATAL", "SEVERE", "WARN", "WARNING", "INFO", "DEBUG"}
+	logLevels := []string{"ERROR", "FATAL", "SEVERE", "WARN", "WARNING", "INFO", "DEBUG", "UNDEFINED"}
 
 	for _, level := range logLevels {
 		if strings.Contains(log, level) {
@@ -188,5 +196,17 @@ func extractLogLevel(log string) string {
 		}
 	}
 
-	return "INFO" // Default to INFO if no level found
+	return "UNDEFINED" // Default to INFO if no level found
+}
+
+// ExtractLogType determines the log type from query parameters or defaults to RUNTIME
+func ExtractLogType(logType string) string {
+	switch strings.ToUpper(logType) {
+	case labels.QueryParamLogTypeBuild:
+		return labels.QueryParamLogTypeBuild
+	case labels.QueryParamLogTypeRuntime:
+		return labels.QueryParamLogTypeRuntime
+	default:
+		return labels.QueryParamLogTypeRuntime // Default to RUNTIME if no valid type specified
+	}
 }
