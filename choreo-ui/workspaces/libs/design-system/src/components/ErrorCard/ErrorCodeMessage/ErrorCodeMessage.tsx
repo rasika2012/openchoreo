@@ -19,10 +19,10 @@ export const ErrorCodeMessage: React.FC<ErrorCodeMessageProps> = ({
         <Error fontSize="small" />
       </Box>
       <Typography variant="body1">
-        <StyledErrorCodeMessage className="errorCodeMessage">
+        <Box className="errorCodeMessage">
           {code && <Box className="errorCode">{code}</Box>}
           {message && <Box className="errorMessage">{message}</Box>}
-        </StyledErrorCodeMessage>
+        </Box>
       </Typography>
     </StyledErrorCodeMessage>
   );

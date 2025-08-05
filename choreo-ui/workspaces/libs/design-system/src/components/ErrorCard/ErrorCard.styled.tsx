@@ -7,17 +7,17 @@ export interface StyledErrorCardProps {
 
 export const StyledErrorCard: ComponentType<StyledErrorCardProps & BoxProps> =
   styled(Box)<BoxProps & StyledErrorCardProps>(({ theme }) => ({
-    '&.errorCard': {
+    '& .errorCard': {
       textAlign: 'center',
       width: '100%',
       margin: 'auto',
     },
-    '&.errorCardContent': {
+    '& .errorCardContent': {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
     },
-    '&.errorCardImage': {
+    '& .errorCardImage': {
       marginBottom: theme.spacing(1),
       maxWidth: theme.spacing(35),
       '& svg,& img': {
@@ -27,15 +27,16 @@ export const StyledErrorCard: ComponentType<StyledErrorCardProps & BoxProps> =
         display: 'block',
       },
     },
-    '&.errorCardTitle': {
+    '& .errorCardTitle': {
       marginTop: theme.spacing(1),
       textAlign: 'center',
     },
-    '&.errorCardDescription': {
+    '& .errorCardDescription': {
       marginTop: theme.spacing(1),
       textAlign: 'center',
+      marginBottom: theme.spacing(2),
     },
-    '&.errorCardChildren': {
+    '& .errorCardChildren': {
       marginTop: theme.spacing(2),
       display: 'flex',
       flexDirection: 'column',
@@ -43,19 +44,19 @@ export const StyledErrorCard: ComponentType<StyledErrorCardProps & BoxProps> =
       textAlign: 'center',
       alignItems: 'center',
     },
-    '&.errorCardAction': {
+    '& .errorCardAction': {
       marginTop: theme.spacing(2),
     },
 
-    '&.infoListItem': {
+    '& .infoListItem': {
       display: 'flex',
       alignItems: 'flex-start',
       textAlign: 'left',
       marginBottom: theme.spacing(1),
     },
-    '&.infoListItemIcon': {
+    '& .infoListItemIcon': {
       marginRight: theme.spacing(1),
       paddingTop: theme.spacing(0.6),
     },
-    '&.infoListItemMessage': {},
+    '& .infoListItemMessage': {},
   }));
