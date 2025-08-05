@@ -41,29 +41,12 @@ export const StyledErrorCard: ComponentType<StyledErrorCardProps & BoxProps> =
       flexDirection: 'column',
       justifyContent: 'center',
       textAlign: 'center',
+      alignItems: 'center',
     },
     '&.errorCardAction': {
       marginTop: theme.spacing(2),
     },
-    '&.errorCodeMessage': {
-      display: 'flex',
-      alignItems: 'center',
-    },
-    '&.errorCodeIcon': {
-      color: theme.palette.error.main,
-      marginRight: theme.spacing(1),
-    },
-    '&.errorCodeTypo': {
-      display: 'flex',
-      alignItems: 'center',
-    },
-    '&.errorCode': {
-      color: theme.palette.error.main,
-      marginRight: theme.spacing(0.5),
-    },
-    '&.errorMessage': {
-      color: theme.palette.error.main,
-    },
+
     '&.infoListItem': {
       display: 'flex',
       alignItems: 'flex-start',

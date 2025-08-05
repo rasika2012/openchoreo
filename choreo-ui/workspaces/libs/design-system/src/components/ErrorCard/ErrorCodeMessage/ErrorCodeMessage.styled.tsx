@@ -10,14 +10,18 @@ export const StyledErrorCodeMessage: ComponentType<StyledErrorCodeMessageProps> 
     display: 'flex',
     alignItems: 'center',
     textAlign: 'center',
+    color: theme.palette.error.main,
+    justifyContent: 'center',
+    gap: theme.spacing(1),
 
     '&.errorCodeIcon': {
       color: theme.palette.error.main,
       marginRight: theme.spacing(1),
     },
-    '&.errorCodeTypo': {
-      display: 'flex',
+    '&.errorCodeMessage': {
+      display: 'flex !important',
       alignItems: 'center',
+      flexDirection: 'row !important',
     },
     '&.errorCode': {
       color: theme.palette.error.main,

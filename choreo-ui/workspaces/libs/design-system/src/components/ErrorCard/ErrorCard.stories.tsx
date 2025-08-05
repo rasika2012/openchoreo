@@ -26,7 +26,7 @@ type Story = StoryObj<typeof ErrorCard>;
 
 export const AuthenticationError: Story = {
   args: {},
-  render: (args) => (
+  render: (_args) => (
     <Box>
       <ErrorCard
         title="Authentication Error"
@@ -41,7 +41,7 @@ export const AuthenticationError: Story = {
 
 export const Unauthorized: Story = {
   args: {},
-  render: (args) => (
+  render: (_args) => (
     <Box>
       <ErrorCard
         title="Unauthorized access page"
@@ -61,7 +61,7 @@ export const Unauthorized: Story = {
 
 export const SessionTimedOut: Story = {
   args: {},
-  render: (args) => (
+  render: (_args) => (
     <Box>
       <ErrorCard
         title="Oops! Session timed out"
@@ -76,7 +76,7 @@ export const SessionTimedOut: Story = {
 
 export const RepositoryNotAccessible: Story = {
   args: {},
-  render: (args) => (
+  render: (_args) => (
     <Box>
       <ErrorCard
         title="Repository is no longer accessible"
@@ -108,7 +108,7 @@ export const RepositoryNotAccessible: Story = {
 
 export const OppsEmbarrassing: Story = {
   args: {},
-  render: (args) => (
+  render: (_args) => (
     <Box>
       <ErrorCard
         title="Repository is no longer accessible"
@@ -128,7 +128,7 @@ export const OppsEmbarrassing: Story = {
 
 export const UnableToObserve: Story = {
   args: {},
-  render: (args) => (
+  render: (_args) => (
     <Box>
       <ErrorCard
         title="Unable to observe the component"
