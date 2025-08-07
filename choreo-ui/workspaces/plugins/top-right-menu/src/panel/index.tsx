@@ -9,5 +9,5 @@ export const panel: PluginExtension = {
   extensionPoint: coreExtensionPoints.headerRight,
   key: "toprightmenu",
   component: TopRightMenuPanel,
-  when: "level === 'project'",
+  when: "project != null ",
 };

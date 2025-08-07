@@ -12,5 +12,5 @@ export const projectOverview: PluginExtension = {
   extensionPoint: coreExtensionPoints.projectLevelPage,
   component: ProjectOverview,
   pathPattern: "",
-  when: "level === 'project'",
+  when: "project != null",
 };
