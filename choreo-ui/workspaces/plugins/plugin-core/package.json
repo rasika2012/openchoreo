@@ -29,7 +29,8 @@
     "react-router": "~7.6.2",
     "react-intl": "~7.1.11",
     "dayjs": "~1.11.13",
-    "@open-choreo/choreo-context": "workspace:*"
+    "@open-choreo/choreo-context": "workspace:*",
+    "@open-choreo/api-client": "workspace:*"
   },
   "devDependencies": {
     "@eslint/eslintrc": "~3.3.1",
