@@ -15,5 +15,5 @@ export const componentListNavigation: PluginExtension = {
   path: "/components",
   name: "Components",
   pathPattern: BasePathPatterns.PROJECT_LEVEL + "/components",
-  when: "level === 'project'",
+  when: "project != null",
 };

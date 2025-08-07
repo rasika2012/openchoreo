@@ -3,6 +3,10 @@ import {
   usePathMatchProject,
   usePathMatchOrg,
   useComponentType,
+  useUrlParams,
+  useComponent,
+  useProject,
+  useOrganization,
 } from "@open-choreo/choreo-context";
 import { usePluginRegistry } from "../../Providers";
 import { useMemo } from "react";
@@ -22,31 +26,38 @@ export function GetCurrentContext() {
 
 // Build context object for evaluation
 export function BuildContextObject() {
-  const componentMatch = usePathMatchComponent();
-  const projectMatch = usePathMatchProject();
-  const orgMatch = usePathMatchOrg();
-  const componentType = useComponentType();
-  // console.log("componentType", componentType);
+  const { orgHandle, projectHandle, componentHandle } = useUrlParams();
+
+  // Fetch objects using hooks
+  const { data: componentObj } = useComponent(
+    orgHandle,
+    projectHandle,
+    componentHandle,
+  );
+  const { data: projectObj } = useProject(orgHandle, projectHandle);
+  const { data: orgObj } = useOrganization(orgHandle);
+  // You may need a useOrg hook if you want org details, otherwise just use orgHandle
+
+  const componentType = componentObj?.data?.type || "";
 
   return {
-    level: componentMatch
+    level: componentObj
       ? "component"
-      : projectMatch
+      : projectObj
         ? "project"
-        : orgMatch
+        : orgHandle
           ? "org"
           : "global",
-    component: !!componentMatch,
-    project: !!projectMatch,
-    org: !!orgMatch,
-    global: !componentMatch && !projectMatch && !orgMatch,
-    type: componentType || "",
-    // Add boolean flags for common component types
-    "web-app": componentType === "WebApplication",
-    "web-service": componentType === "WebService",
-    api: componentType === "API",
-    frontend: componentType === "Frontend",
-    backend: componentType === "Backend",
+    component: componentObj || null,
+    project: projectObj || null,
+    org: orgObj || null, // Replace with org object if you have a hook for it
+    global: !componentObj && !projectObj && !orgHandle,
+    type: componentType,
+    // "web-app": componentType === "WebApplication",
+    // "web-service": componentType === "WebService",
+    // api: componentType === "API",
+    // frontend: componentType === "Frontend",
+    // backend: componentType === "Backend",
   };
 }
 
@@ -58,34 +69,12 @@ export function evaluateWhenExpression(
   if (!when) return true; // If no when condition, always render
 
   try {
-    // Split by logical operators
-    // const conditions = when.split(/\s+(?:&&|\|\|)\s+/);
-    // const operators = when.match(/\s+(?:&&|\|\|)\s+/g) || [];
-    // console.log(conditions, operators);
-    const level = context.level;
-    const type = context.type;
-    // console.log(eval(when));
-
-    // if (conditions.length === 1) {
-    //   // Single condition
-    //   return evaluateSingleCondition(conditions[0].trim(), context);
-    // }
-
-    // // Multiple conditions with logical operators
-    // let result = evaluateSingleCondition(conditions[0].trim(), context);
-
-    // for (let i = 0; i < operators.length; i++) {
-    //   const operator = operators[i].trim();
-    //   const nextCondition = conditions[i + 1].trim();
-    //   const nextResult = evaluateSingleCondition(nextCondition, context);
-
-    //   if (operator === "&&") {
-    //     result = result && nextResult;
-    //   } else if (operator === "||") {
-    //     result = result || nextResult;
-    //   }
-    // }
-
+    // const level = context.level || "global"; // Default to global if not set
+    const component = context.component?.data || null;
+    const project = context.project?.data || null;
+    const org = context.org?.data || null;
+    // console.log("component: ", context.component?.data);
+    // console.log("organization: ", context.org?.data);
     const result = eval(when);
 
     return result;
