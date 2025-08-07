@@ -17,7 +17,7 @@ export const useOrganizationList = () => {
   };
 };
 
-const useOrganization = (orgHandle: string) => {
+export const useOrganization = (orgHandle: string) => {
   const client = useClient();
   const { data, isLoading, isError, isFetching, refetch } = useQuery({
     queryKey: ["organization", orgHandle, client],

@@ -1131,6 +1131,9 @@ importers:
 
   ../../workspaces/plugins/plugin-core:
     dependencies:
+      '@open-choreo/api-client':
+        specifier: workspace:*
+        version: link:../../libs/api-client
       '@open-choreo/choreo-context':
         specifier: workspace:*
         version: link:../../libs/choreo-context
