@@ -37,13 +37,7 @@ var _ = Describe("Release Controller", func() {
 						Name:      resourceName,
 						Namespace: "default",
 					},
-					Spec: openchoreov1alpha1.ReleaseSpec{
-						Owner: openchoreov1alpha1.ReleaseOwner{
-							ProjectName:   "test-project",
-							ComponentName: "test-component",
-						},
-						EnvironmentName: "test-env",
-					},
+					// TODO(user): Specify other spec details if needed.
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}

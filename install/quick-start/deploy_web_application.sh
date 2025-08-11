@@ -15,54 +15,55 @@ fi
 
 YAML_FILE="react-starter.yaml"
 NAMESPACE="default"
+ENDPOINT_PREFIX="react-starter-image-deployment-webapp"
 
 # Apply the YAML file
-echo "Deploying the sample web application..."
-kubectl apply -f "$YAML_FILE" > output.log 2>&1
+choreoctl apply -f "$YAML_FILE" > output.log 2>&1
 
-if grep -q "component.openchoreo.dev/react-starter created" output.log; then
-  echo "✅ Component \`react-starter\` created"
+if grep -q "component.openchoreo.dev/react-starter-image created" output.log; then
+  echo "Component \`react-starter-image\` created.."
 fi
 
-if grep -q "workload.openchoreo.dev/react-starter created" output.log; then
-  echo "✅ Workload \`react-starter\` created"
+if grep -q "deploymenttrack.openchoreo.dev/react-starter-image-main created" output.log; then
+  echo "DeploymentTrack \`react-starter-image-main\` created.."
 fi
 
-if grep -q "webapplication.openchoreo.dev/react-starter created" output.log; then
-  echo "✅ WebApplication \`react-starter\` created"
+if grep -q "deployableartifact.openchoreo.dev/react-starter-image created" output.log; then
+  echo "DeployableArtifact \`react-starter-image\` created.."
+fi
+
+if grep -q "deployment.openchoreo.dev/react-starter-image-deployment created" output.log; then
+  echo "Deployment \`react-starter-image-deployment\` created.."
 fi
 
 # Clean up the log file
 rm output.log
 
-echo "Waiting for WebApplicationBinding to be created..."
+echo "Waiting for Endpoint to be created..."
 
 while true; do
-  BINDING_NAME=$(kubectl get webapplicationbindings.openchoreo.dev -n "$NAMESPACE" -o json 2>/dev/null | jq -r '.items[] | select(.metadata.name | contains("react-starter")) | .metadata.name' | head -n 1)
+  ENDPOINT_NAME=$(kubectl get endpoints.openchoreo.dev -n "$NAMESPACE" -o json | jq -r '.items[] | select(.metadata.name | startswith("'"$ENDPOINT_PREFIX"'")) | .metadata.name' | head -n 1)
 
-  if [[ -n "$BINDING_NAME" ]] && [[ "$BINDING_NAME" != "null" ]]; then
-    echo "✅ WebApplicationBinding found: $BINDING_NAME"
+  if [[ -n "$ENDPOINT_NAME" ]]; then
+    echo "✅ Endpoint found: $ENDPOINT_NAME"
     break
   fi
 
   sleep 5
 done
 
-echo "Waiting for WebApplicationBinding to be ready with public URL..."
+echo "Waiting for Endpoint \`$ENDPOINT_NAME\` to be ready..."
 
 while true; do
-  # Check if the binding is ready and has public endpoint URL
-  READY_CONDITION=$(kubectl get webapplicationbinding "$BINDING_NAME" -n "$NAMESPACE" -o json 2>/dev/null | jq -r '.status.conditions[]? | select(.type=="Ready") | .status')
-  PUBLIC_URL=$(kubectl get webapplicationbinding "$BINDING_NAME" -n "$NAMESPACE" -o json 2>/dev/null | jq -r '.status.endpoints[]? | select(.type=="HTTP") | .public.uri')
+  READY_CONDITION=$(kubectl get endpoints.openchoreo.dev "$ENDPOINT_NAME" -n "$NAMESPACE" -o json | jq -r '.status.conditions[] | select(.type=="Ready") | .status')
 
-  if [[ "$READY_CONDITION" == "True" ]] && [[ -n "$PUBLIC_URL" ]] && [[ "$PUBLIC_URL" != "null" ]]; then
-    echo "✅ WebApplicationBinding is ready!"
+  if [[ "$READY_CONDITION" == "True" ]]; then
+    ENDPOINT_URL=$(kubectl get endpoints.openchoreo.dev "$ENDPOINT_NAME" -n "$NAMESPACE" -o jsonpath="{.status.address}")
+    ENDPOINT_URL="${ENDPOINT_URL%/}"
+    echo "✅ Endpoint is ready!"
+    echo "🌍 You can now access the Sample Web Application at: $ENDPOINT_URL:8443"
     break
   fi
 
   sleep 5
 done
-
-echo "✅ Web application is ready!"
-echo "🌍 You can now access the Sample Web Application at: $PUBLIC_URL"
-echo "   Open this URL in your browser to see the React starter application."

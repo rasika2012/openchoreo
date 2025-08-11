@@ -18,7 +18,8 @@ import (
 
 // HTTPRoutes renders the HTTPRoute resources for exposing the webapplication endpoints.
 func HTTPRoutes(rCtx Context) []*openchoreov1alpha1.Resource {
-	if len(rCtx.WebApplicationBinding.Spec.WorkloadSpec.Endpoints) == 0 {
+	if rCtx.WebApplicationBinding.Spec.WorkloadSpec.Endpoints == nil ||
+		len(rCtx.WebApplicationBinding.Spec.WorkloadSpec.Endpoints) == 0 {
 		return nil
 	}
 

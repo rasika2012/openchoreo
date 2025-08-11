@@ -37,13 +37,7 @@ var _ = Describe("ScheduledTask Controller", func() {
 						Name:      resourceName,
 						Namespace: "default",
 					},
-					Spec: openchoreov1alpha1.ScheduledTaskSpec{
-						Owner: openchoreov1alpha1.ScheduledTaskOwner{
-							ProjectName:   "test-project",
-							ComponentName: "test-component",
-						},
-						WorkloadName: "test-workload",
-					},
+					// TODO(user): Specify other spec details if needed.
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}

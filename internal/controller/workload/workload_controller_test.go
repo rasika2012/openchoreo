@@ -37,12 +37,7 @@ var _ = Describe("Workload Controller", func() {
 						Name:      resourceName,
 						Namespace: "default",
 					},
-					Spec: openchoreov1alpha1.WorkloadSpec{
-						Owner: openchoreov1alpha1.WorkloadOwner{
-							ProjectName:   "test-project",
-							ComponentName: "test-component",
-						},
-					},
+					// TODO(user): Specify other spec details if needed.
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}

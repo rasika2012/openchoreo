@@ -5,19 +5,15 @@ package service
 
 import (
 	"context"
-	"fmt"
 
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	openchoreov1alpha1 "github.com/openchoreo/openchoreo/api/v1alpha1"
-	"github.com/openchoreo/openchoreo/internal/labels"
 )
 
 // Reconciler reconciles a Service object
@@ -67,11 +63,6 @@ func (r *Reconciler) reconcileServiceBinding(ctx context.Context, service *openc
 		Name:      service.Spec.WorkloadName,
 		Namespace: service.Namespace,
 	}, workload); err != nil {
-		if apierrors.IsNotFound(err) {
-			logger.Info("Workload not found for this Service, ignoring ServiceBinding reconcile",
-				"workloadName", service.Spec.WorkloadName)
-			return ctrl.Result{}, nil
-		}
 		logger.Error(err, "Failed to get Workload",
 			"workloadName", service.Spec.WorkloadName)
 		return ctrl.Result{}, err
@@ -84,10 +75,7 @@ func (r *Reconciler) reconcileServiceBinding(ctx context.Context, service *openc
 		},
 	}
 	op, err := controllerutil.CreateOrUpdate(ctx, r.Client, serviceBinding, func() error {
-		desired := r.makeServiceBinding(service, workload)
-		desired.Spec.ReleaseState = serviceBinding.Spec.ReleaseState // Keep the existing release state
-		serviceBinding.Labels = desired.Labels
-		serviceBinding.Spec = desired.Spec
+		serviceBinding.Spec = r.makeServiceBinding(service, workload).Spec
 		return controllerutil.SetControllerReference(service, serviceBinding, r.Scheme)
 	})
 	if err != nil {
@@ -107,7 +95,6 @@ func (r *Reconciler) makeServiceBinding(service *openchoreov1alpha1.Service, wor
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      service.Name,
 			Namespace: service.Namespace,
-			Labels:    r.makeLabels(service),
 		},
 		Spec: openchoreov1alpha1.ServiceBindingSpec{
 			Owner: openchoreov1alpha1.ServiceOwner{
@@ -125,35 +112,8 @@ func (r *Reconciler) makeServiceBinding(service *openchoreov1alpha1.Service, wor
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
-	// Set up the index for workload reference
-	if err := r.setupWorkloadRefIndex(context.Background(), mgr); err != nil {
-		return fmt.Errorf("failed to setup workload reference index: %w", err)
-	}
-
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&openchoreov1alpha1.Service{}).
-		Owns(&openchoreov1alpha1.ServiceBinding{}).
-		Watches(
-			&openchoreov1alpha1.Workload{},
-			handler.EnqueueRequestsFromMapFunc(r.listServicesForWorkload),
-		).
 		Named("service").
 		Complete(r)
-}
-
-// makeLabels creates standard labels for ServiceBinding resources, merging with service labels.
-func (r *Reconciler) makeLabels(service *openchoreov1alpha1.Service) map[string]string {
-	// Start with the service's existing labels
-	result := make(map[string]string)
-	for k, v := range service.Labels {
-		result[k] = v
-	}
-
-	// Add/overwrite component-specific labels
-	result[labels.LabelKeyOrganizationName] = service.Namespace
-	result[labels.LabelKeyProjectName] = service.Spec.Owner.ProjectName
-	result[labels.LabelKeyComponentName] = service.Spec.Owner.ComponentName
-	result[labels.LabelKeyEnvironmentName] = "development" // TODO: This should come from the actual environment when creating bindings
-
-	return result
 }

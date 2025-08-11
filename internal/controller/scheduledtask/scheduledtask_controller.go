@@ -5,19 +5,15 @@ package scheduledtask
 
 import (
 	"context"
-	"fmt"
 
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	openchoreov1alpha1 "github.com/openchoreo/openchoreo/api/v1alpha1"
-	"github.com/openchoreo/openchoreo/internal/labels"
 )
 
 // Reconciler reconciles a ScheduledTask object
@@ -67,11 +63,6 @@ func (r *Reconciler) reconcileScheduledTaskBinding(ctx context.Context, schedule
 		Name:      scheduledTask.Spec.WorkloadName,
 		Namespace: scheduledTask.Namespace,
 	}, workload); err != nil {
-		if apierrors.IsNotFound(err) {
-			logger.Info("Workload not found for this ScheduleTask, ignoring ScheduledTaskBinding reconcile",
-				"workloadName", scheduledTask.Spec.WorkloadName)
-			return ctrl.Result{}, nil
-		}
 		logger.Error(err, "Failed to get Workload",
 			"workloadName", scheduledTask.Spec.WorkloadName)
 		return ctrl.Result{}, err
@@ -84,9 +75,7 @@ func (r *Reconciler) reconcileScheduledTaskBinding(ctx context.Context, schedule
 		},
 	}
 	op, err := controllerutil.CreateOrUpdate(ctx, r.Client, scheduledTaskBinding, func() error {
-		desired := r.makeScheduledTaskBinding(scheduledTask, workload)
-		scheduledTaskBinding.Labels = desired.Labels
-		scheduledTaskBinding.Spec = desired.Spec
+		scheduledTaskBinding.Spec = r.makeScheduledTaskBinding(scheduledTask, workload).Spec
 		return controllerutil.SetControllerReference(scheduledTask, scheduledTaskBinding, r.Scheme)
 	})
 	if err != nil {
@@ -106,7 +95,6 @@ func (r *Reconciler) makeScheduledTaskBinding(scheduledTask *openchoreov1alpha1.
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      scheduledTask.Name,
 			Namespace: scheduledTask.Namespace,
-			Labels:    r.makeLabels(scheduledTask),
 		},
 		Spec: openchoreov1alpha1.ScheduledTaskBindingSpec{
 			Owner: openchoreov1alpha1.ScheduledTaskOwner{
@@ -124,35 +112,8 @@ func (r *Reconciler) makeScheduledTaskBinding(scheduledTask *openchoreov1alpha1.
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
-	// Set up the index for workload reference
-	if err := r.setupWorkloadRefIndex(context.Background(), mgr); err != nil {
-		return fmt.Errorf("failed to setup workload reference index: %w", err)
-	}
-
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&openchoreov1alpha1.ScheduledTask{}).
-		Owns(&openchoreov1alpha1.ScheduledTaskBinding{}).
-		Watches(
-			&openchoreov1alpha1.Workload{},
-			handler.EnqueueRequestsFromMapFunc(r.listScheduledTasksForWorkload),
-		).
 		Named("scheduledtask").
 		Complete(r)
-}
-
-// makeLabels creates standard labels for ScheduledTaskBinding resources, merging with scheduledTask labels.
-func (r *Reconciler) makeLabels(scheduledTask *openchoreov1alpha1.ScheduledTask) map[string]string {
-	// Start with scheduledTask's existing labels
-	result := make(map[string]string)
-	for k, v := range scheduledTask.Labels {
-		result[k] = v
-	}
-
-	// Add/overwrite component-specific labels
-	result[labels.LabelKeyOrganizationName] = scheduledTask.Namespace
-	result[labels.LabelKeyProjectName] = scheduledTask.Spec.Owner.ProjectName
-	result[labels.LabelKeyComponentName] = scheduledTask.Spec.Owner.ComponentName
-	result[labels.LabelKeyEnvironmentName] = "development" // TODO: This should come from the actual environment when creating bindings
-
-	return result
 }

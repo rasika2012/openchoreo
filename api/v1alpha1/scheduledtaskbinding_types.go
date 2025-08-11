@@ -20,7 +20,6 @@ type ScheduledTaskBindingSpec struct {
 	Environment string `json:"environment"`
 
 	// ClassName is the name of the scheduled task class that provides the scheduled task-specific deployment configuration.
-	// +kubebuilder:default=default
 	ClassName string `json:"className"`
 
 	// WorkloadSpec contains the copied workload specification for this environment-specific binding
@@ -28,15 +27,6 @@ type ScheduledTaskBindingSpec struct {
 
 	// Overrides contains scheduled task-specific overrides for this binding
 	Overrides map[string]bool `json:"overrides,omitempty"`
-
-	// ReleaseState controls the state of the Release created by this binding.
-	// Active: Resources are deployed normally
-	// Suspend: Resources are suspended (scaled to zero or paused)
-	// Undeploy: Resources are removed from the data plane
-	// +kubebuilder:default=Active
-	// +kubebuilder:validation:Enum=Active;Suspend;Undeploy
-	// +optional
-	ReleaseState ReleaseState `json:"releaseState,omitempty"`
 }
 
 // ScheduledTaskBindingStatus defines the observed state of ScheduledTaskBinding.

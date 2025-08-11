@@ -10,6 +10,8 @@ import (
 	configContext "github.com/openchoreo/openchoreo/pkg/cli/cmd/config"
 	"github.com/openchoreo/openchoreo/pkg/cli/cmd/create"
 	"github.com/openchoreo/openchoreo/pkg/cli/cmd/delete"
+	"github.com/openchoreo/openchoreo/pkg/cli/cmd/get"
+	"github.com/openchoreo/openchoreo/pkg/cli/cmd/logs"
 	"github.com/openchoreo/openchoreo/pkg/cli/cmd/version"
 	"github.com/openchoreo/openchoreo/pkg/cli/common/config"
 	"github.com/openchoreo/openchoreo/pkg/cli/types/api"
@@ -27,10 +29,10 @@ func BuildRootCmd(config *config.CLIConfig, impl api.CommandImplementationInterf
 	rootCmd.AddCommand(
 		apply.NewApplyCmd(impl),
 		create.NewCreateCmd(impl),
-		// get.NewListCmd(impl),
+		get.NewListCmd(impl),
 		// login.NewLoginCmd(impl), // Removed login and logout until we finalize the user experience
 		// logout.NewLogoutCmd(impl),
-		// logs.NewLogsCmd(impl),
+		logs.NewLogsCmd(impl),
 		configContext.NewConfigCmd(impl),
 		delete.NewDeleteCmd(impl),
 		version.NewVersionCmd(),

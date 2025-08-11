@@ -37,16 +37,7 @@ var _ = Describe("API Controller", func() {
 						Name:      resourceName,
 						Namespace: "default",
 					},
-					Spec: openchoreov1alpha1.APISpec{
-						Owner: openchoreov1alpha1.EndpointOwner{
-							ProjectName:   "test-project",
-							ComponentName: "test-component",
-						},
-						EnvironmentName: "test-env",
-						EndpointTemplateSpec: openchoreov1alpha1.EndpointTemplateSpec{
-							Type: openchoreov1alpha1.EndpointTypeREST,
-						},
-					},
+					// TODO(user): Specify other spec details if needed.
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}

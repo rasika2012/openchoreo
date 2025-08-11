@@ -20,30 +20,17 @@ terraform -chdir=terraform init -upgrade
 terraform -chdir=terraform apply -auto-approve
 
 echo "Finding external gateway nodeport..."
-NODEPORT_EG=$(kubectl get svc -n openchoreo-data-plane -l gateway.envoyproxy.io/owning-gateway-name=gateway-external \
+NODEPORT=$(kubectl get svc -n choreo-system -l gateway.envoyproxy.io/owning-gateway-name=gateway-external \
   -o jsonpath='{.items[0].spec.ports[0].nodePort}')
 
-if [[ -z "$NODEPORT_EG" ]]; then
+if [[ -z "$NODEPORT" ]]; then
   echo "Error: Could not retrieve NodePort."
   exit 1
 fi
 
 echo "Setting up a port-forwarding proxy from 8443 to the gateway NodePort..."
-
-socat TCP-LISTEN:8443,fork TCP:openchoreo-quick-start-worker:$NODEPORT_EG &
-
-echo "Finding backstage nodeport..."
-NODEPORT_BACKSTAGE=$(kubectl get svc -n openchoreo-control-plane -l app.kubernetes.io/component=backstage \
-  -o jsonpath='{.items[0].spec.ports[0].nodePort}')
-
-if [[ -z "$NODEPORT_BACKSTAGE" ]]; then
-  echo "Error: Could not retrieve NodePort."
-  exit 1
-fi
-
-echo "Setting up a port-forwarding proxy from 7007 to the gateway NodePort..."
-
-socat TCP-LISTEN:7007,fork TCP:openchoreo-quick-start-worker:$NODEPORT_BACKSTAGE &
+# Run socat with the retrieved NodePort
+socat TCP-LISTEN:8443,fork TCP:choreo-quick-start-worker:$NODEPORT &
 
 # enable choreoctl auto-completion
 if [ -f /state/kube/config-internal.yaml ]; then
@@ -53,12 +40,9 @@ if [ -f /state/kube/config-internal.yaml ]; then
   echo "source /usr/local/bin/choreoctl-completion" >> /etc/profile
 fi
 
-bash ./check-status.sh
+bash ./check-status.sh --single-cluster
 
 # add default dataplane
 bash ./add-default-dataplane.sh --single-cluster
-
-# add default BuildPlane
-bash ./add-build-plane.sh
 
 exec /bin/bash -l

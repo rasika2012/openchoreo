@@ -45,7 +45,7 @@ func (s *DataPlaneService) ListDataPlanes(ctx context.Context, orgName string) (
 		return nil, fmt.Errorf("failed to list dataplanes: %w", err)
 	}
 
-	dataplanes := make([]*models.DataPlaneResponse, 0, len(dpList.Items))
+	var dataplanes []*models.DataPlaneResponse
 	for _, item := range dpList.Items {
 		dataplanes = append(dataplanes, s.toDataPlaneResponse(&item))
 	}
@@ -197,14 +197,14 @@ func (s *DataPlaneService) toDataPlaneResponse(dp *openchoreov1alpha1.DataPlane)
 	description := dp.Annotations[controller.AnnotationKeyDescription]
 
 	// Get status from conditions
-	status := statusUnknown
+	status := "Unknown"
 	if len(dp.Status.Conditions) > 0 {
 		// Get the latest condition
 		latestCondition := dp.Status.Conditions[len(dp.Status.Conditions)-1]
 		if latestCondition.Status == metav1.ConditionTrue {
-			status = statusReady
+			status = "Ready"
 		} else {
-			status = statusNotReady
+			status = "NotReady"
 		}
 	}
 

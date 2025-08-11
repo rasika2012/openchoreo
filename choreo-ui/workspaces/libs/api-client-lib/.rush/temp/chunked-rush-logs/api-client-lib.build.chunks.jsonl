@@ -1,5 +1,0 @@
-{"kind":"O","text":"Invoking: npm run clean && tsc -project tsconfig.json \n"}
-{"kind":"O","text":"\n"}
-{"kind":"O","text":"> @open-choreo/api-client-lib@1.0.0 clean\n"}
-{"kind":"O","text":"> rm -rf dist\n"}
-{"kind":"O","text":"\n"}

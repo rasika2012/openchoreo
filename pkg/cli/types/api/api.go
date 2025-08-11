@@ -23,7 +23,6 @@ type CommandImplementationInterface interface {
 	ConfigContextAPI
 	DeploymentPipelineAPI
 	ConfigurationGroupAPI
-	WorkloadAPI
 }
 
 // OrganizationAPI defines organization-related operations
@@ -110,7 +109,6 @@ type ConfigContextAPI interface {
 	GetCurrentContext() error
 	UseContext(params UseContextParams) error
 	SetContext(params SetContextParams) error
-	SetControlPlane(params SetControlPlaneParams) error
 }
 
 type DeploymentPipelineAPI interface {
@@ -120,9 +118,4 @@ type DeploymentPipelineAPI interface {
 
 type ConfigurationGroupAPI interface {
 	GetConfigurationGroup(params GetConfigurationGroupParams) error
-}
-
-// WorkloadAPI defines methods for creating workloads from descriptors
-type WorkloadAPI interface {
-	CreateWorkload(params CreateWorkloadParams) error
 }

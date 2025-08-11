@@ -79,9 +79,6 @@ type ComponentLogsRequest struct {
 	VersionIDs    []string `json:"versionIds,omitempty"`
 	Limit         int      `json:"limit,omitempty"`
 	SortOrder     string   `json:"sortOrder,omitempty"`
-	LogType       string   `json:"logType,omitempty"`
-	BuildID       string   `json:"buildId,omitempty"`
-	BuildUUID     string   `json:"buildUuid,omitempty"`
 }
 
 // ProjectLogsRequest represents the request body for project logs
@@ -100,7 +97,6 @@ type GatewayLogsRequest struct {
 	GatewayVHosts     []string          `json:"gatewayVHosts,omitempty"`
 	Limit             int               `json:"limit,omitempty"`
 	SortOrder         string            `json:"sortOrder,omitempty"`
-	LogType           string            `json:"logType,omitempty"`
 }
 
 // OrganizationLogsRequest represents the request body for organization logs
@@ -140,23 +136,18 @@ func (h *Handler) GetComponentLogs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Build query parameters
-	params := opensearch.ComponentQueryParams{
-		QueryParams: opensearch.QueryParams{
-			StartTime:     req.StartTime,
-			EndTime:       req.EndTime,
-			SearchPhrase:  req.SearchPhrase,
-			LogLevels:     req.LogLevels,
-			Limit:         req.Limit,
-			SortOrder:     req.SortOrder,
-			ComponentID:   componentID,
-			EnvironmentID: req.EnvironmentID,
-			Namespace:     req.Namespace,
-			Versions:      req.Versions,
-			VersionIDs:    req.VersionIDs,
-			LogType:       opensearch.ExtractLogType(req.LogType),
-		},
-		BuildID:   req.BuildID,
-		BuildUUID: req.BuildUUID,
+	params := opensearch.QueryParams{
+		StartTime:     req.StartTime,
+		EndTime:       req.EndTime,
+		SearchPhrase:  req.SearchPhrase,
+		LogLevels:     req.LogLevels,
+		Limit:         req.Limit,
+		SortOrder:     req.SortOrder,
+		ComponentID:   componentID,
+		EnvironmentID: req.EnvironmentID,
+		Namespace:     req.Namespace,
+		Versions:      req.Versions,
+		VersionIDs:    req.VersionIDs,
 	}
 
 	// Execute query
@@ -206,7 +197,6 @@ func (h *Handler) GetProjectLogs(w http.ResponseWriter, r *http.Request) {
 		EnvironmentID: req.EnvironmentID,
 		Versions:      req.Versions,
 		VersionIDs:    req.VersionIDs,
-		LogType:       opensearch.ExtractLogType(req.LogType),
 	}
 
 	// Execute query
@@ -246,7 +236,6 @@ func (h *Handler) GetGatewayLogs(w http.ResponseWriter, r *http.Request) {
 			SearchPhrase: req.SearchPhrase,
 			Limit:        req.Limit,
 			SortOrder:    req.SortOrder,
-			LogType:      opensearch.ExtractLogType(req.LogType),
 		},
 		OrganizationID:    req.OrganizationID,
 		APIIDToVersionMap: req.APIIDToVersionMap,
@@ -300,7 +289,6 @@ func (h *Handler) GetOrganizationLogs(w http.ResponseWriter, r *http.Request) {
 		Namespace:      req.Namespace,
 		Versions:       req.Versions,
 		VersionIDs:     req.VersionIDs,
-		LogType:        opensearch.ExtractLogType(req.LogType),
 		OrganizationID: orgID, // Add the organization ID from URL parameter
 	}
 

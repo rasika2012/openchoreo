@@ -16,7 +16,7 @@ func writeSuccessResponse[T any](w http.ResponseWriter, statusCode int, data T) 
 	w.WriteHeader(statusCode)
 
 	response := models.SuccessResponse(data)
-	_ = json.NewEncoder(w).Encode(response) // Ignore encoding errors for response
+	json.NewEncoder(w).Encode(response)
 }
 
 // writeErrorResponse writes an error API response
@@ -25,7 +25,7 @@ func writeErrorResponse(w http.ResponseWriter, statusCode int, message, code str
 	w.WriteHeader(statusCode)
 
 	response := models.ErrorResponse(message, code)
-	_ = json.NewEncoder(w).Encode(response) // Ignore encoding errors for response
+	json.NewEncoder(w).Encode(response)
 }
 
 // writeListResponse writes a paginated list response
@@ -34,5 +34,5 @@ func writeListResponse[T any](w http.ResponseWriter, items []T, total, page, pag
 	w.WriteHeader(http.StatusOK)
 
 	response := models.ListSuccessResponse(items, total, page, pageSize)
-	_ = json.NewEncoder(w).Encode(response) // Ignore encoding errors for response
+	json.NewEncoder(w).Encode(response)
 }
