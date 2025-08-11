@@ -4,24 +4,47 @@
 package models
 
 import (
+	"errors"
 	"strings"
 )
 
 // CreateProjectRequest represents the request to create a new project
 type CreateProjectRequest struct {
 	Name               string `json:"name"`
-	RepositoryURL      string `json:"repositoryUrl,omitempty"`
-	RepositoryBranch   string `json:"repositoryBranch,omitempty"`
+	DisplayName        string `json:"displayName,omitempty"`
+	Description        string `json:"description,omitempty"`
 	DeploymentPipeline string `json:"deploymentPipeline,omitempty"`
+}
+
+// BuildConfig represents the build configuration for a component
+
+type TemplateParameter struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type BuildConfig struct {
+	RepoURL          string              `json:"repoUrl"`
+	Branch           string              `json:"repoBranch"`
+	ComponentPath    string              `json:"componentPath"`
+	BuildTemplateRef string              `json:"buildTemplateRef"`
+	TemplateParams   []TemplateParameter `json:"buildTemplateParams,omitempty"`
 }
 
 // CreateComponentRequest represents the request to create a new component
 type CreateComponentRequest struct {
-	Name          string `json:"name"`
-	Description   string `json:"description,omitempty"`
-	Type          string `json:"type"`
-	RepositoryURL string `json:"repositoryUrl"`
-	Branch        string `json:"branch,omitempty"`
+	Name        string      `json:"name"`
+	DisplayName string      `json:"displayName,omitempty"`
+	Description string      `json:"description,omitempty"`
+	Type        string      `json:"type"`
+	BuildConfig BuildConfig `json:"buildConfig,omitempty"`
+}
+
+// PromoteComponentRequest Promote from one environment to another
+type PromoteComponentRequest struct {
+	SourceEnvironment string `json:"sourceEnv"`
+	TargetEnvironment string `json:"targetEnv"`
+	// TODO Support overrides for the target environment
 }
 
 // CreateEnvironmentRequest represents the request to create a new environment
@@ -77,21 +100,26 @@ func (req *CreateDataPlaneRequest) Validate() error {
 	return nil
 }
 
+// Validate validates the PromoteComponentRequest
+func (req *PromoteComponentRequest) Validate() error {
+	// TODO: Implement custom validation using Go stdlib
+	return nil
+}
+
 // Sanitize sanitizes the CreateProjectRequest by trimming whitespace
 func (req *CreateProjectRequest) Sanitize() {
 	req.Name = strings.TrimSpace(req.Name)
-	req.RepositoryURL = strings.TrimSpace(req.RepositoryURL)
-	req.RepositoryBranch = strings.TrimSpace(req.RepositoryBranch)
+	req.DisplayName = strings.TrimSpace(req.DisplayName)
+	req.Description = strings.TrimSpace(req.Description)
 	req.DeploymentPipeline = strings.TrimSpace(req.DeploymentPipeline)
 }
 
 // Sanitize sanitizes the CreateComponentRequest by trimming whitespace
 func (req *CreateComponentRequest) Sanitize() {
 	req.Name = strings.TrimSpace(req.Name)
+	req.DisplayName = strings.TrimSpace(req.DisplayName)
 	req.Description = strings.TrimSpace(req.Description)
 	req.Type = strings.TrimSpace(req.Type)
-	req.RepositoryURL = strings.TrimSpace(req.RepositoryURL)
-	req.Branch = strings.TrimSpace(req.Branch)
 }
 
 // Sanitize sanitizes the CreateEnvironmentRequest by trimming whitespace
@@ -121,4 +149,41 @@ func (req *CreateDataPlaneRequest) Sanitize() {
 	req.ObserverURL = strings.TrimSpace(req.ObserverURL)
 	req.ObserverUsername = strings.TrimSpace(req.ObserverUsername)
 	req.ObserverPassword = strings.TrimSpace(req.ObserverPassword)
+}
+
+// Sanitize sanitizes the PromoteComponentRequest by trimming whitespace
+func (req *PromoteComponentRequest) Sanitize() {
+	req.SourceEnvironment = strings.TrimSpace(req.SourceEnvironment)
+	req.TargetEnvironment = strings.TrimSpace(req.TargetEnvironment)
+}
+
+type BindingReleaseState string
+
+const (
+	ReleaseStateActive   BindingReleaseState = "Active"
+	ReleaseStateSuspend  BindingReleaseState = "Suspend"
+	ReleaseStateUndeploy BindingReleaseState = "Undeploy"
+)
+
+// UpdateBindingRequest represents the request to update a component binding
+// Only includes fields that can be updated via PATCH
+type UpdateBindingRequest struct {
+	// ReleaseState controls the state of the Release created by this binding.
+	// Valid values: Active, Suspend, Undeploy
+	ReleaseState BindingReleaseState `json:"releaseState"`
+}
+
+// Validate validates the UpdateBindingRequest
+func (req *UpdateBindingRequest) Validate() error {
+	// Validate releaseState values
+	switch req.ReleaseState {
+	case "Active", "Suspend", "Undeploy":
+		// Valid values
+	case "":
+		// Empty is not allowed for PATCH
+		return errors.New("releaseState is required")
+	default:
+		return errors.New("releaseState must be one of: Active, Suspend, Undeploy")
+	}
+	return nil
 }

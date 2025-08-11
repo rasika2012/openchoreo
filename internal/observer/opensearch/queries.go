@@ -80,41 +80,71 @@ func addLogLevelFilter(mustConditions []map[string]interface{}, logLevels []stri
 }
 
 // BuildComponentLogsQuery builds a query for component logs with wildcard search
-func (qb *QueryBuilder) BuildComponentLogsQuery(params QueryParams) map[string]interface{} {
+func (qb *QueryBuilder) BuildComponentLogsQuery(params ComponentQueryParams) map[string]interface{} {
 	mustConditions := []map[string]interface{}{
 		{
-			"match": map[string]interface{}{
-				labels.OSComponentID: map[string]interface{}{
-					"query":            params.ComponentID,
-					"zero_terms_query": "none",
-				},
+			"term": map[string]interface{}{
+				labels.OSComponentID + ".keyword": params.ComponentID,
 			},
 		},
-		{
-			"match": map[string]interface{}{
-				labels.OSEnvironmentID: map[string]interface{}{
-					"query":            params.EnvironmentID,
-					"zero_terms_query": "none",
-				},
+	}
+
+	// Add environment filter only for RUNTIME logs, not for BUILD logs
+	if params.LogType != labels.QueryParamLogTypeBuild {
+		environmentFilter := map[string]interface{}{
+			"term": map[string]interface{}{
+				labels.OSEnvironmentID + ".keyword": params.EnvironmentID,
 			},
-		},
+		}
+		mustConditions = append(mustConditions, environmentFilter)
 	}
 
 	// Add namespace filter only if specified
 	if params.Namespace != "" {
 		namespaceFilter := map[string]interface{}{
-			"match": map[string]interface{}{
-				"kubernetes.namespace_name": map[string]interface{}{
-					"query":            params.Namespace,
-					"zero_terms_query": "none",
-				},
+			"term": map[string]interface{}{
+				"kubernetes.namespace_name.keyword": params.Namespace,
 			},
 		}
 		mustConditions = append(mustConditions, namespaceFilter)
 	}
 
-	// Add common filters
-	mustConditions = addTimeRangeFilter(mustConditions, params.StartTime, params.EndTime)
+	// Add type-specific filters based on LogType
+	if params.LogType == labels.QueryParamLogTypeBuild {
+		// For BUILD logs, add target filter to identify build logs
+		targetFilter := map[string]interface{}{
+			"term": map[string]interface{}{
+				labels.OSTarget + ".keyword": labels.TargetBuild,
+			},
+		}
+		mustConditions = append(mustConditions, targetFilter)
+
+		// For BUILD logs, add BuildID and BuildUUID filters instead of date filter
+		if params.BuildID != "" {
+			buildIDFilter := map[string]interface{}{
+				"term": map[string]interface{}{
+					labels.OSBuildID + ".keyword": params.BuildID,
+				},
+			}
+			mustConditions = append(mustConditions, buildIDFilter)
+		}
+
+		if params.BuildUUID != "" {
+			buildUUIDFilter := map[string]interface{}{
+				"term": map[string]interface{}{
+					labels.OSBuildUUID + ".keyword": params.BuildUUID,
+				},
+			}
+			mustConditions = append(mustConditions, buildUUIDFilter)
+		}
+
+		// Skip date filter for BUILD logs
+	} else {
+		// For RUNTIME logs, use the existing behavior with date filter
+		mustConditions = addTimeRangeFilter(mustConditions, params.StartTime, params.EndTime)
+	}
+
+	// Add common filters for both types
 	mustConditions = addSearchPhraseFilter(mustConditions, params.SearchPhrase)
 	mustConditions = addLogLevelFilter(mustConditions, params.LogLevels)
 
@@ -140,22 +170,16 @@ func (qb *QueryBuilder) BuildComponentLogsQuery(params QueryParams) map[string]i
 
 		for _, version := range params.Versions {
 			shouldConditions = append(shouldConditions, map[string]interface{}{
-				"match": map[string]interface{}{
-					labels.OSVersion: map[string]interface{}{
-						"query":            version,
-						"zero_terms_query": "none",
-					},
+				"term": map[string]interface{}{
+					labels.OSVersion + ".keyword": version,
 				},
 			})
 		}
 
 		for _, versionID := range params.VersionIDs {
 			shouldConditions = append(shouldConditions, map[string]interface{}{
-				"match": map[string]interface{}{
-					labels.OSVersionID: map[string]interface{}{
-						"query":            versionID,
-						"zero_terms_query": "none",
-					},
+				"term": map[string]interface{}{
+					labels.OSVersionID + ".keyword": versionID,
 				},
 			})
 		}
@@ -173,19 +197,13 @@ func (qb *QueryBuilder) BuildComponentLogsQuery(params QueryParams) map[string]i
 func (qb *QueryBuilder) BuildProjectLogsQuery(params QueryParams, componentIDs []string) map[string]interface{} {
 	mustConditions := []map[string]interface{}{
 		{
-			"match": map[string]interface{}{
-				labels.OSProjectID: map[string]interface{}{
-					"query":            params.ProjectID,
-					"zero_terms_query": "none",
-				},
+			"term": map[string]interface{}{
+				labels.OSProjectID + ".keyword": params.ProjectID,
 			},
 		},
 		{
-			"match": map[string]interface{}{
-				labels.OSEnvironmentID: map[string]interface{}{
-					"query":            params.EnvironmentID,
-					"zero_terms_query": "none",
-				},
+			"term": map[string]interface{}{
+				labels.OSEnvironmentID + ".keyword": params.EnvironmentID,
 			},
 		},
 	}
@@ -217,11 +235,8 @@ func (qb *QueryBuilder) BuildProjectLogsQuery(params QueryParams, componentIDs [
 
 		for _, componentID := range componentIDs {
 			shouldConditions = append(shouldConditions, map[string]interface{}{
-				"match": map[string]interface{}{
-					labels.OSComponentID: map[string]interface{}{
-						"query":            componentID,
-						"zero_terms_query": "none",
-					},
+				"term": map[string]interface{}{
+					labels.OSComponentID + ".keyword": componentID,
 				},
 			})
 		}
@@ -374,11 +389,8 @@ func (qb *QueryBuilder) BuildOrganizationLogsQuery(params QueryParams, podLabels
 	// Add organization filter - this is the key fix!
 	if params.OrganizationID != "" {
 		orgFilter := map[string]interface{}{
-			"match": map[string]interface{}{
-				labels.OSOrganizationUUID: map[string]interface{}{
-					"query":            params.OrganizationID,
-					"zero_terms_query": "none",
-				},
+			"term": map[string]interface{}{
+				labels.OSOrganizationUUID + ".keyword": params.OrganizationID,
 			},
 		}
 		mustConditions = append(mustConditions, orgFilter)
@@ -387,11 +399,8 @@ func (qb *QueryBuilder) BuildOrganizationLogsQuery(params QueryParams, podLabels
 	// Add environment filter if specified
 	if params.EnvironmentID != "" {
 		envFilter := map[string]interface{}{
-			"match": map[string]interface{}{
-				labels.OSEnvironmentID: map[string]interface{}{
-					"query":            params.EnvironmentID,
-					"zero_terms_query": "none",
-				},
+			"term": map[string]interface{}{
+				labels.OSEnvironmentID + ".keyword": params.EnvironmentID,
 			},
 		}
 		mustConditions = append(mustConditions, envFilter)
@@ -400,11 +409,8 @@ func (qb *QueryBuilder) BuildOrganizationLogsQuery(params QueryParams, podLabels
 	// Add namespace filter if specified
 	if params.Namespace != "" {
 		namespaceFilter := map[string]interface{}{
-			"match": map[string]interface{}{
-				"kubernetes.namespace_name": map[string]interface{}{
-					"query":            params.Namespace,
-					"zero_terms_query": "none",
-				},
+			"term": map[string]interface{}{
+				"kubernetes.namespace_name.keyword": params.Namespace,
 			},
 		}
 		mustConditions = append(mustConditions, namespaceFilter)
@@ -418,11 +424,8 @@ func (qb *QueryBuilder) BuildOrganizationLogsQuery(params QueryParams, podLabels
 	// Add pod labels filters
 	for key, value := range podLabels {
 		labelFilter := map[string]interface{}{
-			"match": map[string]interface{}{
-				fmt.Sprintf("kubernetes.labels.%s", key): map[string]interface{}{
-					"query":            value,
-					"zero_terms_query": "none",
-				},
+			"term": map[string]interface{}{
+				fmt.Sprintf("kubernetes.labels.%s.keyword", key): value,
 			},
 		}
 		mustConditions = append(mustConditions, labelFilter)

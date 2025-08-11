@@ -1,0 +1,18 @@
+{"kind":"O","text":"Invoking: rushx lint && rushx clean && tsc -project tsconfig.json \n"}
+{"kind":"O","text":"Found configuration in /home/kavindudh/work/openchoreo/choreo-ui/rush.json\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"\u001b[1mRush Multi-Project Build Tool 5.153.1\u001b[33m\u001b[39m\u001b[22m - Node.js 18.20.8 (LTS)\n"}
+{"kind":"O","text":"> \"eslint --config ./eslint.config.js --fix\"\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"/home/kavindudh/work/openchoreo/choreo-ui/workspaces/plugins/resource-list/src/ComponentSummary/ComponentSummary.tsx\n"}
+{"kind":"O","text":"  25:5  warning  'refetch' is assigned a value but never used  no-unused-vars\n"}
+{"kind":"O","text":"  25:5  warning  'refetch' is assigned a value but never used  @typescript-eslint/no-unused-vars\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"✖ 2 problems (0 errors, 2 warnings)\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"Found configuration in /home/kavindudh/work/openchoreo/choreo-ui/rush.json\n"}
+{"kind":"O","text":"\n"}
+{"kind":"O","text":"\u001b[1mRush Multi-Project Build Tool 5.153.1\u001b[33m\u001b[39m\u001b[22m - Node.js 18.20.8 (LTS)\n"}
+{"kind":"O","text":"> \"rm -rf dist\"\n"}
+{"kind":"O","text":"\n"}
