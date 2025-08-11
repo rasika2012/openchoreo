@@ -1,0 +1,19 @@
+{
+  "files": {
+    "choreo-ui/workspaces/libs/choreo-api/.gitignore": "f38946dae1482561436d412dcec4ae8b1b0f0381",
+    "choreo-ui/workspaces/libs/choreo-api/.rush/temp/shrinkwrap-deps.json": "746ecdb35e4531d3594a9905b1d7244ea9caf0e7",
+    "choreo-ui/workspaces/libs/choreo-api/README.md": "b9708a495a24f83e97ede236811f5202724b309e",
+    "choreo-ui/workspaces/libs/choreo-api/eslint.config.js": "58ef7706c310e59402d155d87577ec77c19fee94",
+    "choreo-ui/workspaces/libs/choreo-api/index.ts": "fcd952d6593989c69629ee699a8933ff55a022f1",
+    "choreo-ui/workspaces/libs/choreo-api/package.json": "e381a6f1901c09a319a698d96278ab975a800929",
+    "choreo-ui/workspaces/libs/choreo-api/src/api/components.ts": "f2c00782ee45abc0b331e57e577befaae608a4b6",
+    "choreo-ui/workspaces/libs/choreo-api/src/api/organization.ts": "f04ab976725a08ff5e0ed2782c6f753232e20d5d",
+    "choreo-ui/workspaces/libs/choreo-api/src/api/projects.ts": "c25d1fc98252e742584582705452aca1cde15c9a",
+    "choreo-ui/workspaces/libs/choreo-api/src/core/client.ts": "c740321e4944e802742311c1e86031b3de9c3c6c",
+    "choreo-ui/workspaces/libs/choreo-api/src/core/config.ts": "57ea8b796e6c4ed4f6b6cbaf12afcb8db60a65aa",
+    "choreo-ui/workspaces/libs/choreo-api/src/index.ts": "5b30cb6576910e5e715d3b76fd72968d6fb70acd",
+    "choreo-ui/workspaces/libs/choreo-api/src/types/types.ts": "ba0939a33981405f0719095d72442f0f3ff723af",
+    "choreo-ui/workspaces/libs/choreo-api/tsconfig.json": "4e5e2fd92b2398f779643ab29fe951d5a1713e23"
+  },
+  "arguments": "rushx clean && tsc -project tsconfig.json "
+}
