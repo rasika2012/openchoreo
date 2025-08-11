@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useClient } from "./useClient";
-import { useOrgHandle } from "@open-choreo/plugin-core";
+import { useOrgHandle } from "./useUrlParams";
 
 export const useOrganizationList = () => {
   const client = useClient();
@@ -17,7 +17,7 @@ export const useOrganizationList = () => {
   };
 };
 
-const useOrganization = (orgHandle: string) => {
+export const useOrganization = (orgHandle: string) => {
   const client = useClient();
   const { data, isLoading, isError, isFetching, refetch } = useQuery({
     queryKey: ["organization", orgHandle, client],

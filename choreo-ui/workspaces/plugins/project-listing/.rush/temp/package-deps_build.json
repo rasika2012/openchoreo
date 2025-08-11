@@ -5,8 +5,8 @@
     "choreo-ui/workspaces/plugins/project-listing/eslint.config.js": "a91e7c96c237f077a43d401b5e2fe76cf056e7e0",
     "choreo-ui/workspaces/plugins/project-listing/index.ts": "3bd16e178a03831ae8cbf9578aa6df4b8be5926d",
     "choreo-ui/workspaces/plugins/project-listing/package.json": "94609f86d071ed460c2f7c2ebd53665580283190",
-    "choreo-ui/workspaces/plugins/project-listing/src/ProjectListPanel/ProjectListPanel.tsx": "eebce1b056e47f59e996927e1600322b154d77a9",
-    "choreo-ui/workspaces/plugins/project-listing/src/ProjectListPanel/index.ts": "8d919d1cf9f13a05cc2ce4515fb44a974696e14a",
+    "choreo-ui/workspaces/plugins/project-listing/src/ProjectListPanel/ProjectListPanel.tsx": "bce902ebcfa266d4ba4d001b18c85ded3e83b971",
+    "choreo-ui/workspaces/plugins/project-listing/src/ProjectListPanel/index.ts": "6cd5f73f4bb84a440c35c13b9c5d925d5ada2e4b",
     "choreo-ui/workspaces/plugins/project-listing/src/index.ts": "67573f0c277a9d8dccc48ab5b4d8ef96b4309263",
     "choreo-ui/workspaces/plugins/project-listing/tsconfig.json": "aa6786bdf0c1b63ffff065a2e66b38e6e4023f16"
   },
