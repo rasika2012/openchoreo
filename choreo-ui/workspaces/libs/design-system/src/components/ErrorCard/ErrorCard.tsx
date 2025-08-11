@@ -19,19 +19,7 @@ export interface ErrorCardProps {
  * @component
  */
 export const ErrorCard = React.forwardRef<HTMLDivElement, ErrorCardProps>(
-  (
-    {
-      title,
-      description,
-      image,
-      actions,
-      children,
-      testId,
-      className,
-      ...props
-    },
-    ref
-  ) => {
+  ({ title, description, image, actions, children, testId }, ref) => {
     return (
       <StyledErrorCard
         ref={ref}
