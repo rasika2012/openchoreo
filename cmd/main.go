@@ -26,18 +26,15 @@ import (
 	"github.com/openchoreo/openchoreo/internal/controller/api"
 	"github.com/openchoreo/openchoreo/internal/controller/apibinding"
 	"github.com/openchoreo/openchoreo/internal/controller/apiclass"
+	"github.com/openchoreo/openchoreo/internal/controller/build"
 	"github.com/openchoreo/openchoreo/internal/controller/buildplane"
-	"github.com/openchoreo/openchoreo/internal/controller/buildv2"
 	"github.com/openchoreo/openchoreo/internal/controller/component"
-	"github.com/openchoreo/openchoreo/internal/controller/componentv2"
 	"github.com/openchoreo/openchoreo/internal/controller/dataplane"
 	"github.com/openchoreo/openchoreo/internal/controller/deployableartifact"
 	"github.com/openchoreo/openchoreo/internal/controller/deployment"
 	"github.com/openchoreo/openchoreo/internal/controller/deploymentpipeline"
 	"github.com/openchoreo/openchoreo/internal/controller/deploymenttrack"
 	"github.com/openchoreo/openchoreo/internal/controller/endpoint"
-	"github.com/openchoreo/openchoreo/internal/controller/endpointclass"
-	"github.com/openchoreo/openchoreo/internal/controller/endpointv2"
 	"github.com/openchoreo/openchoreo/internal/controller/environment"
 	"github.com/openchoreo/openchoreo/internal/controller/gitcommitrequest"
 	"github.com/openchoreo/openchoreo/internal/controller/organization"
@@ -219,13 +216,6 @@ func main() {
 			setupLog.Error(err, "unable to create controller", "controller", "DeploymentPipeline")
 			os.Exit(1)
 		}
-		if err = (&component.Reconciler{
-			Client: mgr.GetClient(),
-			Scheme: mgr.GetScheme(),
-		}).SetupWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "Component")
-			os.Exit(1)
-		}
 		if err = (&deploymenttrack.Reconciler{
 			Client: mgr.GetClient(),
 			Scheme: mgr.GetScheme(),
@@ -263,27 +253,13 @@ func main() {
 			setupLog.Error(err, "unable to create controller", "controller", "Workload")
 			os.Exit(1)
 		}
-		if err = (&endpointv2.Reconciler{
-			Client: mgr.GetClient(),
-			Scheme: mgr.GetScheme(),
-		}).SetupWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "EndpointV2")
-			os.Exit(1)
-		}
-		if err = (&endpointclass.Reconciler{
-			Client: mgr.GetClient(),
-			Scheme: mgr.GetScheme(),
-		}).SetupWithManager(mgr); err != nil {
-			setupLog.Error(err, "unable to create controller", "controller", "EndpointClass")
-			os.Exit(1)
-		}
 	}
 
-	if err = (&componentv2.Reconciler{
+	if err = (&component.Reconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "ComponentV2")
+		setupLog.Error(err, "unable to create controller", "controller", "Component")
 		os.Exit(1)
 	}
 
@@ -396,11 +372,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := (&buildv2.Reconciler{
+	if err := (&build.Reconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "BuildV2")
+		setupLog.Error(err, "unable to create controller", "controller", "Build")
 		os.Exit(1)
 	}
 	if err := (&buildplane.BuildPlaneReconciler{

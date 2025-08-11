@@ -7,7 +7,7 @@ Internal Developer Platform
 [![GitHub issues](https://img.shields.io/github/issues/openchoreo/openchoreo.svg)](https://github.com/openchoreo/openchoreo/issues)
 [![Twitter Follow](https://img.shields.io/twitter/follow/Choreo?style=social)](https://twitter.com/ChoreoDev)
 
-OpenChoreo is a complete, open-source Internal Developer Platform (IDP) designed for platform engineering (PE) teams who want to streamline developer workflows and deliver Internal Developer Portals without having to build everything from scratch. Choreo orchestrates many CNCF and other projects to give a comprehensive framework for PE teams to build the platform they want.
+OpenChoreo is a complete, open-source Internal Developer Platform (IDP) designed for platform engineering (PE) teams who want to streamline developer workflows and deliver Internal Developer Portals without having to build everything from scratch. OpenChoreo orchestrates many CNCF and other projects to give a comprehensive framework for PE teams to build the platform they want.
 
 ## Why OpenChoreo?
 Kubernetes gives you powerful primitives like Namespaces, Deployments, CronJobs, Services and NetworkPolicies—but they are too low-level for most developers.
@@ -127,11 +127,11 @@ In this section, we explain how the OpenChoreo abstractions for platform enginee
 
 ## Getting Started
 
-The easiest way to try OpenChoreo is by following the **[Quick Start Guide](./docs/quick-start-guide.md)**. It walks you through setting up Choreo using a Dev Container, so you can start experimenting without affecting your local environment.
+The easiest way to try OpenChoreo is by following the **[Quick Start Guide](https://openchoreo.dev/docs/getting-started/quick-start-guide/)**. It walks you through setting up Choreo using a Dev Container, so you can start experimenting without affecting your local environment.
 
-For a deeper understanding of OpenChoreo’s architecture, see **[Choreo Concepts](./docs/choreo-concepts.md)**.
+For a deeper understanding of OpenChoreo’s architecture, see **[OpenChoreo Concepts](https://openchoreo.dev/docs/core-concepts/concepts-and-abstractions/)**.
 
-Visit **[Installation Guide](./docs/install-guide.md)** to learn more about installation methods.
+Visit **[Installation Guide](https://openchoreo.dev/docs/getting-started/single-cluster/)** to learn more about installation methods.
 
 ## Samples
 

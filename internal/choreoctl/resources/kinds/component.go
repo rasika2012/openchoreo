@@ -151,11 +151,6 @@ func (c *ComponentResource) CreateComponent(params api.CreateComponentParams) er
 		},
 		Spec: openchoreov1alpha1.ComponentSpec{
 			Type: params.Type,
-			Source: openchoreov1alpha1.ComponentSource{
-				GitRepository: &openchoreov1alpha1.GitRepository{
-					URL: params.GitRepositoryURL,
-				},
-			},
 		},
 	}
 

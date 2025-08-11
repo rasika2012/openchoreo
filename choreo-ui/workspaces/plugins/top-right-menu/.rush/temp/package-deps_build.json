@@ -1,0 +1,15 @@
+{
+  "files": {
+    "choreo-ui/workspaces/plugins/top-right-menu/.gitignore": "b63135e8ccfe8f21910ed3a6f2d21bd2be130973",
+    "choreo-ui/workspaces/plugins/top-right-menu/.rush/temp/shrinkwrap-deps.json": "73937771f786df72357e21633c8138d05d677d15",
+    "choreo-ui/workspaces/plugins/top-right-menu/eslint.config.js": "a91e7c96c237f077a43d401b5e2fe76cf056e7e0",
+    "choreo-ui/workspaces/plugins/top-right-menu/index.ts": "3bd16e178a03831ae8cbf9578aa6df4b8be5926d",
+    "choreo-ui/workspaces/plugins/top-right-menu/package.json": "102301c77ef60475b3f7ae3875ee0d5d22c740ac",
+    "choreo-ui/workspaces/plugins/top-right-menu/rush-logs/top-right-menu.build.log": "806face83fe0ac7fb28e1dcc79c7732961d97a43",
+    "choreo-ui/workspaces/plugins/top-right-menu/src/index.ts": "7e152b196b6369487ff4e6050d72dae530837c7f",
+    "choreo-ui/workspaces/plugins/top-right-menu/src/panel/TopRightMenuPanel.tsx": "5540806d0fcd5e283ea6882ab20825a31fa1a0be",
+    "choreo-ui/workspaces/plugins/top-right-menu/src/panel/index.tsx": "42eaaebd128aef01671b67dc66e547a51baef9b2",
+    "choreo-ui/workspaces/plugins/top-right-menu/tsconfig.json": "28a174c4d2111a231da1803e6bf13445655d90a8"
+  },
+  "arguments": "rushx lint && rushx clean && tsc -project tsconfig.json "
+}

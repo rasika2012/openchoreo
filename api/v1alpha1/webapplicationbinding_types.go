@@ -20,6 +20,7 @@ type WebApplicationBindingSpec struct {
 	Environment string `json:"environment"`
 
 	// ClassName is the name of the web application class that provides the web application-specific deployment configuration.
+	// +kubebuilder:default=default
 	ClassName string `json:"className"`
 
 	// WorkloadSpec contains the copied workload specification for this environment-specific binding
@@ -27,12 +28,26 @@ type WebApplicationBindingSpec struct {
 
 	// Overrides contains web application-specific overrides for this binding
 	Overrides map[string]bool `json:"overrides,omitempty"`
+
+	// ReleaseState controls the state of the Release created by this binding.
+	// Active: Resources are deployed normally
+	// Suspend: Resources are suspended (scaled to zero or paused)
+	// Undeploy: Resources are removed from the data plane
+	// +kubebuilder:default=Active
+	// +kubebuilder:validation:Enum=Active;Suspend;Undeploy
+	// +optional
+	ReleaseState ReleaseState `json:"releaseState,omitempty"`
 }
 
 // WebApplicationBindingStatus defines the observed state of WebApplicationBinding.
 type WebApplicationBindingStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Conditions represent the latest available observations of the WebApplicationBinding's current state.
+	// +optional
+	Conditions []metav1.Condition `json:"conditions,omitempty"`
+
+	// Endpoints contain the status of each endpoint
+	// +optional
+	Endpoints []EndpointStatus `json:"endpoints,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -54,6 +69,16 @@ type WebApplicationBindingList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []WebApplicationBinding `json:"items"`
+}
+
+// GetConditions returns the conditions from the status
+func (wab *WebApplicationBinding) GetConditions() []metav1.Condition {
+	return wab.Status.Conditions
+}
+
+// SetConditions sets the conditions in the status
+func (wab *WebApplicationBinding) SetConditions(conditions []metav1.Condition) {
+	wab.Status.Conditions = conditions
 }
 
 func init() {
