@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyledLink } from './Link.styled';
-import { LinkProps as MuiLinkProps } from '@mui/material';
 
 export type linkVariant =
   | 'body1'
@@ -33,7 +32,7 @@ export type linkColorVariant =
 
 export type underlineVariant = 'none' | 'hover' | 'always';
 
-export interface LinkProps extends MuiLinkProps {
+export interface LinkProps {
   children?: React.ReactNode;
   className?: string;
   onClick?: (event: React.MouseEvent) => void;

@@ -5,19 +5,15 @@ package webapplication
 
 import (
 	"context"
-	"fmt"
 
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	openchoreov1alpha1 "github.com/openchoreo/openchoreo/api/v1alpha1"
-	"github.com/openchoreo/openchoreo/internal/labels"
 )
 
 // Reconciler reconciles a WebApplication object
@@ -67,11 +63,6 @@ func (r *Reconciler) reconcileWebApplicationBinding(ctx context.Context, webAppl
 		Name:      webApplication.Spec.WorkloadName,
 		Namespace: webApplication.Namespace,
 	}, workload); err != nil {
-		if apierrors.IsNotFound(err) {
-			logger.Info("Workload not found for this WebApplication, ignoring WebApplicationBinding reconcile",
-				"workloadName", webApplication.Spec.WorkloadName)
-			return ctrl.Result{}, nil
-		}
 		logger.Error(err, "Failed to get Workload",
 			"workloadName", webApplication.Spec.WorkloadName)
 		return ctrl.Result{}, err
@@ -84,10 +75,7 @@ func (r *Reconciler) reconcileWebApplicationBinding(ctx context.Context, webAppl
 		},
 	}
 	op, err := controllerutil.CreateOrUpdate(ctx, r.Client, webApplicationBinding, func() error {
-		desired := r.makeWebApplicationBinding(webApplication, workload)
-		desired.Spec.ReleaseState = webApplicationBinding.Spec.ReleaseState // Keep the existing release state
-		webApplicationBinding.Labels = desired.Labels
-		webApplicationBinding.Spec = desired.Spec
+		webApplicationBinding.Spec = r.makeWebApplicationBinding(webApplication, workload).Spec
 		return controllerutil.SetControllerReference(webApplication, webApplicationBinding, r.Scheme)
 	})
 	if err != nil {
@@ -107,7 +95,6 @@ func (r *Reconciler) makeWebApplicationBinding(webApplication *openchoreov1alpha
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      webApplication.Name,
 			Namespace: webApplication.Namespace,
-			Labels:    r.makeLabels(webApplication),
 		},
 		Spec: openchoreov1alpha1.WebApplicationBindingSpec{
 			Owner: openchoreov1alpha1.WebApplicationOwner{
@@ -125,35 +112,8 @@ func (r *Reconciler) makeWebApplicationBinding(webApplication *openchoreov1alpha
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *Reconciler) SetupWithManager(mgr ctrl.Manager) error {
-	// Set up the index for workload reference
-	if err := r.setupWorkloadRefIndex(context.Background(), mgr); err != nil {
-		return fmt.Errorf("failed to setup workload reference index: %w", err)
-	}
-
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&openchoreov1alpha1.WebApplication{}).
-		Owns(&openchoreov1alpha1.WebApplicationBinding{}).
-		Watches(
-			&openchoreov1alpha1.Workload{},
-			handler.EnqueueRequestsFromMapFunc(r.listWebApplicationsForWorkload),
-		).
 		Named("webapplication").
 		Complete(r)
-}
-
-// makeLabels creates standard labels for WebApplicationBinding resources, merging with webApplication labels.
-func (r *Reconciler) makeLabels(webApplication *openchoreov1alpha1.WebApplication) map[string]string {
-	// Start with webApplication's existing labels
-	result := make(map[string]string)
-	for k, v := range webApplication.Labels {
-		result[k] = v
-	}
-
-	// Add/overwrite component-specific labels
-	result[labels.LabelKeyOrganizationName] = webApplication.Namespace
-	result[labels.LabelKeyProjectName] = webApplication.Spec.Owner.ProjectName
-	result[labels.LabelKeyComponentName] = webApplication.Spec.Owner.ComponentName
-	result[labels.LabelKeyEnvironmentName] = "development" // TODO: This should come from the actual environment when creating bindings
-
-	return result
 }

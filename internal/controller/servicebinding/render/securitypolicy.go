@@ -20,7 +20,7 @@ import (
 
 // SecurityPolicies renders the SecurityPolicy resources for the given ServiceBinding context.
 func SecurityPolicies(rCtx Context) []*openchoreov1alpha1.Resource {
-	if len(rCtx.ServiceBinding.Spec.APIs) == 0 {
+	if rCtx.ServiceBinding.Spec.APIs == nil || len(rCtx.ServiceBinding.Spec.APIs) == 0 {
 		return nil
 	}
 
@@ -150,26 +150,24 @@ func makeSecurityPolicyForServiceAPI(rCtx Context, apiName string, serviceAPI *o
 		actionDeny := egv1a1.AuthorizationActionDeny
 
 		// Convert RESTOperation.Scopes to []egv1a1.JWTScope
-		if mergedPolicy.Authentication.OAuth2 != nil && len(mergedPolicy.Authentication.OAuth2.Scopes) > 0 {
-			jwtScopes := make([]egv1a1.JWTScope, len(mergedPolicy.Authentication.OAuth2.Scopes))
-			for i, scope := range mergedPolicy.Authentication.OAuth2.Scopes {
-				jwtScopes[i] = egv1a1.JWTScope(scope)
-			}
+		jwtScopes := make([]egv1a1.JWTScope, len(mergedPolicy.Authentication.OAuth2.Scopes))
+		for i, scope := range mergedPolicy.Authentication.OAuth2.Scopes {
+			jwtScopes[i] = egv1a1.JWTScope(scope)
+		}
 
-			securityPolicy.Spec.Authorization = &egv1a1.Authorization{
-				Rules: []egv1a1.AuthorizationRule{
-					{
-						Principal: egv1a1.Principal{
-							JWT: &egv1a1.JWTPrincipal{
-								Provider: "default",
-								Scopes:   jwtScopes,
-							},
+		securityPolicy.Spec.Authorization = &egv1a1.Authorization{
+			Rules: []egv1a1.AuthorizationRule{
+				{
+					Principal: egv1a1.Principal{
+						JWT: &egv1a1.JWTPrincipal{
+							Provider: "default",
+							Scopes:   jwtScopes,
 						},
-						Action: actionAllow,
 					},
+					Action: actionAllow,
 				},
-				DefaultAction: &actionDeny,
-			}
+			},
+			DefaultAction: &actionDeny,
 		}
 	}
 
@@ -289,8 +287,7 @@ func convertStringSliceToCIDRs(cidrs []string) []egv1a1.CIDR {
 func makeSecurityPolicyName(rCtx Context, apiName string, exposeLevel openchoreov1alpha1.RESTOperationExposeLevel) string {
 	// Create a unique name for the SecurityPolicy using ServiceBinding name, API name and expose level
 	exposeLevelStr := strings.ToLower(string(exposeLevel))
-	return dpkubernetes.GenerateK8sNameWithLengthLimit(dpkubernetes.MaxServiceNameLength,
-		rCtx.ServiceBinding.Name, apiName, exposeLevelStr)
+	return dpkubernetes.GenerateK8sName(rCtx.ServiceBinding.Name, apiName, exposeLevelStr)
 }
 
 func makeSecurityPolicyResourceID(securityPolicy *egv1a1.SecurityPolicy) string {

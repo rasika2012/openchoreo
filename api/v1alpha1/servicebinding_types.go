@@ -19,32 +19,17 @@ type ServiceBindingSpec struct {
 	// +kubebuilder:validation:MinLength=1
 	Environment string `json:"environment"`
 	// ClassName is the name of the service class that provides the service-specific deployment configuration.
-	// +kubebuilder:default=default
 	ClassName string `json:"className"`
 
 	WorkloadSpec WorkloadTemplateSpec `json:"workloadSpec"`
 
 	APIs map[string]*ServiceAPI `json:"apis,omitempty"`
-
-	// ReleaseState controls the state of the Release created by this binding.
-	// Active: Resources are deployed normally
-	// Suspend: Resources are suspended (scaled to zero or paused)
-	// Undeploy: Resources are removed from the data plane
-	// +kubebuilder:default=Active
-	// +kubebuilder:validation:Enum=Active;Suspend;Undeploy
-	// +optional
-	ReleaseState ReleaseState `json:"releaseState,omitempty"`
 }
 
 // ServiceBindingStatus defines the observed state of ServiceBinding.
 type ServiceBindingStatus struct {
-	// Conditions represent the latest available observations of the ServiceBinding's current state.
-	// +optional
-	Conditions []metav1.Condition `json:"conditions,omitempty"`
-
-	// Endpoints contain the status of each endpoint
-	// +optional
-	Endpoints []EndpointStatus `json:"endpoints,omitempty"`
+	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
 }
 
 // +kubebuilder:object:root=true
@@ -66,16 +51,6 @@ type ServiceBindingList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []ServiceBinding `json:"items"`
-}
-
-// GetConditions returns the conditions from the status
-func (sb *ServiceBinding) GetConditions() []metav1.Condition {
-	return sb.Status.Conditions
-}
-
-// SetConditions sets the conditions in the status
-func (sb *ServiceBinding) SetConditions(conditions []metav1.Condition) {
-	sb.Status.Conditions = conditions
 }
 
 func init() {

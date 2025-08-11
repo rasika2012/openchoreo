@@ -74,7 +74,7 @@ func (s *ProjectService) ListProjects(ctx context.Context, orgName string) ([]*m
 		return nil, fmt.Errorf("failed to list projects: %w", err)
 	}
 
-	projects := make([]*models.ProjectResponse, 0, len(projectList.Items))
+	var projects []*models.ProjectResponse
 	for _, item := range projectList.Items {
 		projects = append(projects, s.toProjectResponse(&item))
 	}
@@ -128,7 +128,7 @@ func (s *ProjectService) buildProjectCR(orgName string, req *models.CreateProjec
 	// Set default deployment pipeline if not provided
 	deploymentPipeline := req.DeploymentPipeline
 	if deploymentPipeline == "" {
-		deploymentPipeline = defaultPipeline
+		deploymentPipeline = "default"
 	}
 
 	return &openchoreov1alpha1.Project{
@@ -140,12 +140,13 @@ func (s *ProjectService) buildProjectCR(orgName string, req *models.CreateProjec
 			Name:      req.Name,
 			Namespace: orgName,
 			Annotations: map[string]string{
-				controller.AnnotationKeyDisplayName: req.DisplayName,
-				controller.AnnotationKeyDescription: req.Description,
+				controller.AnnotationKeyDisplayName: req.Name,
+				controller.AnnotationKeyDescription: fmt.Sprintf("Project for %s", req.Name),
 			},
 			Labels: map[string]string{
 				labels.LabelKeyOrganizationName: orgName,
 				labels.LabelKeyName:             req.Name,
+				"backstage.io/kubernetes-id":    req.Name,
 			},
 		},
 		Spec: openchoreov1alpha1.ProjectSpec{
@@ -156,19 +157,23 @@ func (s *ProjectService) buildProjectCR(orgName string, req *models.CreateProjec
 
 // toProjectResponse converts a Project CR to a ProjectResponse
 func (s *ProjectService) toProjectResponse(project *openchoreov1alpha1.Project) *models.ProjectResponse {
+	// Extract repository info from annotations if available
+	repositoryURL := project.Annotations["repository-url"]
+	repositoryBranch := project.Annotations["repository-branch"]
+
 	// Extract display name and description from annotations
 	displayName := project.Annotations[controller.AnnotationKeyDisplayName]
 	description := project.Annotations[controller.AnnotationKeyDescription]
 
 	// Get status from conditions
-	status := statusUnknown
+	status := "Unknown"
 	if len(project.Status.Conditions) > 0 {
 		// Get the latest condition
 		latestCondition := project.Status.Conditions[len(project.Status.Conditions)-1]
 		if latestCondition.Status == metav1.ConditionTrue {
-			status = statusReady
+			status = "Ready"
 		} else {
-			status = statusNotReady
+			status = "NotReady"
 		}
 	}
 
@@ -177,6 +182,8 @@ func (s *ProjectService) toProjectResponse(project *openchoreov1alpha1.Project) 
 		OrgName:            project.Namespace,
 		DisplayName:        displayName,
 		Description:        description,
+		RepositoryURL:      repositoryURL,
+		RepositoryBranch:   repositoryBranch,
 		DeploymentPipeline: project.Spec.DeploymentPipelineRef,
 		CreatedAt:          project.CreationTimestamp.Time,
 		Status:             status,

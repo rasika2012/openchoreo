@@ -5,29 +5,22 @@ package opensearch
 
 import (
 	"testing"
-
-	"github.com/openchoreo/openchoreo/internal/observer/labels"
 )
 
 func TestQueryBuilder_BuildComponentLogsQuery(t *testing.T) {
 	qb := NewQueryBuilder("container-logs-")
 
-	params := ComponentQueryParams{
-		QueryParams: QueryParams{
-			StartTime:     "2024-01-01T00:00:00Z",
-			EndTime:       "2024-01-01T23:59:59Z",
-			SearchPhrase:  "error",
-			ComponentID:   "component-123",
-			EnvironmentID: "env-456",
-			Namespace:     "default",
-			Versions:      []string{"v1.0.0", "v1.0.1"},
-			VersionIDs:    []string{"version-id-1", "version-id-2"},
-			Limit:         100,
-			SortOrder:     "desc",
-			LogType:       labels.QueryParamLogTypeRuntime,
-		},
-		BuildID:   "",
-		BuildUUID: "",
+	params := QueryParams{
+		StartTime:     "2024-01-01T00:00:00Z",
+		EndTime:       "2024-01-01T23:59:59Z",
+		SearchPhrase:  "error",
+		ComponentID:   "component-123",
+		EnvironmentID: "env-456",
+		Namespace:     "default",
+		Versions:      []string{"v1.0.0", "v1.0.1"},
+		VersionIDs:    []string{"version-id-1", "version-id-2"},
+		Limit:         100,
+		SortOrder:     "desc",
 	}
 
 	query := qb.BuildComponentLogsQuery(params)

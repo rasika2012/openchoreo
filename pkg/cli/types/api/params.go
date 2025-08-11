@@ -283,12 +283,15 @@ type GetEndpointParams struct {
 }
 
 type SetContextParams struct {
-	Name         string
-	Organization string
-	Project      string
-	Component    string
-	Environment  string
-	DataPlane    string
+	Name           string
+	Organization   string
+	Project        string
+	Component      string
+	Environment    string
+	DataPlane      string
+	ClusterRef     string
+	KubeconfigPath string
+	KubeContext    string
 }
 
 type UseContextParams struct {
@@ -325,21 +328,4 @@ type GetConfigurationGroupParams struct {
 	Name         string
 	Organization string
 	OutputFormat string
-}
-
-// SetControlPlaneParams defines parameters for setting control plane configuration
-type SetControlPlaneParams struct {
-	Endpoint string
-	Token    string
-}
-
-// CreateWorkloadParams defines parameters for creating a workload from a descriptor
-type CreateWorkloadParams struct {
-	FilePath         string
-	OrganizationName string
-	ProjectName      string
-	ComponentName    string
-	ImageURL         string
-	OutputPath       string
-	Interactive      bool
 }

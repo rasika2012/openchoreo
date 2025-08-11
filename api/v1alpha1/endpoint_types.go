@@ -99,18 +99,6 @@ type RateLimitConfig struct {
 }
 
 // ==============================================================================
-// Owner and Template Types
-// ==============================================================================
-
-// EndpointOwner defines the owner reference for an endpoint
-type EndpointOwner struct {
-	// +kubebuilder:validation:MinLength=1
-	ProjectName string `json:"projectName"`
-	// +kubebuilder:validation:MinLength=1
-	ComponentName string `json:"componentName"`
-}
-
-// ==============================================================================
 // Endpoint Types and Core Structures
 // ==============================================================================
 
@@ -404,8 +392,8 @@ type RestRLOperation struct {
 // Endpoint Status
 // ==============================================================================
 
-// EndpointStatusLegacy defines the observed state of Endpoint
-type EndpointStatusLegacy struct {
+// EndpointStatus defines the observed state of Endpoint
+type EndpointStatus struct {
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"`
 	Address    string             `json:"address,omitempty"`
 }
@@ -423,8 +411,8 @@ type Endpoint struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   EndpointSpec         `json:"spec,omitempty"`
-	Status EndpointStatusLegacy `json:"status,omitempty"`
+	Spec   EndpointSpec   `json:"spec,omitempty"`
+	Status EndpointStatus `json:"status,omitempty"`
 }
 
 func (ep *Endpoint) GetConditions() []metav1.Condition {

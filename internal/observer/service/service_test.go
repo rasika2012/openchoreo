@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/openchoreo/openchoreo/internal/observer/config"
-	"github.com/openchoreo/openchoreo/internal/observer/labels"
 	"github.com/openchoreo/openchoreo/internal/observer/opensearch"
 )
 
@@ -115,20 +114,15 @@ func TestLoggingService_GetComponentLogs(t *testing.T) {
 	}
 	service.osClient = mockClient
 
-	params := opensearch.ComponentQueryParams{
-		QueryParams: opensearch.QueryParams{
-			StartTime:     "2024-01-01T00:00:00Z",
-			EndTime:       "2024-01-01T23:59:59Z",
-			SearchPhrase:  "error",
-			ComponentID:   "comp-123",
-			EnvironmentID: "env-456",
-			Namespace:     "default",
-			Limit:         100,
-			SortOrder:     "desc",
-			LogType:       labels.QueryParamLogTypeRuntime,
-		},
-		BuildID:   "",
-		BuildUUID: "",
+	params := opensearch.QueryParams{
+		StartTime:     "2024-01-01T00:00:00Z",
+		EndTime:       "2024-01-01T23:59:59Z",
+		SearchPhrase:  "error",
+		ComponentID:   "comp-123",
+		EnvironmentID: "env-456",
+		Namespace:     "default",
+		Limit:         100,
+		SortOrder:     "desc",
 	}
 
 	ctx := context.Background()

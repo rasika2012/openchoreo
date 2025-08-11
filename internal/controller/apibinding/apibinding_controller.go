@@ -139,12 +139,11 @@ func (r *Reconciler) makeRelease(rCtx *render.Context) *openchoreov1alpha1.Relea
 	// Step 4 & 5: Apply strategic merge for both Public & Organization expose levels
 	// Step 6: Generate HTTPRoute, HTTPRouteFilter and SecurityPolicy for each operation
 
-	// ToDo: properly implement the rendering logic to generate the resources for APIs when supporting API proxies
 	// Generate HTTPRoute resources
-	//	httpRoutes := render.HTTPRoutes(rCtx)
-	//	for _, httpRoute := range httpRoutes {
-	//		resources = append(resources, *httpRoute)
-	//	}
+	httpRoutes := render.HTTPRoutes(rCtx)
+	for _, httpRoute := range httpRoutes {
+		resources = append(resources, *httpRoute)
+	}
 
 	// Generate SecurityPolicy resources
 	//	securityPolicies := render.SecurityPolicies(rCtx)
@@ -153,10 +152,10 @@ func (r *Reconciler) makeRelease(rCtx *render.Context) *openchoreov1alpha1.Relea
 	//	}
 
 	// Generate HTTPRouteFilter resources for regex-based path replacement
-	//	httpRouteFilters := render.HTTPRouteFilters(rCtx)
-	//	for _, httpRouteFilter := range httpRouteFilters {
-	//		resources = append(resources, *httpRouteFilter)
-	//	}
+	httpRouteFilters := render.HTTPRouteFilters(rCtx)
+	for _, httpRouteFilter := range httpRouteFilters {
+		resources = append(resources, *httpRouteFilter)
+	}
 
 	// Generate BackendTrafficPolicy resources for rate limiting
 	//	backendTrafficPolicies := render.BackendTrafficPolicies(rCtx)
