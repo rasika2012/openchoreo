@@ -2,7 +2,7 @@
   "files": {
     "choreo-ui/workspaces/plugins/project-listing/.gitignore": "b63135e8ccfe8f21910ed3a6f2d21bd2be130973",
     "choreo-ui/workspaces/plugins/project-listing/.rush/temp/chunked-rush-logs/project-listing.build.chunks.jsonl": "abac3590feccd009e9be66e7f08ea75bd52ec322",
-    "choreo-ui/workspaces/plugins/project-listing/.rush/temp/package-deps_build.json": "6b0d1dfe202010949cba73257cdf9d5daf33df85",
+    "choreo-ui/workspaces/plugins/project-listing/.rush/temp/package-deps_build.json": "e935c828c53404fa49a6f540768ee5bc0daf426f",
     "choreo-ui/workspaces/plugins/project-listing/.rush/temp/shrinkwrap-deps.json": "4b1037754ebd1debd40961d56cd2ad1f1915b9a4",
     "choreo-ui/workspaces/plugins/project-listing/eslint.config.js": "a91e7c96c237f077a43d401b5e2fe76cf056e7e0",
     "choreo-ui/workspaces/plugins/project-listing/index.ts": "3bd16e178a03831ae8cbf9578aa6df4b8be5926d",
