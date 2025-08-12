@@ -1,6 +1,8 @@
 {
   "files": {
     "choreo-ui/workspaces/libs/choreo-context/.gitignore": "b63135e8ccfe8f21910ed3a6f2d21bd2be130973",
+    "choreo-ui/workspaces/libs/choreo-context/.rush/temp/chunked-rush-logs/choreo-context.build.chunks.jsonl": "69a4191799471207f79648cc97c130545cd76e0a",
+    "choreo-ui/workspaces/libs/choreo-context/.rush/temp/package-deps_build.json": "ff48f6715854e17bbff7cc9eb62eb8a3ecf4a478",
     "choreo-ui/workspaces/libs/choreo-context/.rush/temp/shrinkwrap-deps.json": "abecaa354755e138723bc829070ed87dc737210d",
     "choreo-ui/workspaces/libs/choreo-context/eslint.config.js": "a91e7c96c237f077a43d401b5e2fe76cf056e7e0",
     "choreo-ui/workspaces/libs/choreo-context/index.ts": "3bd16e178a03831ae8cbf9578aa6df4b8be5926d",
@@ -10,7 +12,7 @@
     "choreo-ui/workspaces/libs/choreo-context/src/hooks/useColorMode.ts": "29630e1b6f92762bf5db25826ab13e58a2dee1cd",
     "choreo-ui/workspaces/libs/choreo-context/src/hooks/useComponent.ts": "013c0df597691ba36e5336468bddf0de61fbeafe",
     "choreo-ui/workspaces/libs/choreo-context/src/hooks/useGlobleState.ts": "62c592c5bf94f0b762c8bbed00191adca17a48e6",
-    "choreo-ui/workspaces/libs/choreo-context/src/hooks/useOrganizations.ts": "ec01a649adae2603b7120807048e58b6a5db2589",
+    "choreo-ui/workspaces/libs/choreo-context/src/hooks/useOrganizations.ts": "c565da8a16fb7442c06c60acabdd37345a5909ef",
     "choreo-ui/workspaces/libs/choreo-context/src/hooks/useProjects.ts": "f48ebbeccfda838d0d1ec1334c76c90d75622624",
     "choreo-ui/workspaces/libs/choreo-context/src/hooks/useUrlParams.ts": "6d1e85291a06058a9e855157e87750437edcf6d0",
     "choreo-ui/workspaces/libs/choreo-context/src/index.ts": "96171d7a076a4d0392d44b7737703ff19b2bfc84",
