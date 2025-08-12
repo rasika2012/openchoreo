@@ -14,7 +14,7 @@ import { useFilteredExtensions } from "../../services";
 
 export function useMainNavExtentions(
   extensionPoint: PluginExtensionPoint,
-  rootPath: string
+  rootPath: string,
 ) {
   const filteredExtensions = useFilteredExtensions(extensionPoint);
   const navigationEntries: NavItemExpandableSubMenu[] = useMemo(
@@ -36,9 +36,9 @@ export function useMainNavExtentions(
               href: rootPath + entry.path + submenu.path,
               pathPattern: submenu.pathPattern,
             })),
-          } as NavItemExpandableSubMenu)
+          }) as NavItemExpandableSubMenu,
       ),
-    [filteredExtensions, rootPath]
+    [filteredExtensions, rootPath],
   );
 
   return navigationEntries;
