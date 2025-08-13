@@ -34,4 +34,5 @@ export * from './DataTable';
 export * from './Divider';
 export * from './Skeleton';
 export * from './ErrorCard';
+export * from './RadioCard';
 export * from './InlineEditor';
