@@ -1,13 +1,16 @@
-import { type ApiConfig, defaultConfig } from "./config";
-import { projectsApi, type ProjectsApi } from "../api/projects";
+import { bindingsApi, type BindingsApi } from "../api/bindings";
+import { BuildsApi, buildsApi } from "../api/build";
 import { componentsApi, type ComponentsApi } from "../api/components";
 import { organizationApi, type OrganizationApi } from "../api/organization";
-import { buildsApi } from "../api/build";
+import { projectsApi, type ProjectsApi } from "../api/projects";
+import { type ApiConfig, defaultConfig } from "./config";
 
 export interface ChoreoApiClient
   extends ProjectsApi,
     ComponentsApi,
-    OrganizationApi {
+    OrganizationApi,
+    BindingsApi,
+    BuildsApi {
   config: ApiConfig;
   setConfig(config: Partial<ApiConfig>): void;
 }
@@ -24,7 +27,6 @@ export class ChoreoClient implements ChoreoApiClient {
    * @param config - Partial configuration to merge with current config
    */
   setConfig(config: Partial<ApiConfig>): void {
-    console.log("configs", this.config);
     this.config = { ...this.config, ...config };
   }
 
@@ -40,25 +42,51 @@ export class ChoreoClient implements ChoreoApiClient {
   getComponent = (
     orgName: string,
     projectName: string,
-    componentName: string
+    componentName: string,
   ) =>
     componentsApi.getComponent(
       orgName,
       projectName,
       componentName,
-      this.config
+      this.config,
     );
 
   // Organization API methods
   listOrganizations = () => organizationApi.listOrganizations(this.config);
   getOrganization = (orgHandle: string) =>
     organizationApi.getOrganization(orgHandle, this.config);
-  getBuild = (orgName: string, projectName: string, buildId: string) =>
-    buildsApi.getBuild(orgName, projectName, buildId, this.config);
-  getBuildPlane = (orgName: string, projectName: string, buildId: string) =>
-    buildsApi.getBuildPlane(orgName, projectName, buildId, this.config);
-  listBuildPlanes = (orgName: string, projectName: string) =>
-    buildsApi.listBuildPlanes(orgName, projectName, this.config);
-  listBuilds = (orgName: string, projectName: string) =>
-    buildsApi.listBuilds(orgName, projectName, this.config);
+  listBuildPlanes = (orgName: string) =>
+    buildsApi.listBuildPlanes(orgName, this.config);
+  listBuilds = (orgName: string, projectName: string, componentName: string) =>
+    buildsApi.listBuilds(orgName, projectName, componentName, this.config);
+  postBuild = (orgName: string, projectName: string, componentName: string) =>
+    buildsApi.postBuild(orgName, projectName, componentName, this.config);
+
+  // Bindings API methods
+  listComponentBindings = (
+    orgName: string,
+    projectName: string,
+    componentName: string,
+  ) =>
+    bindingsApi.listComponentBindings(
+      orgName,
+      projectName,
+      componentName,
+      this.config,
+    );
+  updateComponentBinding = (
+    orgName: string,
+    projectName: string,
+    componentName: string,
+    bindingName: string,
+    data: Parameters<typeof bindingsApi.updateComponentBinding>[4],
+  ) =>
+    bindingsApi.updateComponentBinding(
+      orgName,
+      projectName,
+      componentName,
+      bindingName,
+      data,
+      this.config,
+    );
 }

@@ -1,26 +1,21 @@
+import { Build } from "@open-choreo/definitions";
 import { apiRequest, type ApiConfig } from "../core/config";
 import { BuildList, type BuildPlaneList } from "../types/types";
-import { type BuildPlane, type Build } from "@open-choreo/definitions";
 
 export interface BuildsApi {
-  listBuildPlanes(orgName: string, projectName: string, config?: ApiConfig): Promise<BuildPlaneList>;
-  getBuildPlane(
-    orgName: string,
-    projectName: string,
-    buildId: string,
-    config?: ApiConfig
-  ): Promise<{ success: boolean; data: BuildPlane }>;
-  getBuild(
-    orgName: string,
-    projectName: string,
-    buildId: string,
-    config?: ApiConfig
-  ): Promise<{ success: boolean; data: Build }>;
+  listBuildPlanes(orgName: string, config?: ApiConfig): Promise<BuildPlaneList>;
   listBuilds(
     orgName: string,
     projectName: string,
-    config?: ApiConfig
+    componentName: string,
+    config?: ApiConfig,
   ): Promise<BuildList>;
+  postBuild(
+    orgName: string,
+    projectName: string,
+    componentName: string,
+    config?: ApiConfig,
+  ): Promise<Build>;
 }
 
 export const buildsApi: BuildsApi = {
@@ -33,63 +28,13 @@ export const buildsApi: BuildsApi = {
    */
   async listBuildPlanes(
     orgName: string,
-    projectName: string,
-    config?: ApiConfig
+    config?: ApiConfig,
   ): Promise<BuildPlaneList> {
     const encodedOrgName = encodeURIComponent(orgName);
-    const encodedProjectName = encodeURIComponent(projectName);
     return apiRequest<BuildPlaneList>(
-      `/api/v1/orgs/${encodedOrgName}/projects/${encodedProjectName}/build-planes`,
+      `/api/v1/orgs/${encodedOrgName}/build-planes`,
       { method: "GET" },
-      config
-    );
-  },
-
-  /**
-   * Get build plane details
-   * @param orgName - Name of the organization
-   * @param projectName - Name of the project
-   * @param buildId - ID of the build plane
-   * @param config - Optional API configuration
-   * @returns Promise<{ success: boolean; data: BuildPlane }> - Build plane details
-   */
-  async getBuildPlane(
-    orgName: string,
-    projectName: string,
-    buildId: string,
-    config?: ApiConfig
-  ): Promise<{ success: boolean; data: BuildPlane }> {
-    const encodedOrgName = encodeURIComponent(orgName);
-    const encodedProjectName = encodeURIComponent(projectName);
-    const encodedBuildId = encodeURIComponent(buildId);
-    return apiRequest<{ success: boolean; data: BuildPlane }>(
-      `/api/v1/orgs/${encodedOrgName}/projects/${encodedProjectName}/build-planes/${encodedBuildId}`,
-      { method: "GET" },
-      config
-    );
-  },
-
-  /**
-   * Get build details
-   * @param orgName - Name of the organization
-   * @param projectName - Name of the project
-   * @param buildId - ID of the build
-   * @param config - Optional API configuration
-   * @returns Promise<{ success: boolean; data: Build }> - Build details
-   */
-  async getBuild(
-    orgName: string,
-    projectName: string,
-    buildId: string,
-    config?: ApiConfig
-  ): Promise<{ success: boolean; data: Build }> {
-    const encodedOrgName = encodeURIComponent(orgName);
-    const encodedProjectName = encodeURIComponent(projectName);
-    const encodedBuildId = encodeURIComponent(buildId);
-    return apiRequest<{ success: boolean; data: Build }>(
-      `/api/v1/orgs/${encodedOrgName}/projects/${encodedProjectName}/builds/${encodedBuildId}`,
-      { method: "GET" },
-      config
+      config,
     );
   },
 
@@ -103,14 +48,38 @@ export const buildsApi: BuildsApi = {
   async listBuilds(
     orgName: string,
     projectName: string,
-    config?: ApiConfig
+    componentName: string,
+    config?: ApiConfig,
   ): Promise<BuildList> {
     const encodedOrgName = encodeURIComponent(orgName);
     const encodedProjectName = encodeURIComponent(projectName);
+    const encodedComponentName = encodeURIComponent(componentName);
     return apiRequest<BuildList>(
-      `/api/v1/orgs/${encodedOrgName}/projects/${encodedProjectName}/builds`,
+      `/api/v1/orgs/${encodedOrgName}/projects/${encodedProjectName}/components/${encodedComponentName}/builds`,
       { method: "GET" },
-      config
+      config,
+    );
+  },
+  /**
+   * Post a build
+   * @param orgName - Name of the organization
+   * @param projectName - Name of the project
+   * @param config - Optional API configuration
+   * @returns Promise<Build> - Build details
+   */
+  async postBuild(
+    orgName: string,
+    projectName: string,
+    componentName: string,
+    config?: ApiConfig,
+  ): Promise<Build> {
+    const encodedOrgName = encodeURIComponent(orgName);
+    const encodedProjectName = encodeURIComponent(projectName);
+    const encodedComponentName = encodeURIComponent(componentName);
+    return apiRequest<Build>(
+      `/api/v1/orgs/${encodedOrgName}/projects/${encodedProjectName}/components/${encodedComponentName}/builds`,
+      { method: "POST" },
+      config,
     );
   },
 };

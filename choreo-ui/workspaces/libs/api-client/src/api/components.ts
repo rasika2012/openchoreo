@@ -5,13 +5,13 @@ export interface ComponentsApi {
   listProjectComponents(
     orgName: string,
     projectName: string,
-    config?: ApiConfig
+    config?: ApiConfig,
   ): Promise<ComponentList>;
   getComponent(
     orgName: string,
     projectName: string,
     componentName: string,
-    config?: ApiConfig
+    config?: ApiConfig,
   ): Promise<Component>;
 }
 
@@ -26,13 +26,13 @@ export const componentsApi: ComponentsApi = {
   async listProjectComponents(
     orgName: string,
     projectName: string,
-    config?: ApiConfig
+    config?: ApiConfig,
   ): Promise<ComponentList> {
     const encodedProjectName = encodeURIComponent(projectName);
     return apiRequest<ComponentList>(
       `/api/v1/orgs/${orgName}/projects/${encodedProjectName}/components`,
       { method: "GET" },
-      config
+      config,
     );
   },
 
@@ -48,14 +48,14 @@ export const componentsApi: ComponentsApi = {
     orgName: string,
     projectName: string,
     componentName: string,
-    config?: ApiConfig
+    config?: ApiConfig,
   ): Promise<Component> {
     const encodedProjectName = encodeURIComponent(projectName);
     const encodedComponentName = encodeURIComponent(componentName);
     return apiRequest<Component>(
       `/api/v1/orgs/${orgName}/projects/${encodedProjectName}/components/${encodedComponentName}`,
       { method: "GET" },
-      config
+      config,
     );
   },
 };

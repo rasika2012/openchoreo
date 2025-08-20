@@ -1,6 +1,5 @@
 import { BuildList } from "@open-choreo/api-client";
-import { Build } from "@open-choreo/definitions";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useClient } from "./useClient";
 
 export const useBuilds = (
@@ -11,31 +10,20 @@ export const useBuilds = (
   const client = useClient();
   const { data, error, isLoading } = useQuery<BuildList, Error>({
     queryKey: ["builds", client, orgHandle, projectHandle, componentHandle],
-    queryFn: () => client.listBuilds(orgHandle, projectHandle),
+    queryFn: () => client.listBuilds(orgHandle, projectHandle, componentHandle),
   });
   return { builds: data, error, loading: isLoading };
 };
 
-export const useBuild = (
+export const useTriggerBuild = (
   orgHandle: string,
   projectHandle: string,
   componentHandle: string,
-  buildId: string,
 ) => {
   const client = useClient();
-  const { data, error, isLoading } = useQuery<
-    { success: boolean; data: Build },
-    Error
-  >({
-    queryKey: [
-      "build",
-      client,
-      orgHandle,
-      projectHandle,
-      componentHandle,
-      buildId,
-    ],
-    queryFn: () => client.getBuild(orgHandle, projectHandle, buildId),
+  const { data, error, isPending, mutate } = useMutation({
+    mutationFn: () =>
+      client.postBuild(orgHandle, projectHandle, componentHandle),
   });
-  return { build: data, error, loading: isLoading };
+  return { triggerBuild: mutate, error, loading: isPending, data };
 };
