@@ -1,4 +1,3 @@
-import { Level } from "@open-choreo/design-system";
 import { ReactNode, type ComponentType, type LazyExoticComponent } from "react";
 
 export enum PluginExtensionType {

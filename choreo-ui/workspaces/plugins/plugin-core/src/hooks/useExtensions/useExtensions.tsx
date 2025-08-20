@@ -1,5 +1,6 @@
+import { useMemo } from "react";
 import { NavItemExpandableSubMenu } from "@open-choreo/design-system";
-import React, { useMemo } from "react";
+import { useMatch, useParams } from "react-router";
 import {
   PluginExtensionNavigation,
   PluginExtensionPoint,
@@ -8,8 +9,6 @@ import {
   PluginExtensionRoute,
 } from "../../plugin-types";
 import { PathsPatterns } from "../../plugin-types/paths";
-import { usePluginRegistry } from "../../Providers";
-import { useMatch, useParams } from "react-router";
 import { useFilteredExtensions } from "../../services";
 
 export function useMainNavExtentions(

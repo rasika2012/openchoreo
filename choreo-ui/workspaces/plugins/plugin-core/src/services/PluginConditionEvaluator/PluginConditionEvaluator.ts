@@ -1,22 +1,20 @@
+import { useMemo } from "react";
 import {
   usePathMatchComponent,
   usePathMatchProject,
   usePathMatchOrg,
-  useComponentType,
   useUrlParams,
   useComponent,
   useProject,
   useOrganization,
 } from "@open-choreo/choreo-context";
 import { usePluginRegistry } from "../../Providers";
-import { useMemo } from "react";
 
 // Helper to get current context
 export function GetCurrentContext() {
   const componentMatch = usePathMatchComponent();
   const projectMatch = usePathMatchProject();
   const orgMatch = usePathMatchOrg();
-  const componentType = useComponentType(); // on the component level the component type is recieved from the context
 
   if (componentMatch) return "component";
   if (projectMatch) return "project";
@@ -76,6 +74,8 @@ export function evaluateWhenExpression(
     // console.log("component: ", context.component?.data);
     // console.log("organization: ", context.org?.data);
 
+    console.log(component, project, org);
+
     const result = eval(when);
 
     return result;
@@ -86,29 +86,29 @@ export function evaluateWhenExpression(
 }
 
 // Evaluate a single condition
-function evaluateSingleCondition(
-  condition: string,
-  context: Record<string, any>,
-): boolean {
-  // Handle equality comparisons like "type === 'web-app'"
-  const equalityMatch = condition.match(/^(\w+)\s*===\s*['"]([^'"]+)['"]$/);
-  if (equalityMatch) {
-    const [, key, value] = equalityMatch;
-    return context[key] === value;
-  }
+// function evaluateSingleCondition(
+//   condition: string,
+//   context: Record<string, any>
+// ): boolean {
+//   // Handle equality comparisons like "type === 'web-app'"
+//   const equalityMatch = condition.match(/^(\w+)\s*===\s*['"]([^'"]+)['"]$/);
+//   if (equalityMatch) {
+//     const [, key, value] = equalityMatch;
+//     return context[key] === value;
+//   }
 
-  // Handle simple boolean checks like "component", "web-app"
-  if (condition in context) {
-    return !!context[condition];
-  }
+//   // Handle simple boolean checks like "component", "web-app"
+//   if (condition in context) {
+//     return !!context[condition];
+//   }
 
-  // Handle string values that should be compared to type
-  if (context.type && context.type === condition) {
-    return true;
-  }
+//   // Handle string values that should be compared to type
+//   if (context.type && context.type === condition) {
+//     return true;
+//   }
 
-  return false;
-}
+//   return false;
+// }
 
 // Hook to get filtered extensions based on when conditions
 export function useFilteredExtensions(extensionPoint: any) {

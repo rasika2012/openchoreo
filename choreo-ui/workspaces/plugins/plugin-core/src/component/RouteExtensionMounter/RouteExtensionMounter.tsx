@@ -1,7 +1,7 @@
-import { Route, Routes } from "react-router";
-import { PluginExtensionPoint } from "../../plugin-types";
-import { useExtentions } from "../../hooks";
 import { PresetErrorPage } from "@open-choreo/common-views";
+import { Route, Routes } from "react-router";
+import { useExtentions } from "../../hooks";
+import { PluginExtensionPoint } from "../../plugin-types";
 
 interface RouteExtensionMounterProps {
   extensionPoint: PluginExtensionPoint;

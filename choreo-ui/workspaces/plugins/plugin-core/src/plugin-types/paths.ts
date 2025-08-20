@@ -24,11 +24,17 @@ export const generatePath = (
     .map(([key, value]) => `${key}=${value}`)
     .join("&");
   if (componentHandle) {
-    return `/organization/${orgHandle}/project/${projectHandle}/component/${componentHandle}${subPath ? `/${subPath}` : ""}?${searchParamsString}`;
+    return `/organization/${orgHandle}/project/${projectHandle}/component/${componentHandle}${
+      subPath ? `/${subPath}` : ""
+    }?${searchParamsString}`;
   } else if (projectHandle) {
-    return `/organization/${orgHandle}/project/${projectHandle}${subPath ? `/${subPath}` : ""}?${searchParamsString}`;
+    return `/organization/${orgHandle}/project/${projectHandle}${
+      subPath ? `/${subPath}` : ""
+    }?${searchParamsString}`;
   } else if (orgHandle) {
-    return `/organization/${orgHandle}${subPath ? `/${subPath}` : ""}?${searchParamsString}`;
+    return `/organization/${orgHandle}${
+      subPath ? `/${subPath}` : ""
+    }?${searchParamsString}`;
   }
 };
 

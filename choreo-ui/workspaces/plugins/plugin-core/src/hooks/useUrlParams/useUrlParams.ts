@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { useMatch, useParams } from "react-router";
 import { PathsPatterns } from "@open-choreo/choreo-context";
+import { useMatch, useParams } from "react-router";
 
 export function useUrlParams() {
   return useParams<{
