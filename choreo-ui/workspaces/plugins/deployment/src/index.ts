@@ -1,9 +1,10 @@
 import { type PluginManifest } from "@open-choreo/plugin-core";
 
-import {panel} from "./panel";
+import { deploymentPage } from "./Deployment";
+import { deploymentMenu } from "./NavItems";
 
 export const deploymentPlugin = {
-    name: "Deployment",
-    description: "Deployment Plugin",
-    extensions: [panel],
+  name: "Deployment",
+  description: "Deployment Plugin",
+  extensions: [deploymentMenu, deploymentPage],
 } as PluginManifest;
