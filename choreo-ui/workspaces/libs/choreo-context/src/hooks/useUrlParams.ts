@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useMatch, useParams } from "react-router";
 import { PathsPatterns } from "./../paths";
-import { useSelectedComponent } from "./useComponent";
+import { useSelectedComponent } from "./useComponents";
 
 export function useUrlParams() {
   return useParams<{

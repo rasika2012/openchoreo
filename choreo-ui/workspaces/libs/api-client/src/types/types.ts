@@ -5,6 +5,8 @@ import {
   BuildPlane,
   Build,
   ComponentBinding,
+  DeploymentPipeline,
+  Workload,
 } from "@open-choreo/definitions";
 
 export interface OrganizationListData {
@@ -97,4 +99,26 @@ export interface ComponentBindingList {
 export interface ComponentBindingResponse {
   success: boolean;
   data: ComponentBinding;
+}
+
+export interface DeploymentPipelineResponse {
+  success: boolean;
+  data: DeploymentPipeline;
+}
+
+export interface WorkloadListData {
+  items: Workload[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface WorkloadList {
+  success: boolean;
+  data: WorkloadListData;
+}
+
+export interface WorkloadResponse {
+  success: boolean;
+  data: Workload;
 }

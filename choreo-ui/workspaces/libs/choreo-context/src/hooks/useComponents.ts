@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useClient } from "./useClient";
+import { useClient } from "./useClients";
 import {
   useOrgHandle,
   useComponentHandle,

@@ -1,4 +1,4 @@
-import { UpdateComponentBindingRequest } from "@open-choreo/definitions";
+import { ComponentBinding } from "@open-choreo/definitions";
 import { apiRequest, type ApiConfig } from "../core/config";
 import type {
   ComponentBindingList,
@@ -17,7 +17,7 @@ export interface BindingsApi {
     projectName: string,
     componentName: string,
     bindingName: string,
-    data: UpdateComponentBindingRequest,
+    data: ComponentBinding,
     config?: ApiConfig,
   ): Promise<ComponentBindingResponse>;
 }
@@ -62,7 +62,7 @@ export const bindingsApi: BindingsApi = {
     projectName: string,
     componentName: string,
     bindingName: string,
-    data: UpdateComponentBindingRequest,
+    data: ComponentBinding,
     config?: ApiConfig,
   ): Promise<ComponentBindingResponse> {
     const encodedOrgName = encodeURIComponent(orgName);

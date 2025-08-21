@@ -25,6 +25,12 @@ export type { BuildsApi } from "./api/build";
 export { bindingsApi } from "./api/bindings";
 export type { BindingsApi } from "./api/bindings";
 
+export { deploymentPipelineApi } from "./api/deployment-pipeline";
+export type { DeploymentPipelineApi } from "./api/deployment-pipeline";
+
+export { workloadsApi } from "./api/workloads";
+export type { WorkloadsApi } from "./api/workloads";
+
 // Types
 export type {
   OrganizationList,
@@ -41,6 +47,9 @@ export type {
   ComponentBindingList,
   ComponentBindingListData,
   ComponentBindingResponse,
+  DeploymentPipelineResponse,
+  WorkloadList,
+  WorkloadResponse,
 } from "./types/types";
 
 // Default export

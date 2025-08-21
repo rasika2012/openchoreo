@@ -2,9 +2,9 @@ import {
   ComponentBindingList,
   ComponentBindingResponse,
 } from "@open-choreo/api-client";
-import { UpdateComponentBindingRequest } from "@open-choreo/definitions";
+import { ComponentBinding } from "@open-choreo/definitions";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useClient } from "./useClient";
+import { useClient } from "./useClients";
 
 export const useComponentBindings = (
   orgHandle: string,
@@ -36,9 +36,9 @@ export const useUpdateComponentBinding = (
   const { data, error, isPending, mutate } = useMutation<
     ComponentBindingResponse,
     Error,
-    UpdateComponentBindingRequest
+    ComponentBinding
   >({
-    mutationFn: (updateData: UpdateComponentBindingRequest) =>
+    mutationFn: (updateData: ComponentBinding) =>
       client.updateComponentBinding(
         orgHandle,
         projectHandle,

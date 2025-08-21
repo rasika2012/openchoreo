@@ -1,6 +1,6 @@
 import { BuildList } from "@open-choreo/api-client";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useClient } from "./useClient";
+import { useClient } from "./useClients";
 
 export const useBuilds = (
   orgHandle: string,

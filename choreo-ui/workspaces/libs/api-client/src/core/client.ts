@@ -1,6 +1,11 @@
 import { bindingsApi, type BindingsApi } from "../api/bindings";
 import { BuildsApi, buildsApi } from "../api/build";
 import { componentsApi, type ComponentsApi } from "../api/components";
+import {
+  deploymentPipelineApi,
+  type DeploymentPipelineApi,
+} from "../api/deployment-pipeline";
+import { workloadsApi, type WorkloadsApi } from "../api/workloads";
 import { organizationApi, type OrganizationApi } from "../api/organization";
 import { projectsApi, type ProjectsApi } from "../api/projects";
 import { type ApiConfig, defaultConfig } from "./config";
@@ -10,7 +15,9 @@ export interface ChoreoApiClient
     ComponentsApi,
     OrganizationApi,
     BindingsApi,
-    BuildsApi {
+    BuildsApi,
+    DeploymentPipelineApi,
+    WorkloadsApi {
   config: ApiConfig;
   setConfig(config: Partial<ApiConfig>): void;
 }
@@ -86,6 +93,40 @@ export class ChoreoClient implements ChoreoApiClient {
       projectName,
       componentName,
       bindingName,
+      data,
+      this.config,
+    );
+
+  // Deployment Pipeline API methods
+  getDeploymentPipeline = (orgName: string, projectName: string) =>
+    deploymentPipelineApi.getDeploymentPipeline(
+      orgName,
+      projectName,
+      this.config,
+    );
+
+  // Workloads API methods
+  listWorkloads = (
+    orgName: string,
+    projectName: string,
+    componentName: string,
+  ) =>
+    workloadsApi.listWorkloads(
+      orgName,
+      projectName,
+      componentName,
+      this.config,
+    );
+  createWorkload = (
+    orgName: string,
+    projectName: string,
+    componentName: string,
+    data: Parameters<typeof workloadsApi.createWorkload>[3],
+  ) =>
+    workloadsApi.createWorkload(
+      orgName,
+      projectName,
+      componentName,
       data,
       this.config,
     );

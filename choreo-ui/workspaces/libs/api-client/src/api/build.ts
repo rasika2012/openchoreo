@@ -32,7 +32,7 @@ export const buildsApi: BuildsApi = {
   ): Promise<BuildPlaneList> {
     const encodedOrgName = encodeURIComponent(orgName);
     return apiRequest<BuildPlaneList>(
-      `/api/v1/orgs/${encodedOrgName}/build-planes`,
+      `/api/v1/orgs/${encodedOrgName}/buildplanes`,
       { method: "GET" },
       config,
     );

@@ -11,18 +11,18 @@ export const organizationApi: OrganizationApi = {
     return apiRequest<OrganizationList>(
       `/api/v1/orgs`,
       { method: "GET" },
-      config
+      config,
     );
   },
 
   async getOrganization(
     orgHandle: string,
-    config?: ApiConfig
+    config?: ApiConfig,
   ): Promise<Organization> {
     return apiRequest<Organization>(
       `/api/v1/orgs/${orgHandle}`,
       { method: "GET" },
-      config
+      config,
     );
   },
 };
