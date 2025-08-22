@@ -3,8 +3,8 @@ export interface BuildPlane {
   name: string;
   description: string;
   status: "pending" | "in_progress" | "completed" | "failed";
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Build {
@@ -15,5 +15,5 @@ export interface Build {
   orgName: string;
   commit: string;
   status: "pending" | "in_progress" | "completed" | "failed";
-  createdAt: Date;
+  createdAt: string;
 }

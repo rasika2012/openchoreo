@@ -174,7 +174,7 @@ export const myPlugin = {
 } as PluginManifest;
 ```
 
-### 4. Create Extension (src/panel/index.tsx)
+### 4. Create Extension (src/panel/index.ts)
 
 ```typescript
 import {
@@ -316,7 +316,7 @@ const MyMainPage: React.FC = () => {
 Create a new extension that mounts to your custom extension point:
 
 ```typescript
-// src/feature-detail/index.tsx
+// src/feature-detail/index.ts
 import { type PluginExtensionRoute } from "@open-choreo/plugin-core";
 import { myDetailsExtensionPoint } from "../route/MyMainPage";
 

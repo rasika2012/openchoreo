@@ -100,7 +100,7 @@ function createElement({ type, name }) {
             styled: path.join(elementDir, `${name}.styled.tsx`),
             stories: path.join(elementDir, `${name}.stories.tsx`),
             test: path.join(elementDir, `${name}.test.tsx`),
-            index: path.join(elementDir, 'index.tsx'),
+            index: path.join(elementDir, 'index.ts'),
         };
 
         // Write files
@@ -118,7 +118,7 @@ function createElement({ type, name }) {
         }
 
         // Update main index file
-        const mainIndexPath = path.join(baseDir, 'index.tsx');
+        const mainIndexPath = path.join(baseDir, 'index.ts');
         const exportStatement = `export * from './${name}';\n`;
         
         if (fs.existsSync(mainIndexPath)) {

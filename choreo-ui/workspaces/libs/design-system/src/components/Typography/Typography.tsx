@@ -23,6 +23,7 @@ export interface TypographyProps {
   color?: string;
   noWrap?: boolean;
   ellipsis?: boolean;
+  component?: React.ElementType;
 }
 
 /**
@@ -30,13 +31,14 @@ export interface TypographyProps {
  * @component
  */
 export const Typography = React.forwardRef<HTMLDivElement, TypographyProps>(
-  ({ children, className, monospace, color, ...props }, ref) => {
+  ({ children, className, monospace, color, component, ...props }, ref) => {
     return (
       <StyledTypography
         ref={ref}
         className={className}
         monospace={monospace}
         color={color}
+        component={component}
         {...props}
       >
         {children}
