@@ -6,6 +6,7 @@ import {
   type DeploymentPipelineApi,
 } from "../api/deployment-pipeline";
 import { workloadsApi, type WorkloadsApi } from "../api/workloads";
+import { environmentsApi, type EnvironmentsApi } from "../api/environents";
 import { organizationApi, type OrganizationApi } from "../api/organization";
 import { projectsApi, type ProjectsApi } from "../api/projects";
 import { type ApiConfig, defaultConfig } from "./config";
@@ -17,7 +18,8 @@ export interface ChoreoApiClient
     BindingsApi,
     BuildsApi,
     DeploymentPipelineApi,
-    WorkloadsApi {
+    WorkloadsApi,
+    EnvironmentsApi {
   config: ApiConfig;
   setConfig(config: Partial<ApiConfig>): void;
 }
@@ -130,4 +132,15 @@ export class ChoreoClient implements ChoreoApiClient {
       data,
       this.config,
     );
+
+  // Environments API methods
+  listEnvironments = (orgName: string) =>
+    environmentsApi.listEnvironments(orgName, this.config);
+  createEnvironment = (
+    orgName: string,
+    data: Parameters<typeof environmentsApi.createEnvironment>[1],
+  ) =>
+    environmentsApi.createEnvironment(orgName, data, this.config);
+  getEnvironment = (orgName: string, envName: string) =>
+    environmentsApi.getEnvironment(orgName, envName, this.config);
 }

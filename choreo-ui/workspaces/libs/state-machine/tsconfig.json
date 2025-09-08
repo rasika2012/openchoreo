@@ -1,5 +1,4 @@
 {
-  // "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
     "declaration": true,
@@ -17,7 +16,8 @@
     "noEmit": false,
     "baseUrl": ".",
     "rootDir": ".",
-    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "skipLibCheck": true
   },
   "include": ["./index.ts"],
   "exclude": [

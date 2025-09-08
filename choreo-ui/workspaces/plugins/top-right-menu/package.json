@@ -32,6 +32,7 @@
     "react-router": "~7.6.2",
     "react-intl": "~7.1.11",
     "@open-choreo/choreo-context": "workspace:*",
+    "@open-choreo/state-machine": "workspace:*",
     "dayjs": "~1.11.13"
   },
   "devDependencies": {

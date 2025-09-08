@@ -7,6 +7,7 @@ import {
   ComponentBinding,
   DeploymentPipeline,
   Workload,
+  Environment,
 } from "@open-choreo/definitions";
 
 export interface OrganizationListData {
@@ -121,4 +122,21 @@ export interface WorkloadList {
 export interface WorkloadResponse {
   success: boolean;
   data: Workload;
+}
+
+export interface EnvironmentListData {
+  items: Environment[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface EnvironmentList {
+  success: boolean;
+  data: EnvironmentListData;
+}
+
+export interface EnvironmentResponse {
+  success: boolean;
+  data: Environment;
 }

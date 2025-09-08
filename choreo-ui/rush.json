@@ -483,6 +483,10 @@
       "projectFolder": "workspaces/libs/choreo-context"
     },
     {
+      "packageName": "@open-choreo/state-machine",
+      "projectFolder": "workspaces/libs/state-machine"
+    },
+    {
       "packageName": "@open-choreo/component-listing",
       "projectFolder": "workspaces/plugins/component-listing"
     },

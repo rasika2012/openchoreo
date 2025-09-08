@@ -10,3 +10,4 @@ export * from "./useBuilds";
 export * from "./useBuildPlanes";
 export * from "./useDeploymentPipeline";
 export * from "./useWorkloads";
+export * from "./useEnvironments";

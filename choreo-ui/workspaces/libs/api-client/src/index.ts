@@ -31,6 +31,9 @@ export type { DeploymentPipelineApi } from "./api/deployment-pipeline";
 export { workloadsApi } from "./api/workloads";
 export type { WorkloadsApi } from "./api/workloads";
 
+export { environmentsApi } from "./api/environents";
+export type { EnvironmentsApi } from "./api/environents";
+
 // Types
 export type {
   OrganizationList,
@@ -50,6 +53,8 @@ export type {
   DeploymentPipelineResponse,
   WorkloadList,
   WorkloadResponse,
+  EnvironmentList,
+  EnvironmentResponse,
 } from "./types/types";
 
 // Default export

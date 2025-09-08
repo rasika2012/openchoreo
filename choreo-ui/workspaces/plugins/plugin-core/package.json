@@ -30,6 +30,7 @@
     "react-intl": "~7.1.11",
     "dayjs": "~1.11.13",
     "@open-choreo/choreo-context": "workspace:*",
+    "@open-choreo/state-machine": "workspace:*",
     "@open-choreo/api-client": "workspace:*"
   },
   "devDependencies": {
