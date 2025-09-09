@@ -19,9 +19,7 @@ export interface EnvCardBaseProps {
   envName: string;
   isRefetching?: boolean;
   isLoading?: boolean;
-  isRedeploying?: boolean;
-  isDeploying?: boolean;
-  isStopping?: boolean;
+  status?: string;
   onRefresh?: () => void;
   onRedeploy?: () => void;
   onStop?: () => void;
@@ -33,8 +31,7 @@ export function EnvCardBase(props: EnvCardBaseProps) {
     envName,
     isRefetching,
     isLoading,
-    isRedeploying,
-    isStopping,
+    status,
     onRefresh,
     onRedeploy,
     onStop,
@@ -50,11 +47,11 @@ export function EnvCardBase(props: EnvCardBaseProps) {
         justifyContent="space-between"
         alignItems="center"
       >
-        <Typography variant="h6">{envName}</Typography>
+        <Typography variant="h4">{envName}</Typography>
         <ButtonContainer testId="envcardbase-actions">
           {onStop && (
             <Button
-              disabled={isStopping}
+              disabled={status?.endsWith('ing')}
               onClick={onStop}
               variant="outlined"
               color="error"
@@ -69,11 +66,11 @@ export function EnvCardBase(props: EnvCardBaseProps) {
           )}
           {onRedeploy && (
             <Button
-              disabled={isRedeploying}
+              disabled={status?.endsWith('ing')}
               onClick={onRedeploy}
               variant="outlined"
               startIcon={
-                <Rotate disabled={!isRedeploying}>
+                <Rotate disabled={!status?.endsWith('ing')}>
                   <ReloadIcon fontSize="inherit" />
                 </Rotate>
               }
@@ -88,14 +85,14 @@ export function EnvCardBase(props: EnvCardBaseProps) {
           )}
           {onRefresh && (
             <IconButton
-              disabled={isRefetching}
+              disabled={isRefetching || status?.endsWith('ing')}
               onClick={onRefresh}
               variant="square"
               testId="envcardbase-refresh"
               color="primary"
               size="small"
             >
-              <Rotate disabled={!isRefetching}>
+              <Rotate disabled={!isRefetching || status?.endsWith('ing')}>
                 <RefreshIcon fontSize="inherit" />
               </Rotate>
             </IconButton>

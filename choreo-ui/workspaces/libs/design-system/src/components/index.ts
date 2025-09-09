@@ -38,3 +38,5 @@ export * from './ErrorCard';
 export * from './RadioCard';
 export * from './InlineEditor';
 export * from './CircularLoader';
+export * from './Alert';
+export * from './Status';
