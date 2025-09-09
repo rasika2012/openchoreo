@@ -174,7 +174,7 @@ The console uses a plugin-based architecture where functionality is distributed 
 workspaces/plugins/my-plugin/
 ├── src/
 │   ├── panel/
-│   │   ├── index.tsx           # Panel entry point
+│   │   ├── index.ts           # Panel entry point
 │   │   └── MyPluginPanel.tsx   # Main panel component
 │   └── index.ts                # Plugin exports
 ├── package.json                # Plugin dependencies

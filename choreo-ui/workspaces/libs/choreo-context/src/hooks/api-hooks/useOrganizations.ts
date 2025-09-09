@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useClient } from "./useClient";
-import { useOrgHandle } from "./useUrlParams";
+import { useClient } from "../useClients";
+import { useOrgHandle } from "../useUrlParams";
 
 export const useOrganizationList = () => {
   const client = useClient();

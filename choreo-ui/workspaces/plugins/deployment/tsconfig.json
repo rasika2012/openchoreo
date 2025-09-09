@@ -16,7 +16,8 @@
     "isolatedModules": true,
     "noEmit": false,
     "baseUrl": ".",
-    "rootDir": "."
+    "rootDir": ".",
+    "skipLibCheck": true,
   },
   "include": ["./index.ts"],
   "exclude": [

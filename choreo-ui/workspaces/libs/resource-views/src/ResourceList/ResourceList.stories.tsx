@@ -116,11 +116,9 @@ export const Empty: Story = {
     footerResourceListCardLeft: (
       <Box display="flex" alignItems="center" gap={4}>
         <TimeIcon fontSize="inherit" />
-        <Tooltip
-          title={`Last updated: ${new Date(resources[0].lastUpdated).toLocaleDateString()}`}
-        >
+        <Tooltip title="No resources available">
           <Typography variant="body1" color="text.secondary">
-            {new Date(resources[0].lastUpdated).toLocaleDateString()}
+            No resources
           </Typography>
         </Tooltip>
       </Box>

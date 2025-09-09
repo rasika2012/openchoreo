@@ -1,3 +1,4 @@
+export * from './SidePanel';
 // Core components that are needed immediately
 export * from './Button';
 export * from './Card';
@@ -36,3 +37,6 @@ export * from './Skeleton';
 export * from './ErrorCard';
 export * from './RadioCard';
 export * from './InlineEditor';
+export * from './CircularLoader';
+export * from './Alert';
+export * from './Status';

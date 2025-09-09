@@ -97,16 +97,16 @@ function generateSrcIndex(pluginName) {
 }
 
 /**
- * Generates the panel/index.tsx content for a plugin
+ * Generates the panel/index.ts content for a plugin
  * @param {string} pluginName - Name of the plugin
- * @returns {string} panel/index.tsx content
+ * @returns {string} panel/index.ts content
  */
 function generatePanelIndex(pluginName) {
     const data = {
         pluginName,
         pluginKey: pluginName.toLowerCase().replace(/([A-Z])/g, '-$1').toLowerCase()
     };
-    return renderTemplate('panel-index.tsx.mustache', data);
+    return renderTemplate('panel-index.ts.mustache', data);
 }
 
 /**
@@ -142,7 +142,7 @@ function generateAllPluginFiles(pluginName, outputPath = null) {
         'eslint.config.js': generateEslintConfig(),
         'index.ts': generateMainIndex(),
         'src/index.ts': generateSrcIndex(pluginName),
-        'src/panel/index.tsx': generatePanelIndex(pluginName),
+        'src/panel/index.ts': generatePanelIndex(pluginName),
         [`src/panel/${pluginName}Panel.tsx`]: generatePanelComponent(pluginName),
         '.gitignore': generateGitignore()
     };

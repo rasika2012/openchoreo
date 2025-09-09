@@ -1,10 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
-import { useClient } from "./useClient";
+import { Component } from "@open-choreo/api-client";
+import { CreateComponentRequest } from "@open-choreo/definitions";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useClient } from "../useClients";
 import {
   useOrgHandle,
   useComponentHandle,
   useProjectHandle,
-} from "./useUrlParams";
+} from "../useUrlParams";
 
 export const useComponent = (
   orgName: string,
@@ -66,4 +68,25 @@ export const useSelectedComponent = () => {
     isFetching,
     refetch,
   };
+};
+
+export const useCreateComponent = (orgName: string, projectId: string) => {
+  const client = useClient();
+  const queryClient = useQueryClient();
+
+  const { data, error, isPending, mutate } = useMutation<
+    Component,
+    Error,
+    CreateComponentRequest
+  >({
+    mutationFn: (payload: CreateComponentRequest) =>
+      client.createComponent(orgName, projectId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["componentList", projectId, orgName, client],
+      });
+    },
+  });
+
+  return { createComponent: mutate, error, loading: isPending, data };
 };

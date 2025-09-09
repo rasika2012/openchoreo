@@ -6,6 +6,9 @@ import { ThemeProvider } from '@open-choreo/design-system';
 import './fonts/fonts.css'
 import { BrowserRouter } from 'react-router';
 import { IntlProvider } from 'react-intl';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import dayjs from 'dayjs';
+dayjs.extend(relativeTime);
 
 export const withTheme: Decorator = (Story) => {
   const isDark = useDarkMode();

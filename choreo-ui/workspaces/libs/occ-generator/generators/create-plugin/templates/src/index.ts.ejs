@@ -1,0 +1,9 @@
+import { type PluginManifest } from "@open-choreo/plugin-core";
+
+import { panel } from "./panel";
+
+export const <%= name.replace(/[^a-zA-Z0-9]/g, '') %>Plugin = {
+  name: "<%= name %>",
+  description: "<%= name %> Plugin",
+  extensions: [panel],
+} as PluginManifest;

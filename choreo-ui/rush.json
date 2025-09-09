@@ -483,6 +483,10 @@
       "projectFolder": "workspaces/libs/choreo-context"
     },
     {
+      "packageName": "@open-choreo/state-machine",
+      "projectFolder": "workspaces/libs/state-machine"
+    },
+    {
       "packageName": "@open-choreo/component-listing",
       "projectFolder": "workspaces/plugins/component-listing"
     },
@@ -497,6 +501,11 @@
     {
       "packageName": "@open-choreo/eslint-config",
       "projectFolder": "workspaces/packages/eslint-config"
+    },
+    {
+      "packageName": "@open-choreo/generator-occ",
+      "projectFolder": "workspaces/libs/occ-generator"
     }
+
   ]
 }

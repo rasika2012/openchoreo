@@ -1,1 +1,1 @@
-export * from './ComponentTypes';
+export * from './BuildCard';
