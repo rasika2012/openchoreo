@@ -1,3 +1,4 @@
+import { CreateProjectRequest } from "@open-choreo/definitions";
 import { apiRequest, type ApiConfig } from "../core/config";
 import { type Project, type ProjectList } from "../types/types";
 
@@ -6,7 +7,12 @@ export interface ProjectsApi {
   getProject(
     orgName: string,
     projectName: string,
-    config?: ApiConfig
+    config?: ApiConfig,
+  ): Promise<Project>;
+  createProject(
+    orgName: string,
+    data: CreateProjectRequest,
+    config?: ApiConfig,
   ): Promise<Project>;
 }
 
@@ -19,13 +25,13 @@ export const projectsApi: ProjectsApi = {
    */
   async listProjects(
     orgName: string,
-    config?: ApiConfig
+    config?: ApiConfig,
   ): Promise<ProjectList> {
     const encodedOrgName = encodeURIComponent(orgName);
     return apiRequest<ProjectList>(
       `/api/v1/orgs/${encodedOrgName}/projects`,
       { method: "GET" },
-      config
+      config,
     );
   },
 
@@ -39,14 +45,34 @@ export const projectsApi: ProjectsApi = {
   async getProject(
     orgName: string,
     projectName: string,
-    config?: ApiConfig
+    config?: ApiConfig,
   ): Promise<Project> {
     const encodedProjectName = encodeURIComponent(projectName);
     const encodedOrgName = encodeURIComponent(orgName);
     return apiRequest<Project>(
       `/api/v1/orgs/${encodedOrgName}/projects/${encodedProjectName}`,
       { method: "GET" },
-      config
+      config,
+    );
+  },
+
+  /**
+   * Create a new project
+   */
+  async createProject(
+    orgName: string,
+    data: CreateProjectRequest,
+    config?: ApiConfig,
+  ): Promise<Project> {
+    const encodedOrgName = encodeURIComponent(orgName);
+    return apiRequest<Project>(
+      `/api/v1/orgs/${encodedOrgName}/projects`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      },
+      config,
     );
   },
 };

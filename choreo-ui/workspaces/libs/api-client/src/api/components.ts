@@ -1,3 +1,4 @@
+import { CreateComponentRequest } from "@open-choreo/definitions";
 import { apiRequest, type ApiConfig } from "../core/config";
 import { type Component, type ComponentList } from "../types/types";
 
@@ -11,6 +12,12 @@ export interface ComponentsApi {
     orgName: string,
     projectName: string,
     componentName: string,
+    config?: ApiConfig,
+  ): Promise<Component>;
+  createComponent(
+    orgName: string,
+    projectName: string,
+    data: CreateComponentRequest,
     config?: ApiConfig,
   ): Promise<Component>;
 }
@@ -55,6 +62,24 @@ export const componentsApi: ComponentsApi = {
     return apiRequest<Component>(
       `/api/v1/orgs/${orgName}/projects/${encodedProjectName}/components/${encodedComponentName}`,
       { method: "GET" },
+      config,
+    );
+  },
+
+  async createComponent(
+    orgName: string,
+    projectName: string,
+    data: CreateComponentRequest,
+    config?: ApiConfig,
+  ): Promise<Component> {
+    const encodedProjectName = encodeURIComponent(projectName);
+    return apiRequest<Component>(
+      `/api/v1/orgs/${orgName}/projects/${encodedProjectName}/components`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      },
       config,
     );
   },

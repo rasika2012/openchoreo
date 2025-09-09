@@ -6,34 +6,49 @@ export interface ComponentBinding {
   orgName: string;
   environment: string;
   status: BindingStatus;
-  webApplicationBinding?: WebApplicationBinding | ServiceBinding;
+  serviceBinding?: ServiceBinding;
+  webApplicationBinding?: WebApplicationBinding;
+  scheduledTaskBinding?: ScheduledTaskBinding;
 }
 
 export interface BindingStatus {
   reason: string;
   message: string;
-  status: string;
+  status:
+    | "InProgress"
+    | "Active"
+    | "Failed"
+    | "Suspended"
+    | "NotYetDeployed";
   lastTransitioned: string;
 }
 
 export interface WebApplicationBinding {
-  endpoints: Endpoint[];
+  endpoints: EndpointStatus[];
   image: string;
+  releaseState?: string;
 }
 
 export interface ServiceBinding {
-  endpoints: Endpoint[];
+  endpoints: EndpointStatus[];
   image: string;
+  releaseState?: string;
 }
 
-export interface Endpoint {
+export interface ScheduledTaskBinding {
+  image: string;
+  releaseState?: string;
+}
+
+export interface EndpointStatus {
   name: string;
   type: string;
-  project: EndpointConfig;
-  public: EndpointConfig;
+  project: ExposedEndpoint;
+  organization?: ExposedEndpoint;
+  public?: ExposedEndpoint;
 }
 
-export interface EndpointConfig {
+export interface ExposedEndpoint {
   host: string;
   port: number;
   scheme: string;

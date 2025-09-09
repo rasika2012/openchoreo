@@ -34,6 +34,18 @@ export type { WorkloadsApi } from "./api/workloads";
 export { environmentsApi } from "./api/environents";
 export type { EnvironmentsApi } from "./api/environents";
 
+export { dataPlanesApi } from "./api/dataplanes";
+export type { DataPlanesApi } from "./api/dataplanes";
+
+export { observerApi } from "./api/observer";
+export type { ObserverApi } from "./api/observer";
+
+export { healthApi } from "./api/health";
+export type { HealthApi } from "./api/health";
+
+export { resourceOpsApi } from "./api/resource-ops";
+export type { ResourceOpsApi } from "./api/resource-ops";
+
 // Types
 export type {
   OrganizationList,
@@ -55,6 +67,11 @@ export type {
   WorkloadResponse,
   EnvironmentList,
   EnvironmentResponse,
+  DataPlaneList,
+  DataPlaneResponse,
+  ComponentObserverResponse,
+  ApplyResponse,
+  DeleteResponse,
 } from "./types/types";
 
 // Default export

@@ -1,6 +1,6 @@
 import { BuildList } from "@open-choreo/api-client";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useClient } from "./useClients";
+import { useClient } from "../useClients";
 
 export const useBuilds = (
   orgHandle: string,
@@ -19,11 +19,12 @@ export const useTriggerBuild = (
   orgHandle: string,
   projectHandle: string,
   componentHandle: string,
+  commit?: string,
 ) => {
   const client = useClient();
   const { data, error, isPending, mutate } = useMutation({
     mutationFn: () =>
-      client.postBuild(orgHandle, projectHandle, componentHandle),
+      client.postBuild(orgHandle, projectHandle, componentHandle, commit),
   });
   return { triggerBuild: mutate, error, loading: isPending, data };
 };

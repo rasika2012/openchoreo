@@ -15,4 +15,6 @@ export interface PromotionPath {
 
 export interface TargetEnvironmentRef {
   name: string;
+  requiresApproval?: boolean;
+  isManualApprovalRequired?: boolean;
 }

@@ -16,6 +16,7 @@
   "license": "Apache-2.0 license",
   "scripts": {
     "lint": "eslint . --config ./eslint.config.js",
+    "build": "echo \"No build configured\" && exit 0",
     "test": "echo \"No tests configured\" && exit 0"
   },
   "dependencies": {

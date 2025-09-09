@@ -12,10 +12,10 @@ export interface Environment {
 
 export interface CreateEnvironmentRequest {
   name: string;
-  description: string;
-  displayName: string;
+  description?: string;
+  displayName?: string;
   namespace?: string;
   dataPlaneRef?: string;
   dnsPrefix?: string;
-  isProduction?: boolean;
+  isProduction: boolean;
 }

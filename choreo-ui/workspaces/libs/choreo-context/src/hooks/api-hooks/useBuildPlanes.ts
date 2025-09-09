@@ -1,6 +1,6 @@
 import { BuildPlaneList } from "@open-choreo/api-client";
 import { useQuery } from "@tanstack/react-query";
-import { useClient } from "./useClients";
+import { useClient } from "../useClients";
 
 export const useBuildPlanes = (orgHandle: string) => {
   const client = useClient();

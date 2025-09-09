@@ -32,9 +32,9 @@ export function EnvDeploymentContent(props: EnvDeploymentContentProps) {
           {binding?.webApplicationBinding?.endpoints
             .map(
               (endpoint) =>
-                endpoint?.public.uri +
+                endpoint?.public?.uri +
                 ' ' +
-                endpoint?.project.uri +
+                endpoint?.project?.uri +
                 ' ' +
                 endpoint?.type
             )

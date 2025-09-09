@@ -8,6 +8,10 @@ import {
   DeploymentPipeline,
   Workload,
   Environment,
+  DataPlane,
+  ComponentObserver,
+  ApplyResourceResponse,
+  DeleteResourceResponse,
 } from "@open-choreo/definitions";
 
 export interface OrganizationListData {
@@ -139,4 +143,36 @@ export interface EnvironmentList {
 export interface EnvironmentResponse {
   success: boolean;
   data: Environment;
+}
+
+export interface DataPlaneListData {
+  items: DataPlane[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface DataPlaneList {
+  success: boolean;
+  data: DataPlaneListData;
+}
+
+export interface DataPlaneResponse {
+  success: boolean;
+  data: DataPlane;
+}
+
+export interface ComponentObserverResponse {
+  success: boolean;
+  data: ComponentObserver;
+}
+
+export interface ApplyResponse {
+  success: boolean;
+  data: ApplyResourceResponse;
+}
+
+export interface DeleteResponse {
+  success: boolean;
+  data: DeleteResourceResponse;
 }

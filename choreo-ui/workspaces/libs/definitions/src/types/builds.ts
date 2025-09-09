@@ -16,4 +16,5 @@ export interface Build {
   commit: string;
   status: "pending" | "in_progress" | "completed" | "failed";
   createdAt: string;
+  image?: string;
 }

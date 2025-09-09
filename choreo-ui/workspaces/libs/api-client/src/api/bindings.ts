@@ -1,4 +1,4 @@
-import { ComponentBinding } from "@open-choreo/definitions";
+import { UpdateBindingRequest } from "@open-choreo/definitions";
 import { apiRequest, type ApiConfig } from "../core/config";
 import type {
   ComponentBindingList,
@@ -10,6 +10,7 @@ export interface BindingsApi {
     orgName: string,
     projectName: string,
     componentName: string,
+    environments?: string[],
     config?: ApiConfig,
   ): Promise<ComponentBindingList>;
   updateComponentBinding(
@@ -17,7 +18,7 @@ export interface BindingsApi {
     projectName: string,
     componentName: string,
     bindingName: string,
-    data: ComponentBinding,
+    data: UpdateBindingRequest,
     config?: ApiConfig,
   ): Promise<ComponentBindingResponse>;
 }
@@ -35,13 +36,20 @@ export const bindingsApi: BindingsApi = {
     orgName: string,
     projectName: string,
     componentName: string,
+    environments?: string[],
     config?: ApiConfig,
   ): Promise<ComponentBindingList> {
     const encodedOrgName = encodeURIComponent(orgName);
     const encodedProjectName = encodeURIComponent(projectName);
     const encodedComponentName = encodeURIComponent(componentName);
+    // eslint-disable-next-line max-len
+    const base = `/api/v1/orgs/${encodedOrgName}/projects/${encodedProjectName}/components/${encodedComponentName}/bindings`;
+    const query =
+      environments && environments.length > 0
+        ? `?${environments.map((e) => `environment=${encodeURIComponent(e)}`).join("&")}`
+        : "";
     return apiRequest<ComponentBindingList>(
-      `/api/v1/orgs/${encodedOrgName}/projects/${encodedProjectName}/components/${encodedComponentName}/bindings`,
+      `${base}${query}`,
       { method: "GET" },
       config,
     );
@@ -62,7 +70,7 @@ export const bindingsApi: BindingsApi = {
     projectName: string,
     componentName: string,
     bindingName: string,
-    data: ComponentBinding,
+    data: UpdateBindingRequest,
     config?: ApiConfig,
   ): Promise<ComponentBindingResponse> {
     const encodedOrgName = encodeURIComponent(orgName);
@@ -76,9 +84,7 @@ export const bindingsApi: BindingsApi = {
       url,
       {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       },
       config,

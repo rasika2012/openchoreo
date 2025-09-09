@@ -4,3 +4,7 @@ export * from "./bindings";
 export * from "./deployment-pipeline";
 export * from "./workloads";
 export * from "./environment";
+export * from "./org-project-component";
+export * from "./observer";
+export * from "./dataplane";
+export * from "./apply-delete";

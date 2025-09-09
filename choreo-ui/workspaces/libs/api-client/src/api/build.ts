@@ -14,6 +14,7 @@ export interface BuildsApi {
     orgName: string,
     projectName: string,
     componentName: string,
+    commit?: string,
     config?: ApiConfig,
   ): Promise<Build>;
 }
@@ -71,13 +72,15 @@ export const buildsApi: BuildsApi = {
     orgName: string,
     projectName: string,
     componentName: string,
+    commit?: string,
     config?: ApiConfig,
   ): Promise<Build> {
     const encodedOrgName = encodeURIComponent(orgName);
     const encodedProjectName = encodeURIComponent(projectName);
     const encodedComponentName = encodeURIComponent(componentName);
+    const query = commit ? `?commit=${encodeURIComponent(commit)}` : "";
     return apiRequest<Build>(
-      `/api/v1/orgs/${encodedOrgName}/projects/${encodedProjectName}/components/${encodedComponentName}/builds`,
+      `/api/v1/orgs/${encodedOrgName}/projects/${encodedProjectName}/components/${encodedComponentName}/builds${query}`,
       { method: "POST" },
       config,
     );

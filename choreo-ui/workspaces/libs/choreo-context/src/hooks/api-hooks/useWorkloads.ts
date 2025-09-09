@@ -1,7 +1,7 @@
 import { WorkloadList, WorkloadResponse } from "@open-choreo/api-client";
 import { CreateWorkloadRequest } from "@open-choreo/definitions";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useClient } from "./useClients";
+import { useClient } from "../useClients";
 
 export const useWorkloads = (
   orgHandle: string,

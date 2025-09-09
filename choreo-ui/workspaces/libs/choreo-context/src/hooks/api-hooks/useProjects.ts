@@ -1,6 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-import { useClient } from "./useClients";
-import { useOrgHandle, useProjectHandle } from "./useUrlParams";
+import { Project } from "@open-choreo/api-client";
+import { CreateProjectRequest } from "@open-choreo/definitions";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useClient } from "../useClients";
+import { useOrgHandle, useProjectHandle } from "../useUrlParams";
 
 export const useProjectList = (orgName: string) => {
   const client = useClient();
@@ -51,4 +53,25 @@ export const useSelectedProject = () => {
     isFetching,
     refetch,
   };
+};
+
+export const useCreateProject = (orgName: string) => {
+  const client = useClient();
+  const queryClient = useQueryClient();
+
+  const { data, error, isPending, mutate } = useMutation<
+    Project,
+    Error,
+    CreateProjectRequest
+  >({
+    mutationFn: (payload: CreateProjectRequest) =>
+      client.createProject(orgName, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["projects", orgName, client],
+      });
+    },
+  });
+
+  return { createProject: mutate, error, loading: isPending, data };
 };

@@ -1,7 +1,7 @@
 import { EnvironmentList, EnvironmentResponse } from "@open-choreo/api-client";
 import { CreateEnvironmentRequest } from "@open-choreo/definitions";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useClient } from "./useClients";
+import { useClient } from "../useClients";
 
 export const useEnvironments = (orgHandle: string) => {
   const client = useClient();

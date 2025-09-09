@@ -15,7 +15,6 @@ export default class CreatePluginGenerator extends Generator {
 
   writing() {
     const name = this.name;
-    const destRoot = this.destinationPath(name);
     const safeName = name.replace(/[^a-zA-Z0-9]/g, "");
 
     // Create from templates

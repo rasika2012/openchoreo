@@ -24,10 +24,27 @@ export interface ComponentItem {
   projectName: string;
   description: string;
   orgName: string;
-  repositoryUrl: string;
-  branch: string;
   createdAt: string;
   status: string;
+  buildConfig?: BuildConfig;
+  service?: Record<string, unknown>;
+  webApplication?: Record<string, unknown>;
+  scheduledTask?: Record<string, unknown>;
+  api?: Record<string, unknown>;
+  workload?: Record<string, unknown>;
 }
 
 export type Resource = OrganizationItem | ProjectItem | ComponentItem;
+
+export interface BuildConfig {
+  repoUrl?: string;
+  repoBranch?: string;
+  componentPath?: string;
+  buildTemplateRef?: string;
+  buildTemplateParams?: TemplateParameter[];
+}
+
+export interface TemplateParameter {
+  name: string;
+  value: string;
+}
