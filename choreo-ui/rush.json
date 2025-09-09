@@ -501,6 +501,14 @@
     {
       "packageName": "@open-choreo/eslint-config",
       "projectFolder": "workspaces/packages/eslint-config"
+    },
+    {
+      "packageName": "@open-choreo/generator-occ",
+      "projectFolder": "workspaces/libs/occ-generator"
     }
-  ]
+,
+    {
+      "packageName": "@open-choreo/example",
+      "projectFolder": "workspaces/plugins/example"
+    }  ]
 }

@@ -1,0 +1,9 @@
+import { type PluginExtension,  coreExtensionPoints } from "@open-choreo/plugin-core";
+import React from "react";
+const <%= name.replace(/[^a-zA-Z0-9]/g, '') %>Panel = React.lazy(() => import("./<%= name.replace(/[^a-zA-Z0-9]/g, '') %>Panel"));
+
+export const panel: PluginExtension = {
+    extensionPoint: coreExtensionPoints.headerLeft,
+    key: "<%= name %>",
+    component: <%= name.replace(/[^a-zA-Z0-9]/g, '') %>Panel,
+};

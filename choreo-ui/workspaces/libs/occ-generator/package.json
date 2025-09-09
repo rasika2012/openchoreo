@@ -1,0 +1,32 @@
+{
+  "name": "@open-choreo/generator-occ",
+  "version": "0.1.0",
+  "description": "Yeoman generator for Open Choreo Console components and scaffolds",
+  "type": "module",
+  "main": "",
+  "files": [
+    "generators"
+  ],
+  "keywords": [
+    "yeoman-generator",
+    "scaffold",
+    "open-choreo"
+  ],
+  "author": "",
+  "license": "Apache-2.0 license",
+  "scripts": {
+    "lint": "eslint . --config ./eslint.config.js",
+    "test": "echo \"No tests configured\" && exit 0"
+  },
+  "dependencies": {
+    "yeoman-generator": "~5.10.0"
+  },
+  "devDependencies": {
+    "@open-choreo/eslint-config": "workspace:*",
+    "@eslint/eslintrc": "~3.3.1",
+    "eslint": "~9.28.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
