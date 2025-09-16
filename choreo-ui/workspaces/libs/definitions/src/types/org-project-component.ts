@@ -47,6 +47,12 @@ export interface PromoteComponentRequest {
   targetEnv: string;
 }
 
+export enum ReleaseStateValues {
+  Active = "Active",
+  Suspend = "Suspend",
+  Undeploy = "Undeploy",
+}
+
 export interface UpdateBindingRequest {
-  releaseState: "Active" | "Suspend" | "Undeploy";
+  releaseState: ReleaseStateValues;
 }

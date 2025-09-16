@@ -1,6 +1,6 @@
-import { CreateComponentRequest } from "@open-choreo/definitions";
+import { CreateComponentRequest, PromoteComponentRequest } from "@open-choreo/definitions";
 import { apiRequest, type ApiConfig } from "../core/config";
-import { type Component, type ComponentList } from "../types/types";
+import { type Component, type ComponentList, type PromoteComponentResponse } from "../types/types";
 
 export interface ComponentsApi {
   listProjectComponents(
@@ -20,6 +20,13 @@ export interface ComponentsApi {
     data: CreateComponentRequest,
     config?: ApiConfig,
   ): Promise<Component>;
+  promoteComponent(
+    orgName: string,
+    projectName: string,
+    componentName: string,
+    data: PromoteComponentRequest,
+    config?: ApiConfig,
+  ): Promise<PromoteComponentResponse>;
 }
 
 export const componentsApi: ComponentsApi = {
@@ -75,6 +82,35 @@ export const componentsApi: ComponentsApi = {
     const encodedProjectName = encodeURIComponent(projectName);
     return apiRequest<Component>(
       `/api/v1/orgs/${orgName}/projects/${encodedProjectName}/components`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      },
+      config,
+    );
+  },
+
+  /**
+   * Promote component to next environment
+   * @param orgName - Name of the organization
+   * @param projectName - Name of the project
+   * @param componentName - Name of the component
+   * @param data - Promotion request data with source and target environments
+   * @param config - Optional API configuration
+   * @returns Promise<PromoteComponentResponse> - List of created bindings for target environment(s)
+   */
+  async promoteComponent(
+    orgName: string,
+    projectName: string,
+    componentName: string,
+    data: PromoteComponentRequest,
+    config?: ApiConfig,
+  ): Promise<PromoteComponentResponse> {
+    const encodedProjectName = encodeURIComponent(projectName);
+    const encodedComponentName = encodeURIComponent(componentName);
+    return apiRequest<PromoteComponentResponse>(
+      `/api/v1/orgs/${orgName}/projects/${encodedProjectName}/components/${encodedComponentName}/promote`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

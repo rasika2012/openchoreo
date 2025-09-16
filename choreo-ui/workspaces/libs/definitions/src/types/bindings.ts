@@ -1,3 +1,11 @@
+export enum BindingStatusValues {
+  InProgress = "InProgress",
+  Active = "Active",
+  Failed = "Failed",
+  Suspended = "Suspended",
+  NotYetDeployed = "NotYetDeployed",
+}
+
 export interface ComponentBinding {
   name: string;
   type: string;
@@ -14,12 +22,7 @@ export interface ComponentBinding {
 export interface BindingStatus {
   reason: string;
   message: string;
-  status:
-    | "InProgress"
-    | "Active"
-    | "Failed"
-    | "Suspended"
-    | "NotYetDeployed";
+  status: BindingStatusValues;
   lastTransitioned: string;
 }
 

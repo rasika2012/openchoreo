@@ -12,6 +12,7 @@ import {
   ComponentObserver,
   ApplyResourceResponse,
   DeleteResourceResponse,
+  PromoteComponentRequest,
 } from "@open-choreo/definitions";
 
 export interface OrganizationListData {
@@ -175,4 +176,10 @@ export interface ApplyResponse {
 export interface DeleteResponse {
   success: boolean;
   data: DeleteResourceResponse;
+}
+
+// Promote Component Response - returns list of created bindings
+export interface PromoteComponentResponse {
+  success: boolean;
+  data: ComponentBindingListData;
 }

@@ -1,9 +1,13 @@
+import { useEffect, useState } from "react";
 import {
   ComponentBindingList,
   ComponentBindingResponse,
 } from "@open-choreo/api-client";
-import { UpdateBindingRequest } from "@open-choreo/definitions";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  BindingStatusValues,
+  UpdateBindingRequest,
+} from "@open-choreo/definitions";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useClient } from "../useClients";
 
 export const useComponentBindings = (
@@ -12,7 +16,11 @@ export const useComponentBindings = (
   componentHandle: string,
 ) => {
   const client = useClient();
-  const { data, error, isLoading } = useQuery<ComponentBindingList, Error>({
+  const [enableAutoRefresh, setEnableAutoRefresh] = useState(false);
+  const { data, error, isLoading, refetch } = useQuery<
+    ComponentBindingList,
+    Error
+  >({
     queryKey: [
       "componentBindings",
       client,
@@ -22,8 +30,22 @@ export const useComponentBindings = (
     ],
     queryFn: () =>
       client.listComponentBindings(orgHandle, projectHandle, componentHandle),
+    refetchInterval: enableAutoRefresh ? 5000 : false,
   });
-  return { bindings: data, error, loading: isLoading };
+
+  useEffect(() => {
+    if (
+      data?.data?.items?.some(
+        (item) => item.status.status === BindingStatusValues.InProgress,
+      )
+    ) {
+      setEnableAutoRefresh(true);
+    }
+    return () => {
+      setEnableAutoRefresh(false);
+    };
+  }, [data?.data?.items, enableAutoRefresh, refetch]);
+  return { bindings: data, error, loading: isLoading, refetch };
 };
 
 export const useUpdateComponentBinding = (
@@ -33,6 +55,7 @@ export const useUpdateComponentBinding = (
   bindingName: string,
 ) => {
   const client = useClient();
+  const queryClient = useQueryClient();
   const { data, error, isPending, mutate } = useMutation<
     ComponentBindingResponse,
     Error,
@@ -46,6 +69,17 @@ export const useUpdateComponentBinding = (
         bindingName,
         updateData,
       ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          "componentBindings",
+          client,
+          orgHandle,
+          projectHandle,
+          componentHandle,
+        ],
+      });
+    },
   });
   return { updateBinding: mutate, error, loading: isPending, data };
 };

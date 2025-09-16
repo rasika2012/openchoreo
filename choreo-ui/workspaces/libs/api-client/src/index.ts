@@ -72,6 +72,7 @@ export type {
   ComponentObserverResponse,
   ApplyResponse,
   DeleteResponse,
+  PromoteComponentResponse,
 } from "./types/types";
 
 // Default export

@@ -1,8 +1,13 @@
 import {
+  type Build,
+  BuildStatusValues,
+  BindingStatusValues,
+  type ComponentBinding,
   type ComponentItem,
   type ProjectItem,
   type Resource,
-} from "../types/resource";
+  ReleaseStateValues,
+} from "../types";
 
 export function getResourceDisplayName(resource: Resource) {
   return resource?.displayName || resource?.name;
@@ -30,4 +35,16 @@ export function getResourceName(resource: Resource) {
 
 export function getComponentType(component: ComponentItem) {
   return component?.type || "";
+}
+
+export function isBindingInProgress(binding: ComponentBinding) {
+  return binding.status.status === BindingStatusValues.InProgress;
+}
+
+export function isBuildInProgress(build: Build) {
+  return build.status === BuildStatusValues.InProgress;
+}
+
+export function isReleaseStateActive(releaseState: ReleaseStateValues) {
+  return releaseState === ReleaseStateValues.Active;
 }

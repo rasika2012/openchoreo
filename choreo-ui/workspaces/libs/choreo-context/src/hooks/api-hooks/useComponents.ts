@@ -1,5 +1,8 @@
-import { Component } from "@open-choreo/api-client";
-import { CreateComponentRequest } from "@open-choreo/definitions";
+import { Component, PromoteComponentResponse } from "@open-choreo/api-client";
+import {
+  CreateComponentRequest,
+  PromoteComponentRequest,
+} from "@open-choreo/definitions";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useClient } from "../useClients";
 import {
@@ -89,4 +92,43 @@ export const useCreateComponent = (orgName: string, projectId: string) => {
   });
 
   return { createComponent: mutate, error, loading: isPending, data };
+};
+
+export const usePromoteComponent = (
+  orgName: string,
+  projectId: string,
+  componentId: string,
+) => {
+  const client = useClient();
+  const queryClient = useQueryClient();
+
+  const { data, error, isPending, mutate } = useMutation<
+    PromoteComponentResponse,
+    Error,
+    PromoteComponentRequest
+  >({
+    mutationFn: (payload: PromoteComponentRequest) =>
+      client.promoteComponent(orgName, projectId, componentId, payload),
+    onSuccess: () => {
+      // Invalidate bindings queries since promotion creates new bindings
+      queryClient.invalidateQueries({
+        queryKey: ["bindings"],
+      });
+      // Also invalidate component data
+      queryClient.invalidateQueries({
+        queryKey: ["component", projectId, componentId, orgName, client],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          "componentBindings",
+          client,
+          orgName,
+          projectId,
+          componentId,
+        ],
+      });
+    },
+  });
+
+  return { promoteComponent: mutate, error, loading: isPending, data };
 };
