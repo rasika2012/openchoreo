@@ -50,10 +50,10 @@ export type { ResourceOpsApi } from "./api/resource-ops";
 export type {
   OrganizationList,
   OrganizationListData,
-  Organization,
-  Project,
+  OrganizationResponse,
+  ProjectResponse,
   ProjectList,
-  Component,
+  ComponentResponse,
   ComponentList,
   BuildList,
   BuildPlaneList,

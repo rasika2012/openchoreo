@@ -3,10 +3,7 @@ import {
   usePromoteComponent,
   useUpdateComponentBinding,
 } from "@open-choreo/choreo-context";
-import {
-  ReleaseStateValues,
-  TargetEnvironmentRef,
-} from "@open-choreo/definitions";
+import { ReleaseState, TargetEnvironmentRef } from "@open-choreo/definitions";
 import { Button, PromoteIcon } from "@open-choreo/design-system";
 import {
   useOrgHandle,
@@ -44,7 +41,7 @@ export function PromoteButton({ fromEnv, toEnv }: PromoteButtonProps) {
     } catch (error) {
       console.error("Failed to promote component:", error);
       // Fallback to the old method
-      updateTargetBinding({ releaseState: ReleaseStateValues.Active });
+      updateTargetBinding({ releaseState: ReleaseState.ACTIVE });
     }
   };
 

@@ -1,18 +1,18 @@
 import {
-  BindingStatusValues,
-  ComponentBinding,
+  BindingStatus,
+  Binding,
 } from '@open-choreo/definitions';
 import { Box, Status, Typography } from '@open-choreo/design-system';
 export interface EnvDeploymentContentProps {
-  binding?: ComponentBinding;
+  binding?: Binding;
 }
 
 const statusSeverity = {
-  [BindingStatusValues.Active]: 'success',
-  [BindingStatusValues.Failed]: 'error',
-  [BindingStatusValues.InProgress]: 'warning',
-  [BindingStatusValues.Suspended]: 'warning',
-  [BindingStatusValues.NotYetDeployed]: 'info',
+  [BindingStatus.ACTIVE]: 'success',
+  [BindingStatus.FAILED]: 'error',
+  [BindingStatus.IN_PROGRESS]: 'warning',
+  [BindingStatus.SUSPENDED]: 'warning',
+  [BindingStatus.NOT_YET_DEPLOYED]: 'info',
 };
 
 export function EnvDeploymentContent(props: EnvDeploymentContentProps) {

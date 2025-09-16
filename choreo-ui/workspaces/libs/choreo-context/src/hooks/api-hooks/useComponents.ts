@@ -1,4 +1,7 @@
-import { Component, PromoteComponentResponse } from "@open-choreo/api-client";
+import {
+  ComponentResponse,
+  PromoteComponentResponse,
+} from "@open-choreo/api-client";
 import {
   CreateComponentRequest,
   PromoteComponentRequest,
@@ -78,7 +81,7 @@ export const useCreateComponent = (orgName: string, projectId: string) => {
   const queryClient = useQueryClient();
 
   const { data, error, isPending, mutate } = useMutation<
-    Component,
+    ComponentResponse,
     Error,
     CreateComponentRequest
   >({

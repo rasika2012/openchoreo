@@ -1,6 +1,13 @@
-import { CreateComponentRequest, PromoteComponentRequest } from "@open-choreo/definitions";
+import {
+  CreateComponentRequest,
+  PromoteComponentRequest,
+} from "@open-choreo/definitions";
 import { apiRequest, type ApiConfig } from "../core/config";
-import { type Component, type ComponentList, type PromoteComponentResponse } from "../types/types";
+import {
+  type ComponentResponse,
+  type ComponentList,
+  type PromoteComponentResponse,
+} from "../types/types";
 
 export interface ComponentsApi {
   listProjectComponents(
@@ -13,13 +20,13 @@ export interface ComponentsApi {
     projectName: string,
     componentName: string,
     config?: ApiConfig,
-  ): Promise<Component>;
+  ): Promise<ComponentResponse>;
   createComponent(
     orgName: string,
     projectName: string,
     data: CreateComponentRequest,
     config?: ApiConfig,
-  ): Promise<Component>;
+  ): Promise<ComponentResponse>;
   promoteComponent(
     orgName: string,
     projectName: string,
@@ -56,17 +63,17 @@ export const componentsApi: ComponentsApi = {
    * @param projectName - Name of the project
    * @param componentName - Name of the component
    * @param config - Optional API configuration
-   * @returns Promise<Component> - Component details
+   * @returns Promise<ComponentResponse> - Component details
    */
   async getComponent(
     orgName: string,
     projectName: string,
     componentName: string,
     config?: ApiConfig,
-  ): Promise<Component> {
+  ): Promise<ComponentResponse> {
     const encodedProjectName = encodeURIComponent(projectName);
     const encodedComponentName = encodeURIComponent(componentName);
-    return apiRequest<Component>(
+    return apiRequest<ComponentResponse>(
       `/api/v1/orgs/${orgName}/projects/${encodedProjectName}/components/${encodedComponentName}`,
       { method: "GET" },
       config,
@@ -78,9 +85,9 @@ export const componentsApi: ComponentsApi = {
     projectName: string,
     data: CreateComponentRequest,
     config?: ApiConfig,
-  ): Promise<Component> {
+  ): Promise<ComponentResponse> {
     const encodedProjectName = encodeURIComponent(projectName);
-    return apiRequest<Component>(
+    return apiRequest<ComponentResponse>(
       `/api/v1/orgs/${orgName}/projects/${encodedProjectName}/components`,
       {
         method: "POST",

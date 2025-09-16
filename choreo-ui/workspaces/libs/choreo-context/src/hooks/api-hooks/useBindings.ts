@@ -3,10 +3,7 @@ import {
   ComponentBindingList,
   ComponentBindingResponse,
 } from "@open-choreo/api-client";
-import {
-  BindingStatusValues,
-  UpdateBindingRequest,
-} from "@open-choreo/definitions";
+import { BindingStatus, UpdateBindingRequest } from "@open-choreo/definitions";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useClient } from "../useClients";
 
@@ -36,7 +33,7 @@ export const useComponentBindings = (
   useEffect(() => {
     if (
       data?.data?.items?.some(
-        (item) => item.status.status === BindingStatusValues.InProgress,
+        (item) => item.status.status === BindingStatus.IN_PROGRESS,
       )
     ) {
       setEnableAutoRefresh(true);

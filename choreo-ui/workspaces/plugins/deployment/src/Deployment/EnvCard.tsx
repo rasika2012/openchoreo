@@ -3,7 +3,7 @@ import {
   useEnvironments,
   useUpdateComponentBinding,
 } from "@open-choreo/choreo-context";
-import { ReleaseStateValues } from "@open-choreo/definitions";
+import { ReleaseState } from "@open-choreo/definitions";
 import { Box } from "@open-choreo/design-system";
 import {
   useComponentHandle,
@@ -45,12 +45,12 @@ export default function EnvCard({ env }: EnvCardProps) {
       }}
       onRedeploy={() => {
         updateBinding({
-          releaseState: ReleaseStateValues.Active,
+          releaseState: ReleaseState.ACTIVE,
         });
       }}
       onStop={() => {
         updateBinding({
-          releaseState: ReleaseStateValues.Suspend,
+          releaseState: ReleaseState.SUSPEND,
         });
       }}
     >
