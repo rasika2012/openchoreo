@@ -17,17 +17,17 @@ import { type ApiConfig, defaultConfig } from "./config";
 
 export interface ChoreoApiClient
   extends ProjectsApi,
-    ComponentsApi,
-    OrganizationApi,
-    BindingsApi,
-    BuildsApi,
-    DeploymentPipelineApi,
-    WorkloadsApi,
-    EnvironmentsApi,
-    DataPlanesApi,
-    ObserverApi,
-    HealthApi,
-    ResourceOpsApi {
+  ComponentsApi,
+  OrganizationApi,
+  BindingsApi,
+  BuildsApi,
+  DeploymentPipelineApi,
+  WorkloadsApi,
+  EnvironmentsApi,
+  DataPlanesApi,
+  ObserverApi,
+  HealthApi,
+  ResourceOpsApi {
   config: ApiConfig;
   setConfig(config: Partial<ApiConfig>): void;
 }
@@ -69,6 +69,24 @@ export class ChoreoClient implements ChoreoApiClient {
       orgName,
       projectName,
       componentName,
+      this.config,
+    );
+  createComponent = (
+    orgName: string,
+    projectName: string,
+    data: Parameters<typeof componentsApi.createComponent>[2],
+  ) => componentsApi.createComponent(orgName, projectName, data, this.config);
+  promoteComponent = (
+    orgName: string,
+    projectName: string,
+    componentName: string,
+    data: Parameters<typeof componentsApi.promoteComponent>[3],
+  ) =>
+    componentsApi.promoteComponent(
+      orgName,
+      projectName,
+      componentName,
+      data,
       this.config,
     );
   createComponent = (
