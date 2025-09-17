@@ -23,7 +23,7 @@ export function EnvDeploymentContent(props: EnvDeploymentContentProps) {
       <Status
         severity={
           statusSeverity[
-            binding?.status?.status as keyof typeof statusSeverity
+          binding?.status?.status as keyof typeof statusSeverity
           ] as 'success' | 'error' | 'warning' | 'info'
         }
         title="Deployment Status"
