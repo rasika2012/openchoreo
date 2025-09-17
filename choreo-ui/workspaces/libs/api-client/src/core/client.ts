@@ -89,11 +89,6 @@ export class ChoreoClient implements ChoreoApiClient {
       data,
       this.config,
     );
-  createComponent = (
-    orgName: string,
-    projectName: string,
-    data: Parameters<typeof componentsApi.createComponent>[2],
-  ) => componentsApi.createComponent(orgName, projectName, data, this.config);
 
   // Organization API methods
   listOrganizations = () => organizationApi.listOrganizations(this.config);
